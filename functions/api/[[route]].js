@@ -96,6 +96,7 @@ async function ensureTables(db) {
     id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL,
     exam_id INTEGER NOT NULL, granted_by INTEGER,
     granted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME,
     UNIQUE(user_id, exam_id))`).run();
 }
 
@@ -151,7 +152,6 @@ async function handleAuth(method, path, body, db) {
 async function handleExams(method, path, body, db, user) {
   if (!user) return err('Unauthorized', 401);
 
-  // GET /api/exams/
   if (method === 'GET' && path === '/') {
     const allExams = await db.prepare('SELECT * FROM exams ORDER BY created_at DESC').all();
     const exams = [];
@@ -160,32 +160,43 @@ async function handleExams(method, path, body, db, user) {
       const stored = await db.prepare(
         'SELECT id,score,total_questions,percentage FROM exam_results_stored WHERE user_id=? AND exam_id=? AND is_first_attempt=1 ORDER BY submitted_at DESC LIMIT 1'
       ).bind(user.id, exam.id).first();
+      
       let accessible = !exam.is_premium;
       if (exam.is_premium && user.is_admin) accessible = true;
       if (exam.is_premium && !accessible) {
-        const grant = await db.prepare('SELECT id FROM premium_access WHERE user_id=? AND exam_id=?').bind(user.id, exam.id).first();
-        if (grant) accessible = true;
+        const grant = await db.prepare(
+          'SELECT id, expires_at FROM premium_access WHERE user_id=? AND exam_id=?'
+        ).bind(user.id, exam.id).first();
+        if (grant) {
+          // Check if not expired
+          if (!grant.expires_at || new Date(grant.expires_at + ' UTC') > new Date()) {
+            accessible = true;
+          }
+        }
       }
       exams.push({ ...exam, question_count: qCount.cnt, stored_attempt: stored, accessible });
     }
     return json(exams);
   }
 
-  // GET /api/exams/:id/questions
   if (method === 'GET' && path.match(/^\/\d+\/questions$/)) {
     const examId = parseInt(path.split('/')[1]);
     const exam = await db.prepare('SELECT * FROM exams WHERE id=?').bind(examId).first();
     if (!exam) return err('Exam not found', 404);
     if (exam.is_premium && !user.is_admin) {
-      const grant = await db.prepare('SELECT id FROM premium_access WHERE user_id=? AND exam_id=?').bind(user.id, examId).first();
+      const grant = await db.prepare(
+        'SELECT id, expires_at FROM premium_access WHERE user_id=? AND exam_id=?'
+      ).bind(user.id, examId).first();
       if (!grant) return err('Premium access required', 403);
+      if (grant.expires_at && new Date(grant.expires_at + ' UTC') <= new Date()) {
+        return err('Premium access expired', 403);
+      }
     }
     const questions = await db.prepare('SELECT * FROM questions WHERE exam_id=? ORDER BY id').bind(examId).all();
     const safeQuestions = questions.results.map(({ correct_answer, ...q }) => q);
     return json({ exam, questions: safeQuestions });
   }
 
-  // POST /api/exams/:id/submit
   if (method === 'POST' && path.match(/^\/\d+\/submit$/)) {
     const examId = parseInt(path.split('/')[1]);
     const { answers, is_practice } = body;
@@ -240,7 +251,6 @@ async function handleExams(method, path, body, db, user) {
     });
   }
 
-  // GET /api/exams/:id/result/:attemptId
   if (method === 'GET' && path.match(/^\/\d+\/result\/\d+$/)) {
     const parts = path.split('/');
     const examId = parseInt(parts[1]);
@@ -266,7 +276,7 @@ async function handleAdmin(method, path, body, db, user) {
   if (!user) return err('Unauthorized', 401);
   if (!user.is_admin) return err('Admin access required', 403);
 
-  // POST /api/admin/exams — create exam
+  // POST /api/admin/exams
   if (method === 'POST' && path === '/exams') {
     const { name, description, time_limit, is_premium, negative_marking, allow_practice } = body;
     if (!name) return err('Exam name required');
@@ -276,7 +286,7 @@ async function handleAdmin(method, path, body, db, user) {
     return json({ id: result.meta.last_row_id, message: 'Exam created' });
   }
 
-  // PUT /api/admin/exams/:id — edit exam
+  // PUT /api/admin/exams/:id
   if (method === 'PUT' && path.match(/^\/exams\/\d+$/)) {
     const examId = parseInt(path.split('/')[2]);
     const { name, description, time_limit, is_premium, negative_marking, allow_practice } = body;
@@ -294,7 +304,7 @@ async function handleAdmin(method, path, body, db, user) {
     return json({ message: 'Exam updated' });
   }
 
-  // DELETE /api/admin/exams/:id — delete exam
+  // DELETE /api/admin/exams/:id
   if (method === 'DELETE' && path.match(/^\/exams\/\d+$/)) {
     const examId = parseInt(path.split('/')[2]);
     await db.prepare('DELETE FROM questions WHERE exam_id=?').bind(examId).run();
@@ -305,7 +315,7 @@ async function handleAdmin(method, path, body, db, user) {
     return json({ message: 'Exam deleted' });
   }
 
-  // DELETE /api/admin/results/:id — delete specific result
+  // DELETE /api/admin/results/:id
   if (method === 'DELETE' && path.match(/^\/results\/\d+$/)) {
     const resultId = parseInt(path.split('/')[2]);
     await db.prepare('DELETE FROM exam_results_stored WHERE id=?').bind(resultId).run();
@@ -313,7 +323,28 @@ async function handleAdmin(method, path, body, db, user) {
     return json({ message: 'Result deleted' });
   }
 
-  // POST /api/admin/questions/bulk — CSV upload
+  // DELETE /api/admin/questions/:examId — delete all questions for an exam
+  if (method === 'DELETE' && path.match(/^\/questions\/\d+$/)) {
+    const examId = parseInt(path.split('/')[2]);
+    await db.prepare('DELETE FROM questions WHERE exam_id=?').bind(examId).run();
+    return json({ message: 'Questions deleted' });
+  }
+
+  // DELETE /api/admin/questions/single/:id
+  if (method === 'DELETE' && path.match(/^\/questions\/single\/\d+$/)) {
+    const qId = parseInt(path.split('/')[3]);
+    await db.prepare('DELETE FROM questions WHERE id=?').bind(qId).run();
+    return json({ message: 'Question deleted' });
+  }
+
+  // GET /api/admin/questions/:examId
+  if (method === 'GET' && path.match(/^\/questions\/\d+$/)) {
+    const examId = parseInt(path.split('/')[2]);
+    const questions = await db.prepare('SELECT * FROM questions WHERE exam_id=? ORDER BY id').bind(examId).all();
+    return json(questions.results);
+  }
+
+  // POST /api/admin/questions/bulk
   if (method === 'POST' && path === '/questions/bulk') {
     const { exam_id, csv } = body;
     if (!exam_id || !csv) return err('exam_id and csv required');
@@ -346,12 +377,23 @@ async function handleAdmin(method, path, body, db, user) {
 
   // POST /api/admin/grant-premium
   if (method === 'POST' && path === '/grant-premium') {
-    const { user_id, exam_id } = body;
+    const { user_id, exam_id, duration_hours } = body;
     if (!user_id || !exam_id) return err('user_id and exam_id required');
+    
+    let expires_at = null;
+    if (duration_hours && duration_hours > 0) {
+      const expiry = new Date(Date.now() + duration_hours * 60 * 60 * 1000);
+      expires_at = expiry.toISOString().replace('T',' ').substring(0,19);
+    }
+    
     try {
-      await db.prepare('INSERT OR IGNORE INTO premium_access (user_id,exam_id,granted_by) VALUES (?,?,?)')
-        .bind(user_id, exam_id, user.id).run();
-      return json({ message: 'Premium access granted' });
+      // Delete existing grant first
+      await db.prepare('DELETE FROM premium_access WHERE user_id=? AND exam_id=?').bind(user_id, exam_id).run();
+      // Insert new grant
+      await db.prepare(
+        'INSERT INTO premium_access (user_id,exam_id,granted_by,expires_at) VALUES (?,?,?,?)'
+      ).bind(user_id, exam_id, user.id, expires_at).run();
+      return json({ message: 'Premium access granted', expires_at });
     } catch(e) { return err(e.message); }
   }
 
@@ -362,7 +404,7 @@ async function handleAdmin(method, path, body, db, user) {
     return json({ message: 'Access revoked' });
   }
 
-  // GET /api/admin/results — all first attempts
+  // GET /api/admin/results
   if (method === 'GET' && path === '/results') {
     const results = await db.prepare(`
       SELECT ea.*, u.name as user_name, u.email as user_email, e.name as exam_name
@@ -375,7 +417,7 @@ async function handleAdmin(method, path, body, db, user) {
     return json(results.results);
   }
 
-  // GET /api/admin/results/:examId — results per exam
+  // GET /api/admin/results/:examId
   if (method === 'GET' && path.match(/^\/results\/\d+$/)) {
     const examId = parseInt(path.split('/')[2]);
     const results = await db.prepare(`
