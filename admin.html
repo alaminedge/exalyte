@@ -23,8 +23,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 .logo img{width:26px;height:26px;border-radius:4px}
 .admin-tag{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-top:3px;font-weight:600}
 .nav-section{padding:6px 0}
-.nav-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.11em;color:var(--muted);
-  font-weight:700;padding:10px 18px 4px}
+.nav-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.11em;color:var(--muted);font-weight:700;padding:10px 18px 4px}
 .nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:0.82rem;font-weight:500;
   color:var(--muted);cursor:pointer;border:none;background:transparent;width:100%;text-align:left;
   transition:all var(--transition);border-left:2px solid transparent;font-family:'Inter',sans-serif}
@@ -93,7 +92,7 @@ tr:hover td{background:rgba(255,255,255,0.015)}
 .badge-premium{background:rgba(168,85,247,0.08);color:var(--premium)}
 .badge-pass{background:rgba(34,197,94,0.08);color:var(--success)}
 .badge-fail{background:rgba(239,68,68,0.08);color:var(--error)}
-.badge-expiring{background:rgba(240,192,64,0.08);color:#f0c040}
+.badge-account{background:rgba(99,102,241,0.08);color:var(--accent2)}
 .alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:0.82rem;margin-bottom:14px;line-height:1.4}
 .alert-error{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);color:var(--error)}
 .alert-success{background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);color:var(--success)}
@@ -131,59 +130,29 @@ tr:hover td{background:rgba(255,255,255,0.015)}
 </head>
 <body>
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-top">
-    <div class="logo"><img src="/images/exalyte.png" alt="Exalyte">Exalyte</div>
-    <div class="admin-tag">Administration</div>
-  </div>
-  <div class="nav-section"><div class="nav-label">Overview</div>
-    <button class="nav-item active" onclick="showView('dashboard')">Dashboard</button></div>
-  <div class="nav-section"><div class="nav-label">Examinations</div>
-    <button class="nav-item" onclick="showView('createExam')">Create Exam</button>
-    <button class="nav-item" onclick="showView('exams')">All Exams</button>
-    <button class="nav-item" onclick="showView('uploadCSV')">Upload Questions</button></div>
-  <div class="nav-section"><div class="nav-label">Management</div>
-    <button class="nav-item" onclick="showView('users')">Users</button>
-    <button class="nav-item" onclick="showView('results')">Results</button></div>
-  <div class="sidebar-footer">
-    <div class="user-info" id="adminEmail"></div>
-    <button class="btn-logout" onclick="logout()">Sign Out</button></div>
+  <div class="sidebar-top"><div class="logo"><img src="/images/exalyte.png" alt="Exalyte">Exalyte</div><div class="admin-tag">Administration</div></div>
+  <div class="nav-section"><div class="nav-label">Overview</div><button class="nav-item active" onclick="showView('dashboard')">Dashboard</button></div>
+  <div class="nav-section"><div class="nav-label">Examinations</div><button class="nav-item" onclick="showView('createExam')">Create Exam</button><button class="nav-item" onclick="showView('exams')">All Exams</button><button class="nav-item" onclick="showView('uploadCSV')">Upload Questions</button></div>
+  <div class="nav-section"><div class="nav-label">Management</div><button class="nav-item" onclick="showView('users')">Users</button><button class="nav-item" onclick="showView('results')">Results</button></div>
+  <div class="sidebar-footer"><div class="user-info" id="adminEmail"></div><button class="btn-logout" onclick="logout()">Sign Out</button></div>
 </aside>
 <main class="main">
-  <div class="topbar">
-    <div style="display:flex;align-items:center;gap:10px">
-      <button class="menu-btn" onclick="toggleSidebar()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e9e9f0" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-      <div class="topbar-title" id="topbarTitle">Dashboard</div></div>
-    <span class="admin-badge">Admin</span></div>
+  <div class="topbar"><div style="display:flex;align-items:center;gap:10px"><button class="menu-btn" onclick="toggleSidebar()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e9e9f0" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button><div class="topbar-title" id="topbarTitle">Dashboard</div></div><span class="admin-badge">Admin</span></div>
   <div class="content">
 
-    <!-- DASHBOARD VIEW -->
+    <!-- DASHBOARD -->
     <div class="view active" id="view-dashboard">
-      <div class="stats" id="dashStats">
-        <div class="stat"><div class="stat-label">Examinations</div><div class="stat-val" id="s-exams">—</div></div>
-        <div class="stat"><div class="stat-label">Questions</div><div class="stat-val" id="s-questions">—</div></div>
-        <div class="stat"><div class="stat-label">Users</div><div class="stat-val" id="s-users">—</div></div>
-        <div class="stat"><div class="stat-label">Submissions</div><div class="stat-val" id="s-attempts">—</div></div>
-      </div>
+      <div class="stats" id="dashStats"><div class="stat"><div class="stat-label">Examinations</div><div class="stat-val" id="s-exams">—</div></div><div class="stat"><div class="stat-label">Questions</div><div class="stat-val" id="s-questions">—</div></div><div class="stat"><div class="stat-label">Users</div><div class="stat-val" id="s-users">—</div></div><div class="stat"><div class="stat-label">Submissions</div><div class="stat-val" id="s-attempts">—</div></div></div>
       <div class="section-head"><div class="section-title">Recent Submissions (First Attempts Only)</div></div>
-      <div class="card"><div class="table-wrap"><table>
-        <thead><tr><th>Student</th><th>Examination</th><th>Score</th><th>Percentage</th><th>Date</th></tr></thead>
-        <tbody id="recentResults"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
-      </table></div></div>
+      <div class="card"><div class="table-wrap"><table><thead><tr><th>Student</th><th>Examination</th><th>Score</th><th>Percentage</th><th>Date</th></tr></thead><tbody id="recentResults"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
     </div>
 
-    <!-- CREATE EXAM VIEW -->
+    <!-- CREATE EXAM -->
     <div class="view" id="view-createExam">
       <div class="section-head"><div class="section-title">Create Examination</div></div>
-      <div class="card"><div class="card-body">
-        <div id="createExamAlert"></div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Examination Name *</label><input class="form-input" id="eName" placeholder="e.g. JEE Advanced Mock Test"></div>
-          <div class="form-group"><label class="form-label">Time Limit (minutes)</label><input class="form-input" type="number" id="eTime" value="30" min="1" max="300"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Negative Marking</label><input class="form-input" type="number" id="eNegMark" value="0" min="0" max="5" step="0.25" placeholder="e.g. 0.25"><span class="form-hint">Marks deducted per wrong answer (0 = no negative marking)</span></div>
-        </div>
+      <div class="card"><div class="card-body"><div id="createExamAlert"></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Examination Name *</label><input class="form-input" id="eName" placeholder="e.g. JEE Advanced Mock Test"></div><div class="form-group"><label class="form-label">Time Limit (minutes)</label><input class="form-input" type="number" id="eTime" value="30" min="1" max="300"></div></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">Negative Marking</label><input class="form-input" type="number" id="eNegMark" value="0" min="0" max="5" step="0.25" placeholder="e.g. 0.25"><span class="form-hint">Marks deducted per wrong answer (0 = no negative marking)</span></div></div>
         <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="eDesc" placeholder="Brief description"></div>
         <div class="form-group"><label class="toggle-label"><input type="checkbox" id="ePremium"><span>Premium examination (restricted access)</span></label></div>
         <div class="form-group"><label class="toggle-label"><input type="checkbox" id="ePractice" checked><span>Allow practice mode</span></label></div>
@@ -191,53 +160,37 @@ tr:hover td{background:rgba(255,255,255,0.015)}
       </div></div>
     </div>
 
-    <!-- ALL EXAMS VIEW -->
+    <!-- ALL EXAMS -->
     <div class="view" id="view-exams">
       <div class="section-head"><div class="section-title">All Examinations</div><button class="btn btn-primary" onclick="showView('createExam')">New Exam</button></div>
-      <div class="card"><div class="table-wrap"><table>
-        <thead><tr><th>Name</th><th>Type</th><th>Neg.</th><th>Time</th><th>Qns</th><th>Practice</th><th>Actions</th></tr></thead>
-        <tbody id="examsTable"><tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr></tbody>
-      </table></div></div>
+      <div class="card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Type</th><th>Neg.</th><th>Time</th><th>Qns</th><th>Practice</th><th>Actions</th></tr></thead><tbody id="examsTable"><tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
     </div>
 
-    <!-- UPLOAD CSV VIEW -->
+    <!-- UPLOAD CSV -->
     <div class="view" id="view-uploadCSV">
       <div class="section-head"><div class="section-title">Upload Questions</div></div>
-      <div class="card"><div class="card-body">
-        <div id="csvAlert"></div>
+      <div class="card"><div class="card-body"><div id="csvAlert"></div>
         <div class="form-group"><label class="form-label">Select Examination *</label><select class="form-select" id="csvExamId"><option value="">— Select —</option></select></div>
-        <div class="form-group"><label class="form-label">CSV Format</label>
-          <div class="csv-preview">question,option_a,option_b,option_c,option_d,correct_answer,image_url(optional)
+        <div class="form-group"><label class="form-label">CSV Format</label><div class="csv-preview">question,option_a,option_b,option_c,option_d,correct_answer,image_url(optional)
 "What is the derivative of sin(x)?",cos(x),-cos(x),sin(x),-sin(x),A,
 "Solve: 2x+5=15",3,5,10,7,B,https://example.com/equation.png</div></div>
-        <div class="form-group"><label class="form-label">Upload CSV File</label>
-          <div class="csv-zone" onclick="document.getElementById('csvFile').click()"><input type="file" id="csvFile" accept=".csv,.txt" onchange="handleCSVFile(this)">
-            <div style="font-size:1.4rem;margin-bottom:8px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-            <div>Click to upload CSV file or paste below</div></div></div>
+        <div class="form-group"><label class="form-label">Upload CSV File</label><div class="csv-zone" onclick="document.getElementById('csvFile').click()"><input type="file" id="csvFile" accept=".csv,.txt" onchange="handleCSVFile(this)"><div style="font-size:1.4rem;margin-bottom:8px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div>Click to upload CSV file or paste below</div></div></div>
         <div class="form-group"><label class="form-label">CSV Content</label><textarea class="form-textarea" id="csvContent" placeholder="Paste CSV content here..." style="min-height:160px"></textarea></div>
         <div class="form-group"><label class="toggle-label"><input type="checkbox" id="csvReplace"><span>Delete existing questions before upload (replace all)</span></label></div>
         <button class="btn btn-primary" id="uploadBtn" onclick="uploadCSV()">Upload Questions</button>
       </div></div>
     </div>
 
-    <!-- USERS VIEW -->
+    <!-- USERS -->
     <div class="view" id="view-users">
       <div class="section-head"><div class="section-title">Registered Users</div></div>
-      <div class="card"><div class="table-wrap"><table>
-        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Premium Access</th><th>Actions</th></tr></thead>
-        <tbody id="usersTable"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
-      </table></div></div>
+      <div class="card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Premium Access</th><th>Actions</th></tr></thead><tbody id="usersTable"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
     </div>
 
-    <!-- RESULTS VIEW -->
+    <!-- RESULTS -->
     <div class="view" id="view-results">
-      <div class="section-head">
-        <div class="section-title">Results — First Attempts Only</div>
-        <select class="form-select" id="resultExamFilter" onchange="loadFilteredResults()" style="max-width:280px"><option value="all">All Examinations</option></select></div>
-      <div class="card"><div class="table-wrap"><table>
-        <thead><tr><th>Student</th><th>Examination</th><th>Score</th><th>Result</th><th>Date</th><th>Action</th></tr></thead>
-        <tbody id="resultsTable"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody>
-      </table></div></div>
+      <div class="section-head"><div class="section-title">Results — First Attempts Only</div><select class="form-select" id="resultExamFilter" onchange="loadFilteredResults()" style="max-width:280px"><option value="all">All Examinations</option></select></div>
+      <div class="card"><div class="table-wrap"><table><thead><tr><th>Student</th><th>Examination</th><th>Score</th><th>Result</th><th>Date</th><th>Action</th></tr></thead><tbody id="resultsTable"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
     </div>
 
   </div>
@@ -246,58 +199,30 @@ tr:hover td{background:rgba(255,255,255,0.015)}
 <!-- GRANT MODAL -->
 <div class="modal-overlay" id="grantModal">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <button class="modal-close" onclick="closeModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     <div class="modal-title">Grant Premium Access</div>
-    <p style="color:var(--muted);font-size:.82rem;margin-bottom:16px">Grant <strong id="grantUserName">—</strong> access to a premium examination.</p>
+    <p style="color:var(--muted);font-size:.82rem;margin-bottom:16px">Grant <strong id="grantUserName">—</strong> premium access.</p>
     <div id="grantModalAlert"></div>
-    <div class="form-group"><label class="form-label">Select Examination</label><select class="form-select" id="grantExamSel"><option value="">— Loading —</option></select></div>
-    <div class="form-group">
-      <label class="form-label">Access Duration</label>
-      <select class="form-select" id="grantDuration">
-        <option value="0">Permanent (no expiry)</option>
-        <option value="24">24 Hours</option>
-        <option value="72">3 Days (72 Hours)</option>
-        <option value="168">7 Days (168 Hours)</option>
-        <option value="360">15 Days (360 Hours)</option>
-        <option value="720">30 Days (720 Hours)</option>
-        <option value="custom">Custom (enter below)</option>
-      </select></div>
-    <div class="form-group" id="customDurationGroup" style="display:none">
-      <label class="form-label">Custom Hours</label>
-      <input class="form-input" type="number" id="grantCustomHours" min="1" max="8760" placeholder="Enter hours">
-    </div>
-    <div style="display:flex;gap:10px">
-      <button class="btn btn-primary" onclick="grantAccess()">Grant Access</button>
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>
+    <div class="form-group"><label class="form-label">Access Type</label><select class="form-select" id="grantType" onchange="toggleGrantType()"><option value="exam">Specific Exam Only</option><option value="account">All Exams (Account-Wide)</option></select></div>
+    <div id="grantExamGroup"><div class="form-group"><label class="form-label">Select Examination</label><select class="form-select" id="grantExamSel"><option value="">— Loading —</option></select></div></div>
+    <div class="form-group"><label class="form-label">Access Duration</label><select class="form-select" id="grantDuration" onchange="toggleCustomDuration()"><option value="0">Permanent (no expiry)</option><option value="24">24 Hours</option><option value="50">50 Hours</option><option value="72">3 Days (72 Hours)</option><option value="140">140 Hours</option><option value="168">7 Days (168 Hours)</option><option value="360">15 Days (360 Hours)</option><option value="720">30 Days (720 Hours)</option><option value="custom">Custom (enter below)</option></select></div>
+    <div class="form-group" id="customDurationGroup" style="display:none"><label class="form-label">Custom Hours</label><input class="form-input" type="number" id="grantCustomHours" min="1" max="8760" placeholder="Enter hours"></div>
+    <div style="display:flex;gap:10px"><button class="btn btn-primary" onclick="grantAccess()">Grant Access</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>
   </div>
 </div>
 
 <!-- EDIT EXAM MODAL -->
 <div class="modal-overlay" id="editModal">
   <div class="modal edit-modal">
-    <button class="modal-close" onclick="closeEditModal()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    <div class="modal-title">Edit Examination</div>
-    <div id="editModalAlert"></div>
-    <input type="hidden" id="editExamId">
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Examination Name *</label><input class="form-input" id="editName"></div>
-      <div class="form-group"><label class="form-label">Time Limit (minutes)</label><input class="form-input" type="number" id="editTime" min="1" max="300"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Negative Marking</label><input class="form-input" type="number" id="editNegMark" min="0" max="5" step="0.25"></div>
-    </div>
+    <button class="modal-close" onclick="closeEditModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-title">Edit Examination</div><div id="editModalAlert"></div><input type="hidden" id="editExamId">
+    <div class="form-row"><div class="form-group"><label class="form-label">Examination Name *</label><input class="form-input" id="editName"></div><div class="form-group"><label class="form-label">Time Limit (minutes)</label><input class="form-input" type="number" id="editTime" min="1" max="300"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Negative Marking</label><input class="form-input" type="number" id="editNegMark" min="0" max="5" step="0.25"></div></div>
     <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="editDesc"></div>
     <div class="form-group"><label class="toggle-label"><input type="checkbox" id="editPremium"><span>Premium examination</span></label></div>
     <div class="form-group"><label class="toggle-label"><input type="checkbox" id="editPractice"><span>Allow practice mode</span></label></div>
-    <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:14px">
-      <label class="form-label" style="margin-bottom:8px">Questions in this Exam</label>
-      <div id="editQuestionsList" class="q-mini-list"><span style="color:var(--muted);text-align:center;padding:20px">Select an exam to view questions</span></div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:14px">
-      <button class="btn btn-primary" onclick="saveEditExam()">Save Changes</button>
-      <button class="btn btn-ghost" onclick="closeEditModal()">Cancel</button></div>
+    <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:14px"><label class="form-label" style="margin-bottom:8px">Questions in this Exam</label><div id="editQuestionsList" class="q-mini-list"><span style="color:var(--muted);text-align:center;padding:20px">Select an exam to view questions</span></div></div>
+    <div style="display:flex;gap:10px;margin-top:14px"><button class="btn btn-primary" onclick="saveEditExam()">Save Changes</button><button class="btn btn-ghost" onclick="closeEditModal()">Cancel</button></div>
   </div>
 </div>
 
@@ -336,7 +261,6 @@ async function api(method,path,body){
   return{ok:res.ok,data};
 }
 
-// ═══ DASHBOARD ═══
 async function loadDashboard(){
   const[exRes,usRes,resRes]=await Promise.all([api('GET','/exams/'),api('GET','/admin/users'),api('GET','/admin/results')]);
   allExams=exRes.ok?exRes.data:[];allUsers=usRes.ok?usRes.data:[];const results=resRes.ok?resRes.data:[];
@@ -352,7 +276,6 @@ async function loadDashboard(){
   }).join('');
 }
 
-// ═══ CREATE EXAM ═══
 async function createExam(){
   const name=document.getElementById('eName').value.trim();
   const time_limit=parseInt(document.getElementById('eTime').value)||30;
@@ -370,28 +293,16 @@ async function createExam(){
   document.getElementById('eName').value='';document.getElementById('eDesc').value='';document.getElementById('ePremium').checked=false;document.getElementById('eNegMark').value='0';document.getElementById('ePractice').checked=true;
 }
 
-// ═══ ALL EXAMS ═══
 async function loadExams(){
   const{ok,data}=await api('GET','/exams/');allExams=ok?data:[];
   const tbody=document.getElementById('examsTable');
   if(!allExams.length){tbody.innerHTML='<tr><td colspan="7" class="empty-row">No examinations yet.</td></tr>';return}
-  tbody.innerHTML=allExams.map(e=>`<tr>
-    <td style="font-weight:500">${esc(e.name)}</td>
-    <td><span class="badge ${e.is_premium?'badge-premium':'badge-free'}">${e.is_premium?'Premium':'Free'}</span></td>
-    <td>${e.negative_marking||0}</td><td>${e.time_limit} min</td><td>${e.question_count||0}</td>
-    <td><span class="badge ${e.allow_practice!==0?'badge-free':'badge-fail'}">${e.allow_practice!==0?'On':'Off'}</span></td>
-    <td><div style="display:flex;gap:6px;flex-wrap:wrap">
-      <button class="btn btn-ghost btn-sm" onclick="openEditModal(${e.id})">Edit</button>
-      <button class="btn btn-ghost btn-sm" onclick="goUpload(${e.id})">CSV</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id},'${esc(e.name)}')">Del</button>
-    </div></td></tr>`).join('');
+  tbody.innerHTML=allExams.map(e=>`<tr><td style="font-weight:500">${esc(e.name)}</td><td><span class="badge ${e.is_premium?'badge-premium':'badge-free'}">${e.is_premium?'Premium':'Free'}</span></td><td>${e.negative_marking||0}</td><td>${e.time_limit} min</td><td>${e.question_count||0}</td><td><span class="badge ${e.allow_practice!==0?'badge-free':'badge-fail'}">${e.allow_practice!==0?'On':'Off'}</span></td><td><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-ghost btn-sm" onclick="openEditModal(${e.id})">Edit</button><button class="btn btn-ghost btn-sm" onclick="goUpload(${e.id})">CSV</button><button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id},'${esc(e.name)}')">Del</button></div></td></tr>`).join('');
 }
 
 function goUpload(id){showView('uploadCSV');setTimeout(()=>{document.getElementById('csvExamId').value=id},300)}
-
 async function deleteExam(id,name){if(!confirm(`Delete "${name}"? All questions and results will be removed.`))return;await api('DELETE',`/admin/exams/${id}`);loadExams()}
 
-// ═══ EDIT MODAL ═══
 function openEditModal(id){
   const exam=allExams.find(e=>e.id===id);
   if(!exam)return;
@@ -415,11 +326,7 @@ async function loadEditQuestions(examId){
   list.innerHTML='<span style="color:var(--muted);text-align:center;padding:20px">Loading...</span>';
   const{ok,data}=await api('GET',`/admin/questions/${examId}`);
   if(!ok||!data.length){list.innerHTML='<span style="color:var(--muted);text-align:center;padding:20px">No questions yet. Upload via CSV.</span>';return}
-  list.innerHTML=data.map(q=>`
-    <div class="q-mini-item">
-      <div class="q-mini-text">${esc(q.question_text)}<div class="q-mini-meta">Ans: ${q.correct_answer} | A: ${esc(q.option_a)} | B: ${esc(q.option_b)} | C: ${esc(q.option_c)} | D: ${esc(q.option_d)}</div></div>
-      <button class="btn btn-danger btn-xs" onclick="deleteQuestion(${q.id})" title="Delete">×</button>
-    </div>`).join('');
+  list.innerHTML=data.map(q=>`<div class="q-mini-item"><div class="q-mini-text">${esc(q.question_text)}<div class="q-mini-meta">Ans: ${q.correct_answer} | A: ${esc(q.option_a)} | B: ${esc(q.option_b)} | C: ${esc(q.option_c)} | D: ${esc(q.option_d)}</div></div><button class="btn btn-danger btn-xs" onclick="deleteQuestion(${q.id})" title="Delete">×</button></div>`).join('');
 }
 
 async function deleteQuestion(qId){if(!confirm('Delete this question?'))return;const{ok}=await api('DELETE',`/admin/questions/single/${qId}`);if(ok)loadEditQuestions(currentEditExamId)}
@@ -440,7 +347,6 @@ async function saveEditExam(){
   setTimeout(()=>{closeEditModal();loadExams()},800);
 }
 
-// ═══ CSV ═══
 async function loadExamsForSelect(){
   if(!allExams.length){const{ok,data}=await api('GET','/exams/');allExams=ok?data:[]}
   document.getElementById('csvExamId').innerHTML='<option value="">— Select —</option>'+allExams.map(e=>`<option value="${e.id}">${esc(e.name)} ${e.is_premium?'(Premium)':'(Free)'}</option>`).join('');
@@ -455,7 +361,7 @@ async function uploadCSV(){
   const alertEl=document.getElementById('csvAlert');alertEl.innerHTML='';
   if(!exam_id){alertEl.innerHTML='<div class="alert alert-error">Select an examination.</div>';return}
   if(!csv){alertEl.innerHTML='<div class="alert alert-error">No CSV content.</div>';return}
-  if(replace){if(!confirm('This will delete ALL existing questions for this exam. Continue?'))return;await api('DELETE',`/admin/questions/${exam_id}`)}
+  if(replace){if(!confirm('Delete ALL existing questions for this exam?'))return;await api('DELETE',`/admin/questions/${examId}`)}
   const btn=document.getElementById('uploadBtn');btn.disabled=true;btn.textContent='Uploading...';
   const{ok,data}=await api('POST','/admin/questions/bulk',{exam_id:parseInt(exam_id),csv});
   btn.disabled=false;btn.textContent='Upload Questions';
@@ -465,7 +371,6 @@ async function uploadCSV(){
   msg+='</div>';alertEl.innerHTML=msg;document.getElementById('csvContent').value='';document.getElementById('csvReplace').checked=false;
 }
 
-// ═══ USERS ═══
 async function loadUsers(){
   const[usRes,exRes,grantRes]=await Promise.all([api('GET','/admin/users'),api('GET','/exams/'),api('GET','/admin/premium-grants')]);
   allUsers=usRes.ok?usRes.data:[];allExams=exRes.ok?exRes.data:[];
@@ -474,69 +379,81 @@ async function loadUsers(){
   const tbody=document.getElementById('usersTable');
   if(!allUsers.length){tbody.innerHTML='<tr><td colspan="5" class="empty-row">No users yet.</td></tr>';return}
   tbody.innerHTML=allUsers.map(u=>{
+    const accountPremium=u.premium_until;
+    let accountPremiumHtml='';
+    if(accountPremium){
+      const expDate=new Date(accountPremium+' UTC'),now=new Date(),hoursLeft=Math.round((expDate-now)/(1000*60*60));
+      if(hoursLeft>0)accountPremiumHtml=`<span class="badge badge-account" style="cursor:pointer" onclick="revokeAccess(${u.id},null)" title="Click to revoke">All Exams · ${hoursLeft}h</span>`;
+      else accountPremiumHtml='<span class="badge badge-fail">Expired</span>';
+    }
     const userGrants=grantMap[u.id]||[];
     const grantsHtml=userGrants.map(g=>{
       let expiryText='';
-      if(g.expires_at){
-        const expDate=new Date(g.expires_at+' UTC');
-        const now=new Date();
-        const hoursLeft=Math.round((expDate-now)/(1000*60*60));
-        if(hoursLeft>0)expiryText=`<span style="color:#f0c040;font-size:.62rem"> · ${hoursLeft}h left</span>`;
+      if(g.expires_at){const expDate=new Date(g.expires_at+' UTC'),now=new Date(),hoursLeft=Math.round((expDate-now)/(1000*60*60));
+        if(hoursLeft>0)expiryText=`<span style="color:#f0c040;font-size:.62rem"> · ${hoursLeft}h</span>`;
         else expiryText='<span style="color:var(--error);font-size:.62rem"> · Expired</span>';
       }
       return`<span style="font-size:.68rem;background:rgba(168,85,247,.06);color:var(--premium);padding:2px 7px;border-radius:10px;margin:1px;display:inline-block;white-space:nowrap">${esc(g.exam_name)}${expiryText} <span onclick="revokeAccess(${u.id},${g.exam_id})" style="cursor:pointer;opacity:.7" title="Revoke">&times;</span></span>`;
     }).join('');
-    return`<tr><td style="font-weight:500">${esc(u.name)}</td><td style="font-size:.8rem;color:var(--muted)">${esc(u.email)}</td><td><span class="badge ${u.is_admin?'badge-premium':'badge-free'}">${u.is_admin?'Admin':'Student'}</span></td><td>${grantsHtml||'<span style="color:var(--muted);font-size:.76rem">None</span>'}</td><td><button class="btn btn-success btn-sm" onclick="openGrantModal(${u.id},'${esc(u.name)}')">Grant Access</button></td></tr>`;
+    const allAccess=[accountPremiumHtml,grantsHtml].filter(Boolean).join('');
+    return`<tr><td style="font-weight:500">${esc(u.name)}</td><td style="font-size:.8rem;color:var(--muted)">${esc(u.email)}</td><td><span class="badge ${u.is_admin?'badge-premium':'badge-free'}">${u.is_admin?'Admin':'Student'}</span></td><td>${allAccess||'<span style="color:var(--muted);font-size:.76rem">None</span>'}</td><td><button class="btn btn-success btn-sm" onclick="openGrantModal(${u.id},'${esc(u.name)}')">Grant Access</button></td></tr>`;
   }).join('');
 }
 
-// ═══ GRANT MODAL ═══
 function openGrantModal(userId,userName){
   grantUserId=userId;document.getElementById('grantUserName').textContent=userName;
   document.getElementById('grantModalAlert').innerHTML='';
+  document.getElementById('grantType').value='exam';
   document.getElementById('grantDuration').value='0';
   document.getElementById('grantCustomHours').value='';
   document.getElementById('customDurationGroup').style.display='none';
+  document.getElementById('grantExamGroup').style.display='block';
   const premiumExams=allExams.filter(e=>e.is_premium);
-  const sel=document.getElementById('grantExamSel');
-  sel.innerHTML=premiumExams.length?'<option value="">— Select —</option>'+premiumExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join(''):'<option value="">No premium exams</option>';
+  document.getElementById('grantExamSel').innerHTML=premiumExams.length?'<option value="">— Select —</option>'+premiumExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join(''):'<option value="">No premium exams</option>';
   document.getElementById('grantModal').classList.add('open');
 }
 
-document.getElementById('grantDuration').addEventListener('change',function(){
-  document.getElementById('customDurationGroup').style.display=this.value==='custom'?'block':'none';
-  if(this.value!=='custom')document.getElementById('grantCustomHours').value='';
-});
+function toggleGrantType(){
+  document.getElementById('grantExamGroup').style.display=document.getElementById('grantType').value==='exam'?'block':'none';
+}
+
+function toggleCustomDuration(){
+  document.getElementById('customDurationGroup').style.display=document.getElementById('grantDuration').value==='custom'?'block':'none';
+}
 
 function closeModal(){document.getElementById('grantModal').classList.remove('open');grantUserId=null}
 
 async function grantAccess(){
-  const exam_id=document.getElementById('grantExamSel').value;
+  const type=document.getElementById('grantType').value;
   const durationVal=document.getElementById('grantDuration').value;
   const alertEl=document.getElementById('grantModalAlert');
-  if(!exam_id){alertEl.innerHTML='<div class="alert alert-error">Select an examination.</div>';return}
-  
   let duration_hours=0;
-  if(durationVal==='custom'){
-    duration_hours=parseInt(document.getElementById('grantCustomHours').value)||0;
-    if(duration_hours<=0){alertEl.innerHTML='<div class="alert alert-error">Enter valid hours.</div>';return}
+  if(durationVal==='custom'){duration_hours=parseInt(document.getElementById('grantCustomHours').value)||0;if(duration_hours<=0){alertEl.innerHTML='<div class="alert alert-error">Enter valid hours.</div>';return}}
+  else{duration_hours=parseInt(durationVal)||0;}
+
+  if(type==='exam'){
+    const exam_id=document.getElementById('grantExamSel').value;
+    if(!exam_id){alertEl.innerHTML='<div class="alert alert-error">Select an examination.</div>';return}
+    const{ok,data}=await api('POST','/admin/grant-premium',{user_id:grantUserId,exam_id:parseInt(exam_id),duration_hours});
+    if(!ok){alertEl.innerHTML=`<div class="alert alert-error">${data.error}</div>`;return}
+    alertEl.innerHTML='<div class="alert alert-success">Exam access granted!'+(data.expires_at?` Expires: ${new Date(data.expires_at+' UTC').toLocaleString()}`:' Permanent')+'</div>';
   }else{
-    duration_hours=parseInt(durationVal)||0;
+    const{ok,data}=await api('POST','/admin/grant-account-premium',{user_id:grantUserId,duration_hours});
+    if(!ok){alertEl.innerHTML=`<div class="alert alert-error">${data.error}</div>`;return}
+    alertEl.innerHTML=`<div class="alert alert-success">Account-wide access granted! Expires: ${new Date(data.expires_at+' UTC').toLocaleString()}</div>`;
   }
-  
-  const{ok,data}=await api('POST','/admin/grant-premium',{user_id:grantUserId,exam_id:parseInt(exam_id),duration_hours});
-  if(!ok){alertEl.innerHTML=`<div class="alert alert-error">${data.error}</div>`;return}
-  alertEl.innerHTML='<div class="alert alert-success">Access granted!'+(data.expires_at?` Expires: ${new Date(data.expires_at+' UTC').toLocaleString()}`:'')+'</div>';
   setTimeout(()=>{closeModal();loadUsers()},1500);
 }
 
-async function revokeAccess(user_id,exam_id){if(!confirm('Revoke this access?'))return;await api('DELETE','/admin/revoke-premium',{user_id,exam_id});loadUsers()}
+async function revokeAccess(user_id,exam_id){
+  if(!exam_id){if(!confirm('Revoke account-wide premium access?'))return;await api('DELETE','/admin/revoke-account-premium',{user_id});}
+  else{if(!confirm('Revoke this exam access?'))return;await api('DELETE','/admin/revoke-premium',{user_id,exam_id});}
+  loadUsers();
+}
 
-// ═══ RESULTS ═══
 async function loadResultsView(){
   if(!allExams.length){const{ok,data}=await api('GET','/exams/');allExams=ok?data:[]}
-  const sel=document.getElementById('resultExamFilter');
-  sel.innerHTML='<option value="all">All Examinations</option>'+allExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');
+  document.getElementById('resultExamFilter').innerHTML='<option value="all">All Examinations</option>'+allExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');
   loadFilteredResults();
 }
 
@@ -544,17 +461,15 @@ async function loadFilteredResults(){
   const examId=document.getElementById('resultExamFilter').value;
   const url=examId==='all'?'/admin/results':`/admin/results/${examId}`;
   const{ok,data}=await api('GET',url);
-  const results=ok?data:[];
   const tbody=document.getElementById('resultsTable');
-  if(!results.length){tbody.innerHTML='<tr><td colspan="6" class="empty-row">No first attempts yet.</td></tr>';return}
-  tbody.innerHTML=results.map(r=>{
+  if(!ok||!data.length){tbody.innerHTML='<tr><td colspan="6" class="empty-row">No first attempts yet.</td></tr>';return}
+  tbody.innerHTML=data.map(r=>{
     const pct=Math.round(r.percentage);
     return`<tr><td style="font-weight:500">${esc(r.user_name)}<br><span style="font-size:.7rem;color:var(--muted)">${esc(r.user_email)}</span></td><td>${esc(r.exam_name)}</td><td style="font-weight:600">${r.score}/${r.total_questions}</td><td><div class="score-bar-wrap"><div class="score-bar"><div class="score-bar-fill" style="width:${pct}%;background:${pct>=80?'var(--success)':pct>=50?'var(--accent2)':'var(--error)'}"></div></div><span class="badge ${pct>=50?'badge-pass':'badge-fail'}">${pct}%</span></div></td><td style="font-size:.76rem;color:var(--muted);white-space:nowrap">${new Date(r.submitted_at).toLocaleString()}</td><td><button class="btn btn-danger btn-sm" onclick="deleteResult(${r.id})">Del</button></td></tr>`;
   }).join('');
 }
 
-async function deleteResult(id){if(!confirm('Delete this result permanently?'))return;const{ok}=await api('DELETE',`/admin/results/${id}`);if(ok)loadFilteredResults()}
-
+async function deleteResult(id){if(!confirm('Delete this result permanently?'))return;await api('DELETE',`/admin/results/${id}`);loadFilteredResults()}
 function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML}
 
 document.getElementById('grantModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
