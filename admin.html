@@ -20,7 +20,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 .sidebar-top{padding:20px;border-bottom:1px solid var(--border)}
 .logo{font-family:'Lexend',sans-serif;font-weight:800;font-size:1rem;color:var(--text);
   display:flex;align-items:center;gap:8px;letter-spacing:-0.02em}
-.logo img{width:26px;height:26px}
+.logo img{width:26px;height:26px;border-radius:4px}
 .admin-tag{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-top:3px;font-weight:600}
 .nav-section{padding:6px 0}
 .nav-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.11em;color:var(--muted);
@@ -114,6 +114,8 @@ tr:hover td{background:rgba(255,255,255,0.015)}
 .modal-overlay.open{display:grid}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;
   max-width:460px;width:100%;position:relative}
+.edit-modal{max-width:540px}
+.edit-modal .form-row{grid-template-columns:1fr 1fr;gap:12px}
 .modal-title{font-family:'Lexend',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:18px;letter-spacing:-0.02em}
 .modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer}
 @media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.menu-btn{display:block}.content{padding:16px}.form-row{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
@@ -190,7 +192,7 @@ tr:hover td{background:rgba(255,255,255,0.015)}
         </div>
         <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="eDesc" placeholder="Brief description"></div>
         <div class="form-group"><label class="toggle-label"><input type="checkbox" id="ePremium"><span>Premium examination (restricted access)</span></label></div>
-        <div class="form-group"><label class="toggle-label"><input type="checkbox" id="ePractice" checked><span>Allow practice mode (not recorded)</span></label></div>
+        <div class="form-group"><label class="toggle-label"><input type="checkbox" id="ePractice" checked><span>Allow practice mode</span></label></div>
         <button class="btn btn-primary" id="createExamBtn" onclick="createExam()">Create Examination</button>
       </div></div>
     </div>
@@ -199,8 +201,8 @@ tr:hover td{background:rgba(255,255,255,0.015)}
     <div class="view" id="view-exams">
       <div class="section-head"><div class="section-title">All Examinations</div><button class="btn btn-primary" onclick="showView('createExam')">New Exam</button></div>
       <div class="card"><div class="table-wrap"><table>
-        <thead><tr><th>Name</th><th>Type</th><th>Neg. Marking</th><th>Time</th><th>Questions</th><th>Actions</th></tr></thead>
-        <tbody id="examsTable"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody>
+        <thead><tr><th>Name</th><th>Type</th><th>Neg.</th><th>Time</th><th>Qns</th><th>Practice</th><th>Actions</th></tr></thead>
+        <tbody id="examsTable"><tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr></tbody>
       </table></div></div>
     </div>
 
@@ -249,8 +251,8 @@ tr:hover td{background:rgba(255,255,255,0.015)}
         </select>
       </div>
       <div class="card"><div class="table-wrap"><table>
-        <thead><tr><th>Student</th><th>Examination</th><th>Score</th><th>Result</th><th>Date</th></tr></thead>
-        <tbody id="resultsTable"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
+        <thead><tr><th>Student</th><th>Examination</th><th>Score</th><th>Result</th><th>Date</th><th>Action</th></tr></thead>
+        <tbody id="resultsTable"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody>
       </table></div></div>
     </div>
 
@@ -270,6 +272,32 @@ tr:hover td{background:rgba(255,255,255,0.015)}
     <div style="display:flex;gap:10px">
       <button class="btn btn-primary" onclick="grantAccess()">Grant Access</button>
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT EXAM MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal edit-modal">
+    <button class="modal-close" onclick="closeEditModal()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-title">Edit Examination</div>
+    <div id="editModalAlert"></div>
+    <input type="hidden" id="editExamId">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Examination Name *</label><input class="form-input" id="editName"></div>
+      <div class="form-group"><label class="form-label">Time Limit (minutes)</label><input class="form-input" type="number" id="editTime" min="1" max="300"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Negative Marking</label><input class="form-input" type="number" id="editNegMark" min="0" max="5" step="0.25"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="editDesc"></div>
+    <div class="form-group"><label class="toggle-label"><input type="checkbox" id="editPremium"><span>Premium examination</span></label></div>
+    <div class="form-group"><label class="toggle-label"><input type="checkbox" id="editPractice"><span>Allow practice mode</span></label></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary" onclick="saveEditExam()">Save Changes</button>
+      <button class="btn btn-ghost" onclick="closeEditModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -337,31 +365,67 @@ async function createExam(){
   const{ok,data}=await api('POST','/admin/exams',{name,description,time_limit,is_premium,negative_marking,allow_practice});
   btn.disabled=false;btn.textContent='Create Examination';
   if(!ok){alertEl.innerHTML=`<div class="alert alert-error">${data.error}</div>`;return}
-  alertEl.innerHTML=`<div class="alert alert-success">Examination created! You can now upload questions.</div>`;
+  alertEl.innerHTML='<div class="alert alert-success">Examination created! Now upload questions via CSV.</div>';
   document.getElementById('eName').value='';document.getElementById('eDesc').value='';document.getElementById('ePremium').checked=false;document.getElementById('eNegMark').value='0';document.getElementById('ePractice').checked=true;
 }
 
 async function loadExams(){
   const{ok,data}=await api('GET','/exams/');allExams=ok?data:[];
   const tbody=document.getElementById('examsTable');
-  if(!allExams.length){tbody.innerHTML='<tr><td colspan="6" class="empty-row">No examinations yet.</td></tr>';return}
+  if(!allExams.length){tbody.innerHTML='<tr><td colspan="7" class="empty-row">No examinations yet.</td></tr>';return}
   tbody.innerHTML=allExams.map(e=>`<tr>
     <td style="font-weight:500">${esc(e.name)}</td>
-    <td><span class="badge ${e.is_premium?'badge-premium':'badge-free'}">${e.is_premium?'Premium':'Open'}</span></td>
+    <td><span class="badge ${e.is_premium?'badge-premium':'badge-free'}">${e.is_premium?'Premium':'Free'}</span></td>
     <td>${e.negative_marking||0}</td>
-    <td>${e.time_limit} min</td><td>${e.question_count||0}</td>
-    <td><div style="display:flex;gap:6px">
-      <button class="btn btn-ghost btn-sm" onclick="goUpload(${e.id})">Add Questions</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id},'${esc(e.name)}')">Delete</button>
+    <td>${e.time_limit} min</td>
+    <td>${e.question_count||0}</td>
+    <td><span class="badge ${e.allow_practice!==0?'badge-free':'badge-fail'}">${e.allow_practice!==0?'On':'Off'}</span></td>
+    <td><div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="openEditModal(${e.id})">Edit</button>
+      <button class="btn btn-ghost btn-sm" onclick="goUpload(${e.id})">CSV</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id},'${esc(e.name)}')">Del</button>
     </div></td></tr>`).join('');
 }
 
 function goUpload(id){showView('uploadCSV');setTimeout(()=>{document.getElementById('csvExamId').value=id},300)}
-async function deleteExam(id,name){if(!confirm(`Delete "${name}"? All data will be removed.`))return;await api('DELETE',`/admin/exams/${id}`);loadExams()}
+
+async function deleteExam(id,name){if(!confirm(`Delete "${name}"? All questions and results will be removed.`))return;await api('DELETE',`/admin/exams/${id}`);loadExams()}
+
+function openEditModal(id){
+  const exam=allExams.find(e=>e.id===id);
+  if(!exam)return;
+  document.getElementById('editExamId').value=exam.id;
+  document.getElementById('editName').value=exam.name||'';
+  document.getElementById('editTime').value=exam.time_limit||30;
+  document.getElementById('editNegMark').value=exam.negative_marking||0;
+  document.getElementById('editDesc').value=exam.description||'';
+  document.getElementById('editPremium').checked=!!exam.is_premium;
+  document.getElementById('editPractice').checked=exam.allow_practice!==0;
+  document.getElementById('editModalAlert').innerHTML='';
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal(){document.getElementById('editModal').classList.remove('open')}
+
+async function saveEditExam(){
+  const id=document.getElementById('editExamId').value;
+  const name=document.getElementById('editName').value.trim();
+  const time_limit=parseInt(document.getElementById('editTime').value)||30;
+  const negative_marking=parseFloat(document.getElementById('editNegMark').value)||0;
+  const description=document.getElementById('editDesc').value.trim();
+  const is_premium=document.getElementById('editPremium').checked?1:0;
+  const allow_practice=document.getElementById('editPractice').checked?1:0;
+  const alertEl=document.getElementById('editModalAlert');alertEl.innerHTML='';
+  if(!name){alertEl.innerHTML='<div class="alert alert-error">Name is required.</div>';return}
+  const{ok,data}=await api('PUT',`/admin/exams/${id}`,{name,description,time_limit,is_premium,negative_marking,allow_practice});
+  if(!ok){alertEl.innerHTML=`<div class="alert alert-error">${data.error}</div>`;return}
+  alertEl.innerHTML='<div class="alert alert-success">Saved!</div>';
+  setTimeout(()=>{closeEditModal();loadExams()},800);
+}
 
 async function loadExamsForSelect(){
   if(!allExams.length){const{ok,data}=await api('GET','/exams/');allExams=ok?data:[]}
-  document.getElementById('csvExamId').innerHTML='<option value="">— Select —</option>'+allExams.map(e=>`<option value="${e.id}">${esc(e.name)} ${e.is_premium?'(Premium)':'(Open)'}</option>`).join('');
+  document.getElementById('csvExamId').innerHTML='<option value="">— Select —</option>'+allExams.map(e=>`<option value="${e.id}">${esc(e.name)} ${e.is_premium?'(Premium)':'(Free)'}</option>`).join('');
 }
 
 function handleCSVFile(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{document.getElementById('csvContent').value=e.target.result};reader.readAsText(file)}
@@ -377,7 +441,7 @@ async function uploadCSV(){
   btn.disabled=false;btn.textContent='Upload Questions';
   if(!ok){alertEl.innerHTML=`<div class="alert alert-error">${data.error}</div>`;return}
   let msg=`<div class="alert alert-success">${data.inserted} question(s) inserted.`;
-  if(data.errors.length)msg+=`<br>${data.errors.length} error(s): ${data.errors.join('; ')}`;
+  if(data.errors.length)msg+=` ${data.errors.length} error(s).`;
   msg+='</div>';alertEl.innerHTML=msg;document.getElementById('csvContent').value='';
 }
 
@@ -431,16 +495,30 @@ async function loadFilteredResults(){
   const{ok,data}=await api('GET',url);
   const results=ok?data:[];
   const tbody=document.getElementById('resultsTable');
-  if(!results.length){tbody.innerHTML='<tr><td colspan="5" class="empty-row">No first attempts yet.</td></tr>';return}
+  if(!results.length){tbody.innerHTML='<tr><td colspan="6" class="empty-row">No first attempts yet.</td></tr>';return}
   tbody.innerHTML=results.map(r=>{
     const pct=Math.round(r.percentage);
-    return`<tr><td style="font-weight:500">${esc(r.user_name)}<br><span style="font-size:.7rem;color:var(--muted)">${esc(r.user_email)}</span></td><td>${esc(r.exam_name)}</td><td style="font-weight:600">${r.score}/${r.total_questions}</td><td><div class="score-bar-wrap"><div class="score-bar"><div class="score-bar-fill" style="width:${pct}%;background:${pct>=80?'var(--success)':pct>=50?'var(--accent2)':'var(--error)'}"></div></div><span class="badge ${pct>=50?'badge-pass':'badge-fail'}">${pct}%</span></div></td><td style="font-size:.76rem;color:var(--muted);white-space:nowrap">${new Date(r.submitted_at).toLocaleString()}</td></tr>`;
+    return`<tr>
+      <td style="font-weight:500">${esc(r.user_name)}<br><span style="font-size:.7rem;color:var(--muted)">${esc(r.user_email)}</span></td>
+      <td>${esc(r.exam_name)}</td>
+      <td style="font-weight:600">${r.score}/${r.total_questions}</td>
+      <td><div class="score-bar-wrap"><div class="score-bar"><div class="score-bar-fill" style="width:${pct}%;background:${pct>=80?'var(--success)':pct>=50?'var(--accent2)':'var(--error)'}"></div></div><span class="badge ${pct>=50?'badge-pass':'badge-fail'}">${pct}%</span></div></td>
+      <td style="font-size:.76rem;color:var(--muted);white-space:nowrap">${new Date(r.submitted_at).toLocaleString()}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteResult(${r.id})">Del</button></td>
+    </tr>`;
   }).join('');
+}
+
+async function deleteResult(id){
+  if(!confirm('Delete this result permanently? This cannot be undone.'))return;
+  const{ok}=await api('DELETE',`/admin/results/${id}`);
+  if(ok)loadFilteredResults();
 }
 
 function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML}
 
 document.getElementById('grantModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
+document.getElementById('editModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeEditModal()});
 loadDashboard();
 </script>
 </body>
