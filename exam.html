@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examination — Exalyte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#05050a; --surface:#0c0c16; --surface2:#141424; --border:#1e1e32;
+  --accent:#6366f1; --accent2:#818cf8; --accent3:#4f46e5;
+  --text:#e9e9f0; --muted:#76768e; --error:#ef4444; --success:#22c55e;
+  --radius:12px; --radius-sm:8px; --transition:0.2s cubic-bezier(0.4,0,0.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;
+  display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.exam-title-bar{font-family:'Lexend',sans-serif;font-weight:700;font-size:0.95rem;letter-spacing:-0.01em}
+.timer-wrap{display:flex;align-items:center;gap:8px}
+.timer-label{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600}
+.timer{font-family:'Lexend',sans-serif;font-size:1.3rem;font-weight:800;color:var(--accent2);min-width:75px;text-align:center;letter-spacing:0.02em}
+.timer.warning{color:var(--error);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.progress-track{position:fixed;top:56px;left:0;right:0;height:3px;background:var(--border);z-index:49}
+.progress-fill{height:100%;background:var(--accent);transition:width .3s}
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 56px)}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 14px;
+  overflow-y:auto;height:calc(100vh - 59px);position:sticky;top:59px}
+.sidebar-title{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);
+  font-weight:700;margin-bottom:12px}
+.q-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.q-num{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;
+  font-family:'Lexend',sans-serif;font-size:0.74rem;font-weight:700;cursor:pointer;
+  border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);transition:all .15s}
+.q-num.answered{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);color:var(--success)}
+.q-num.current{border-color:var(--accent);color:var(--accent2);box-shadow:0 0 0 3px rgba(99,102,241,0.1)}
+.submit-wrap{margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.answered-count{font-size:0.76rem;color:var(--muted);text-align:center;margin-bottom:10px;font-weight:500}
+.btn-submit{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);
+  font-family:'Lexend',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all var(--transition);letter-spacing:0.02em}
+.btn-submit:hover{background:var(--accent3);box-shadow:0 4px 20px rgba(99,102,241,0.25)}
+.q-area{padding:32px 40px;overflow-y:auto}
+.q-header{margin-bottom:24px}
+.q-num-label{font-family:'Lexend',sans-serif;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:10px;font-weight:700}
+.q-text{font-size:1.08rem;line-height:1.7;font-weight:500;max-width:700px}
+.q-image{max-width:100%;max-height:300px;border-radius:var(--radius-sm);margin:18px 0;object-fit:contain;border:1px solid var(--border)}
+.options{display:flex;flex-direction:column;gap:10px;margin-top:24px;max-width:700px}
+.option{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;background:var(--surface);
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .15s}
+.option:hover{border-color:rgba(99,102,241,0.4);background:var(--surface2)}
+.option.selected{border-color:var(--accent);background:rgba(99,102,241,0.06)}
+.option-letter{width:30px;height:30px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-family:'Lexend',sans-serif;
+  font-size:0.78rem;font-weight:700;color:var(--muted);flex-shrink:0;transition:all .15s}
+.option.selected .option-letter{background:var(--accent);border-color:var(--accent);color:#fff}
+.option-text{font-size:0.9rem;line-height:1.5;padding-top:3px}
+.q-nav{display:flex;gap:10px;margin-top:28px}
+.btn-nav{padding:10px 24px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:var(--radius-sm);font-family:'Lexend',sans-serif;font-size:0.82rem;font-weight:600;
+  cursor:pointer;transition:all var(--transition)}
+.btn-nav:hover{border-color:var(--accent);color:var(--accent2)}
+.btn-nav:disabled{opacity:.3;cursor:default}
+.btn-next{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-next:hover{background:var(--accent3);border-color:var(--accent3);color:#fff}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;color:var(--muted)}
+.spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .7s linear infinite;margin-bottom:14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.overlay{position:fixed;inset:0;background:rgba(5,5,10,0.85);z-index:200;display:none;place-items:center;backdrop-filter:blur(4px)}
+.overlay.open{display:grid}
+.dialog{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:400px;width:90%;text-align:center}
+.dialog h3{font-family:'Lexend',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:10px;letter-spacing:-0.02em}
+.dialog p{color:var(--muted);font-size:0.88rem;margin-bottom:22px;line-height:1.5}
+.dialog-btns{display:flex;gap:10px;justify-content:center}
+.btn-confirm{padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);
+  font-family:'Lexend',sans-serif;font-weight:600;cursor:pointer;transition:all var(--transition)}
+.btn-confirm:hover{background:var(--accent3)}
+.btn-cancel{padding:10px 24px;background:transparent;border:1px solid var(--border);color:var(--muted);
+  border-radius:var(--radius-sm);font-family:'Lexend',sans-serif;font-weight:600;cursor:pointer}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border)}.q-area{padding:20px 16px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="exam-title-bar" id="examTitleBar">Loading...</div>
+  <div class="timer-wrap"><span class="timer-label">Time Remaining</span><div class="timer" id="timerDisplay">--:--</div></div>
+</div>
+<div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+<div id="mainContent"><div class="loading"><div class="spinner"></div>Preparing examination...</div></div>
+<div class="overlay" id="submitOverlay">
+  <div class="dialog">
+    <h3>Submit Examination</h3>
+    <p id="confirmMsg">You have answered 0 of 0 questions.</p>
+    <div class="dialog-btns">
+      <button class="btn-confirm" onclick="confirmSubmit()">Submit Now</button>
+      <button class="btn-cancel" onclick="closeOverlay()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const token=localStorage.getItem('token');
+const user=JSON.parse(localStorage.getItem('user')||'null');
+if(!token||!user)window.location.href='/';
+const examId=new URLSearchParams(location.search).get('id');
+if(!examId)window.location.href='/dashboard.html';
+
+let questions=[],exam=null,answers={},currentQ=0,timerInterval=null,timeLeft=0,submitted=false;
+
+async function loadExam(){
+  try{
+    const res=await fetch(`/api/exams/${examId}/questions`,{headers:{Authorization:`Bearer ${token}`}});
+    if(res.status===401){window.location.href='/';return}
+    if(res.status===403){alert('You do not have access to this examination.');window.location.href='/dashboard.html';return}
+    const data=await res.json();
+    if(data.error){alert(data.error);window.location.href='/dashboard.html';return}
+    exam=data.exam;questions=data.questions;
+    document.title=`${exam.name} — Exalyte`;
+    document.getElementById('examTitleBar').textContent=exam.name;
+    timeLeft=exam.time_limit*60;
+    startTimer();renderLayout();
+  }catch(e){document.getElementById('mainContent').innerHTML=`<div class="loading">Failed to load examination.</div>`}
+}
+
+function startTimer(){
+  updateTimerDisplay();
+  timerInterval=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInterval);autoSubmit()}},1000)
+}
+
+function updateTimerDisplay(){
+  const m=Math.floor(timeLeft/60),s=timeLeft%60;
+  const display=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const el=document.getElementById('timerDisplay');
+  el.textContent=display;
+  if(timeLeft<=60)el.classList.add('warning');else el.classList.remove('warning')
+}
+
+function renderLayout(){
+  document.getElementById('mainContent').innerHTML=`
+    <div class="layout">
+      <div class="sidebar">
+        <div class="sidebar-title">Question Navigator</div>
+        <div class="q-grid" id="qGrid"></div>
+        <div class="submit-wrap">
+          <div class="answered-count" id="answeredCount">0 / ${questions.length} answered</div>
+          <button class="btn-submit" onclick="openSubmitOverlay()">Submit Examination</button>
+        </div>
+      </div>
+      <div class="q-area" id="qArea"></div>
+    </div>`;
+  renderQGrid();renderQuestion(0)
+}
+
+function renderQGrid(){
+  const grid=document.getElementById('qGrid');
+  grid.innerHTML=questions.map((q,i)=>`<div class="q-num ${answers[q.id]?'answered':''} ${i===currentQ?'current':''}" onclick="goToQ(${i})">${i+1}</div>`).join('');
+  const answered=Object.keys(answers).length;
+  document.getElementById('answeredCount').textContent=`${answered} / ${questions.length} answered`;
+  document.getElementById('progressFill').style.width=(currentQ+1)/questions.length*100+'%'
+}
+
+function renderQuestion(idx){
+  currentQ=idx;const q=questions[idx];const selected=answers[q.id];
+  const opts=[{key:'A',text:q.option_a},{key:'B',text:q.option_b},{key:'C',text:q.option_c},{key:'D',text:q.option_d}];
+  document.getElementById('qArea').innerHTML=`
+    <div class="q-num-label">Question ${idx+1} of ${questions.length}</div>
+    <div class="q-text">${esc(q.question_text)}</div>
+    ${q.image_url?`<img class="q-image" src="${q.image_url}" alt="Question diagram">`:''}
+    <div class="options">
+      ${opts.map(o=>`<div class="option ${selected===o.key?'selected':''}" onclick="selectAnswer('${q.id}','${o.key}')">
+        <div class="option-letter">${o.key}</div><div class="option-text">${esc(o.text)}</div>
+      </div>`).join('')}
+    </div>
+    <div class="q-nav">
+      <button class="btn-nav" onclick="goToQ(${idx-1})" ${idx===0?'disabled':''}>Previous</button>
+      ${idx<questions.length-1
+        ?`<button class="btn-nav btn-next" onclick="goToQ(${idx+1})">Next Question</button>`
+        :`<button class="btn-nav btn-next" onclick="openSubmitOverlay()">Review & Submit</button>`}
+    </div>`;
+  renderQGrid()
+}
+
+function selectAnswer(qId,key){answers[qId]=key;renderQuestion(currentQ)}
+function goToQ(idx){if(idx<0||idx>=questions.length)return;renderQuestion(idx)}
+
+function openSubmitOverlay(){
+  const answered=Object.keys(answers).length;
+  document.getElementById('confirmMsg').textContent=`You have answered ${answered} of ${questions.length} questions. Unanswered questions will be marked as incorrect.`;
+  document.getElementById('submitOverlay').classList.add('open')
+}
+
+function closeOverlay(){document.getElementById('submitOverlay').classList.remove('open')}
+async function confirmSubmit(){closeOverlay();await submitExam()}
+
+async function autoSubmit(){
+  if(submitted)return;
+  alert('Time has expired. Your examination will be submitted automatically.');
+  await submitExam()
+}
+
+async function submitExam(){
+  if(submitted)return;submitted=true;clearInterval(timerInterval);
+  try{
+    const res=await fetch(`/api/exams/${examId}/submit`,{
+      method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},
+      body:JSON.stringify({answers})
+    });
+    const data=await res.json();
+    if(data.error){alert(data.error);return}
+    window.location.href=`/result.html?attempt=${data.attemptId}&exam=${examId}`
+  }catch(e){alert('Submission failed: '+e.message);submitted=false}
+}
+
+function esc(s){const d=document.createElement('div');d.textContent=String(s);return d.innerHTML}
+
+window.addEventListener('beforeunload',e=>{if(!submitted&&questions.length>0){e.preventDefault();e.returnValue=''}});
+loadExam();
+</script>
+</body>
+</html>
