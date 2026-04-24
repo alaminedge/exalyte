@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exalyte — Examination Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #05050a;
+  --surface: #0c0c16;
+  --surface2: #141424;
+  --border: #1e1e32;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --accent3: #4f46e5;
+  --text: #e9e9f0;
+  --muted: #76768e;
+  --error: #ef4444;
+  --success: #22c55e;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-image:
+    radial-gradient(ellipse 70% 60% at 30% 20%, rgba(99,102,241,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 80% 80%, rgba(139,92,246,0.03) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(99,102,241,0.02) 0%, transparent 100%);
+}
+.container {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.logo-area {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.logo-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.logo-icon svg { width: 100%; height: 100%; }
+.logo-text {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  line-height: 1;
+}
+.logo-subtitle {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 28px;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20px; right: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent);
+}
+.tabs {
+  display: flex;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  margin-bottom: 28px;
+  gap: 4px;
+}
+.tab {
+  flex: 1;
+  padding: 10px 8px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all var(--transition);
+  letter-spacing: 0.01em;
+}
+.tab.active {
+  background: var(--surface2);
+  color: var(--accent2);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+.form-input {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--transition);
+  letter-spacing: 0.01em;
+}
+.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.08); }
+.form-input::placeholder { color: var(--muted); opacity: 0.6; }
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
+}
+.btn:hover { background: var(--accent3); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(99,102,241,0.25); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn .spinner {
+  display: inline-block;
+  width: 15px; height: 15px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-right: 7px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.alert {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  margin-bottom: 14px;
+  display: none;
+  line-height: 1.4;
+}
+.alert.error { display: block; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: var(--error); }
+.alert.success { display: block; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); color: var(--success); }
+.footer-note {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--muted);
+  opacity: 0.7;
+  letter-spacing: 0.02em;
+}
+.footer-note span { color: var(--accent2); }
+@media (max-width: 480px) {
+  .card { padding: 24px 18px; }
+  .logo-text { font-size: 1.5rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo-area">
+    <div class="logo-icon">
+      <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="40" height="40" rx="10" fill="#0c0c16" stroke="#1e1e32" stroke-width="1.5"/>
+        <path d="M14 28L22 12L30 28" stroke="#6366f1" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="17" y1="22" x2="27" y2="22" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="22" cy="32" r="2" fill="#818cf8"/>
+      </svg>
+    </div>
+    <div class="logo-text">Exalyte</div>
+    <div class="logo-subtitle">Precision Examination Platform</div>
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
+      <button class="tab" id="tabSignup" onclick="switchTab('signup')">Register</button>
+    </div>
+
+    <div id="loginForm">
+      <div class="alert" id="loginAlert"></div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" id="loginEmail" placeholder="Enter your email" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
+      </div>
+      <button class="btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+    </div>
+
+    <div id="signupForm" style="display:none">
+      <div class="alert" id="signupAlert"></div>
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" type="text" id="signupName" placeholder="Your full name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" id="signupEmail" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="signupPassword" placeholder="Minimum 6 characters">
+      </div>
+      <button class="btn" id="signupBtn" onclick="doSignup()">Create Account</button>
+    </div>
+  </div>
+
+  <div class="footer-note">Secure examination platform for <span>academic excellence</span></div>
+</div>
+
+<script>
+function switchTab(t) {
+  document.getElementById('loginForm').style.display = t === 'login' ? 'block' : 'none';
+  document.getElementById('signupForm').style.display = t === 'signup' ? 'block' : 'none';
+  document.getElementById('tabLogin').classList.toggle('active', t === 'login');
+  document.getElementById('tabSignup').classList.toggle('active', t === 'signup');
+  document.getElementById('loginAlert').className = 'alert';
+  document.getElementById('signupAlert').className = 'alert';
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const alertEl = document.getElementById('loginAlert');
+  const btn = document.getElementById('loginBtn');
+  alertEl.className = 'alert';
+  if (!email || !password) { alertEl.className='alert error'; alertEl.textContent='Please fill in all fields'; return; }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Signing In';
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) { alertEl.className='alert error'; alertEl.textContent=data.error; btn.disabled=false; btn.textContent='Sign In'; return; }
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    window.location.href = data.user.is_admin ? '/admin.html' : '/dashboard.html';
+  } catch(e) { alertEl.className='alert error'; alertEl.textContent='Network error. Please try again.'; btn.disabled=false; btn.textContent='Sign In'; }
+}
+
+async function doSignup() {
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const password = document.getElementById('signupPassword').value;
+  const alertEl = document.getElementById('signupAlert');
+  const btn = document.getElementById('signupBtn');
+  alertEl.className = 'alert';
+  if (!name || !email || !password) { alertEl.className='alert error'; alertEl.textContent='Please fill in all fields'; return; }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Creating Account';
+  try {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) { alertEl.className='alert error'; alertEl.textContent=data.error; btn.disabled=false; btn.textContent='Create Account'; return; }
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    window.location.href = '/dashboard.html';
+  } catch(e) { alertEl.className='alert error'; alertEl.textContent='Network error. Please try again.'; btn.disabled=false; btn.textContent='Create Account'; }
+}
+
+const existing = localStorage.getItem('user');
+if (existing) {
+  const u = JSON.parse(existing);
+  window.location.href = u.is_admin ? '/admin.html' : '/dashboard.html';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const loginVisible = document.getElementById('loginForm').style.display !== 'none';
+    loginVisible ? doLogin() : doSignup();
+  }
+});
+</script>
+</body>
+</html>
