@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Exalyte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#05050a; --surface:#0c0c16; --surface2:#141424; --border:#1e1e32;
+  --accent:#6366f1; --accent2:#818cf8; --accent3:#4f46e5;
+  --text:#e9e9f0; --muted:#76768e; --error:#ef4444; --success:#22c55e;
+  --premium:#a855f7; --radius:12px; --radius-sm:8px;
+  --transition:0.2s cubic-bezier(0.4,0,0.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  background-image:radial-gradient(ellipse 60% 50% at 80% 0,rgba(99,102,241,0.04) 0,transparent 70%)}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;
+  align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(12px)}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Lexend',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:-0.02em}
+.logo svg{width:28px;height:28px}
+.nav-right{display:flex;align-items:center;gap:14px}
+.user-chip{padding:6px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;
+  font-size:0.8rem;display:flex;align-items:center;gap:6px;font-weight:500}
+.btn-nav{padding:7px 18px;background:transparent;border:1px solid var(--border);color:var(--muted);
+  border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:0.8rem;cursor:pointer;
+  transition:all var(--transition);font-weight:500}
+.btn-nav:hover{border-color:var(--accent);color:var(--accent2)}
+.main{max-width:1100px;margin:0 auto;padding:36px 28px}
+.page-header{margin-bottom:32px}
+.page-title{font-family:'Lexend',sans-serif;font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:6px}
+.page-sub{color:var(--muted);font-size:0.9rem;font-weight:400}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:36px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),transparent)}
+.stat-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600;margin-bottom:8px}
+.stat-val{font-family:'Lexend',sans-serif;font-size:2rem;font-weight:800;color:var(--accent2);letter-spacing:-0.02em}
+.section-title{font-family:'Lexend',sans-serif;font-size:0.95rem;font-weight:700;margin-bottom:16px;
+  letter-spacing:0.02em;color:var(--muted);text-transform:uppercase}
+.exams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px}
+.exam-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;
+  display:flex;flex-direction:column;gap:12px;transition:all var(--transition);position:relative;overflow:hidden}
+.exam-card:hover{border-color:rgba(99,102,241,0.3);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+.exam-card.locked{opacity:0.7}
+.exam-card.locked:hover{transform:none;border-color:var(--border);box-shadow:none}
+.exam-type{font-size:0.66rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:4px 10px;
+  border-radius:20px;display:inline-flex;align-items:center;gap:4px;align-self:flex-start}
+.type-free{background:rgba(34,197,94,0.08);color:var(--success);border:1px solid rgba(34,197,94,0.15)}
+.type-premium{background:rgba(168,85,247,0.08);color:var(--premium);border:1px solid rgba(168,85,247,0.15)}
+.exam-name{font-family:'Lexend',sans-serif;font-size:1.08rem;font-weight:700;line-height:1.3;letter-spacing:-0.01em}
+.exam-desc{font-size:0.82rem;color:var(--muted);line-height:1.5}
+.exam-meta{display:flex;gap:14px;flex-wrap:wrap}
+.meta-item{font-size:0.76rem;color:var(--muted);display:flex;align-items:center;gap:5px}
+.exam-footer{margin-top:auto;display:flex;align-items:center;justify-content:space-between}
+.attempt-badge{font-size:0.73rem;color:var(--success);background:rgba(34,197,94,0.06);
+  padding:4px 10px;border-radius:20px;border:1px solid rgba(34,197,94,0.12);font-weight:500}
+.btn-start{padding:9px 22px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);
+  font-family:'Lexend',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all var(--transition);
+  text-decoration:none;display:inline-block;letter-spacing:0.02em}
+.btn-start:hover{background:var(--accent3);box-shadow:0 4px 16px rgba(99,102,241,0.25)}
+.btn-locked{padding:9px 16px;background:var(--surface2);color:var(--muted);border:1px solid var(--border);
+  border-radius:var(--radius-sm);font-size:0.8rem;font-family:'Lexend',sans-serif;font-weight:600}
+.btn-results{padding:9px 18px;background:var(--surface2);color:var(--accent2);border:1px solid rgba(99,102,241,0.2);
+  border-radius:var(--radius-sm);font-size:0.8rem;font-family:'Lexend',sans-serif;font-weight:600;
+  cursor:pointer;text-decoration:none;display:inline-block;transition:all var(--transition)}
+.btn-results:hover{background:rgba(99,102,241,0.06)}
+.loading{text-align:center;padding:60px;color:var(--muted)}
+.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:60px;color:var(--muted)}
+.empty-icon{margin-bottom:14px;opacity:0.5}
+@media(max-width:600px){nav{padding:0 16px}.main{padding:20px 16px}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">
+    <svg viewBox="0 0 28 28" fill="none"><rect x="1.5" y="1.5" width="25" height="25" rx="7" fill="#0c0c16" stroke="#1e1e32" stroke-width="1.2"/><path d="M9 18l5-11 5 11" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><line x1="11" y1="14" x2="17" y2="14" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/><circle cx="14" cy="21" r="1.3" fill="#818cf8"/></svg>
+    Exalyte
+  </div>
+  <div class="nav-right">
+    <div class="user-chip">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="3" stroke="#818cf8" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="#818cf8" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span id="userName">...</span>
+    </div>
+    <button class="btn-nav" onclick="logout()">Sign Out</button>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="page-header">
+    <div class="page-title">Available Examinations</div>
+    <div class="page-sub">Select an examination to begin. Free exams are open; premium exams require authorization.</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card"><div class="stat-label">Available</div><div class="stat-val" id="statAvail">—</div></div>
+    <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-val" id="statDone">—</div></div>
+    <div class="stat-card"><div class="stat-label">Highest Score</div><div class="stat-val" id="statBest">—</div></div>
+  </div>
+
+  <div class="section-title">Examinations</div>
+  <div id="examsGrid" class="exams-grid">
+    <div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading examinations...</div>
+  </div>
+</div>
+
+<script>
+const token=localStorage.getItem('token');
+const user=JSON.parse(localStorage.getItem('user')||'null');
+if(!token||!user)window.location.href='/';
+if(user?.is_admin)window.location.href='/admin.html';
+document.getElementById('userName').textContent=user?.name||'Student';
+
+function logout(){localStorage.clear();window.location.href='/'}
+
+async function loadExams(){
+  try{
+    const res=await fetch('/api/exams/',{headers:{Authorization:`Bearer ${token}`}});
+    if(res.status===401){logout();return}
+    const exams=await res.json();
+    renderExams(exams);
+  }catch(e){
+    document.getElementById('examsGrid').innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><p>Unable to load examinations.</p></div>`;
+  }
+}
+
+function renderExams(exams){
+  const grid=document.getElementById('examsGrid');
+  const accessible=exams.filter(e=>e.accessible);
+  const attempted=exams.filter(e=>e.attempt);
+  const bestPct=attempted.length?Math.max(...attempted.map(e=>e.attempt.percentage)):null;
+  document.getElementById('statAvail').textContent=accessible.length;
+  document.getElementById('statDone').textContent=attempted.length;
+  document.getElementById('statBest').textContent=bestPct!==null?bestPct+'%':'—';
+
+  if(!exams.length){
+    grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><p>No examinations available at this time.</p></div>`;
+    return;
+  }
+
+  grid.innerHTML=exams.map(exam=>{
+    const isPremium=!!exam.is_premium;
+    const locked=!exam.accessible;
+    const hasAttempt=!!exam.attempt;
+    const typeTag=isPremium
+      ?`<span class="exam-type type-premium">Premium</span>`
+      :`<span class="exam-type type-free">Open</span>`;
+    let actionBtn;
+    if(locked) actionBtn=`<span class="btn-locked">Restricted</span>`;
+    else if(hasAttempt) actionBtn=`
+      <div style="display:flex;gap:8px;align-items:center">
+        <a href="/result.html?attempt=${exam.attempt.id}&exam=${exam.id}" class="btn-results">View Result</a>
+        <a href="/exam.html?id=${exam.id}" class="btn-start" style="font-size:.78rem;padding:9px 14px">Retake</a>
+      </div>`;
+    else actionBtn=`<a href="/exam.html?id=${exam.id}" class="btn-start">Begin Examination</a>`;
+    const attemptInfo=hasAttempt
+      ?`<span class="attempt-badge">Score: ${exam.attempt.score}/${exam.attempt.total_questions} · ${exam.attempt.percentage}%</span>`
+      :'';
+    return`<div class="exam-card ${locked?'locked':''}">
+      ${typeTag}
+      <div class="exam-name">${esc(exam.name)}</div>
+      ${exam.description?`<div class="exam-desc">${esc(exam.description)}</div>`:''}
+      <div class="exam-meta">
+        <span class="meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${exam.time_limit} min</span>
+        <span class="meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${exam.question_count} questions</span>
+      </div>
+      <div class="exam-footer">${attemptInfo||'<span></span>'}${actionBtn}</div>
+    </div>`;
+  }).join('');
+}
+
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+loadExams();
+</script>
+</body>
+</html>
