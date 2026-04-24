@@ -20,7 +20,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 .sidebar-top{padding:20px;border-bottom:1px solid var(--border)}
 .logo{font-family:'Lexend',sans-serif;font-weight:800;font-size:1rem;color:var(--text);
   display:flex;align-items:center;gap:8px;letter-spacing:-0.02em}
-.logo svg{width:26px;height:26px}
+.logo img{width:26px;height:26px}
 .admin-tag{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-top:3px;font-weight:600}
 .nav-section{padding:6px 0}
 .nav-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.11em;color:var(--muted);
@@ -51,7 +51,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 .stat::after{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--accent),transparent);margin-top:12px}
 .stat-label{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:700;margin-bottom:6px}
 .stat-val{font-family:'Lexend',sans-serif;font-size:1.8rem;font-weight:800;color:var(--accent2);letter-spacing:-0.02em}
-.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
 .section-title{font-family:'Lexend',sans-serif;font-size:1.05rem;font-weight:800;letter-spacing:-0.02em}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
 .card-body{padding:22px}
@@ -64,6 +64,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
   font-size:0.86rem;color:var(--text);outline:none;transition:border-color var(--transition)}
 .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,0.06)}
 .form-textarea{resize:vertical;min-height:120px;font-family:monospace;font-size:0.8rem}
+.form-hint{font-size:0.66rem;color:var(--muted);margin-top:4px}
 .toggle-label{display:flex;align-items:center;gap:8px;font-size:0.84rem;cursor:pointer;color:var(--muted)}
 input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px}
 .btn{font-family:'Lexend',sans-serif;font-size:0.8rem;font-weight:600;padding:9px 18px;
@@ -104,7 +105,7 @@ tr:hover td{background:rgba(255,255,255,0.015)}
 .spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);
   border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.empty-row{text-align:center;color:var(--muted);padding:28px!important;font-style:italic;font-size:0.82rem}
+.empty-row{text-align:center;color:var(--muted);padding:28px!important;font-size:0.82rem}
 .score-bar-wrap{display:flex;align-items:center;gap:8px}
 .score-bar{height:5px;background:var(--border);border-radius:3px;flex:1;overflow:hidden}
 .score-bar-fill{height:100%;border-radius:3px}
@@ -114,17 +115,14 @@ tr:hover td{background:rgba(255,255,255,0.015)}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;
   max-width:460px;width:100%;position:relative}
 .modal-title{font-family:'Lexend',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:18px;letter-spacing:-0.02em}
-.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer}
 @media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.menu-btn{display:block}.content{padding:16px}.form-row{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-top">
-    <div class="logo">
-      <svg viewBox="0 0 26 26" fill="none"><rect x="1.2" y="1.2" width="23.6" height="23.6" rx="6" fill="#0c0c16" stroke="#1e1e32" stroke-width="1"/><path d="M8 17l5-11 5 11" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="13" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/><circle cx="13" cy="20" r="1.2" fill="#818cf8"/></svg>
-      Exalyte
-    </div>
+    <div class="logo"><img src="/images/exalyte.png" alt="Exalyte">Exalyte</div>
     <div class="admin-tag">Administration</div>
   </div>
   <div class="nav-section">
@@ -158,6 +156,7 @@ tr:hover td{background:rgba(255,255,255,0.015)}
     <span class="admin-badge">Admin</span>
   </div>
   <div class="content">
+
     <!-- DASHBOARD -->
     <div class="view active" id="view-dashboard">
       <div class="stats" id="dashStats">
@@ -166,45 +165,55 @@ tr:hover td{background:rgba(255,255,255,0.015)}
         <div class="stat"><div class="stat-label">Users</div><div class="stat-val" id="s-users">—</div></div>
         <div class="stat"><div class="stat-label">Submissions</div><div class="stat-val" id="s-attempts">—</div></div>
       </div>
-      <div class="section-head"><div class="section-title">Recent Submissions</div></div>
+      <div class="section-head"><div class="section-title">Recent Submissions (First Attempts Only)</div></div>
       <div class="card"><div class="table-wrap"><table>
         <thead><tr><th>Student</th><th>Examination</th><th>Score</th><th>Percentage</th><th>Date</th></tr></thead>
         <tbody id="recentResults"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
       </table></div></div>
     </div>
+
     <!-- CREATE EXAM -->
     <div class="view" id="view-createExam">
       <div class="section-head"><div class="section-title">Create Examination</div></div>
       <div class="card"><div class="card-body">
         <div id="createExamAlert"></div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Examination Name *</label><input class="form-input" id="eName" placeholder="e.g. Calculus Mid-Term"></div>
-          <div class="form-group"><label class="form-label">Time Limit (minutes)</label><input class="form-input" type="number" id="eTime" value="30" min="1"></div>
+          <div class="form-group"><label class="form-label">Examination Name *</label><input class="form-input" id="eName" placeholder="e.g. JEE Advanced Mock Test"></div>
+          <div class="form-group"><label class="form-label">Time Limit (minutes)</label><input class="form-input" type="number" id="eTime" value="30" min="1" max="300"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Negative Marking</label>
+            <input class="form-input" type="number" id="eNegMark" value="0" min="0" max="5" step="0.25" placeholder="e.g. 0.25">
+            <span class="form-hint">Marks deducted per wrong answer (0 = no negative marking)</span>
+          </div>
         </div>
         <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="eDesc" placeholder="Brief description"></div>
         <div class="form-group"><label class="toggle-label"><input type="checkbox" id="ePremium"><span>Premium examination (restricted access)</span></label></div>
+        <div class="form-group"><label class="toggle-label"><input type="checkbox" id="ePractice" checked><span>Allow practice mode (not recorded)</span></label></div>
         <button class="btn btn-primary" id="createExamBtn" onclick="createExam()">Create Examination</button>
       </div></div>
     </div>
+
     <!-- ALL EXAMS -->
     <div class="view" id="view-exams">
       <div class="section-head"><div class="section-title">All Examinations</div><button class="btn btn-primary" onclick="showView('createExam')">New Exam</button></div>
       <div class="card"><div class="table-wrap"><table>
-        <thead><tr><th>Name</th><th>Type</th><th>Time</th><th>Questions</th><th>Actions</th></tr></thead>
-        <tbody id="examsTable"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
+        <thead><tr><th>Name</th><th>Type</th><th>Neg. Marking</th><th>Time</th><th>Questions</th><th>Actions</th></tr></thead>
+        <tbody id="examsTable"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody>
       </table></div></div>
     </div>
+
     <!-- UPLOAD CSV -->
     <div class="view" id="view-uploadCSV">
       <div class="section-head"><div class="section-title">Upload Questions</div></div>
       <div class="card"><div class="card-body">
         <div id="csvAlert"></div>
         <div class="form-group"><label class="form-label">Select Examination *</label><select class="form-select" id="csvExamId"><option value="">— Select —</option></select></div>
-        <div class="form-group"><label class="form-label">CSV Format Specification</label>
+        <div class="form-group"><label class="form-label">CSV Format</label>
           <div class="csv-preview">question,option_a,option_b,option_c,option_d,correct_answer,image_url(optional)
 "What is the derivative of sin(x)?",cos(x),-cos(x),sin(x),-sin(x),A,
-"Solve: 2x+5=15",3,5,10,7,B,https://example.com/equation.png
-"Which element has atomic number 6?",Oxygen,Nitrogen,Carbon,Boron,C,</div>
+"Solve: 2x+5=15",3,5,10,7,B,https://example.com/equation.png</div>
         </div>
         <div class="form-group"><label class="form-label">Upload CSV File</label>
           <div class="csv-zone" onclick="document.getElementById('csvFile').click()">
@@ -221,6 +230,7 @@ tr:hover td{background:rgba(255,255,255,0.015)}
         <button class="btn btn-primary" id="uploadBtn" onclick="uploadCSV()">Upload Questions</button>
       </div></div>
     </div>
+
     <!-- USERS -->
     <div class="view" id="view-users">
       <div class="section-head"><div class="section-title">Registered Users</div></div>
@@ -229,10 +239,11 @@ tr:hover td{background:rgba(255,255,255,0.015)}
         <tbody id="usersTable"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
       </table></div></div>
     </div>
+
     <!-- RESULTS -->
     <div class="view" id="view-results">
       <div class="section-head">
-        <div class="section-title">Results — Select Examination</div>
+        <div class="section-title">Results — First Attempts Only</div>
         <select class="form-select" id="resultExamFilter" onchange="loadFilteredResults()" style="max-width:280px">
           <option value="all">All Examinations</option>
         </select>
@@ -242,8 +253,10 @@ tr:hover td{background:rgba(255,255,255,0.015)}
         <tbody id="resultsTable"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
       </table></div></div>
     </div>
+
   </div>
 </main>
+
 <!-- GRANT MODAL -->
 <div class="modal-overlay" id="grantModal">
   <div class="modal">
@@ -304,7 +317,7 @@ async function loadDashboard(){
   document.getElementById('s-attempts').textContent=results.length;
   document.getElementById('s-questions').textContent=allExams.reduce((s,e)=>s+(e.question_count||0),0);
   const tbody=document.getElementById('recentResults');
-  if(!results.length){tbody.innerHTML='<tr><td colspan="5" class="empty-row">No submissions yet.</td></tr>';return}
+  if(!results.length){tbody.innerHTML='<tr><td colspan="5" class="empty-row">No first attempts yet.</td></tr>';return}
   tbody.innerHTML=results.slice(0,10).map(r=>{
     const pct=Math.round(r.percentage);
     return`<tr><td style="font-weight:500">${esc(r.user_name)}<br><span style="font-size:.7rem;color:var(--muted)">${esc(r.user_email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><div class="score-bar-wrap"><div class="score-bar"><div class="score-bar-fill" style="width:${pct}%;background:${pct>=80?'var(--success)':pct>=50?'var(--accent2)':'var(--error)'}"></div></div><span style="font-size:.76rem;font-weight:600;min-width:34px">${pct}%</span></div></td><td style="font-size:.76rem;color:var(--muted)">${new Date(r.submitted_at).toLocaleDateString()}</td></tr>`;
@@ -316,23 +329,26 @@ async function createExam(){
   const time_limit=parseInt(document.getElementById('eTime').value)||30;
   const description=document.getElementById('eDesc').value.trim();
   const is_premium=document.getElementById('ePremium').checked;
+  const negative_marking=parseFloat(document.getElementById('eNegMark').value)||0;
+  const allow_practice=document.getElementById('ePractice').checked;
   const alertEl=document.getElementById('createExamAlert');alertEl.innerHTML='';
   if(!name){alertEl.innerHTML='<div class="alert alert-error">Examination name is required.</div>';return}
   const btn=document.getElementById('createExamBtn');btn.disabled=true;btn.textContent='Creating...';
-  const{ok,data}=await api('POST','/admin/exams',{name,description,time_limit,is_premium});
+  const{ok,data}=await api('POST','/admin/exams',{name,description,time_limit,is_premium,negative_marking,allow_practice});
   btn.disabled=false;btn.textContent='Create Examination';
   if(!ok){alertEl.innerHTML=`<div class="alert alert-error">${data.error}</div>`;return}
-  alertEl.innerHTML=`<div class="alert alert-success">Examination created. You can now upload questions.</div>`;
-  document.getElementById('eName').value='';document.getElementById('eDesc').value='';document.getElementById('ePremium').checked=false;
+  alertEl.innerHTML=`<div class="alert alert-success">Examination created! You can now upload questions.</div>`;
+  document.getElementById('eName').value='';document.getElementById('eDesc').value='';document.getElementById('ePremium').checked=false;document.getElementById('eNegMark').value='0';document.getElementById('ePractice').checked=true;
 }
 
 async function loadExams(){
   const{ok,data}=await api('GET','/exams/');allExams=ok?data:[];
   const tbody=document.getElementById('examsTable');
-  if(!allExams.length){tbody.innerHTML='<tr><td colspan="5" class="empty-row">No examinations yet.</td></tr>';return}
+  if(!allExams.length){tbody.innerHTML='<tr><td colspan="6" class="empty-row">No examinations yet.</td></tr>';return}
   tbody.innerHTML=allExams.map(e=>`<tr>
     <td style="font-weight:500">${esc(e.name)}</td>
     <td><span class="badge ${e.is_premium?'badge-premium':'badge-free'}">${e.is_premium?'Premium':'Open'}</span></td>
+    <td>${e.negative_marking||0}</td>
     <td>${e.time_limit} min</td><td>${e.question_count||0}</td>
     <td><div style="display:flex;gap:6px">
       <button class="btn btn-ghost btn-sm" onclick="goUpload(${e.id})">Add Questions</button>
@@ -341,7 +357,7 @@ async function loadExams(){
 }
 
 function goUpload(id){showView('uploadCSV');setTimeout(()=>{document.getElementById('csvExamId').value=id},300)}
-async function deleteExam(id,name){if(!confirm(`Delete "${name}"? All questions and attempts will be removed.`))return;await api('DELETE',`/admin/exams/${id}`);loadExams()}
+async function deleteExam(id,name){if(!confirm(`Delete "${name}"? All data will be removed.`))return;await api('DELETE',`/admin/exams/${id}`);loadExams()}
 
 async function loadExamsForSelect(){
   if(!allExams.length){const{ok,data}=await api('GET','/exams/');allExams=ok?data:[]}
@@ -415,7 +431,7 @@ async function loadFilteredResults(){
   const{ok,data}=await api('GET',url);
   const results=ok?data:[];
   const tbody=document.getElementById('resultsTable');
-  if(!results.length){tbody.innerHTML='<tr><td colspan="5" class="empty-row">No results found.</td></tr>';return}
+  if(!results.length){tbody.innerHTML='<tr><td colspan="5" class="empty-row">No first attempts yet.</td></tr>';return}
   tbody.innerHTML=results.map(r=>{
     const pct=Math.round(r.percentage);
     return`<tr><td style="font-weight:500">${esc(r.user_name)}<br><span style="font-size:.7rem;color:var(--muted)">${esc(r.user_email)}</span></td><td>${esc(r.exam_name)}</td><td style="font-weight:600">${r.score}/${r.total_questions}</td><td><div class="score-bar-wrap"><div class="score-bar"><div class="score-bar-fill" style="width:${pct}%;background:${pct>=80?'var(--success)':pct>=50?'var(--accent2)':'var(--error)'}"></div></div><span class="badge ${pct>=50?'badge-pass':'badge-fail'}">${pct}%</span></div></td><td style="font-size:.76rem;color:var(--muted);white-space:nowrap">${new Date(r.submitted_at).toLocaleString()}</td></tr>`;
