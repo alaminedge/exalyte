@@ -18,7 +18,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:60px;
   display:flex;align-items:center;justify-content:space-between}
 .logo{display:flex;align-items:center;gap:10px;font-family:'Lexend',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:-0.02em}
-.logo svg{width:28px;height:28px}
+.logo img{width:28px;height:28px;border-radius:4px}
 .btn-back{padding:8px 18px;background:transparent;border:1px solid var(--border);color:var(--muted);
   border-radius:var(--radius-sm);font-family:'Lexend',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;
   text-decoration:none;transition:all var(--transition)}
@@ -32,7 +32,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32
 .score-big{font-family:'Lexend',sans-serif;font-size:clamp(3rem,10vw,5rem);font-weight:800;line-height:1;margin-bottom:8px;letter-spacing:-0.03em}
 .score-big.excellent{color:var(--success)}
 .score-big.good{color:var(--accent2)}
-.score-big.needs-work{color:var(--error)}
+.score-big.poor{color:var(--error)}
 .score-fraction{font-family:'Lexend',sans-serif;font-size:1.1rem;color:var(--muted);margin-bottom:16px;font-weight:500}
 .score-msg{font-size:0.92rem;color:var(--muted)}
 .score-stats{display:flex;justify-content:center;gap:36px;margin-top:24px;flex-wrap:wrap}
@@ -74,7 +74,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32
 <body>
 <nav>
   <div class="logo">
-    <svg viewBox="0 0 28 28" fill="none"><rect x="1.5" y="1.5" width="25" height="25" rx="7" fill="#0c0c16" stroke="#1e1e32" stroke-width="1.2"/><path d="M9 18l5-11 5 11" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><line x1="11" y1="14" x2="17" y2="14" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/><circle cx="14" cy="21" r="1.3" fill="#818cf8"/></svg>
+    <img src="/images/exalyte.png" alt="Exalyte">
     Exalyte
   </div>
   <a href="/dashboard.html" class="btn-back">Back to Dashboard</a>
@@ -85,57 +85,101 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32
 </div>
 
 <script>
-const token=localStorage.getItem('token');
-if(!token)window.location.href='/';
-const params=new URLSearchParams(location.search);
-const attemptId=params.get('attempt'),examId=params.get('exam');
+const token = localStorage.getItem('token');
+if (!token) { window.location.href = '/'; }
 
-async function loadResult(){
-  try{
-    const res=await fetch(`/api/exams/${examId}/result/${attemptId}`,{headers:{Authorization:`Bearer ${token}`}});
-    const data=await res.json();
-    if(data.error){document.getElementById('app').innerHTML=`<p style="color:var(--error)">${data.error}</p>`;return}
-    render(data)
-  }catch(e){document.getElementById('app').innerHTML=`<div class="loading">Failed to load results.</div>`}
+const params = new URLSearchParams(location.search);
+const attemptId = params.get('attempt');
+const examId = params.get('exam');
+
+if (!attemptId || !examId) {
+  document.getElementById('app').innerHTML = `
+    <div style="text-align:center;padding:60px;color:var(--error)">
+      <p style="font-size:1.2rem;font-weight:600;margin-bottom:8px">Missing Result Data</p>
+      <p style="color:var(--muted)">Attempt ID: ${attemptId || 'NOT FOUND'}</p>
+      <p style="color:var(--muted)">Exam ID: ${examId || 'NOT FOUND'}</p>
+      <a href="/dashboard.html" style="color:var(--accent2);margin-top:16px;display:inline-block">Return to Dashboard</a>
+    </div>`;
 }
 
-function render({attempt,exam,questions}){
-  const{score,total_questions,percentage,answers}=attempt;
-  const scoreClass=percentage>=80?'excellent':percentage>=50?'good':'needs-work';
-  const msg=percentage>=80?'Excellent performance!'+percentage>=50?'Good effort. Review the incorrect answers below.':'Continue practicing. Focus on the areas marked incorrect.';
-  const correct=score;
-  const wrong=Object.values(answers).filter(a=>!a.isCorrect&&a.given).length;
-  const skipped=total_questions-correct-wrong;
-  document.title=`${exam.name} Results — Exalyte`;
+async function loadResult() {
+  try {
+    const url = `/api/exams/${examId}/result/${attemptId}`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    if (res.status === 401) { window.location.href = '/'; return; }
+    const data = await res.json();
+    if (data.error) {
+      document.getElementById('app').innerHTML = `
+        <div style="text-align:center;padding:60px;color:var(--error)">
+          <p style="font-size:1.2rem;font-weight:600;margin-bottom:8px">Error Loading Results</p>
+          <p style="color:var(--muted)">${data.error}</p>
+          <a href="/dashboard.html" style="color:var(--accent2);margin-top:16px;display:inline-block">Return to Dashboard</a>
+        </div>`;
+      return;
+    }
+    render(data);
+  } catch (e) {
+    document.getElementById('app').innerHTML = `
+      <div style="text-align:center;padding:60px;color:var(--error)">
+        <p style="font-size:1.2rem;font-weight:600;margin-bottom:8px">Connection Error</p>
+        <p style="color:var(--muted)">Failed to load results. Check your connection.</p>
+        <a href="/dashboard.html" style="color:var(--accent2);margin-top:16px;display:inline-block">Return to Dashboard</a>
+      </div>`;
+  }
+}
 
-  const reviewItems=questions.map((q,i)=>{
-    const ans=answers[q.id]||{given:'',correct:'',isCorrect:false};
-    const isSkipped=!ans.given;
-    const cls=isSkipped?'skipped':(ans.isCorrect?'correct':'wrong');
-    const statusText=isSkipped?'Skipped':(ans.isCorrect?'Correct':'Incorrect');
-    const optMap={A:q.option_a,B:q.option_b,C:q.option_c,D:q.option_d};
-    return`<div class="review-item ${cls}">
+function render({ attempt, exam, questions }) {
+  const { score, total_questions, percentage, answers } = attempt;
+
+  let scoreClass, msg;
+  if (percentage >= 80) {
+    scoreClass = 'excellent';
+    msg = 'Excellent performance!';
+  } else if (percentage >= 50) {
+    scoreClass = 'good';
+    msg = 'Good effort. Review the incorrect answers below.';
+  } else {
+    scoreClass = 'poor';
+    msg = 'Keep practicing. Focus on the areas marked incorrect.';
+  }
+
+  const correct = score;
+  const wrong = Object.values(answers).filter(a => !a.isCorrect && a.given).length;
+  const skipped = total_questions - correct - wrong;
+
+  document.title = `${exam.name} Results — Exalyte`;
+
+  const reviewItems = questions.map((q, i) => {
+    const ans = answers[q.id] || { given: '', correct: '', isCorrect: false };
+    const isSkipped = !ans.given;
+    const cls = isSkipped ? 'skipped' : (ans.isCorrect ? 'correct' : 'wrong');
+    const statusText = isSkipped ? 'Skipped' : (ans.isCorrect ? 'Correct' : 'Incorrect');
+    const optMap = { A: q.option_a, B: q.option_b, C: q.option_c, D: q.option_d };
+
+    return `<div class="review-item ${cls}">
       <div class="review-header">
-        <div class="review-num">${i+1}</div>
+        <div class="review-num">${i + 1}</div>
         <div class="review-q">${esc(q.question_text)}</div>
         <span class="review-status">${statusText}</span>
       </div>
       <div class="review-answers">
         <div class="ans-item">
           <span class="ans-label">Your answer:</span>
-          <span class="ans-val ${!isSkipped&&!ans.isCorrect?'wrong-answer':isSkipped?'':'correct-answer'}">${ans.given?`${ans.given}. ${esc(optMap[ans.given]||'')}`:'—'}</span>
+          <span class="ans-val ${!isSkipped && !ans.isCorrect ? 'wrong-answer' : isSkipped ? '' : 'correct-answer'}">
+            ${ans.given ? `${ans.given}. ${esc(optMap[ans.given] || '')}` : '—'}
+          </span>
         </div>
         <div class="ans-item">
           <span class="ans-label">Correct answer:</span>
-          <span class="ans-val correct-answer">${ans.correct}. ${esc(optMap[ans.correct]||'')}</span>
+          <span class="ans-val correct-answer">${ans.correct}. ${esc(optMap[ans.correct] || '')}</span>
         </div>
       </div>
     </div>`;
   }).join('');
 
-  document.getElementById('app').innerHTML=`
+  document.getElementById('app').innerHTML = `
     <div class="score-hero">
-      <div class="score-label">${esc(exam.name)} · Final Score</div>
+      <div class="score-label">${esc(exam.name)} &middot; Final Score</div>
       <div class="score-big ${scoreClass}">${percentage}%</div>
       <div class="score-fraction">${score} of ${total_questions} correct</div>
       <div class="score-msg">${msg}</div>
@@ -146,10 +190,12 @@ function render({attempt,exam,questions}){
       </div>
     </div>
     <div class="section-title">Detailed Review</div>
-    <div class="review-list">${reviewItems}</div>`;
+    <div class="review-list">${reviewItems}</div>
+  `;
 }
 
-function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML}
+function esc(s) { const d = document.createElement('div'); d.textContent = String(s || ''); return d.innerHTML; }
+
 loadResult();
 </script>
 </body>
