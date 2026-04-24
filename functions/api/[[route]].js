@@ -193,7 +193,6 @@ async function handleExams(method, path, body, db, user) {
 
     const exam = await db.prepare('SELECT * FROM exams WHERE id=?').bind(examId).first();
     const negMark = exam?.negative_marking || 0;
-
     const questions = await db.prepare('SELECT id,correct_answer FROM questions WHERE exam_id=?').bind(examId).all();
     if (!questions.results.length) return err('No questions found');
 
@@ -215,7 +214,6 @@ async function handleExams(method, path, body, db, user) {
 
     const percentage = Math.round((score / total) * 100);
 
-    // Check if first attempt
     const existingFirst = await db.prepare(
       'SELECT id FROM exam_results_stored WHERE user_id=? AND exam_id=? AND is_first_attempt=1'
     ).bind(user.id, examId).first();
@@ -230,16 +228,13 @@ async function handleExams(method, path, body, db, user) {
        VALUES (?,?,?,?,?,?,?,?)`
     ).bind(user.id, examId, score, total, percentage, JSON.stringify(detailedAnswers), (attemptNum?.cnt||0)+1, isFirst).run();
 
-    // Also save to exam_attempts for backward compatibility
     await db.prepare(
       'INSERT INTO exam_attempts (user_id,exam_id,score,total_questions,percentage,answers) VALUES (?,?,?,?,?,?)'
     ).bind(user.id, examId, score, total, percentage, JSON.stringify(detailedAnswers)).run();
 
     return json({
       attemptId: result.meta.last_row_id,
-      score,
-      total,
-      percentage,
+      score, total, percentage,
       answers: detailedAnswers,
       is_first_attempt: !!isFirst
     });
@@ -271,6 +266,7 @@ async function handleAdmin(method, path, body, db, user) {
   if (!user) return err('Unauthorized', 401);
   if (!user.is_admin) return err('Admin access required', 403);
 
+  // POST /api/admin/exams — create exam
   if (method === 'POST' && path === '/exams') {
     const { name, description, time_limit, is_premium, negative_marking, allow_practice } = body;
     if (!name) return err('Exam name required');
@@ -280,6 +276,25 @@ async function handleAdmin(method, path, body, db, user) {
     return json({ id: result.meta.last_row_id, message: 'Exam created' });
   }
 
+  // PUT /api/admin/exams/:id — edit exam
+  if (method === 'PUT' && path.match(/^\/exams\/\d+$/)) {
+    const examId = parseInt(path.split('/')[2]);
+    const { name, description, time_limit, is_premium, negative_marking, allow_practice } = body;
+    const updates = [];
+    const values = [];
+    if (name !== undefined) { updates.push('name = ?'); values.push(name); }
+    if (description !== undefined) { updates.push('description = ?'); values.push(description); }
+    if (time_limit !== undefined) { updates.push('time_limit = ?'); values.push(time_limit); }
+    if (is_premium !== undefined) { updates.push('is_premium = ?'); values.push(is_premium); }
+    if (negative_marking !== undefined) { updates.push('negative_marking = ?'); values.push(negative_marking); }
+    if (allow_practice !== undefined) { updates.push('allow_practice = ?'); values.push(allow_practice); }
+    if (updates.length === 0) return err('Nothing to update');
+    values.push(examId);
+    await db.prepare(`UPDATE exams SET ${updates.join(', ')} WHERE id = ?`).bind(...values).run();
+    return json({ message: 'Exam updated' });
+  }
+
+  // DELETE /api/admin/exams/:id — delete exam
   if (method === 'DELETE' && path.match(/^\/exams\/\d+$/)) {
     const examId = parseInt(path.split('/')[2]);
     await db.prepare('DELETE FROM questions WHERE exam_id=?').bind(examId).run();
@@ -290,6 +305,15 @@ async function handleAdmin(method, path, body, db, user) {
     return json({ message: 'Exam deleted' });
   }
 
+  // DELETE /api/admin/results/:id — delete specific result
+  if (method === 'DELETE' && path.match(/^\/results\/\d+$/)) {
+    const resultId = parseInt(path.split('/')[2]);
+    await db.prepare('DELETE FROM exam_results_stored WHERE id=?').bind(resultId).run();
+    await db.prepare('DELETE FROM exam_attempts WHERE id=?').bind(resultId).run();
+    return json({ message: 'Result deleted' });
+  }
+
+  // POST /api/admin/questions/bulk — CSV upload
   if (method === 'POST' && path === '/questions/bulk') {
     const { exam_id, csv } = body;
     if (!exam_id || !csv) return err('exam_id and csv required');
@@ -314,11 +338,13 @@ async function handleAdmin(method, path, body, db, user) {
     return json({ inserted, errors });
   }
 
+  // GET /api/admin/users
   if (method === 'GET' && path === '/users') {
     const users = await db.prepare('SELECT id,name,email,is_admin,is_premium_allowed,created_at FROM users ORDER BY created_at DESC').all();
     return json(users.results);
   }
 
+  // POST /api/admin/grant-premium
   if (method === 'POST' && path === '/grant-premium') {
     const { user_id, exam_id } = body;
     if (!user_id || !exam_id) return err('user_id and exam_id required');
@@ -329,12 +355,14 @@ async function handleAdmin(method, path, body, db, user) {
     } catch(e) { return err(e.message); }
   }
 
+  // DELETE /api/admin/revoke-premium
   if (method === 'DELETE' && path === '/revoke-premium') {
     const { user_id, exam_id } = body;
     await db.prepare('DELETE FROM premium_access WHERE user_id=? AND exam_id=?').bind(user_id, exam_id).run();
     return json({ message: 'Access revoked' });
   }
 
+  // GET /api/admin/results — all first attempts
   if (method === 'GET' && path === '/results') {
     const results = await db.prepare(`
       SELECT ea.*, u.name as user_name, u.email as user_email, e.name as exam_name
@@ -347,6 +375,7 @@ async function handleAdmin(method, path, body, db, user) {
     return json(results.results);
   }
 
+  // GET /api/admin/results/:examId — results per exam
   if (method === 'GET' && path.match(/^\/results\/\d+$/)) {
     const examId = parseInt(path.split('/')[2]);
     const results = await db.prepare(`
@@ -360,6 +389,7 @@ async function handleAdmin(method, path, body, db, user) {
     return json(results.results);
   }
 
+  // GET /api/admin/premium-grants
   if (method === 'GET' && path === '/premium-grants') {
     const grants = await db.prepare(`
       SELECT pa.*, u.name as user_name, u.email, e.name as exam_name
