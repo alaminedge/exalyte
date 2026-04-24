@@ -62,6 +62,7 @@ async function ensureTables(db) {
     id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL, password TEXT NOT NULL,
     is_admin INTEGER DEFAULT 0, is_premium_allowed INTEGER DEFAULT 0,
+    premium_until DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run();
 
   await db.prepare(`CREATE TABLE IF NOT EXISTS exams (
@@ -125,7 +126,7 @@ async function handleAuth(method, path, body, db) {
       const result = await db.prepare(
         'INSERT INTO users (name,email,password) VALUES (?,?,?)'
       ).bind(name, email.toLowerCase(), hashed).run();
-      const user = await db.prepare('SELECT id,name,email,is_admin,is_premium_allowed FROM users WHERE id=?')
+      const user = await db.prepare('SELECT id,name,email,is_admin,is_premium_allowed,premium_until FROM users WHERE id=?')
         .bind(result.meta.last_row_id).first();
       const token = await signToken({ id: user.id, email: user.email, is_admin: user.is_admin, exp: Date.now() + 7*24*60*60*1000 });
       return json({ token, user });
@@ -139,7 +140,7 @@ async function handleAuth(method, path, body, db) {
     if (!email || !password) return err('Email and password required');
     const hashed = await sha256(password);
     const user = await db.prepare(
-      'SELECT id,name,email,is_admin,is_premium_allowed FROM users WHERE email=? AND password=?'
+      'SELECT id,name,email,is_admin,is_premium_allowed,premium_until FROM users WHERE email=? AND password=?'
     ).bind(email.toLowerCase(), hashed).first();
     if (!user) return err('Invalid email or password', 401);
     const token = await signToken({ id: user.id, email: user.email, is_admin: user.is_admin, exp: Date.now() + 7*24*60*60*1000 });
@@ -152,6 +153,7 @@ async function handleAuth(method, path, body, db) {
 async function handleExams(method, path, body, db, user) {
   if (!user) return err('Unauthorized', 401);
 
+  // GET /api/exams/
   if (method === 'GET' && path === '/') {
     const allExams = await db.prepare('SELECT * FROM exams ORDER BY created_at DESC').all();
     const exams = [];
@@ -163,40 +165,65 @@ async function handleExams(method, path, body, db, user) {
       
       let accessible = !exam.is_premium;
       if (exam.is_premium && user.is_admin) accessible = true;
+      
+      // Check account-wide premium
+      if (exam.is_premium && !accessible) {
+        const userData = await db.prepare('SELECT premium_until FROM users WHERE id=?').bind(user.id).first();
+        if (userData?.premium_until && new Date(userData.premium_until + ' UTC') > new Date()) {
+          accessible = true;
+        }
+      }
+      
+      // Check per-exam grant
       if (exam.is_premium && !accessible) {
         const grant = await db.prepare(
           'SELECT id, expires_at FROM premium_access WHERE user_id=? AND exam_id=?'
         ).bind(user.id, exam.id).first();
         if (grant) {
-          // Check if not expired
           if (!grant.expires_at || new Date(grant.expires_at + ' UTC') > new Date()) {
             accessible = true;
           }
         }
       }
+      
       exams.push({ ...exam, question_count: qCount.cnt, stored_attempt: stored, accessible });
     }
     return json(exams);
   }
 
+  // GET /api/exams/:id/questions
   if (method === 'GET' && path.match(/^\/\d+\/questions$/)) {
     const examId = parseInt(path.split('/')[1]);
     const exam = await db.prepare('SELECT * FROM exams WHERE id=?').bind(examId).first();
     if (!exam) return err('Exam not found', 404);
+    
     if (exam.is_premium && !user.is_admin) {
-      const grant = await db.prepare(
-        'SELECT id, expires_at FROM premium_access WHERE user_id=? AND exam_id=?'
-      ).bind(user.id, examId).first();
-      if (!grant) return err('Premium access required', 403);
-      if (grant.expires_at && new Date(grant.expires_at + ' UTC') <= new Date()) {
-        return err('Premium access expired', 403);
+      let hasAccess = false;
+      
+      // Check account-wide premium
+      const userData = await db.prepare('SELECT premium_until FROM users WHERE id=?').bind(user.id).first();
+      if (userData?.premium_until && new Date(userData.premium_until + ' UTC') > new Date()) {
+        hasAccess = true;
+      }
+      
+      // Check per-exam grant
+      if (!hasAccess) {
+        const grant = await db.prepare(
+          'SELECT id, expires_at FROM premium_access WHERE user_id=? AND exam_id=?'
+        ).bind(user.id, examId).first();
+        if (!grant) return err('Premium access required', 403);
+        if (grant.expires_at && new Date(grant.expires_at + ' UTC') <= new Date()) {
+          return err('Premium access expired', 403);
+        }
       }
     }
+    
     const questions = await db.prepare('SELECT * FROM questions WHERE exam_id=? ORDER BY id').bind(examId).all();
     const safeQuestions = questions.results.map(({ correct_answer, ...q }) => q);
     return json({ exam, questions: safeQuestions });
   }
 
+  // POST /api/exams/:id/submit
   if (method === 'POST' && path.match(/^\/\d+\/submit$/)) {
     const examId = parseInt(path.split('/')[1]);
     const { answers, is_practice } = body;
@@ -224,11 +251,9 @@ async function handleExams(method, path, body, db, user) {
     }
 
     const percentage = Math.round((score / total) * 100);
-
     const existingFirst = await db.prepare(
       'SELECT id FROM exam_results_stored WHERE user_id=? AND exam_id=? AND is_first_attempt=1'
     ).bind(user.id, examId).first();
-
     const isFirst = is_practice ? 0 : (existingFirst ? 0 : 1);
     const attemptNum = await db.prepare(
       'SELECT COUNT(*) as cnt FROM exam_results_stored WHERE user_id=? AND exam_id=?'
@@ -244,13 +269,12 @@ async function handleExams(method, path, body, db, user) {
     ).bind(user.id, examId, score, total, percentage, JSON.stringify(detailedAnswers)).run();
 
     return json({
-      attemptId: result.meta.last_row_id,
-      score, total, percentage,
-      answers: detailedAnswers,
-      is_first_attempt: !!isFirst
+      attemptId: result.meta.last_row_id, score, total, percentage,
+      answers: detailedAnswers, is_first_attempt: !!isFirst
     });
   }
 
+  // GET /api/exams/:id/result/:attemptId
   if (method === 'GET' && path.match(/^\/\d+\/result\/\d+$/)) {
     const parts = path.split('/');
     const examId = parseInt(parts[1]);
@@ -263,8 +287,7 @@ async function handleExams(method, path, body, db, user) {
     const questions = await db.prepare('SELECT * FROM questions WHERE exam_id=? ORDER BY id').bind(examId).all();
     return json({
       attempt: { ...attempt, answers: JSON.parse(attempt.answers || '{}') },
-      exam,
-      questions: questions.results
+      exam, questions: questions.results
     });
   }
 
@@ -290,8 +313,7 @@ async function handleAdmin(method, path, body, db, user) {
   if (method === 'PUT' && path.match(/^\/exams\/\d+$/)) {
     const examId = parseInt(path.split('/')[2]);
     const { name, description, time_limit, is_premium, negative_marking, allow_practice } = body;
-    const updates = [];
-    const values = [];
+    const updates = []; const values = [];
     if (name !== undefined) { updates.push('name = ?'); values.push(name); }
     if (description !== undefined) { updates.push('description = ?'); values.push(description); }
     if (time_limit !== undefined) { updates.push('time_limit = ?'); values.push(time_limit); }
@@ -319,11 +341,10 @@ async function handleAdmin(method, path, body, db, user) {
   if (method === 'DELETE' && path.match(/^\/results\/\d+$/)) {
     const resultId = parseInt(path.split('/')[2]);
     await db.prepare('DELETE FROM exam_results_stored WHERE id=?').bind(resultId).run();
-    await db.prepare('DELETE FROM exam_attempts WHERE id=?').bind(resultId).run();
     return json({ message: 'Result deleted' });
   }
 
-  // DELETE /api/admin/questions/:examId — delete all questions for an exam
+  // DELETE /api/admin/questions/:examId
   if (method === 'DELETE' && path.match(/^\/questions\/\d+$/)) {
     const examId = parseInt(path.split('/')[2]);
     await db.prepare('DELETE FROM questions WHERE exam_id=?').bind(examId).run();
@@ -349,20 +370,19 @@ async function handleAdmin(method, path, body, db, user) {
     const { exam_id, csv } = body;
     if (!exam_id || !csv) return err('exam_id and csv required');
     const lines = csv.trim().split('\n').filter(l => l.trim());
-    let inserted = 0;
-    const errors = [];
+    let inserted = 0; const errors = [];
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
       const cols = parseCSVLine(line);
-      if (cols.length < 6) { errors.push(`Line ${i+1}: need at least 6 columns`); continue; }
-      const [question_text, option_a, option_b, option_c, option_d, correct_answer, image_url] = cols;
-      const correct = correct_answer.trim().toUpperCase();
-      if (!['A','B','C','D'].includes(correct)) { errors.push(`Line ${i+1}: correct_answer must be A/B/C/D`); continue; }
+      if (cols.length < 6) { errors.push(`Line ${i+1}: need 6+ columns`); continue; }
+      const [qt, oa, ob, oc, od, ca, iu] = cols;
+      const correct = ca.trim().toUpperCase();
+      if (!['A','B','C','D'].includes(correct)) { errors.push(`Line ${i+1}: answer must be A/B/C/D`); continue; }
       try {
         await db.prepare(
           'INSERT INTO questions (exam_id,question_text,option_a,option_b,option_c,option_d,correct_answer,image_url) VALUES (?,?,?,?,?,?,?,?)'
-        ).bind(exam_id, question_text.trim(), option_a.trim(), option_b.trim(), option_c.trim(), option_d.trim(), correct, image_url ? image_url.trim() : null).run();
+        ).bind(exam_id, qt.trim(), oa.trim(), ob.trim(), oc.trim(), od.trim(), correct, iu ? iu.trim() : null).run();
         inserted++;
       } catch(e) { errors.push(`Line ${i+1}: ${e.message}`); }
     }
@@ -371,48 +391,55 @@ async function handleAdmin(method, path, body, db, user) {
 
   // GET /api/admin/users
   if (method === 'GET' && path === '/users') {
-    const users = await db.prepare('SELECT id,name,email,is_admin,is_premium_allowed,created_at FROM users ORDER BY created_at DESC').all();
+    const users = await db.prepare('SELECT id,name,email,is_admin,is_premium_allowed,premium_until,created_at FROM users ORDER BY created_at DESC').all();
     return json(users.results);
   }
 
-  // POST /api/admin/grant-premium
+  // POST /api/admin/grant-premium — per exam
   if (method === 'POST' && path === '/grant-premium') {
     const { user_id, exam_id, duration_hours } = body;
     if (!user_id || !exam_id) return err('user_id and exam_id required');
-    
     let expires_at = null;
     if (duration_hours && duration_hours > 0) {
-      const expiry = new Date(Date.now() + duration_hours * 60 * 60 * 1000);
-      expires_at = expiry.toISOString().replace('T',' ').substring(0,19);
+      expires_at = new Date(Date.now() + duration_hours * 60 * 60 * 1000).toISOString().replace('T',' ').substring(0,19);
     }
-    
     try {
-      // Delete existing grant first
       await db.prepare('DELETE FROM premium_access WHERE user_id=? AND exam_id=?').bind(user_id, exam_id).run();
-      // Insert new grant
-      await db.prepare(
-        'INSERT INTO premium_access (user_id,exam_id,granted_by,expires_at) VALUES (?,?,?,?)'
-      ).bind(user_id, exam_id, user.id, expires_at).run();
-      return json({ message: 'Premium access granted', expires_at });
+      await db.prepare('INSERT INTO premium_access (user_id,exam_id,granted_by,expires_at) VALUES (?,?,?,?)')
+        .bind(user_id, exam_id, user.id, expires_at).run();
+      return json({ message: 'Exam access granted', expires_at });
     } catch(e) { return err(e.message); }
   }
 
-  // DELETE /api/admin/revoke-premium
+  // POST /api/admin/grant-account-premium — all exams
+  if (method === 'POST' && path === '/grant-account-premium') {
+    const { user_id, duration_hours } = body;
+    if (!user_id || !duration_hours || duration_hours <= 0) return err('user_id and duration_hours required');
+    const expires_at = new Date(Date.now() + duration_hours * 60 * 60 * 1000).toISOString().replace('T',' ').substring(0,19);
+    await db.prepare('UPDATE users SET premium_until = ? WHERE id = ?').bind(expires_at, user_id).run();
+    return json({ message: 'Account-wide premium granted', expires_at });
+  }
+
+  // DELETE /api/admin/revoke-premium — per exam
   if (method === 'DELETE' && path === '/revoke-premium') {
     const { user_id, exam_id } = body;
     await db.prepare('DELETE FROM premium_access WHERE user_id=? AND exam_id=?').bind(user_id, exam_id).run();
     return json({ message: 'Access revoked' });
   }
 
+  // DELETE /api/admin/revoke-account-premium
+  if (method === 'DELETE' && path === '/revoke-account-premium') {
+    const { user_id } = body;
+    await db.prepare('UPDATE users SET premium_until = NULL WHERE id = ?').bind(user_id).run();
+    return json({ message: 'Account premium revoked' });
+  }
+
   // GET /api/admin/results
   if (method === 'GET' && path === '/results') {
     const results = await db.prepare(`
       SELECT ea.*, u.name as user_name, u.email as user_email, e.name as exam_name
-      FROM exam_results_stored ea
-      JOIN users u ON ea.user_id = u.id
-      JOIN exams e ON ea.exam_id = e.id
-      WHERE ea.is_first_attempt = 1
-      ORDER BY ea.submitted_at DESC
+      FROM exam_results_stored ea JOIN users u ON ea.user_id = u.id JOIN exams e ON ea.exam_id = e.id
+      WHERE ea.is_first_attempt = 1 ORDER BY ea.submitted_at DESC
     `).all();
     return json(results.results);
   }
@@ -422,11 +449,8 @@ async function handleAdmin(method, path, body, db, user) {
     const examId = parseInt(path.split('/')[2]);
     const results = await db.prepare(`
       SELECT ea.*, u.name as user_name, u.email as user_email, e.name as exam_name
-      FROM exam_results_stored ea
-      JOIN users u ON ea.user_id = u.id
-      JOIN exams e ON ea.exam_id = e.id
-      WHERE ea.exam_id = ? AND ea.is_first_attempt = 1
-      ORDER BY ea.percentage DESC, ea.submitted_at DESC
+      FROM exam_results_stored ea JOIN users u ON ea.user_id = u.id JOIN exams e ON ea.exam_id = e.id
+      WHERE ea.exam_id = ? AND ea.is_first_attempt = 1 ORDER BY ea.percentage DESC, ea.submitted_at DESC
     `).bind(examId).all();
     return json(results.results);
   }
@@ -435,9 +459,7 @@ async function handleAdmin(method, path, body, db, user) {
   if (method === 'GET' && path === '/premium-grants') {
     const grants = await db.prepare(`
       SELECT pa.*, u.name as user_name, u.email, e.name as exam_name
-      FROM premium_access pa
-      JOIN users u ON pa.user_id = u.id
-      JOIN exams e ON pa.exam_id = e.id
+      FROM premium_access pa JOIN users u ON pa.user_id = u.id JOIN exams e ON pa.exam_id = e.id
     `).all();
     return json(grants.results);
   }
@@ -449,26 +471,17 @@ async function handleAdmin(method, path, body, db, user) {
 export async function onRequest(context) {
   const { request, env } = context;
   const db = env.DB;
-
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { headers: CORS });
-  }
-
+  if (request.method === 'OPTIONS') return new Response(null, { headers: CORS });
   await ensureTables(db);
-
   const url = new URL(request.url);
   const fullPath = url.pathname.replace(/^\/api/, '');
-
   let body = {};
   if (['POST','PUT','DELETE'].includes(request.method)) {
     try { body = await request.json(); } catch {}
   }
-
-  const user = await getUser(request);
-
+  const authUser = await getUser(request);
   if (fullPath.startsWith('/auth/')) return handleAuth(request.method, fullPath.replace('/auth',''), body, db);
-  if (fullPath.startsWith('/exams')) return handleExams(request.method, fullPath.replace('/exams','') || '/', body, db, user);
-  if (fullPath.startsWith('/admin/')) return handleAdmin(request.method, fullPath.replace('/admin',''), body, db, user);
-
+  if (fullPath.startsWith('/exams')) return handleExams(request.method, fullPath.replace('/exams','') || '/', body, db, authUser);
+  if (fullPath.startsWith('/admin/')) return handleAdmin(request.method, fullPath.replace('/admin',''), body, db, authUser);
   return err('API route not found', 404);
 }
