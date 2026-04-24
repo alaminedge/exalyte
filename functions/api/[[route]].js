@@ -1,5 +1,5 @@
 // functions/api/[[route]].js
-// Exalyte Cloudflare Pages Functions
+// Exalyte — Cloudflare Pages Functions
 
 async function sha256(text) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
@@ -67,7 +67,9 @@ async function ensureTables(db) {
   await db.prepare(`CREATE TABLE IF NOT EXISTS exams (
     id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL,
     description TEXT, time_limit INTEGER DEFAULT 30,
-    is_premium INTEGER DEFAULT 0, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run();
+    is_premium INTEGER DEFAULT 0, negative_marking REAL DEFAULT 0,
+    allow_practice INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run();
 
   await db.prepare(`CREATE TABLE IF NOT EXISTS questions (
     id INTEGER PRIMARY KEY AUTOINCREMENT, exam_id INTEGER NOT NULL,
@@ -80,6 +82,15 @@ async function ensureTables(db) {
     exam_id INTEGER NOT NULL, score INTEGER DEFAULT 0,
     total_questions INTEGER DEFAULT 0, percentage REAL DEFAULT 0,
     answers TEXT, submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run();
+
+  await db.prepare(`CREATE TABLE IF NOT EXISTS exam_results_stored (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL,
+    exam_id INTEGER NOT NULL, score INTEGER DEFAULT 0,
+    total_questions INTEGER DEFAULT 0, percentage REAL DEFAULT 0,
+    answers TEXT, submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    attempt_number INTEGER DEFAULT 1, is_first_attempt INTEGER DEFAULT 1,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (exam_id) REFERENCES exams(id))`).run();
 
   await db.prepare(`CREATE TABLE IF NOT EXISTS premium_access (
     id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL,
@@ -102,8 +113,7 @@ function parseCSVLine(line) {
   return result;
 }
 
-// ═══ ROUTE HANDLERS ═══
-
+// ═══ AUTH ═══
 async function handleAuth(method, path, body, db) {
   if (method === 'POST' && path === '/signup') {
     const { name, email, password } = body;
@@ -120,10 +130,9 @@ async function handleAuth(method, path, body, db) {
       return json({ token, user });
     } catch (e) {
       if (e.message.includes('UNIQUE')) return err('Email already registered');
-      return err('Signup failed: ' + e.message);
+      return err('Signup failed');
     }
   }
-
   if (method === 'POST' && path === '/login') {
     const { email, password } = body;
     if (!email || !password) return err('Email and password required');
@@ -135,30 +144,29 @@ async function handleAuth(method, path, body, db) {
     const token = await signToken({ id: user.id, email: user.email, is_admin: user.is_admin, exp: Date.now() + 7*24*60*60*1000 });
     return json({ token, user });
   }
-
   return err('Not found', 404);
 }
 
+// ═══ EXAMS ═══
 async function handleExams(method, path, body, db, user) {
   if (!user) return err('Unauthorized', 401);
 
-  // GET /api/exams/ — list accessible exams
+  // GET /api/exams/
   if (method === 'GET' && path === '/') {
     const allExams = await db.prepare('SELECT * FROM exams ORDER BY created_at DESC').all();
     const exams = [];
     for (const exam of allExams.results) {
       const qCount = await db.prepare('SELECT COUNT(*) as cnt FROM questions WHERE exam_id=?').bind(exam.id).first();
-      const attempt = await db.prepare(
-        'SELECT id,score,total_questions,percentage,submitted_at FROM exam_attempts WHERE user_id=? AND exam_id=? ORDER BY submitted_at DESC LIMIT 1'
+      const stored = await db.prepare(
+        'SELECT id,score,total_questions,percentage FROM exam_results_stored WHERE user_id=? AND exam_id=? AND is_first_attempt=1 ORDER BY submitted_at DESC LIMIT 1'
       ).bind(user.id, exam.id).first();
-
       let accessible = !exam.is_premium;
       if (exam.is_premium && user.is_admin) accessible = true;
       if (exam.is_premium && !accessible) {
         const grant = await db.prepare('SELECT id FROM premium_access WHERE user_id=? AND exam_id=?').bind(user.id, exam.id).first();
         if (grant) accessible = true;
       }
-      exams.push({ ...exam, question_count: qCount.cnt, attempt, accessible });
+      exams.push({ ...exam, question_count: qCount.cnt, stored_attempt: stored, accessible });
     }
     return json(exams);
   }
@@ -180,25 +188,61 @@ async function handleExams(method, path, body, db, user) {
   // POST /api/exams/:id/submit
   if (method === 'POST' && path.match(/^\/\d+\/submit$/)) {
     const examId = parseInt(path.split('/')[1]);
-    const { answers } = body;
+    const { answers, is_practice } = body;
     if (!answers) return err('Answers required');
+
+    const exam = await db.prepare('SELECT * FROM exams WHERE id=?').bind(examId).first();
+    const negMark = exam?.negative_marking || 0;
+
     const questions = await db.prepare('SELECT id,correct_answer FROM questions WHERE exam_id=?').bind(examId).all();
     if (!questions.results.length) return err('No questions found');
+
     let score = 0;
     const total = questions.results.length;
     const detailedAnswers = {};
+
     for (const q of questions.results) {
       const given = (answers[q.id] || '').toUpperCase();
       const correct = q.correct_answer.toUpperCase();
       const isCorrect = given === correct;
-      if (isCorrect) score++;
+      if (isCorrect) {
+        score++;
+      } else if (given && !isCorrect && negMark > 0) {
+        score = Math.max(0, score - negMark);
+      }
       detailedAnswers[q.id] = { given, correct, isCorrect };
     }
+
     const percentage = Math.round((score / total) * 100);
+
+    // Check if first attempt
+    const existingFirst = await db.prepare(
+      'SELECT id FROM exam_results_stored WHERE user_id=? AND exam_id=? AND is_first_attempt=1'
+    ).bind(user.id, examId).first();
+
+    const isFirst = is_practice ? 0 : (existingFirst ? 0 : 1);
+    const attemptNum = await db.prepare(
+      'SELECT COUNT(*) as cnt FROM exam_results_stored WHERE user_id=? AND exam_id=?'
+    ).bind(user.id, examId).first();
+
     const result = await db.prepare(
+      `INSERT INTO exam_results_stored (user_id,exam_id,score,total_questions,percentage,answers,attempt_number,is_first_attempt)
+       VALUES (?,?,?,?,?,?,?,?)`
+    ).bind(user.id, examId, score, total, percentage, JSON.stringify(detailedAnswers), (attemptNum?.cnt||0)+1, isFirst).run();
+
+    // Also save to exam_attempts for backward compatibility
+    await db.prepare(
       'INSERT INTO exam_attempts (user_id,exam_id,score,total_questions,percentage,answers) VALUES (?,?,?,?,?,?)'
     ).bind(user.id, examId, score, total, percentage, JSON.stringify(detailedAnswers)).run();
-    return json({ attemptId: result.meta.last_row_id, score, total, percentage, answers: detailedAnswers });
+
+    return json({
+      attemptId: result.meta.last_row_id,
+      score,
+      total,
+      percentage,
+      answers: detailedAnswers,
+      is_first_attempt: !!isFirst
+    });
   }
 
   // GET /api/exams/:id/result/:attemptId
@@ -206,41 +250,46 @@ async function handleExams(method, path, body, db, user) {
     const parts = path.split('/');
     const examId = parseInt(parts[1]);
     const attemptId = parseInt(parts[3]);
-    const attempt = await db.prepare('SELECT * FROM exam_attempts WHERE id=? AND user_id=?').bind(attemptId, user.id).first();
+    const attempt = await db.prepare(
+      'SELECT * FROM exam_results_stored WHERE id=? AND user_id=?'
+    ).bind(attemptId, user.id).first();
     if (!attempt) return err('Result not found', 404);
     const exam = await db.prepare('SELECT * FROM exams WHERE id=?').bind(examId).first();
     const questions = await db.prepare('SELECT * FROM questions WHERE exam_id=? ORDER BY id').bind(examId).all();
-    return json({ attempt: { ...attempt, answers: JSON.parse(attempt.answers || '{}') }, exam, questions: questions.results });
+    return json({
+      attempt: { ...attempt, answers: JSON.parse(attempt.answers || '{}') },
+      exam,
+      questions: questions.results
+    });
   }
 
   return err('Not found', 404);
 }
 
+// ═══ ADMIN ═══
 async function handleAdmin(method, path, body, db, user) {
   if (!user) return err('Unauthorized', 401);
   if (!user.is_admin) return err('Admin access required', 403);
 
-  // POST /api/admin/exams — create exam
   if (method === 'POST' && path === '/exams') {
-    const { name, description, time_limit, is_premium } = body;
+    const { name, description, time_limit, is_premium, negative_marking, allow_practice } = body;
     if (!name) return err('Exam name required');
     const result = await db.prepare(
-      'INSERT INTO exams (name,description,time_limit,is_premium) VALUES (?,?,?,?)'
-    ).bind(name, description || '', time_limit || 30, is_premium ? 1 : 0).run();
+      'INSERT INTO exams (name,description,time_limit,is_premium,negative_marking,allow_practice) VALUES (?,?,?,?,?,?)'
+    ).bind(name, description || '', time_limit || 30, is_premium ? 1 : 0, negative_marking || 0, allow_practice !== undefined ? (allow_practice ? 1 : 0) : 1).run();
     return json({ id: result.meta.last_row_id, message: 'Exam created' });
   }
 
-  // DELETE /api/admin/exams/:id
   if (method === 'DELETE' && path.match(/^\/exams\/\d+$/)) {
     const examId = parseInt(path.split('/')[2]);
     await db.prepare('DELETE FROM questions WHERE exam_id=?').bind(examId).run();
     await db.prepare('DELETE FROM exam_attempts WHERE exam_id=?').bind(examId).run();
+    await db.prepare('DELETE FROM exam_results_stored WHERE exam_id=?').bind(examId).run();
     await db.prepare('DELETE FROM premium_access WHERE exam_id=?').bind(examId).run();
     await db.prepare('DELETE FROM exams WHERE id=?').bind(examId).run();
     return json({ message: 'Exam deleted' });
   }
 
-  // POST /api/admin/questions/bulk — CSV upload with image_url support
   if (method === 'POST' && path === '/questions/bulk') {
     const { exam_id, csv } = body;
     if (!exam_id || !csv) return err('exam_id and csv required');
@@ -265,13 +314,11 @@ async function handleAdmin(method, path, body, db, user) {
     return json({ inserted, errors });
   }
 
-  // GET /api/admin/users
   if (method === 'GET' && path === '/users') {
     const users = await db.prepare('SELECT id,name,email,is_admin,is_premium_allowed,created_at FROM users ORDER BY created_at DESC').all();
     return json(users.results);
   }
 
-  // POST /api/admin/grant-premium
   if (method === 'POST' && path === '/grant-premium') {
     const { user_id, exam_id } = body;
     if (!user_id || !exam_id) return err('user_id and exam_id required');
@@ -282,40 +329,37 @@ async function handleAdmin(method, path, body, db, user) {
     } catch(e) { return err(e.message); }
   }
 
-  // DELETE /api/admin/revoke-premium
   if (method === 'DELETE' && path === '/revoke-premium') {
     const { user_id, exam_id } = body;
     await db.prepare('DELETE FROM premium_access WHERE user_id=? AND exam_id=?').bind(user_id, exam_id).run();
     return json({ message: 'Access revoked' });
   }
 
-  // GET /api/admin/results — all results
   if (method === 'GET' && path === '/results') {
     const results = await db.prepare(`
       SELECT ea.*, u.name as user_name, u.email as user_email, e.name as exam_name
-      FROM exam_attempts ea
+      FROM exam_results_stored ea
       JOIN users u ON ea.user_id = u.id
       JOIN exams e ON ea.exam_id = e.id
+      WHERE ea.is_first_attempt = 1
       ORDER BY ea.submitted_at DESC
     `).all();
     return json(results.results);
   }
 
-  // GET /api/admin/results/:examId — results for specific exam
   if (method === 'GET' && path.match(/^\/results\/\d+$/)) {
     const examId = parseInt(path.split('/')[2]);
     const results = await db.prepare(`
       SELECT ea.*, u.name as user_name, u.email as user_email, e.name as exam_name
-      FROM exam_attempts ea
+      FROM exam_results_stored ea
       JOIN users u ON ea.user_id = u.id
       JOIN exams e ON ea.exam_id = e.id
-      WHERE ea.exam_id = ?
+      WHERE ea.exam_id = ? AND ea.is_first_attempt = 1
       ORDER BY ea.percentage DESC, ea.submitted_at DESC
     `).bind(examId).all();
     return json(results.results);
   }
 
-  // GET /api/admin/premium-grants
   if (method === 'GET' && path === '/premium-grants') {
     const grants = await db.prepare(`
       SELECT pa.*, u.name as user_name, u.email, e.name as exam_name
@@ -329,8 +373,7 @@ async function handleAdmin(method, path, body, db, user) {
   return err('Not found', 404);
 }
 
-// ═══ MAIN ENTRY ═══
-
+// ═══ MAIN ═══
 export async function onRequest(context) {
   const { request, env } = context;
   const db = env.DB;
