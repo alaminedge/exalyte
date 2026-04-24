@@ -4,5 +4,5 @@ pages_build_output_dir = "public"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "posts-db"
-database_id = "45b1b40c-c727-4da8-9d6b-422bab6e26b6"
+database_name = "exalyte"
+database_id = "db85dc30-953a-4337-9a26-2e1db522117e"
