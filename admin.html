@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Exalyte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#05050a; --sidebar-bg:#080810; --surface:#0c0c16; --surface2:#141424; --border:#1e1e32;
+  --accent:#6366f1; --accent2:#818cf8; --accent3:#4f46e5;
+  --text:#e9e9f0; --muted:#76768e; --error:#ef4444; --success:#22c55e; --premium:#a855f7;
+  --radius:12px; --radius-sm:8px; --transition:0.2s cubic-bezier(0.4,0,0.2,1); --sw:240px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+.sidebar{width:var(--sw);background:var(--sidebar-bg);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;transition:transform .3s}
+.sidebar-top{padding:20px;border-bottom:1px solid var(--border)}
+.logo{font-family:'Lexend',sans-serif;font-weight:800;font-size:1rem;color:var(--text);
+  display:flex;align-items:center;gap:8px;letter-spacing:-0.02em}
+.logo svg{width:26px;height:26px}
+.admin-tag{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-top:3px;font-weight:600}
+.nav-section{padding:6px 0}
+.nav-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.11em;color:var(--muted);
+  font-weight:700;padding:10px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:0.82rem;font-weight:500;
+  color:var(--muted);cursor:pointer;border:none;background:transparent;width:100%;text-align:left;
+  transition:all var(--transition);border-left:2px solid transparent;font-family:'Inter',sans-serif}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,0.02)}
+.nav-item.active{color:var(--accent2);background:rgba(99,102,241,0.04);border-left-color:var(--accent)}
+.sidebar-footer{margin-top:auto;padding:16px 18px;border-top:1px solid var(--border)}
+.user-info{font-size:0.76rem;color:var(--muted);margin-bottom:10px}
+.btn-logout{background:transparent;border:1px solid var(--border);color:var(--muted);
+  padding:8px 14px;border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:0.78rem;
+  cursor:pointer;transition:all var(--transition);width:100%;font-weight:500}
+.btn-logout:hover{border-color:var(--error);color:var(--error)}
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column}
+.topbar{height:56px;padding:0 28px;background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+.topbar-title{font-family:'Lexend',sans-serif;font-weight:700;font-size:0.95rem;letter-spacing:-0.01em}
+.admin-badge{font-size:0.64rem;background:rgba(99,102,241,0.1);color:var(--accent2);padding:4px 10px;
+  border-radius:20px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+.menu-btn{display:none;background:none;border:none;color:var(--text);font-size:1.3rem;cursor:pointer}
+.content{padding:28px;flex:1}
+.view{display:none}
+.view.active{display:block}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:28px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;overflow:hidden}
+.stat::after{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--accent),transparent);margin-top:12px}
+.stat-label{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:700;margin-bottom:6px}
+.stat-val{font-family:'Lexend',sans-serif;font-size:1.8rem;font-weight:800;color:var(--accent2);letter-spacing:-0.02em}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.section-title{font-family:'Lexend',sans-serif;font-size:1.05rem;font-weight:800;letter-spacing:-0.02em}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+.card-body{padding:22px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:0.7rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.08em;color:var(--muted);margin-bottom:6px}
+.form-input,.form-select,.form-textarea{width:100%;padding:10px 13px;background:var(--bg);
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;
+  font-size:0.86rem;color:var(--text);outline:none;transition:border-color var(--transition)}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,0.06)}
+.form-textarea{resize:vertical;min-height:120px;font-family:monospace;font-size:0.8rem}
+.toggle-label{display:flex;align-items:center;gap:8px;font-size:0.84rem;cursor:pointer;color:var(--muted)}
+input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px}
+.btn{font-family:'Lexend',sans-serif;font-size:0.8rem;font-weight:600;padding:9px 18px;
+  border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all var(--transition);
+  display:inline-flex;align-items:center;gap:6px;text-decoration:none;letter-spacing:0.01em}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent3);box-shadow:0 4px 16px rgba(99,102,241,0.25)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent2)}
+.btn-danger{background:rgba(239,68,68,0.06);color:var(--error);border:1px solid rgba(239,68,68,0.15)}
+.btn-danger:hover{background:var(--error);color:#fff;border-color:var(--error)}
+.btn-success{background:rgba(34,197,94,0.06);color:var(--success);border:1px solid rgba(34,197,94,0.15)}
+.btn-success:hover{background:var(--success);color:#fff;border-color:var(--success)}
+.btn-sm{padding:5px 12px;font-size:0.73rem}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;text-align:left;font-size:0.66rem;text-transform:uppercase;letter-spacing:0.08em;
+  color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap}
+td{padding:11px 14px;font-size:0.82rem;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.015)}
+.badge{font-size:0.64rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;
+  padding:3px 9px;border-radius:20px;display:inline-block}
+.badge-free{background:rgba(34,197,94,0.08);color:var(--success)}
+.badge-premium{background:rgba(168,85,247,0.08);color:var(--premium)}
+.badge-pass{background:rgba(34,197,94,0.08);color:var(--success)}
+.badge-fail{background:rgba(239,68,68,0.08);color:var(--error)}
+.alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:0.82rem;margin-bottom:14px;line-height:1.4}
+.alert-error{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);color:var(--error)}
+.alert-success{background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);color:var(--success)}
+.csv-zone{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:28px;
+  text-align:center;color:var(--muted);cursor:pointer;transition:border-color var(--transition)}
+.csv-zone:hover{border-color:var(--accent);color:var(--text)}
+.csv-zone input{display:none}
+.csv-preview{margin-top:12px;background:var(--bg);border-radius:var(--radius-sm);padding:12px;
+  font-size:0.76rem;color:var(--muted);max-height:140px;overflow-y:auto;font-family:monospace;line-height:1.6}
+.loading{text-align:center;padding:40px;color:var(--muted)}
+.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-row{text-align:center;color:var(--muted);padding:28px!important;font-style:italic;font-size:0.82rem}
+.score-bar-wrap{display:flex;align-items:center;gap:8px}
+.score-bar{height:5px;background:var(--border);border-radius:3px;flex:1;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:3px}
+.modal-overlay{position:fixed;inset:0;background:rgba(5,5,10,0.85);z-index:200;display:none;
+  place-items:center;padding:20px;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:grid}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;
+  max-width:460px;width:100%;position:relative}
+.modal-title{font-family:'Lexend',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:18px;letter-spacing:-0.02em}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer}
+@media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.menu-btn{display:block}.content{padding:16px}.form-row{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-top">
+    <div class="logo">
+      <svg viewBox="0 0 26 26" fill="none"><rect x="1.2" y="1.2" width="23.6" height="23.6" rx="6" fill="#0c0c16" stroke="#1e1e32" stroke-width="1"/><path d="M8 17l5-11 5 11" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="13" x2="16" y2="13" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/><circle cx="13" cy="20" r="1.2" fill="#818cf8"/></svg>
+      Exalyte
+    </div>
+    <div class="admin-tag">Administration</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <button class="nav-item active" onclick="showView('dashboard')">Dashboard</button>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Examinations</div>
+    <button class="nav-item" onclick="showView('createExam')">Create Exam</button>
+    <button class="nav-item" onclick="showView('exams')">All Exams</button>
+    <button class="nav-item" onclick="showView('uploadCSV')">Upload Questions</button>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Management</div>
+    <button class="nav-item" onclick="showView('users')">Users</button>
+    <button class="nav-item" onclick="showView('results')">Results</button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-info" id="adminEmail"></div>
+    <button class="btn-logout" onclick="logout()">Sign Out</button>
+  </div>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="menu-btn" onclick="toggleSidebar()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e9e9f0" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    </div>
+    <span class="admin-badge">Admin</span>
+  </div>
+  <div class="content">
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="stats" id="dashStats">
+        <div class="stat"><div class="stat-label">Examinations</div><div class="stat-val" id="s-exams">—</div></div>
+        <div class="stat"><div class="stat-label">Questions</div><div class="stat-val" id="s-questions">—</div></div>
+        <div class="stat"><div class="stat-label">Users</div><div class="stat-val" id="s-users">—</div></div>
+        <div class="stat"><div class="stat-label">Submissions</div><div class="stat-val" id="s-attempts">—</div></div>
+      </div>
+      <div class="section-head"><div class="section-title">Recent Submissions</div></div>
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>Student</th><th>Examination</th><th>Score</th><th>Percentage</th><th>Date</th></tr></thead>
+        <tbody id="recentResults"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table></div></div>
+    </div>
+    <!-- CREATE EXAM -->
+    <div class="view" id="view-createExam">
+      <div class="section-head"><div class="section-title">Create Examination</div></div>
+      <div class="card"><div class="card-body">
+        <div id="createExamAlert"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Examination Name *</label><input class="form-input" id="eName" placeholder="e.g. Calculus Mid-Term"></div>
+          <div class="form-group"><label class="form-label">Time Limit (minutes)</label><input class="form-input" type="number" id="eTime" value="30" min="1"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="eDesc" placeholder="Brief description"></div>
+        <div class="form-group"><label class="toggle-label"><input type="checkbox" id="ePremium"><span>Premium examination (restricted access)</span></label></div>
+        <button class="btn btn-primary" id="createExamBtn" onclick="createExam()">Create Examination</button>
+      </div></div>
+    </div>
+    <!-- ALL EXAMS -->
+    <div class="view" id="view-exams">
+      <div class="section-head"><div class="section-title">All Examinations</div><button class="btn btn-primary" onclick="showView('createExam')">New Exam</button></div>
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>Name</th><th>Type</th><th>Time</th><th>Questions</th><th>Actions</th></tr></thead>
+        <tbody id="examsTable"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table></div></div>
+    </div>
+    <!-- UPLOAD CSV -->
+    <div class="view" id="view-uploadCSV">
+      <div class="section-head"><div class="section-title">Upload Questions</div></div>
+      <div class="card"><div class="card-body">
+        <div id="csvAlert"></div>
+        <div class="form-group"><label class="form-label">Select Examination *</label><select class="form-select" id="csvExamId"><option value="">— Select —</option></select></div>
+        <div class="form-group"><label class="form-label">CSV Format Specification</label>
+          <div class="csv-preview">question,option_a,option_b,option_c,option_d,correct_answer,image_url(optional)
+"What is the derivative of sin(x)?",cos(x),-cos(x),sin(x),-sin(x),A,
+"Solve: 2x+5=15",3,5,10,7,B,https://example.com/equation.png
+"Which element has atomic number 6?",Oxygen,Nitrogen,Carbon,Boron,C,</div>
+        </div>
+        <div class="form-group"><label class="form-label">Upload CSV File</label>
+          <div class="csv-zone" onclick="document.getElementById('csvFile').click()">
+            <input type="file" id="csvFile" accept=".csv,.txt" onchange="handleCSVFile(this)">
+            <div style="font-size:1.4rem;margin-bottom:8px">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div>Click to upload CSV file or paste below</div>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">CSV Content</label>
+          <textarea class="form-textarea" id="csvContent" placeholder="Paste CSV content here..." style="min-height:160px"></textarea>
+        </div>
+        <button class="btn btn-primary" id="uploadBtn" onclick="uploadCSV()">Upload Questions</button>
+      </div></div>
+    </div>
+    <!-- USERS -->
+    <div class="view" id="view-users">
+      <div class="section-head"><div class="section-title">Registered Users</div></div>
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Premium Access</th><th>Actions</th></tr></thead>
+        <tbody id="usersTable"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table></div></div>
+    </div>
+    <!-- RESULTS -->
+    <div class="view" id="view-results">
+      <div class="section-head">
+        <div class="section-title">Results — Select Examination</div>
+        <select class="form-select" id="resultExamFilter" onchange="loadFilteredResults()" style="max-width:280px">
+          <option value="all">All Examinations</option>
+        </select>
+      </div>
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>Student</th><th>Examination</th><th>Score</th><th>Result</th><th>Date</th></tr></thead>
+        <tbody id="resultsTable"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody>
+      </table></div></div>
+    </div>
+  </div>
+</main>
+<!-- GRANT MODAL -->
+<div class="modal-overlay" id="grantModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-title">Grant Premium Access</div>
+    <p style="color:var(--muted);font-size:.82rem;margin-bottom:16px">Grant <strong id="grantUserName">—</strong> access to a premium examination.</p>
+    <div id="grantModalAlert"></div>
+    <div class="form-group"><label class="form-label">Select Examination</label><select class="form-select" id="grantExamSel"><option value="">— Loading —</option></select></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary" onclick="grantAccess()">Grant Access</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const token=localStorage.getItem('token');
+const user=JSON.parse(localStorage.getItem('user')||'null');
+if(!token||!user)window.location.href='/';
+if(!user.is_admin)window.location.href='/dashboard.html';
+document.getElementById('adminEmail').textContent=user.email||'admin';
+
+let allExams=[],allUsers=[],grantUserId=null;
+const viewTitles={dashboard:'Dashboard',createExam:'Create Examination',exams:'All Examinations',uploadCSV:'Upload Questions',users:'Users',results:'Results'};
+
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b=>{if(b.getAttribute('onclick')?.includes("'"+id+"'"))b.classList.add('active')});
+  document.getElementById('topbarTitle').textContent=viewTitles[id]||id;
+  document.getElementById('sidebar').classList.remove('open');
+  if(id==='dashboard')loadDashboard();
+  if(id==='exams')loadExams();
+  if(id==='users')loadUsers();
+  if(id==='results')loadResultsView();
+  if(id==='uploadCSV')loadExamsForSelect();
+}
+
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+function logout(){localStorage.clear();window.location.href='/'}
+
+async function api(method,path,body){
+  const opts={method,headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`}};
+  if(body)opts.body=JSON.stringify(body);
+  const res=await fetch('/api'+path,opts);
+  const data=await res.json();
+  return{ok:res.ok,data};
+}
+
+async function loadDashboard(){
+  const[exRes,usRes,resRes]=await Promise.all([api('GET','/exams/'),api('GET','/admin/users'),api('GET','/admin/results')]);
+  allExams=exRes.ok?exRes.data:[];allUsers=usRes.ok?usRes.data:[];const results=resRes.ok?resRes.data:[];
+  document.getElementById('s-exams').textContent=allExams.length;
+  document.getElementById('s-users').textContent=allUsers.length;
+  document.getElementById('s-attempts').textContent=results.length;
+  document.getElementById('s-questions').textContent=allExams.reduce((s,e)=>s+(e.question_count||0),0);
+  const tbody=document.getElementById('recentResults');
+  if(!results.length){tbody.innerHTML='<tr><td colspan="5" class="empty-row">No submissions yet.</td></tr>';return}
+  tbody.innerHTML=results.slice(0,10).map(r=>{
+    const pct=Math.round(r.percentage);
+    return`<tr><td style="font-weight:500">${esc(r.user_name)}<br><span style="font-size:.7rem;color:var(--muted)">${esc(r.user_email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><div class="score-bar-wrap"><div class="score-bar"><div class="score-bar-fill" style="width:${pct}%;background:${pct>=80?'var(--success)':pct>=50?'var(--accent2)':'var(--error)'}"></div></div><span style="font-size:.76rem;font-weight:600;min-width:34px">${pct}%</span></div></td><td style="font-size:.76rem;color:var(--muted)">${new Date(r.submitted_at).toLocaleDateString()}</td></tr>`;
+  }).join('');
+}
+
+async function createExam(){
+  const name=document.getElementById('eName').value.trim();
+  const time_limit=parseInt(document.getElementById('eTime').value)||30;
+  const description=document.getElementById('eDesc').value.trim();
+  const is_premium=document.getElementById('ePremium').checked;
+  const alertEl=document.getElementById('createExamAlert');alertEl.innerHTML='';
+  if(!name){alertEl.innerHTML='<div class="alert alert-error">Examination name is required.</div>';return}
+  const btn=document.getElementById('createExamBtn');btn.disabled=true;btn.textContent='Creating...';
+  const{ok,data}=await api('POST','/admin/exams',{name,description,time_limit,is_premium});
+  btn.disabled=false;btn.textContent='Create Examination';
+  if(!ok){alertEl.innerHTML=`<div class="alert alert-error">${data.error}</div>`;return}
+  alertEl.innerHTML=`<div class="alert alert-success">Examination created. You can now upload questions.</div>`;
+  document.getElementById('eName').value='';document.getElementById('eDesc').value='';document.getElementById('ePremium').checked=false;
+}
+
+async function loadExams(){
+  const{ok,data}=await api('GET','/exams/');allExams=ok?data:[];
+  const tbody=document.getElementById('examsTable');
+  if(!allExams.length){tbody.innerHTML='<tr><td colspan="5" class="empty-row">No examinations yet.</td></tr>';return}
+  tbody.innerHTML=allExams.map(e=>`<tr>
+    <td style="font-weight:500">${esc(e.name)}</td>
+    <td><span class="badge ${e.is_premium?'badge-premium':'badge-free'}">${e.is_premium?'Premium':'Open'}</span></td>
+    <td>${e.time_limit} min</td><td>${e.question_count||0}</td>
+    <td><div style="display:flex;gap:6px">
+      <button class="btn btn-ghost btn-sm" onclick="goUpload(${e.id})">Add Questions</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id},'${esc(e.name)}')">Delete</button>
+    </div></td></tr>`).join('');
+}
+
+function goUpload(id){showView('uploadCSV');setTimeout(()=>{document.getElementById('csvExamId').value=id},300)}
+async function deleteExam(id,name){if(!confirm(`Delete "${name}"? All questions and attempts will be removed.`))return;await api('DELETE',`/admin/exams/${id}`);loadExams()}
+
+async function loadExamsForSelect(){
+  if(!allExams.length){const{ok,data}=await api('GET','/exams/');allExams=ok?data:[]}
+  document.getElementById('csvExamId').innerHTML='<option value="">— Select —</option>'+allExams.map(e=>`<option value="${e.id}">${esc(e.name)} ${e.is_premium?'(Premium)':'(Open)'}</option>`).join('');
+}
+
+function handleCSVFile(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{document.getElementById('csvContent').value=e.target.result};reader.readAsText(file)}
+
+async function uploadCSV(){
+  const exam_id=document.getElementById('csvExamId').value;
+  const csv=document.getElementById('csvContent').value.trim();
+  const alertEl=document.getElementById('csvAlert');alertEl.innerHTML='';
+  if(!exam_id){alertEl.innerHTML='<div class="alert alert-error">Select an examination.</div>';return}
+  if(!csv){alertEl.innerHTML='<div class="alert alert-error">No CSV content.</div>';return}
+  const btn=document.getElementById('uploadBtn');btn.disabled=true;btn.textContent='Uploading...';
+  const{ok,data}=await api('POST','/admin/questions/bulk',{exam_id:parseInt(exam_id),csv});
+  btn.disabled=false;btn.textContent='Upload Questions';
+  if(!ok){alertEl.innerHTML=`<div class="alert alert-error">${data.error}</div>`;return}
+  let msg=`<div class="alert alert-success">${data.inserted} question(s) inserted.`;
+  if(data.errors.length)msg+=`<br>${data.errors.length} error(s): ${data.errors.join('; ')}`;
+  msg+='</div>';alertEl.innerHTML=msg;document.getElementById('csvContent').value='';
+}
+
+async function loadUsers(){
+  const[usRes,exRes,grantRes]=await Promise.all([api('GET','/admin/users'),api('GET','/exams/'),api('GET','/admin/premium-grants')]);
+  allUsers=usRes.ok?usRes.data:[];allExams=exRes.ok?exRes.data:[];
+  const grants=grantRes.ok?grantRes.data:[];
+  const grantMap={};grants.forEach(g=>{if(!grantMap[g.user_id])grantMap[g.user_id]=[];grantMap[g.user_id].push({exam_id:g.exam_id,exam_name:g.exam_name,grant_id:g.id})});
+  const tbody=document.getElementById('usersTable');
+  if(!allUsers.length){tbody.innerHTML='<tr><td colspan="5" class="empty-row">No users yet.</td></tr>';return}
+  tbody.innerHTML=allUsers.map(u=>{
+    const userGrants=grantMap[u.id]||[];
+    const grantsHtml=userGrants.map(g=>`<span style="font-size:.68rem;background:rgba(168,85,247,.06);color:var(--premium);padding:2px 7px;border-radius:10px;margin:1px;display:inline-block;white-space:nowrap">${esc(g.exam_name)} <span onclick="revokeAccess(${u.id},${g.exam_id})" style="cursor:pointer;opacity:.7" title="Revoke">&times;</span></span>`).join('');
+    return`<tr><td style="font-weight:500">${esc(u.name)}</td><td style="font-size:.8rem;color:var(--muted)">${esc(u.email)}</td><td><span class="badge ${u.is_admin?'badge-premium':'badge-free'}">${u.is_admin?'Admin':'Student'}</span></td><td>${grantsHtml||'<span style="color:var(--muted);font-size:.76rem">None</span>'}</td><td><button class="btn btn-success btn-sm" onclick="openGrantModal(${u.id},'${esc(u.name)}')">Grant Access</button></td></tr>`;
+  }).join('');
+}
+
+function openGrantModal(userId,userName){
+  grantUserId=userId;document.getElementById('grantUserName').textContent=userName;
+  document.getElementById('grantModalAlert').innerHTML='';
+  const premiumExams=allExams.filter(e=>e.is_premium);
+  const sel=document.getElementById('grantExamSel');
+  sel.innerHTML=premiumExams.length?'<option value="">— Select —</option>'+premiumExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join(''):'<option value="">No premium exams</option>';
+  document.getElementById('grantModal').classList.add('open');
+}
+
+function closeModal(){document.getElementById('grantModal').classList.remove('open');grantUserId=null}
+
+async function grantAccess(){
+  const exam_id=document.getElementById('grantExamSel').value;
+  const alertEl=document.getElementById('grantModalAlert');
+  if(!exam_id){alertEl.innerHTML='<div class="alert alert-error">Select an examination.</div>';return}
+  const{ok,data}=await api('POST','/admin/grant-premium',{user_id:grantUserId,exam_id:parseInt(exam_id)});
+  if(!ok){alertEl.innerHTML=`<div class="alert alert-error">${data.error}</div>`;return}
+  alertEl.innerHTML='<div class="alert alert-success">Access granted.</div>';
+  setTimeout(()=>{closeModal();loadUsers()},1000);
+}
+
+async function revokeAccess(user_id,exam_id){if(!confirm('Revoke this access?'))return;await api('DELETE','/admin/revoke-premium',{user_id,exam_id});loadUsers()}
+
+async function loadResultsView(){
+  if(!allExams.length){const{ok,data}=await api('GET','/exams/');allExams=ok?data:[]}
+  const sel=document.getElementById('resultExamFilter');
+  sel.innerHTML='<option value="all">All Examinations</option>'+allExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');
+  loadFilteredResults();
+}
+
+async function loadFilteredResults(){
+  const examId=document.getElementById('resultExamFilter').value;
+  const url=examId==='all'?'/admin/results':`/admin/results/${examId}`;
+  const{ok,data}=await api('GET',url);
+  const results=ok?data:[];
+  const tbody=document.getElementById('resultsTable');
+  if(!results.length){tbody.innerHTML='<tr><td colspan="5" class="empty-row">No results found.</td></tr>';return}
+  tbody.innerHTML=results.map(r=>{
+    const pct=Math.round(r.percentage);
+    return`<tr><td style="font-weight:500">${esc(r.user_name)}<br><span style="font-size:.7rem;color:var(--muted)">${esc(r.user_email)}</span></td><td>${esc(r.exam_name)}</td><td style="font-weight:600">${r.score}/${r.total_questions}</td><td><div class="score-bar-wrap"><div class="score-bar"><div class="score-bar-fill" style="width:${pct}%;background:${pct>=80?'var(--success)':pct>=50?'var(--accent2)':'var(--error)'}"></div></div><span class="badge ${pct>=50?'badge-pass':'badge-fail'}">${pct}%</span></div></td><td style="font-size:.76rem;color:var(--muted);white-space:nowrap">${new Date(r.submitted_at).toLocaleString()}</td></tr>`;
+  }).join('');
+}
+
+function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML}
+
+document.getElementById('grantModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
+loadDashboard();
+</script>
+</body>
+</html>
