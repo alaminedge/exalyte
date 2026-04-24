@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Results — Exalyte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#05050a; --surface:#0c0c16; --surface2:#141424; --border:#1e1e32;
+  --accent:#6366f1; --accent2:#818cf8; --accent3:#4f46e5;
+  --text:#e9e9f0; --muted:#76768e; --error:#ef4444; --success:#22c55e;
+  --radius:12px; --radius-sm:8px; --transition:0.2s cubic-bezier(0.4,0,0.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:60px;
+  display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Lexend',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:-0.02em}
+.logo svg{width:28px;height:28px}
+.btn-back{padding:8px 18px;background:transparent;border:1px solid var(--border);color:var(--muted);
+  border-radius:var(--radius-sm);font-family:'Lexend',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;
+  text-decoration:none;transition:all var(--transition)}
+.btn-back:hover{border-color:var(--accent);color:var(--accent2)}
+.main{max-width:880px;margin:0 auto;padding:40px 24px}
+.score-hero{text-align:center;padding:48px 24px;background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;margin-bottom:32px;position:relative;overflow:hidden}
+.score-hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 60% at 50% 0,rgba(99,102,241,0.06) 0,transparent 70%);pointer-events:none}
+.score-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);font-weight:700;margin-bottom:12px}
+.score-big{font-family:'Lexend',sans-serif;font-size:clamp(3rem,10vw,5rem);font-weight:800;line-height:1;margin-bottom:8px;letter-spacing:-0.03em}
+.score-big.excellent{color:var(--success)}
+.score-big.good{color:var(--accent2)}
+.score-big.needs-work{color:var(--error)}
+.score-fraction{font-family:'Lexend',sans-serif;font-size:1.1rem;color:var(--muted);margin-bottom:16px;font-weight:500}
+.score-msg{font-size:0.92rem;color:var(--muted)}
+.score-stats{display:flex;justify-content:center;gap:36px;margin-top:24px;flex-wrap:wrap}
+.score-stat{text-align:center}
+.score-stat-val{font-family:'Lexend',sans-serif;font-size:1.4rem;font-weight:700}
+.score-stat-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-top:2px}
+.section-title{font-family:'Lexend',sans-serif;font-size:0.82rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.08em;color:var(--muted);margin-bottom:16px}
+.review-list{display:flex;flex-direction:column;gap:14px}
+.review-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.review-item.correct{border-color:rgba(34,197,94,0.25)}
+.review-item.wrong{border-color:rgba(239,68,68,0.25)}
+.review-header{padding:14px 18px;display:flex;align-items:flex-start;gap:12px}
+.review-num{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-family:'Lexend',sans-serif;font-size:0.74rem;font-weight:700;flex-shrink:0}
+.correct .review-num{background:rgba(34,197,94,0.1);color:var(--success)}
+.wrong .review-num{background:rgba(239,68,68,0.1);color:var(--error)}
+.skipped .review-num{background:var(--surface2);color:var(--muted)}
+.review-q{font-size:0.88rem;line-height:1.5;flex:1}
+.review-status{margin-left:auto;font-size:0.74rem;font-weight:600;padding:3px 10px;
+  border-radius:20px;flex-shrink:0;font-family:'Lexend',sans-serif;letter-spacing:0.02em}
+.correct .review-status{background:rgba(34,197,94,0.08);color:var(--success)}
+.wrong .review-status{background:rgba(239,68,68,0.08);color:var(--error)}
+.skipped .review-status{background:var(--surface2);color:var(--muted)}
+.review-answers{padding:12px 18px;background:var(--surface2);border-top:1px solid var(--border);
+  display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ans-item{font-size:0.78rem;display:flex;align-items:center;gap:6px}
+.ans-label{color:var(--muted)}
+.ans-val{font-weight:600}
+.ans-val.correct-answer{color:var(--success)}
+.ans-val.wrong-answer{color:var(--error)}
+.loading{text-align:center;padding:80px;color:var(--muted)}
+.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:600px){.review-answers{grid-template-columns:1fr}nav{padding:0 16px}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">
+    <svg viewBox="0 0 28 28" fill="none"><rect x="1.5" y="1.5" width="25" height="25" rx="7" fill="#0c0c16" stroke="#1e1e32" stroke-width="1.2"/><path d="M9 18l5-11 5 11" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><line x1="11" y1="14" x2="17" y2="14" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/><circle cx="14" cy="21" r="1.3" fill="#818cf8"/></svg>
+    Exalyte
+  </div>
+  <a href="/dashboard.html" class="btn-back">Back to Dashboard</a>
+</nav>
+
+<div class="main">
+  <div id="app"><div class="loading"><div class="spinner"></div>Loading results...</div></div>
+</div>
+
+<script>
+const token=localStorage.getItem('token');
+if(!token)window.location.href='/';
+const params=new URLSearchParams(location.search);
+const attemptId=params.get('attempt'),examId=params.get('exam');
+
+async function loadResult(){
+  try{
+    const res=await fetch(`/api/exams/${examId}/result/${attemptId}`,{headers:{Authorization:`Bearer ${token}`}});
+    const data=await res.json();
+    if(data.error){document.getElementById('app').innerHTML=`<p style="color:var(--error)">${data.error}</p>`;return}
+    render(data)
+  }catch(e){document.getElementById('app').innerHTML=`<div class="loading">Failed to load results.</div>`}
+}
+
+function render({attempt,exam,questions}){
+  const{score,total_questions,percentage,answers}=attempt;
+  const scoreClass=percentage>=80?'excellent':percentage>=50?'good':'needs-work';
+  const msg=percentage>=80?'Excellent performance!'+percentage>=50?'Good effort. Review the incorrect answers below.':'Continue practicing. Focus on the areas marked incorrect.';
+  const correct=score;
+  const wrong=Object.values(answers).filter(a=>!a.isCorrect&&a.given).length;
+  const skipped=total_questions-correct-wrong;
+  document.title=`${exam.name} Results — Exalyte`;
+
+  const reviewItems=questions.map((q,i)=>{
+    const ans=answers[q.id]||{given:'',correct:'',isCorrect:false};
+    const isSkipped=!ans.given;
+    const cls=isSkipped?'skipped':(ans.isCorrect?'correct':'wrong');
+    const statusText=isSkipped?'Skipped':(ans.isCorrect?'Correct':'Incorrect');
+    const optMap={A:q.option_a,B:q.option_b,C:q.option_c,D:q.option_d};
+    return`<div class="review-item ${cls}">
+      <div class="review-header">
+        <div class="review-num">${i+1}</div>
+        <div class="review-q">${esc(q.question_text)}</div>
+        <span class="review-status">${statusText}</span>
+      </div>
+      <div class="review-answers">
+        <div class="ans-item">
+          <span class="ans-label">Your answer:</span>
+          <span class="ans-val ${!isSkipped&&!ans.isCorrect?'wrong-answer':isSkipped?'':'correct-answer'}">${ans.given?`${ans.given}. ${esc(optMap[ans.given]||'')}`:'—'}</span>
+        </div>
+        <div class="ans-item">
+          <span class="ans-label">Correct answer:</span>
+          <span class="ans-val correct-answer">${ans.correct}. ${esc(optMap[ans.correct]||'')}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('app').innerHTML=`
+    <div class="score-hero">
+      <div class="score-label">${esc(exam.name)} · Final Score</div>
+      <div class="score-big ${scoreClass}">${percentage}%</div>
+      <div class="score-fraction">${score} of ${total_questions} correct</div>
+      <div class="score-msg">${msg}</div>
+      <div class="score-stats">
+        <div class="score-stat"><div class="score-stat-val" style="color:var(--success)">${correct}</div><div class="score-stat-label">Correct</div></div>
+        <div class="score-stat"><div class="score-stat-val" style="color:var(--error)">${wrong}</div><div class="score-stat-label">Incorrect</div></div>
+        <div class="score-stat"><div class="score-stat-val" style="color:var(--muted)">${skipped}</div><div class="score-stat-label">Skipped</div></div>
+      </div>
+    </div>
+    <div class="section-title">Detailed Review</div>
+    <div class="review-list">${reviewItems}</div>`;
+}
+
+function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML}
+loadResult();
+</script>
+</body>
+</html>
