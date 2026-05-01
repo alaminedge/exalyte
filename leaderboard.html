@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaderboard — Exalyte</title>
+<meta name="description" content="Exalyte Leaderboard — Top performers and rankings coming soon.">
+<meta name="theme-color" content="#05050a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#05050a; --surface:#0a0a16; --surface2:#111122; --border:#1e1e38;
+  --accent:#6366f1; --accent2:#818cf8; --text:#e9e9f0; --muted:#76768e;
+  --radius:14px; --radius-sm:8px; --transition:0.3s ease;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:48px 36px;max-width:480px;width:100%;text-align:center}
+.icon{margin-bottom:24px}
+.icon svg{width:64px;height:64px}
+h1{font-family:'Lexend',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:10px;letter-spacing:-0.02em;color:var(--text)}
+p{color:var(--muted);font-size:0.92rem;line-height:1.6;margin-bottom:24px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;border-radius:10px;font-family:'Lexend',sans-serif;font-size:0.84rem;font-weight:600;text-decoration:none;transition:all .3s;letter-spacing:0.02em}
+.btn-primary{background:var(--accent);color:#fff;border:none}
+.btn-primary:hover{background:#4f46e5;transform:translateY(-1px);box-shadow:0 8px 25px rgba(99,102,241,0.3)}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent2)}
+.btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.animation-pulse{animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="1.5" class="animation-pulse">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 6 9 6 9z"/>
+      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 18 9 18 9z"/>
+      <path d="M4 22h16"/>
+      <path d="M10 22V8h4v14"/>
+      <circle cx="12" cy="6" r="2" fill="#818cf8"/>
+    </svg>
+  </div>
+  
+  <h1>Leaderboard Coming Soon</h1>
+  
+  <p>We're building a competitive leaderboard to showcase top performers across all examinations. Rankings, badges, and achievements are on the way!</p>
+  
+  <div class="btn-row">
+    <a href="/dashboard.html" class="btn btn-primary">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      Back to Dashboard
+    </a>
+    <a href="/" class="btn btn-ghost">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Home
+    </a>
+  </div>
+</div>
+
+</body>
+</html>
