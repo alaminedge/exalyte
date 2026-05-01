@@ -4,133 +4,592 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — Exalyte</title>
+<meta name="description" content="Exalyte Dashboard — Access your examinations, track progress, and practice with precision.">
+<meta name="theme-color" content="#05050a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#05050a; --surface:#0c0c16; --surface2:#141424; --border:#1e1e32;
-  --accent:#6366f1; --accent2:#818cf8; --accent3:#4f46e5;
-  --text:#e9e9f0; --muted:#76768e; --error:#ef4444; --success:#22c55e;
-  --premium:#a855f7; --radius:12px; --radius-sm:8px;
-  --transition:0.2s cubic-bezier(0.4,0,0.2,1);
+  --bg:#05050a; --surface:#0a0a16; --surface2:#111122; --surface3:#16162a;
+  --border:#1e1e38; --border-light:#252545;
+  --accent:#6366f1; --accent2:#818cf8; --accent3:#4f46e5; --accent-glow:rgba(99,102,241,0.25);
+  --text:#e9e9f0; --text-bright:#f5f5ff; --muted:#7c7c96; --muted-light:#9a9ab0;
+  --error:#ef4444; --error-glow:rgba(239,68,68,0.2);
+  --success:#22c55e; --success-glow:rgba(34,197,94,0.2);
+  --warning:#f59e0b; --premium:#a855f7; --premium-glow:rgba(168,85,247,0.2);
+  --radius:14px; --radius-lg:20px; --radius-sm:8px; --radius-xs:4px;
+  --transition:0.3s cubic-bezier(0.4,0,0.2,1);
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg:0 12px 40px rgba(0,0,0,0.5);
+  --shadow-glow:0 0 60px var(--accent-glow);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
-  background-image:radial-gradient(ellipse 60% 50% at 80% 0,rgba(99,102,241,0.04) 0,transparent 70%)}
-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;
-  align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
-.logo{display:flex;align-items:center;gap:10px;font-family:'Lexend',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:-0.02em}
-.logo img{width:28px;height:28px}
-.nav-right{display:flex;align-items:center;gap:14px}
-.user-chip{padding:6px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-size:0.8rem;display:flex;align-items:center;gap:6px;font-weight:500}
-.btn-nav{padding:7px 18px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:0.8rem;cursor:pointer;transition:all var(--transition);font-weight:500}
-.btn-nav:hover{border-color:var(--accent);color:var(--accent2)}
-.main{max-width:1100px;margin:0 auto;padding:36px 28px}
-.page-header{margin-bottom:32px}
-.page-title{font-family:'Lexend',sans-serif;font-size:1.8rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:6px}
-.page-sub{color:var(--muted);font-size:0.9rem}
-.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:36px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden}
-.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent)}
-.stat-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600;margin-bottom:8px}
-.stat-val{font-family:'Lexend',sans-serif;font-size:2rem;font-weight:800;color:var(--accent2)}
-.section-title{font-family:'Lexend',sans-serif;font-size:0.95rem;font-weight:700;margin-bottom:16px;letter-spacing:0.02em;color:var(--muted);text-transform:uppercase}
-.exams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px}
-.exam-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:12px;transition:all var(--transition)}
-.exam-card:hover{border-color:rgba(99,102,241,0.3);transform:translateY(-2px)}
-.exam-card.locked{opacity:0.7}.exam-card.locked:hover{transform:none;border-color:var(--border)}
-.exam-type{font-size:0.66rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:4px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;align-self:flex-start}
-.type-free{background:rgba(34,197,94,0.08);color:var(--success);border:1px solid rgba(34,197,94,0.15)}
-.type-premium{background:rgba(168,85,247,0.08);color:var(--premium);border:1px solid rgba(168,85,247,0.15)}
-.exam-name{font-family:'Lexend',sans-serif;font-size:1.08rem;font-weight:700;line-height:1.3}
-.exam-desc{font-size:0.82rem;color:var(--muted);line-height:1.5}
-.exam-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:0.76rem;color:var(--muted)}
-.exam-footer{margin-top:auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.attempt-badge{font-size:0.73rem;color:var(--success);background:rgba(34,197,94,0.06);padding:4px 10px;border-radius:20px;border:1px solid rgba(34,197,94,0.12);font-weight:500}
-.stored-badge{font-size:0.73rem;color:var(--accent2);background:rgba(99,102,241,0.06);padding:4px 10px;border-radius:20px;border:1px solid rgba(99,102,241,0.12);font-weight:500}
-.btn-start{padding:9px 22px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Lexend',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all var(--transition);text-decoration:none;display:inline-block}
-.btn-start:hover{background:var(--accent3);box-shadow:0 4px 16px rgba(99,102,241,0.25)}
-.btn-practice{padding:9px 16px;background:var(--surface2);color:var(--accent2);border:1px solid rgba(99,102,241,0.2);border-radius:var(--radius-sm);font-size:0.78rem;font-family:'Lexend',sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;transition:all var(--transition)}
-.btn-practice:hover{background:rgba(99,102,241,0.06)}
-.btn-locked{padding:9px 16px;background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.8rem;font-family:'Lexend',sans-serif;font-weight:600}
-.loading{text-align:center;padding:60px;color:var(--muted)}
-.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.6;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 80% 0,rgba(99,102,241,0.05) 0,transparent 70%),
+    radial-gradient(ellipse 40% 40% at 20% 100%,rgba(129,140,248,0.03) 0,transparent 70%)}
+
+/* ═══════════ HEADER ═══════════ */
+.site-header{position:sticky;top:0;z-index:1000;transition:all .35s}
+.header-inner{max-width:1300px;margin:0 auto;padding:0 32px;height:66px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(10,10,22,0.78);backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  box-shadow:0 4px 30px rgba(0,0,0,0.2);transition:all .35s}
+.header-glow{position:absolute;top:-40px;left:50%;transform:translateX(-50%);
+  width:300px;height:80px;background:radial-gradient(ellipse,rgba(99,102,241,0.1) 0,transparent 70%);
+  pointer-events:none;z-index:-1}
+
+.brand-logo{text-decoration:none;display:flex;align-items:center;gap:12px}
+.logo-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,rgba(99,102,241,0.2),rgba(129,140,248,0.08));
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(99,102,241,0.25);position:relative;overflow:hidden}
+.logo-img{width:24px;height:24px;border-radius:4px;z-index:1}
+.logo-svg-fallback{display:none;z-index:1}
+.brand-text{display:flex;flex-direction:column}
+.brand-name{font-family:'Lexend',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:-0.03em;
+  color:var(--text-bright);line-height:1}
+.brand-tagline{font-size:0.56rem;text-transform:uppercase;letter-spacing:0.14em;
+  color:var(--accent2);font-weight:600;margin-top:1px}
+
+.header-actions{display:flex;align-items:center;gap:12px}
+.user-greeting{display:flex;align-items:center;gap:10px;padding:8px 16px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:25px;
+  font-size:0.82rem;font-weight:500;color:var(--text);transition:all .3s}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));
+  display:flex;align-items:center;justify-content:center;font-family:'Lexend',sans-serif;
+  font-weight:700;font-size:0.78rem;color:#fff;flex-shrink:0}
+.user-greeting:hover{border-color:var(--accent);box-shadow:0 0 20px rgba(99,102,241,0.08)}
+.btn-logout{padding:8px 18px;border-radius:10px;font-family:'Lexend',sans-serif;
+  font-size:0.78rem;font-weight:600;cursor:pointer;transition:all .3s;
+  letter-spacing:0.02em;background:transparent;border:1.5px solid rgba(239,68,68,0.25);
+  color:var(--error)}
+.btn-logout:hover{background:rgba(239,68,68,0.06);border-color:var(--error);
+  box-shadow:0 0 20px rgba(239,68,68,0.1);transform:translateY(-1px)}
+.btn-nav-icon{display:none;background:none;border:none;color:var(--text);cursor:pointer;
+  padding:8px;border-radius:8px;transition:all .25s}
+.btn-nav-icon:hover{background:rgba(255,255,255,0.04)}
+
+/* ═══════════ DASHBOARD CONTENT ═══════════ */
+.main{max-width:1150px;margin:0 auto;padding:36px 28px 60px}
+.dashboard-header{margin-bottom:36px;animation:fadeUp .5s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.welcome-row{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.welcome-text h1{font-family:'Lexend',sans-serif;font-size:1.9rem;font-weight:800;letter-spacing:-0.03em;color:var(--text-bright);margin-bottom:4px}
+.welcome-text h1 span{background:linear-gradient(135deg,var(--accent2),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.welcome-text p{color:var(--muted);font-size:0.9rem}
+.welcome-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn-action{padding:10px 20px;border-radius:10px;font-family:'Lexend',sans-serif;
+  font-size:0.82rem;font-weight:600;cursor:pointer;transition:all .3s;
+  text-decoration:none;display:inline-flex;align-items:center;gap:7px;letter-spacing:0.01em}
+.btn-action-primary{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;border:none;
+  box-shadow:0 4px 20px rgba(99,102,241,0.2)}
+.btn-action-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(99,102,241,0.35)}
+.btn-action-ghost{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
+.btn-action-ghost:hover{border-color:var(--accent);color:var(--accent2)}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:36px}
+.stat-card{background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px 24px;
+  position:relative;overflow:hidden;transition:all .4s}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),transparent);opacity:0;transition:opacity .4s}
+.stat-card:hover::before{opacity:1}
+.stat-card:hover{transform:translateY(-4px);border-color:rgba(99,102,241,0.25);
+  box-shadow:0 12px 40px rgba(0,0,0,0.3)}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;margin-bottom:12px;border:1px solid}
+.stat-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:700;margin-bottom:6px}
+.stat-val{font-family:'Lexend',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-0.02em;line-height:1}
+.stat-sub{font-size:0.72rem;color:var(--muted);margin-top:4px}
+
+.stat-icon.available{background:rgba(129,140,248,0.08);border-color:rgba(129,140,248,0.2);color:var(--accent2)}
+.stat-icon.completed{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.2);color:var(--success)}
+.stat-icon.best{background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.2);color:var(--warning)}
+.stat-val.available{color:var(--accent2)}
+.stat-val.completed{color:var(--success)}
+.stat-val.best{color:var(--warning)}
+
+/* Section */
+.section-wrap{margin-bottom:36px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px}
+.section-title{font-family:'Lexend',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:-0.02em;color:var(--text-bright)}
+.section-count{font-size:0.74rem;color:var(--muted);background:var(--surface2);padding:4px 12px;border-radius:20px;border:1px solid var(--border)}
+
+/* Search & Filter */
+.filter-bar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.search-input{flex:1;min-width:200px;padding:11px 16px;background:var(--surface);border:1.5px solid var(--border);
+  border-radius:10px;font-family:'Inter',sans-serif;font-size:0.86rem;color:var(--text);outline:none;
+  transition:all .3s}
+.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(99,102,241,0.05)}
+.search-input::placeholder{color:var(--muted);opacity:0.5}
+.filter-select{padding:10px 14px;background:var(--surface);border:1.5px solid var(--border);
+  border-radius:10px;font-family:'Inter',sans-serif;font-size:0.84rem;color:var(--text);
+  cursor:pointer;outline:none;transition:all .3s;min-width:130px}
+.filter-select:focus{border-color:var(--accent)}
+
+/* Exams Grid */
+.exams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px}
+.exam-card{background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;
+  display:flex;flex-direction:column;gap:14px;transition:all .4s;position:relative;overflow:hidden}
+.exam-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(99,102,241,0.3),transparent);opacity:0;transition:opacity .4s}
+.exam-card:hover{border-color:rgba(99,102,241,0.3);transform:translateY(-5px);
+  box-shadow:0 16px 50px rgba(0,0,0,0.35),0 0 30px rgba(99,102,241,0.04)}
+.exam-card:hover::after{opacity:1}
+.exam-card.locked{opacity:0.65;filter:grayscale(0.3)}
+.exam-card.locked:hover{transform:none;border-color:var(--border);box-shadow:none}
+.exam-card.locked:hover::after{opacity:0}
+.exam-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.exam-badge{font-size:0.64rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;
+  padding:5px 12px;border-radius:20px;display:inline-flex;align-items:center;gap:5px}
+.badge-free{background:rgba(34,197,94,0.08);color:var(--success);border:1px solid rgba(34,197,94,0.15)}
+.badge-premium{background:rgba(168,85,247,0.08);color:var(--premium);border:1px solid rgba(168,85,247,0.15)}
+.badge-premium svg{color:var(--premium)}
+.exam-time-badge{font-size:0.7rem;color:var(--muted);display:flex;align-items:center;gap:4px;font-weight:500}
+.exam-name{font-family:'Lexend',sans-serif;font-size:1.08rem;font-weight:700;line-height:1.3;color:var(--text-bright)}
+.exam-desc{font-size:0.8rem;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.exam-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:0.74rem;color:var(--muted)}
+.exam-meta-item{display:flex;align-items:center;gap:5px}
+.exam-meta-item svg{flex-shrink:0}
+.exam-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:auto}
+.score-badge{font-size:0.76rem;font-weight:600;padding:6px 12px;border-radius:20px;display:flex;align-items:center;gap:6px}
+.score-badge-good{background:rgba(34,197,94,0.06);color:var(--success);border:1px solid rgba(34,197,94,0.15)}
+.score-badge-avg{background:rgba(245,158,11,0.06);color:var(--warning);border:1px solid rgba(245,158,11,0.15)}
+.exam-actions{display:flex;gap:6px;flex-wrap:wrap}
+.btn-start{padding:9px 20px;background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;
+  border:none;border-radius:10px;font-family:'Lexend',sans-serif;font-size:0.78rem;
+  font-weight:600;cursor:pointer;transition:all .3s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-start:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,0.3)}
+.btn-practice{padding:9px 16px;background:var(--surface3);color:var(--accent2);
+  border:1px solid rgba(99,102,241,0.2);border-radius:10px;font-size:0.76rem;
+  font-family:'Lexend',sans-serif;font-weight:600;cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;gap:5px;transition:all .3s}
+.btn-practice:hover{background:rgba(99,102,241,0.08);border-color:var(--accent)}
+.btn-locked{padding:9px 16px;background:var(--surface3);color:var(--muted);
+  border:1px solid var(--border);border-radius:10px;font-size:0.78rem;
+  font-family:'Lexend',sans-serif;font-weight:600;cursor:not-allowed;display:inline-flex;align-items:center;gap:5px}
+
+/* Loading */
+.loading-state{text-align:center;padding:60px;color:var(--muted)}
+.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:600px){nav{padding:0 16px}.main{padding:20px 16px}}
+.empty-state{text-align:center;padding:50px;color:var(--muted);grid-column:1/-1}
+.empty-state svg{margin-bottom:12px;opacity:0.3}
+
+/* ═══════════ FOOTER ═══════════ */
+.site-footer{background:var(--surface);border-top:1px solid var(--border);margin-top:40px;position:relative;overflow:hidden}
+.footer-glow{position:absolute;top:-100px;left:50%;transform:translateX(-50%);
+  width:600px;height:200px;background:radial-gradient(ellipse,rgba(99,102,241,0.03) 0,transparent 70%);pointer-events:none}
+.footer-inner{max-width:1150px;margin:0 auto;padding:50px 28px 0;position:relative;z-index:1}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:32px}
+.footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.footer-brand .logo-icon{width:32px;height:32px;border-radius:8px}
+.footer-brand-name{font-family:'Lexend',sans-serif;font-weight:700;font-size:1rem;color:var(--text-bright)}
+.footer-desc{font-size:0.8rem;color:var(--muted);line-height:1.7;margin-bottom:14px;max-width:250px}
+.footer-social{display:flex;gap:8px}
+.footer-social-link{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .25s;text-decoration:none}
+.footer-social-link:hover{border-color:var(--accent);color:var(--accent2);background:rgba(99,102,241,0.05)}
+.footer-col-title{font-family:'Lexend',sans-serif;font-size:0.7rem;text-transform:uppercase;
+  letter-spacing:0.1em;color:var(--text-bright);margin-bottom:16px;font-weight:700}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:8px}
+.footer-links a{color:var(--muted);text-decoration:none;font-size:0.82rem;transition:all .25s;display:inline-flex;align-items:center;gap:6px}
+.footer-links a:hover{color:var(--accent2);transform:translateX(3px)}
+.footer-link-badge{font-size:0.55rem;padding:2px 7px;border-radius:8px;font-weight:700;
+  letter-spacing:0.06em;text-transform:uppercase;background:rgba(34,197,94,0.1);color:var(--success)}
+.footer-contact-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:0.8rem;color:var(--muted)}
+.footer-contact-icon{width:15px;height:15px;flex-shrink:0;margin-top:2px}
+.footer-bottom{max-width:1150px;margin:0 auto;padding:20px 28px;margin-top:36px;
+  border-top:1px solid var(--border);display:flex;align-items:center;
+  justify-content:space-between;flex-wrap:wrap;gap:10px}
+.footer-copyright{font-size:0.72rem;color:var(--muted);opacity:0.65}
+.footer-bottom-links{display:flex;gap:14px;flex-wrap:wrap}
+.footer-bottom-links a{font-size:0.72rem;color:var(--muted);text-decoration:none;transition:color .25s}
+.footer-bottom-links a:hover{color:var(--accent2)}
+
+/* ═══════════ RESPONSIVE ═══════════ */
+@media(max-width:768px){
+  .header-inner{padding:0 18px;height:60px}
+  .brand-tagline{display:none}
+  .user-greeting span:last-child{display:none}
+  .btn-logout{font-size:0.7rem;padding:6px 12px}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:24px}
+  .exams-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .welcome-text h1{font-size:1.5rem}
+}
+@media(max-width:480px){
+  .main{padding:24px 14px}
+  .stats-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr;gap:20px}
+  .footer-bottom{flex-direction:column;text-align:center}
+  .exam-footer{flex-direction:column;align-items:flex-start}
+  .exam-actions{width:100%}
+  .btn-start,.btn-practice{flex:1;justify-content:center;text-align:center}
+  .welcome-actions{width:100%}
+  .btn-action{flex:1;justify-content:center}
+}
 </style>
 </head>
 <body>
-<nav>
-  <div class="logo"><img src="/images/exalyte.png" alt="Exalyte">Exalyte</div>
-  <div class="nav-right">
-    <div class="user-chip"><span id="userName">...</span></div>
-    <button class="btn-nav" onclick="logout()">Sign Out</button>
+
+<!-- ═══════════════ PREMIUM HEADER ═══════════════ -->
+<header class="site-header">
+  <div class="header-glow"></div>
+  <div class="header-inner">
+    <a href="/" class="brand-logo">
+      <div class="logo-icon">
+        <img src="/images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none';this.parentElement.querySelector('.logo-svg-fallback').style.display='flex'">
+        <div class="logo-svg-fallback" style="display:none;">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+            <rect width="26" height="26" rx="7" fill="url(#lgoD)"/>
+            <path d="M7 13L11 17L19 9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs><linearGradient id="lgoD" x1="0" y1="0" x2="26" y2="26"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#818cf8"/></linearGradient></defs>
+          </svg>
+        </div>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">Exalyte</span>
+        <span class="brand-tagline">Dashboard</span>
+      </div>
+    </a>
+    <div class="header-actions">
+      <div class="user-greeting">
+        <div class="user-avatar" id="userAvatar">S</div>
+        <span id="userName">Student</span>
+      </div>
+      <button class="btn-logout" onclick="logout()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+    </div>
   </div>
-</nav>
-<div class="main">
-  <div class="page-header"><div class="page-title">Available Examinations</div><div class="page-sub">First attempt scores are recorded. Practice attempts are not stored.</div></div>
-  <div class="stats">
-    <div class="stat-card"><div class="stat-label">Available</div><div class="stat-val" id="statAvail">—</div></div>
-    <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-val" id="statDone">—</div></div>
-    <div class="stat-card"><div class="stat-label">Best Score</div><div class="stat-val" id="statBest">—</div></div>
+</header>
+
+<!-- ═══════════════ DASHBOARD CONTENT ═══════════════ -->
+<main class="main">
+  <div class="dashboard-header">
+    <div class="welcome-row">
+      <div class="welcome-text">
+        <h1>Welcome back, <span id="welcomeName">Student</span></h1>
+        <p>Your precision examination dashboard. Track progress and ace every test.</p>
+      </div>
+      <div class="welcome-actions">
+        <a href="/courses.html" class="btn-action btn-action-ghost">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          Browse Courses
+        </a>
+        <a href="/leaderboard.html" class="btn-action btn-action-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 6 9 6 9z"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 18 9 18 9z"/><path d="M4 22h16"/><path d="M10 22V8h4v14"/></svg>
+          Leaderboard
+        </a>
+      </div>
+    </div>
   </div>
-  <div class="section-title">Examinations</div>
-  <div id="examsGrid" class="exams-grid"><div class="loading" style="grid-column:1/-1"><div class="spinner"></div>Loading...</div></div>
-</div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon available">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+      </div>
+      <div class="stat-label">Available Exams</div>
+      <div class="stat-val available" id="statAvail">—</div>
+      <div class="stat-sub">Ready to attempt</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon completed">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div class="stat-label">Completed</div>
+      <div class="stat-val completed" id="statDone">—</div>
+      <div class="stat-sub">Exams attempted</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon best">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div class="stat-label">Best Score</div>
+      <div class="stat-val best" id="statBest">—</div>
+      <div class="stat-sub">Highest percentage</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon available">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="stat-label">Practice Mode</div>
+      <div class="stat-val available" style="font-size:1.4rem">Unlimited</div>
+      <div class="stat-sub">Free for all exams</div>
+    </div>
+  </div>
+
+  <!-- Section -->
+  <div class="section-wrap">
+    <div class="section-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="section-title">Available Examinations</div>
+        <span class="section-count" id="examCount">0 exams</span>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <input type="text" class="search-input" id="searchExam" placeholder="🔍  Search exams..." oninput="filterExams()">
+      <select class="filter-select" id="filterType" onchange="filterExams()">
+        <option value="all">All Types</option>
+        <option value="free">Free</option>
+        <option value="premium">Premium</option>
+      </select>
+      <select class="filter-select" id="filterStatus" onchange="filterExams()">
+        <option value="all">All Status</option>
+        <option value="available">Not Attempted</option>
+        <option value="completed">Completed</option>
+        <option value="locked">Locked</option>
+      </select>
+    </div>
+
+    <div id="examsGrid" class="exams-grid">
+      <div class="loading-state" style="grid-column:1/-1">
+        <div class="spinner"></div>
+        <p>Loading examinations...</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ═══════════════ PREMIUM FOOTER ═══════════════ -->
+<footer class="site-footer">
+  <div class="footer-glow"></div>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <div class="logo-icon">
+            <img src="/images/exalyte.png" alt="Exalyte" width="22" height="22" style="border-radius:4px;z-index:1" onerror="this.style.display='none'">
+          </div>
+          <span class="footer-brand-name">Exalyte</span>
+        </div>
+        <p class="footer-desc">Precision examination platform for students, educators, and institutions worldwide.</p>
+        <div class="footer-social">
+          <a href="#" class="footer-social-link" aria-label="Twitter">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+          </a>
+          <a href="#" class="footer-social-link" aria-label="GitHub">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          </a>
+          <a href="#" class="footer-social-link" aria-label="Discord">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 9a5 5 0 0 0-5-5H9a5 5 0 0 0-5 5v2a5 5 0 0 0 5 5h1"/><circle cx="16" cy="16" r="4"/><line x1="8" y1="12" x2="8" y2="12.01"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <h4 class="footer-col-title">Platform</h4>
+        <ul class="footer-links">
+          <li><a href="/dashboard.html">Dashboard</a></li>
+          <li><a href="/courses.html">Courses</a></li>
+          <li><a href="/pricing.html">Pricing</a></li>
+          <li><a href="/leaderboard.html">Leaderboard <span class="footer-link-badge">New</span></a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-col-title">Support</h4>
+        <ul class="footer-links">
+          <li><a href="/contact.html">Contact</a></li>
+          <li><a href="/privacy.html">Privacy Policy</a></li>
+          <li><a href="/tos.html">Terms of Service</a></li>
+          <li><a href="/faq.html">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-col-title">Contact</h4>
+        <div class="footer-contact-item">
+          <svg class="footer-contact-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <a href="mailto:support@exalyte.com" style="color:var(--muted);text-decoration:none">support@exalyte.com</a>
+        </div>
+        <div class="footer-contact-item">
+          <svg class="footer-contact-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"/></svg>
+          <span style="color:var(--muted)">Dhaka, Bangladesh</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copyright">&copy; 2024 Exalyte Inc. All rights reserved.</span>
+    <div class="footer-bottom-links">
+      <a href="/privacy.html">Privacy</a>
+      <a href="/tos.html">Terms</a>
+      <a href="/sitemap.html">Sitemap</a>
+    </div>
+  </div>
+</footer>
 
 <script>
-const token=localStorage.getItem('token');
-const user=JSON.parse(localStorage.getItem('user')||'null');
-if(!token||!user)window.location.href='/';
-if(user?.is_admin)window.location.href='/admin.html';
-document.getElementById('userName').textContent=user?.name||'Student';
-function logout(){localStorage.clear();window.location.href='/'}
+// ═══════════ AUTH CHECK ═══════════
+const token = localStorage.getItem('token');
+const user = JSON.parse(localStorage.getItem('user') || 'null');
+if (!token || !user) window.location.href = '/';
+if (user?.is_admin) window.location.href = '/admin.html';
 
-async function loadExams(){
-  try{
-    const res=await fetch('/api/exams/',{headers:{Authorization:`Bearer ${token}`}});
-    if(res.status===401){logout();return}
-    const exams=await res.json();
-    renderExams(exams);
-  }catch(e){document.getElementById('examsGrid').innerHTML='<div class="loading">Failed to load.</div>'}
+// Update UI
+document.getElementById('userName').textContent = user?.name || 'Student';
+document.getElementById('welcomeName').textContent = user?.name?.split(' ')[0] || 'Student';
+document.getElementById('userAvatar').textContent = (user?.name || 'S').charAt(0).toUpperCase();
+
+function logout() {
+  localStorage.clear();
+  window.location.href = '/';
 }
 
-function renderExams(exams){
-  const grid=document.getElementById('examsGrid');
-  const accessible=exams.filter(e=>e.accessible);
-  const stored=exams.filter(e=>e.stored_attempt);
-  const bestPct=stored.length?Math.max(...stored.map(e=>e.stored_attempt.percentage)):null;
-  document.getElementById('statAvail').textContent=accessible.length;
-  document.getElementById('statDone').textContent=stored.length;
-  document.getElementById('statBest').textContent=bestPct!==null?bestPct+'%':'—';
+// ═══════════ LOAD EXAMS ═══════════
+let allExams = [];
 
-  if(!exams.length){grid.innerHTML='<div class="empty">No exams available.</div>';return}
-
-  grid.innerHTML=exams.map(exam=>{
-    const isPremium=!!exam.is_premium;
-    const locked=!exam.accessible;
-    const storedAttempt=exam.stored_attempt;
-    const typeTag=isPremium?'<span class="exam-type type-premium">Premium</span>':'<span class="exam-type type-free">Open</span>';
-    let actionBtn;
-    if(locked) actionBtn='<span class="btn-locked">Restricted</span>';
-    else actionBtn=`
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <a href="/exam.html?id=${exam.id}&mode=exam" class="btn-start">Start Exam</a>
-        <a href="/exam.html?id=${exam.id}&mode=practice" class="btn-practice">Practice</a>
+async function loadExams() {
+  try {
+    const res = await fetch('/api/exams/', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.status === 401) { logout(); return; }
+    allExams = await res.json();
+    updateStats();
+    renderExams(allExams);
+  } catch (e) {
+    document.getElementById('examsGrid').innerHTML = `
+      <div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p>Failed to load examinations. Check your connection.</p>
       </div>`;
-    const storedInfo=storedAttempt
-      ?`<span class="stored-badge">Recorded: ${storedAttempt.score}/${storedAttempt.total_questions} · ${storedAttempt.percentage}%</span>`
-      :'';
-    return`<div class="exam-card ${locked?'locked':''}">
-      ${typeTag}<div class="exam-name">${esc(exam.name)}</div>
-      ${exam.description?`<div class="exam-desc">${esc(exam.description)}</div>`:''}
-      <div class="exam-meta">${exam.time_limit} min · ${exam.question_count} questions${exam.negative_marking>0?` · Negative: -${exam.negative_marking}`:''}</div>
-      <div class="exam-footer">${storedInfo||'<span></span>'}${actionBtn}</div>
-    </div>`;
+  }
+}
+
+function updateStats() {
+  const accessible = allExams.filter(e => e.accessible);
+  const stored = allExams.filter(e => e.stored_attempt);
+  const bestPct = stored.length ? Math.max(...stored.map(e => e.stored_attempt.percentage)) : null;
+  
+  document.getElementById('statAvail').textContent = accessible.length;
+  document.getElementById('statDone').textContent = stored.length;
+  document.getElementById('statBest').textContent = bestPct !== null ? bestPct + '%' : '—';
+  document.getElementById('examCount').textContent = `${accessible.length} exams`;
+}
+
+function renderExams(exams) {
+  const grid = document.getElementById('examsGrid');
+  
+  if (!exams.length) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        <p>No examinations match your filters.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = exams.map(exam => {
+    const isPremium = !!exam.is_premium;
+    const locked = !exam.accessible;
+    const storedAttempt = exam.stored_attempt;
+    
+    const typeBadge = isPremium
+      ? `<span class="exam-badge badge-premium"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Premium</span>`
+      : `<span class="exam-badge badge-free"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Free</span>`;
+
+    let actionBtn;
+    if (locked) {
+      actionBtn = `<span class="btn-locked"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Restricted</span>`;
+    } else {
+      actionBtn = `
+        <div class="exam-actions">
+          <a href="/exam.html?id=${exam.id}&mode=exam" class="btn-start">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Start
+          </a>
+          <a href="/exam.html?id=${exam.id}&mode=practice" class="btn-practice">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            Practice
+          </a>
+        </div>`;
+    }
+
+    let scoreHtml = '';
+    if (storedAttempt) {
+      const pct = storedAttempt.percentage;
+      const scoreClass = pct >= 80 ? 'score-badge-good' : 'score-badge-avg';
+      scoreHtml = `<span class="score-badge ${scoreClass}">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        ${storedAttempt.score}/${storedAttempt.total_questions} · ${pct}%
+      </span>`;
+    }
+
+    return `
+      <div class="exam-card ${locked ? 'locked' : ''}">
+        <div class="exam-card-top">
+          ${typeBadge}
+          <span class="exam-time-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ${exam.time_limit} min
+          </span>
+        </div>
+        <div class="exam-name">${esc(exam.name)}</div>
+        ${exam.description ? `<div class="exam-desc">${esc(exam.description)}</div>` : ''}
+        <div class="exam-meta">
+          <div class="exam-meta-item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>${exam.question_count} questions</span>
+          </div>
+          ${exam.negative_marking > 0 ? `
+          <div class="exam-meta-item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <span>-${exam.negative_marking}/wrong</span>
+          </div>` : ''}
+        </div>
+        <div class="exam-footer">
+          ${scoreHtml || '<span></span>'}
+          ${actionBtn}
+        </div>
+      </div>`;
   }).join('');
 }
 
-function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function filterExams() {
+  const search = document.getElementById('searchExam').value.toLowerCase();
+  const typeFilter = document.getElementById('filterType').value;
+  const statusFilter = document.getElementById('filterStatus').value;
+
+  const filtered = allExams.filter(exam => {
+    const matchSearch = exam.name.toLowerCase().includes(search) ||
+                       (exam.description || '').toLowerCase().includes(search);
+    const matchType = typeFilter === 'all' ||
+                     (typeFilter === 'free' && !exam.is_premium) ||
+                     (typeFilter === 'premium' && exam.is_premium);
+    
+    let matchStatus = true;
+    if (statusFilter === 'available') matchStatus = exam.accessible && !exam.stored_attempt;
+    else if (statusFilter === 'completed') matchStatus = !!exam.stored_attempt;
+    else if (statusFilter === 'locked') matchStatus = !exam.accessible;
+
+    return matchSearch && matchType && matchStatus;
+  });
+
+  updateStats();
+  renderExams(filtered);
+  document.getElementById('examCount').textContent = `${filtered.length} exams`;
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = String(s || '');
+  return d.innerHTML;
+}
+
+// ═══════════ INIT ═══════════
 loadExams();
 </script>
 </body>
