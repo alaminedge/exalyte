@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>পদার্থবিজ্ঞান MCQ পরীক্ষা | ভেক্টর ও পরিমাপ | ২৫ নম্বর | ২০ মিনিট</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans Bengali', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #eef2f7 0%, #d9e1ec 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* main card container */
+        .exam-container {
+            max-width: 1100px;
+            width: 100%;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        /* header with timer & marks */
+        .exam-header {
+            background: #0b2b40;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 15px;
+            border-bottom: 4px solid #ffb347;
+        }
+
+        .title h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            letter-spacing: -0.2px;
+        }
+        .title p {
+            margin: 5px 0 0;
+            opacity: 0.8;
+            font-size: 0.85rem;
+        }
+        .stats {
+            background: #1f4e6e;
+            padding: 8px 20px;
+            border-radius: 60px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .timer-box {
+            font-size: 1.8rem;
+            font-family: monospace;
+            letter-spacing: 2px;
+            background: #00000055;
+            padding: 4px 14px;
+            border-radius: 40px;
+        }
+        .mark-info {
+            background: #00000055;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+        }
+
+        /* questions area */
+        .questions-area {
+            padding: 1.8rem 2rem;
+            background: #ffffff;
+            max-height: 65vh;
+            overflow-y: auto;
+        }
+
+        .question-card {
+            background: #f9fafc;
+            border-left: 6px solid #2c7da0;
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.2rem;
+            border-radius: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: 0.1s;
+        }
+        .question-text {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            color: #0a2f44;
+            line-height: 1.4;
+        }
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem 2rem;
+            margin-top: 10px;
+        }
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            background: #eef2f7;
+            padding: 6px 16px;
+            border-radius: 40px;
+            transition: 0.1s;
+        }
+        .option:hover {
+            background: #d4e2f0;
+        }
+        input[type="radio"] {
+            accent-color: #2c7da0;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        label {
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        /* action buttons */
+        .action-bar {
+            background: #ffffffdd;
+            backdrop-filter: blur(8px);
+            padding: 1rem 2rem;
+            border-top: 1px solid #ced4da;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        button {
+            background: #2c7da0;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        button:hover {
+            background: #1f5e7e;
+            transform: scale(0.97);
+        }
+        .reset-btn {
+            background: #6c757d;
+        }
+        .submit-btn {
+            background: #ff8c42;
+        }
+
+        /* analytics panel */
+        .analytics {
+            background: #eef3fa;
+            padding: 1.5rem 2rem;
+            border-top: 2px solid #cbdbe0;
+            display: none;
+        }
+        .analytics.show {
+            display: block;
+        }
+        .score-card {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .score-badge {
+            background: #0b2b40;
+            color: gold;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .details {
+            background: white;
+            border-radius: 28px;
+            padding: 1rem;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+        .question-review {
+            border-bottom: 1px solid #ccc;
+            padding: 8px 6px;
+            font-size: 0.85rem;
+        }
+        .correct-badge { color: green; font-weight: bold; }
+        .wrong-badge { color: #c7254e; font-weight: bold; }
+        .unattempted-badge { color: #b26b00; }
+        hr { margin: 6px 0; }
+        .warning {
+            color: #b13e3e;
+            font-weight: bold;
+        }
+        @media (max-width: 680px) {
+            .questions-area { padding: 1rem; }
+            .option { padding: 4px 12px; }
+            .exam-header { flex-direction: column; align-items: stretch; }
+        }
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 10px;
+            background: #f1f3f5;
+            color: #2d5a6e;
+        }
+    </style>
+</head>
+<body>
+<div class="exam-container" id="examApp">
+    <div class="exam-header">
+        <div class="title">
+            <h1>📘 পদার্থবিজ্ঞান (১ম পত্র) </h1>
+            <p>অধ্যায় ১ ও ২ | ভৌত জগৎ, পরিমাপ ও ভেক্টর</p>
+        </div>
+        <div class="stats">
+            <div>⏱️ বাকি সময় <span id="timerDisplay" class="timer-box">20:00</span></div>
+            <div class="mark-info">📊 প্রতি প্রশ্ন: +1 | ভুল: -0.25 | সর্বমোট ২৫ নম্বর</div>
+        </div>
+    </div>
+
+    <div class="questions-area" id="questionsContainer">
+        <!-- dynamic 25 questions injected here -->
+        <div style="text-align:center; padding: 30px;">প্রশ্ন লোড হচ্ছে...</div>
+    </div>
+
+    <div class="action-bar">
+        <button class="reset-btn" id="resetExam">🔄 রিসেট / নতুন করে শুরু</button>
+        <button class="submit-btn" id="submitExam">📝 জমা দিন & ফলাফল দেখুন</button>
+    </div>
+
+    <div id="analyticsPanel" class="analytics">
+        <h3>📊 বিশ্লেষণ (Analytics)</h3>
+        <div class="score-card">
+            <div><strong>📌 আপনার প্রাপ্ত নম্বর:</strong> <span id="finalScore" class="score-badge">0.00</span></div>
+            <div>✅ সঠিক: <span id="correctCount">0</span> | ❌ ভুল: <span id="wrongCount">0</span> | ◻️ এড়িয়ে: <span id="skipCount">0</span></div>
+            <div>🎯 নির্ভুলতা: <span id="accuracy">0</span>%</div>
+        </div>
+        <div class="details" id="detailedReview">
+            <!-- per question review -->
+        </div>
+        <button id="closeAnalytics" style="background:#2d6a4f; margin-top: 1rem;">✖️ বিশ্লেষণ বন্ধ করুন</button>
+    </div>
+    <footer>নিয়ম: প্রতিটি সঠিক উত্তরে +১, ভুল উত্তরে -০.২৫, অনুল্লেখিত প্রশ্নে ০। সময় ২০ মিনিট। স্বয়ংক্রিয় সাবমিট হবে সময় শেষে।</footer>
+</div>
+
+<script>
+    // ---------- 25 MCQ Data (exactly from given set) ----------
+    const questionsData = [
+        { text: "১ ন্যানোমিটার (1 nm) সমান কত?", options: ["1 Å", "10 Å", "100 Å", "0.1 Å"], correct: "10 Å" },
+        { text: "নিচের কোনটি মৌলিক এককের পরিমাপ নয়?", options: ["সময়", "ভর", "ভরবেগ", "তাপমাত্রা"], correct: "ভরবেগ" },
+        { text: "মহাকর্ষীয় ধ্রুবকের (G) মাত্রা কোনটি?", options: ["M⁻¹L³T⁻²", "ML²T⁻²", "M⁻¹L²T⁻²", "ML³T⁻²"], correct: "M⁻¹L³T⁻²" },
+        { text: "চাপের মাত্রা সমীকরণ কোনটি?", options: ["MLT⁻¹", "ML⁻¹T⁻²", "ML⁻²T⁻²", "ML⁻²T⁻¹"], correct: "ML⁻¹T⁻²" },
+        { text: "আলোকবর্ষ (Light year) কিসের একক?", options: ["দূরত্ব", "সময়", "বেগ", "শক্তি"], correct: "দূরত্ব" },
+        { text: "পিকো (pico) বলতে নিচের কোনটি বোঝায়?", options: ["10⁻¹²", "10¹²", "10⁻⁹", "10⁹"], correct: "10⁻¹²" },
+        { text: "একটি গোলকের ব্যাসার্ধ পরিমাপে ১.২% ভুল হলে আয়তন পরিমাপে শতকরা কত ভুল হবে?", options: ["১.২০%", "৩.৬৪%", "৩.৬০%", "২.৪০%"], correct: "৩.৬০%" },
+        { text: "স্লাইড ক্যালিপার্সের ভার্নিয়ার স্কেলে ৫০টি ভাগ আছে যা প্রধান স্কেলের ৪৯ ভাগের সাথে মিলে যায়। প্রধান স্কেলের ১ ভাগের মান ১ মি.মি. হলে ভার্নিয়ার ধ্রুবক কত?", options: ["১০০ μm", "১০০০ μm", "২০ μm", "১ μm"], correct: "২০ μm" },
+        { text: "২০২০ সালে নোবেল জয়ী পদার্থবিজ্ঞানী কে?", options: ["রেইনহার্ড গেঞ্জেল", "জেমস পিবলস", "আর্থার আশকিন", "কিপ এস থর্ন"], correct: "রেইনহার্ড গেঞ্জেল" },
+        { text: "আলোকতড়িৎ ক্রিয়ার ব্যাখ্যাকারী বিজ্ঞানী কে?", options: ["নিউটন", "প্লাঙ্ক", "কম্পটন", "আলবার্ট আইনস্টাইন"], correct: "আলবার্ট আইনস্টাইন" },
+        { text: "ভেক্টর A = -6/7 i + 3/7 j + 2/7 k এর মান কত?", options: ["৭", "-৭", "১", "-১"], correct: "১" },
+        { text: "মান শূন্য নয় এরূপ একটি ভেক্টরকে তার মান দিয়ে ভাগ করলে কী পাওয়া যায়?", options: ["নাল ভেক্টর", "অবস্থান ভেক্টর", "একক ভেক্টর", "সমতলীয় ভেক্টর"], correct: "একক ভেক্টর" },
+        { text: "দুটি বলের লব্ধির সর্বোচ্চ ও সর্বনিম্ন মান যথাক্রমে 7 N ও 1 N। বল দুটি পরস্পর লম্বভাবে ক্রিয়া করলে লব্ধির মান কত?", options: ["8 N", "6 N", "5 N", "4 N"], correct: "5 N" },
+        { text: "দুটি সমান ভেক্টরের লব্ধি এদের যেকোনো একটির মানের সমান হলে ভেক্টর দুটির মধ্যবর্তী কোণ কত?", options: ["১২০°", "১৮০°", "৯০°", "৬০°"], correct: "১২০°" },
+        { text: "A ও B ভেক্টরদ্বয় পরস্পর লম্ব হলে নিচের কোনটি সঠিক?", options: ["A·B = 0", "A×B = 0", "|A+B| = |A-B|", "'ক' ও 'গ' উভয়ই"], correct: "'ক' ও 'গ' উভয়ই" },
+        { text: "(i + k) এবং i এর মধ্যবর্তী কোণ কত?", options: ["০°", "১৮০°", "৯০°", "৪৫°"], correct: "৪৫°" },
+        { text: "স্কেলার গুণনের উদাহরণ কোনটি?", options: ["কাজ", "বল", "টর্ক", "কৌণিক ভরবেগ"], correct: "কাজ" },
+        { text: "i × (i × j) এর মান কত?", options: ["০", "j", "-j", "k"], correct: "-j" },
+        { text: "অবস্থান ভেক্টর r হলে এর ডাইভারজেন্স (∇·r) কত?", options: ["১", "২", "৩", "৪"], correct: "৩" },
+        { text: "কোনো ভেক্টর রাশির কার্ল (Curl) শূন্য হলে ভেক্টরটি কেমন হবে?", options: ["ঘূর্ণনশীল ও অসংরক্ষণশীল", "অঘূর্ণনশীল ও সংরক্ষণশীল", "অঘূর্ণনশীল ও অসংরক্ষণশীল", "কোনোটিই নয়"], correct: "অঘূর্ণনশীল ও সংরক্ষণশীল" },
+        { text: "নদী পারাপারে ন্যূনতম দূরত্বে নদী পার হওয়ার শর্ত কোনটি?", options: ["α = 90°", "α = cos⁻¹(-u/v)", "v = u", "α = 0°"], correct: "α = cos⁻¹(-u/v)" },
+        { text: "নিচের কোনটি একটি ভেক্টর অপারেটর নয়?", options: ["sin θ", "√", "log", "d/dx"], correct: "sin θ" },
+        { text: "A ও B এর মধ্যবর্তী কোণ θ হলে |A × B| = A·B হওয়ার শর্ত কী?", options: ["θ = 0°", "θ = 45°", "θ = 90°", "θ = 180°"], correct: "θ = 45°" },
+        { text: "A = 2i + 3j + 4k এবং B = 4i + 6j + 8k ভেক্টর দুটি পরস্পর—", options: ["লম্ব", "বিপরীত", "সমান্তরাল", "সঠিক উত্তর নেই"], correct: "সমান্তরাল" },
+        { text: "∇ × V = 0 হলে V ভেক্টরটি—", options: ["সলিনয়ডাল", "ঘূর্ণনশীল", "অঘূর্ণনশীল", "অসংরক্ষণশীল"], correct: "অঘূর্ণনশীল" }
+    ];
+
+    // ------------- helper functions -------------
+    let userAnswers = new Array(25).fill(null);    // stores selected option text (string) or null
+    let examSubmitted = false;
+    let timerInterval = null;
+    let timeSeconds = 20 * 60; // 20 minutes = 1200 sec
+
+    // DOM elements
+    const questionsContainer = document.getElementById('questionsContainer');
+    const timerDisplaySpan = document.getElementById('timerDisplay');
+    const submitBtn = document.getElementById('submitExam');
+    const resetBtn = document.getElementById('resetExam');
+    const analyticsDiv = document.getElementById('analyticsPanel');
+    const closeAnalytics = document.getElementById('closeAnalytics');
+    const finalScoreSpan = document.getElementById('finalScore');
+    const correctCountSpan = document.getElementById('correctCount');
+    const wrongCountSpan = document.getElementById('wrongCount');
+    const skipCountSpan = document.getElementById('skipCount');
+    const accuracySpan = document.getElementById('accuracy');
+    const detailedReviewDiv = document.getElementById('detailedReview');
+
+    // render all questions dynamically
+    function renderQuestions() {
+        if (!questionsContainer) return;
+        let html = '';
+        questionsData.forEach((q, idx) => {
+            const selectedVal = userAnswers[idx];
+            html += `
+                <div class="question-card" data-qidx="${idx}">
+                    <div class="question-text">${idx+1}. ${q.text}</div>
+                    <div class="options">
+                        ${q.options.map(opt => {
+                            const isChecked = (selectedVal === opt);
+                            return `
+                                <div class="option" data-qid="${idx}" data-opt="${opt.replace(/"/g, '&quot;')}">
+                                    <input type="radio" name="q${idx}" value="${opt.replace(/"/g, '&quot;')}" id="q${idx}_${opt.replace(/\s/g, '')}" ${isChecked ? 'checked' : ''}>
+                                    <label for="q${idx}_${opt.replace(/\s/g, '')}">${opt}</label>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        });
+        questionsContainer.innerHTML = html;
+        // attach event listeners to each radio group dynamically
+        for (let i = 0; i < questionsData.length; i++) {
+            const radios = document.querySelectorAll(`input[name="q${i}"]`);
+            radios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    if (examSubmitted) return;
+                    const selectedValue = e.target.value;
+                    userAnswers[i] = selectedValue;
+                });
+            });
+        }
+    }
+
+    // compute score & analytics (negative marking: +1 correct, -0.25 wrong, 0 unattempted)
+    function computeResults() {
+        let correct = 0, wrong = 0, unattempted = 0;
+        let totalMarks = 0;
+        const reviewDetails = [];
+
+        for (let i = 0; i < questionsData.length; i++) {
+            const userAns = userAnswers[i];
+            const correctAns = questionsData[i].correct;
+            let status = ''; // 'correct', 'wrong', 'unattempted'
+            let mark = 0;
+            if (userAns === null || userAns === undefined) {
+                status = 'unattempted';
+                mark = 0;
+                unattempted++;
+            } else if (userAns === correctAns) {
+                status = 'correct';
+                mark = 1;
+                correct++;
+            } else {
+                status = 'wrong';
+                mark = -0.25;
+                wrong++;
+            }
+            totalMarks += mark;
+
+            reviewDetails.push({
+                index: i,
+                text: questionsData[i].text,
+                userAns: userAns || '(এড়িয়ে গেছেন)',
+                correctAns: correctAns,
+                status: status,
+                mark: mark
+            });
+        }
+        const accuracyTotal = (correct+wrong+unattempted) > 0 ? (correct / (correct+wrong+unattempted) * 100) : 0;
+        return { totalMarks, correct, wrong, unattempted, accuracy: accuracyTotal.toFixed(1), reviewDetails };
+    }
+
+    // show analytics panel with details
+    function displayAnalytics() {
+        if (!analyticsDiv) return;
+        const { totalMarks, correct, wrong, unattempted, accuracy, reviewDetails } = computeResults();
+        finalScoreSpan.innerText = totalMarks.toFixed(2);
+        correctCountSpan.innerText = correct;
+        wrongCountSpan.innerText = wrong;
+        skipCountSpan.innerText = unattempted;
+        accuracySpan.innerText = accuracy;
+
+        let reviewHtml = `<h4>📋 প্রশ্নভিত্তিক বিশ্লেষণ :</h4>`;
+        reviewDetails.forEach(item => {
+            let statusIcon = '';
+            if (item.status === 'correct') statusIcon = '✅ সঠিক';
+            else if (item.status === 'wrong') statusIcon = '❌ ভুল';
+            else statusIcon = '⚠️ এড়িয়ে';
+
+            let markShow = (item.mark >= 0 ? `+${item.mark}` : `${item.mark}`);
+            reviewHtml += `
+                <div class="question-review">
+                    <strong>${item.index+1}. ${item.text.substring(0, 80)}</strong><br>
+                    <span>আপনার উত্তর: ${item.userAns}</span><br>
+                    <span>সঠিক উত্তর: ${item.correctAns} &nbsp;|&nbsp; 
+                    <span class="${item.status === 'correct' ? 'correct-badge' : (item.status === 'wrong' ? 'wrong-badge' : 'unattempted-badge')}">${statusIcon} (প্রাপ্ত নম্বর: ${markShow})</span></span>
+                </div>
+                <hr>
+            `;
+        });
+        detailedReviewDiv.innerHTML = reviewHtml;
+        analyticsDiv.classList.add('show');
+        // scroll to analytics
+        analyticsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // stop timer and disable exam if submitted/timeout
+    function stopTimerAndDisable() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        examSubmitted = true;
+        // disable all radio buttons after submit
+        const allRadios = document.querySelectorAll('input[type="radio"]');
+        allRadios.forEach(radio => radio.disabled = true);
+    }
+
+    // submit exam manually
+    function submitExam() {
+        if (examSubmitted) {
+            alert('পরীক্ষা ইতিমধ্যে জমা দেওয়া হয়েছে! রিসেট করে আবার চেষ্টা করুন।');
+            return;
+        }
+        stopTimerAndDisable();
+        displayAnalytics();
+    }
+
+    // reset everything: fresh exam, timer restart, answers null
+    function resetExam() {
+        // stop existing timer
+        if (timerInterval) clearInterval(timerInterval);
+        // reset vars
+        userAnswers = new Array(25).fill(null);
+        examSubmitted = false;
+        timeSeconds = 20 * 60;
+        updateTimerDisplay();
+        // re-render fresh radios
+        renderQuestions();
+        // enable all radios (by removing disabled attr)
+        const allRadios = document.querySelectorAll('input[type="radio"]');
+        allRadios.forEach(radio => radio.disabled = false);
+        // hide analytics panel
+        analyticsDiv.classList.remove('show');
+        // restart timer
+        startTimer();
+    }
+
+    // timer countdown
+    function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (examSubmitted) return; // already submitted
+            if (timeSeconds <= 0) {
+                // time over, auto submit
+                clearInterval(timerInterval);
+                timerInterval = null;
+                if (!examSubmitted) {
+                    examSubmitted = true;
+                    const allRadios = document.querySelectorAll('input[type="radio"]');
+                    allRadios.forEach(radio => radio.disabled = true);
+                    displayAnalytics();
+                    alert('সময় শেষ! পরীক্ষা স্বয়ংক্রিয়ভাবে জমা নেওয়া হয়েছে।');
+                }
+            } else {
+                timeSeconds--;
+                updateTimerDisplay();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timeSeconds / 60);
+        const secs = timeSeconds % 60;
+        timerDisplaySpan.innerText = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        if (timeSeconds <= 60) {
+            timerDisplaySpan.style.color = "#ffaa66";
+            timerDisplaySpan.style.backgroundColor = "#5d1f1f";
+        } else {
+            timerDisplaySpan.style.color = "white";
+            timerDisplaySpan.style.backgroundColor = "transparent";
+        }
+    }
+
+    // close analytics panel
+    function closeAnalyticsPanel() {
+        analyticsDiv.classList.remove('show');
+    }
+
+    // event binding
+    function bindEvents() {
+        submitBtn.addEventListener('click', submitExam);
+        resetBtn.addEventListener('click', resetExam);
+        closeAnalytics.addEventListener('click', closeAnalyticsPanel);
+    }
+
+    // initialization
+    function init() {
+        renderQuestions();
+        startTimer();
+        bindEvents();
+        // initial disabled state not submitted
+        examSubmitted = false;
+    }
+
+    init();
+</script>
+</body>
+</html>
