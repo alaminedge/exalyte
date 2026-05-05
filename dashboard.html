@@ -8,240 +8,1380 @@
 <meta name="theme-color" content="#05050a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#05050a; --surface:#0a0a16; --surface2:#111122; --surface3:#16162a;
-  --border:#1e1e38; --border-light:#252545;
-  --accent:#6366f1; --accent2:#818cf8; --accent3:#4f46e5; --accent-glow:rgba(99,102,241,0.25);
-  --text:#e9e9f0; --text-bright:#f5f5ff; --muted:#7c7c96; --muted-light:#9a9ab0;
-  --error:#ef4444; --error-glow:rgba(239,68,68,0.2);
-  --success:#22c55e; --success-glow:rgba(34,197,94,0.2);
-  --warning:#f59e0b; --premium:#a855f7; --premium-glow:rgba(168,85,247,0.2);
-  --radius:14px; --radius-lg:20px; --radius-sm:8px; --radius-xs:4px;
-  --transition:0.3s cubic-bezier(0.4,0,0.2,1);
-  --shadow-sm:0 1px 3px rgba(0,0,0,0.3);
-  --shadow-md:0 4px 16px rgba(0,0,0,0.4);
-  --shadow-lg:0 12px 40px rgba(0,0,0,0.5);
-  --shadow-glow:0 0 60px var(--accent-glow);
+  --bg: #05050a;
+  --surface: #0a0a16;
+  --surface2: #111122;
+  --surface3: #16162a;
+  --border: #1e1e38;
+  --border-light: #252545;
+  --accent: #6366f1;
+  --accent2: #818cf8;
+  --accent3: #4f46e5;
+  --accent-glow: rgba(99, 102, 241, 0.25);
+  --text: #e9e9f0;
+  --text-bright: #f5f5ff;
+  --muted: #7c7c96;
+  --muted-light: #9a9ab0;
+  --error: #ef4444;
+  --error-glow: rgba(239, 68, 68, 0.2);
+  --success: #22c55e;
+  --success-glow: rgba(34, 197, 94, 0.2);
+  --warning: #f59e0b;
+  --live: #ef4444;
+  --live-glow: rgba(239, 68, 68, 0.3);
+  --premium: #a855f7;
+  --premium-glow: rgba(168, 85, 247, 0.2);
+  --radius: 14px;
+  --radius-lg: 20px;
+  --radius-sm: 8px;
+  --radius-xs: 4px;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.6;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
   background-image:
-    radial-gradient(ellipse 60% 50% at 80% 0,rgba(99,102,241,0.05) 0,transparent 70%),
-    radial-gradient(ellipse 40% 40% at 20% 100%,rgba(129,140,248,0.03) 0,transparent 70%)}
-
-/* ═══════════ HEADER ═══════════ */
-.site-header{position:sticky;top:0;z-index:1000;transition:all .35s}
-.header-inner{max-width:1300px;margin:0 auto;padding:0 32px;height:66px;
-  display:flex;align-items:center;justify-content:space-between;
-  background:rgba(10,10,22,0.78);backdrop-filter:blur(24px) saturate(180%);
-  -webkit-backdrop-filter:blur(24px) saturate(180%);
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  box-shadow:0 4px 30px rgba(0,0,0,0.2);transition:all .35s}
-.header-glow{position:absolute;top:-40px;left:50%;transform:translateX(-50%);
-  width:300px;height:80px;background:radial-gradient(ellipse,rgba(99,102,241,0.1) 0,transparent 70%);
-  pointer-events:none;z-index:-1}
-
-.brand-logo{text-decoration:none;display:flex;align-items:center;gap:12px}
-.logo-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,rgba(99,102,241,0.2),rgba(129,140,248,0.08));
-  display:flex;align-items:center;justify-content:center;
-  border:1px solid rgba(99,102,241,0.25);position:relative;overflow:hidden}
-.logo-img{width:24px;height:24px;border-radius:4px;z-index:1}
-.logo-svg-fallback{display:none;z-index:1}
-.brand-text{display:flex;flex-direction:column}
-.brand-name{font-family:'Lexend',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:-0.03em;
-  color:var(--text-bright);line-height:1}
-.brand-tagline{font-size:0.56rem;text-transform:uppercase;letter-spacing:0.14em;
-  color:var(--accent2);font-weight:600;margin-top:1px}
-
-.header-actions{display:flex;align-items:center;gap:12px}
-.user-greeting{display:flex;align-items:center;gap:10px;padding:8px 16px;
-  background:var(--surface2);border:1px solid var(--border);border-radius:25px;
-  font-size:0.82rem;font-weight:500;color:var(--text);transition:all .3s}
-.user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));
-  display:flex;align-items:center;justify-content:center;font-family:'Lexend',sans-serif;
-  font-weight:700;font-size:0.78rem;color:#fff;flex-shrink:0}
-.user-greeting:hover{border-color:var(--accent);box-shadow:0 0 20px rgba(99,102,241,0.08)}
-.btn-logout{padding:8px 18px;border-radius:10px;font-family:'Lexend',sans-serif;
-  font-size:0.78rem;font-weight:600;cursor:pointer;transition:all .3s;
-  letter-spacing:0.02em;background:transparent;border:1.5px solid rgba(239,68,68,0.25);
-  color:var(--error)}
-.btn-logout:hover{background:rgba(239,68,68,0.06);border-color:var(--error);
-  box-shadow:0 0 20px rgba(239,68,68,0.1);transform:translateY(-1px)}
-.btn-nav-icon{display:none;background:none;border:none;color:var(--text);cursor:pointer;
-  padding:8px;border-radius:8px;transition:all .25s}
-.btn-nav-icon:hover{background:rgba(255,255,255,0.04)}
-
-/* ═══════════ DASHBOARD CONTENT ═══════════ */
-.main{max-width:1150px;margin:0 auto;padding:36px 28px 60px}
-.dashboard-header{margin-bottom:36px;animation:fadeUp .5s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-.welcome-row{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px}
-.welcome-text h1{font-family:'Lexend',sans-serif;font-size:1.9rem;font-weight:800;letter-spacing:-0.03em;color:var(--text-bright);margin-bottom:4px}
-.welcome-text h1 span{background:linear-gradient(135deg,var(--accent2),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.welcome-text p{color:var(--muted);font-size:0.9rem}
-.welcome-actions{display:flex;gap:10px;flex-wrap:wrap}
-.btn-action{padding:10px 20px;border-radius:10px;font-family:'Lexend',sans-serif;
-  font-size:0.82rem;font-weight:600;cursor:pointer;transition:all .3s;
-  text-decoration:none;display:inline-flex;align-items:center;gap:7px;letter-spacing:0.01em}
-.btn-action-primary{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;border:none;
-  box-shadow:0 4px 20px rgba(99,102,241,0.2)}
-.btn-action-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(99,102,241,0.35)}
-.btn-action-ghost{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
-.btn-action-ghost:hover{border-color:var(--accent);color:var(--accent2)}
-
-/* Stats */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:36px}
-.stat-card{background:linear-gradient(135deg,var(--surface),var(--surface2));
-  border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px 24px;
-  position:relative;overflow:hidden;transition:all .4s}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,var(--accent),var(--accent2),transparent);opacity:0;transition:opacity .4s}
-.stat-card:hover::before{opacity:1}
-.stat-card:hover{transform:translateY(-4px);border-color:rgba(99,102,241,0.25);
-  box-shadow:0 12px 40px rgba(0,0,0,0.3)}
-.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;
-  justify-content:center;margin-bottom:12px;border:1px solid}
-.stat-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:700;margin-bottom:6px}
-.stat-val{font-family:'Lexend',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-0.02em;line-height:1}
-.stat-sub{font-size:0.72rem;color:var(--muted);margin-top:4px}
-
-.stat-icon.available{background:rgba(129,140,248,0.08);border-color:rgba(129,140,248,0.2);color:var(--accent2)}
-.stat-icon.completed{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.2);color:var(--success)}
-.stat-icon.best{background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.2);color:var(--warning)}
-.stat-val.available{color:var(--accent2)}
-.stat-val.completed{color:var(--success)}
-.stat-val.best{color:var(--warning)}
-
-/* Section */
-.section-wrap{margin-bottom:36px}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px}
-.section-title{font-family:'Lexend',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:-0.02em;color:var(--text-bright)}
-.section-count{font-size:0.74rem;color:var(--muted);background:var(--surface2);padding:4px 12px;border-radius:20px;border:1px solid var(--border)}
-
-/* Search & Filter */
-.filter-bar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
-.search-input{flex:1;min-width:200px;padding:11px 16px;background:var(--surface);border:1.5px solid var(--border);
-  border-radius:10px;font-family:'Inter',sans-serif;font-size:0.86rem;color:var(--text);outline:none;
-  transition:all .3s}
-.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(99,102,241,0.05)}
-.search-input::placeholder{color:var(--muted);opacity:0.5}
-.filter-select{padding:10px 14px;background:var(--surface);border:1.5px solid var(--border);
-  border-radius:10px;font-family:'Inter',sans-serif;font-size:0.84rem;color:var(--text);
-  cursor:pointer;outline:none;transition:all .3s;min-width:130px}
-.filter-select:focus{border-color:var(--accent)}
-
-/* Exams Grid */
-.exams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px}
-.exam-card{background:linear-gradient(135deg,var(--surface),var(--surface2));
-  border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;
-  display:flex;flex-direction:column;gap:14px;transition:all .4s;position:relative;overflow:hidden}
-.exam-card::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(99,102,241,0.3),transparent);opacity:0;transition:opacity .4s}
-.exam-card:hover{border-color:rgba(99,102,241,0.3);transform:translateY(-5px);
-  box-shadow:0 16px 50px rgba(0,0,0,0.35),0 0 30px rgba(99,102,241,0.04)}
-.exam-card:hover::after{opacity:1}
-.exam-card.locked{opacity:0.65;filter:grayscale(0.3)}
-.exam-card.locked:hover{transform:none;border-color:var(--border);box-shadow:none}
-.exam-card.locked:hover::after{opacity:0}
-.exam-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.exam-badge{font-size:0.64rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;
-  padding:5px 12px;border-radius:20px;display:inline-flex;align-items:center;gap:5px}
-.badge-free{background:rgba(34,197,94,0.08);color:var(--success);border:1px solid rgba(34,197,94,0.15)}
-.badge-premium{background:rgba(168,85,247,0.08);color:var(--premium);border:1px solid rgba(168,85,247,0.15)}
-.badge-premium svg{color:var(--premium)}
-.exam-time-badge{font-size:0.7rem;color:var(--muted);display:flex;align-items:center;gap:4px;font-weight:500}
-.exam-name{font-family:'Lexend',sans-serif;font-size:1.08rem;font-weight:700;line-height:1.3;color:var(--text-bright)}
-.exam-desc{font-size:0.8rem;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.exam-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:0.74rem;color:var(--muted)}
-.exam-meta-item{display:flex;align-items:center;gap:5px}
-.exam-meta-item svg{flex-shrink:0}
-.exam-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:auto}
-.score-badge{font-size:0.76rem;font-weight:600;padding:6px 12px;border-radius:20px;display:flex;align-items:center;gap:6px}
-.score-badge-good{background:rgba(34,197,94,0.06);color:var(--success);border:1px solid rgba(34,197,94,0.15)}
-.score-badge-avg{background:rgba(245,158,11,0.06);color:var(--warning);border:1px solid rgba(245,158,11,0.15)}
-.exam-actions{display:flex;gap:6px;flex-wrap:wrap}
-.btn-start{padding:9px 20px;background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;
-  border:none;border-radius:10px;font-family:'Lexend',sans-serif;font-size:0.78rem;
-  font-weight:600;cursor:pointer;transition:all .3s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
-.btn-start:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,0.3)}
-.btn-practice{padding:9px 16px;background:var(--surface3);color:var(--accent2);
-  border:1px solid rgba(99,102,241,0.2);border-radius:10px;font-size:0.76rem;
-  font-family:'Lexend',sans-serif;font-weight:600;cursor:pointer;text-decoration:none;
-  display:inline-flex;align-items:center;gap:5px;transition:all .3s}
-.btn-practice:hover{background:rgba(99,102,241,0.08);border-color:var(--accent)}
-.btn-locked{padding:9px 16px;background:var(--surface3);color:var(--muted);
-  border:1px solid var(--border);border-radius:10px;font-size:0.78rem;
-  font-family:'Lexend',sans-serif;font-weight:600;cursor:not-allowed;display:inline-flex;align-items:center;gap:5px}
-
-/* Loading */
-.loading-state{text-align:center;padding:60px;color:var(--muted)}
-.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);
-  border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.empty-state{text-align:center;padding:50px;color:var(--muted);grid-column:1/-1}
-.empty-state svg{margin-bottom:12px;opacity:0.3}
-
-/* ═══════════ FOOTER ═══════════ */
-.site-footer{background:var(--surface);border-top:1px solid var(--border);margin-top:40px;position:relative;overflow:hidden}
-.footer-glow{position:absolute;top:-100px;left:50%;transform:translateX(-50%);
-  width:600px;height:200px;background:radial-gradient(ellipse,rgba(99,102,241,0.03) 0,transparent 70%);pointer-events:none}
-.footer-inner{max-width:1150px;margin:0 auto;padding:50px 28px 0;position:relative;z-index:1}
-.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:32px}
-.footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.footer-brand .logo-icon{width:32px;height:32px;border-radius:8px}
-.footer-brand-name{font-family:'Lexend',sans-serif;font-weight:700;font-size:1rem;color:var(--text-bright)}
-.footer-desc{font-size:0.8rem;color:var(--muted);line-height:1.7;margin-bottom:14px;max-width:250px}
-.footer-social{display:flex;gap:8px}
-.footer-social-link{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .25s;text-decoration:none}
-.footer-social-link:hover{border-color:var(--accent);color:var(--accent2);background:rgba(99,102,241,0.05)}
-.footer-col-title{font-family:'Lexend',sans-serif;font-size:0.7rem;text-transform:uppercase;
-  letter-spacing:0.1em;color:var(--text-bright);margin-bottom:16px;font-weight:700}
-.footer-links{list-style:none;display:flex;flex-direction:column;gap:8px}
-.footer-links a{color:var(--muted);text-decoration:none;font-size:0.82rem;transition:all .25s;display:inline-flex;align-items:center;gap:6px}
-.footer-links a:hover{color:var(--accent2);transform:translateX(3px)}
-.footer-link-badge{font-size:0.55rem;padding:2px 7px;border-radius:8px;font-weight:700;
-  letter-spacing:0.06em;text-transform:uppercase;background:rgba(34,197,94,0.1);color:var(--success)}
-.footer-contact-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:0.8rem;color:var(--muted)}
-.footer-contact-icon{width:15px;height:15px;flex-shrink:0;margin-top:2px}
-.footer-bottom{max-width:1150px;margin:0 auto;padding:20px 28px;margin-top:36px;
-  border-top:1px solid var(--border);display:flex;align-items:center;
-  justify-content:space-between;flex-wrap:wrap;gap:10px}
-.footer-copyright{font-size:0.72rem;color:var(--muted);opacity:0.65}
-.footer-bottom-links{display:flex;gap:14px;flex-wrap:wrap}
-.footer-bottom-links a{font-size:0.72rem;color:var(--muted);text-decoration:none;transition:color .25s}
-.footer-bottom-links a:hover{color:var(--accent2)}
-
-/* ═══════════ RESPONSIVE ═══════════ */
-@media(max-width:768px){
-  .header-inner{padding:0 18px;height:60px}
-  .brand-tagline{display:none}
-  .user-greeting span:last-child{display:none}
-  .btn-logout{font-size:0.7rem;padding:6px 12px}
-  .footer-grid{grid-template-columns:1fr 1fr;gap:24px}
-  .exams-grid{grid-template-columns:1fr}
-  .stats-grid{grid-template-columns:1fr 1fr}
-  .welcome-text h1{font-size:1.5rem}
+    radial-gradient(ellipse 60% 50% at 80% 0, rgba(99, 102, 241, 0.05) 0, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 20% 100%, rgba(129, 140, 248, 0.03) 0, transparent 70%);
 }
-@media(max-width:480px){
-  .main{padding:24px 14px}
-  .stats-grid{grid-template-columns:1fr}
-  .footer-grid{grid-template-columns:1fr;gap:20px}
-  .footer-bottom{flex-direction:column;text-align:center}
-  .exam-footer{flex-direction:column;align-items:flex-start}
-  .exam-actions{width:100%}
-  .btn-start,.btn-practice{flex:1;justify-content:center;text-align:center}
-  .welcome-actions{width:100%}
-  .btn-action{flex:1;justify-content:center}
+
+/* ═══════════════ HEADER ═══════════════ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: all 0.35s;
+}
+
+.header-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 32px;
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(10, 10, 22, 0.78);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+  transition: all 0.35s;
+}
+
+.header-glow {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 80px;
+  background: radial-gradient(ellipse, rgba(99, 102, 241, 0.1) 0, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.brand-logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(129, 140, 248, 0.08));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.logo-icon img {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+.logo-svg-fallback {
+  display: none;
+  z-index: 1;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-name {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: -0.03em;
+  color: var(--text-bright);
+  line-height: 1;
+}
+
+.brand-tagline {
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent2);
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-greeting {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 25px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text);
+  transition: all 0.3s;
+}
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent3));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.user-greeting:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.08);
+}
+
+.btn-logout {
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  letter-spacing: 0.02em;
+  background: transparent;
+  border: 1.5px solid rgba(239, 68, 68, 0.25);
+  color: var(--error);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-logout:hover {
+  background: rgba(239, 68, 68, 0.06);
+  border-color: var(--error);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.1);
+  transform: translateY(-1px);
+}
+
+.btn-nav-icon {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.25s;
+}
+
+.btn-nav-icon:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ═══════════════ MAIN CONTENT ═══════════════ */
+.main {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: 36px 28px 60px;
+}
+
+.dashboard-header {
+  margin-bottom: 36px;
+  animation: fadeUp 0.5s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.welcome-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.welcome-text h1 {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-bright);
+  margin-bottom: 4px;
+}
+
+.welcome-text h1 span {
+  background: linear-gradient(135deg, var(--accent2), #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-text p {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.welcome-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-action {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  letter-spacing: 0.01em;
+}
+
+.btn-action-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent3));
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+}
+
+.btn-action-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.35);
+}
+
+.btn-action-ghost {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--muted);
+}
+
+.btn-action-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent2);
+}
+
+/* ═══════════════ STATS GRID ═══════════════ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, var(--surface), var(--surface2));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.stat-card:hover::before {
+  opacity: 1;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(99, 102, 241, 0.25);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  border: 1px solid;
+}
+
+.stat-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.stat-val {
+  font-family: 'Lexend', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.stat-sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.stat-icon.available {
+  background: rgba(129, 140, 248, 0.08);
+  border-color: rgba(129, 140, 248, 0.2);
+  color: var(--accent2);
+}
+
+.stat-icon.completed {
+  background: rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.2);
+  color: var(--success);
+}
+
+.stat-icon.best {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.2);
+  color: var(--warning);
+}
+
+.stat-val.available {
+  color: var(--accent2);
+}
+
+.stat-val.completed {
+  color: var(--success);
+}
+
+.stat-val.best {
+  color: var(--warning);
+}
+
+/* ═══════════════ LIVE EXAMS STRIP ═══════════════ */
+.live-strip {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(239, 68, 68, 0.02));
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 36px;
+  position: relative;
+  overflow: hidden;
+}
+
+.live-strip::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--live), rgba(239, 68, 68, 0.5), transparent);
+}
+
+.live-strip-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.live-pulse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--live);
+  box-shadow: 0 0 12px var(--live-glow);
+  animation: livePulse 2s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 12px var(--live-glow);
+  }
+  50% {
+    opacity: 0.4;
+    box-shadow: 0 0 24px var(--live-glow);
+  }
+}
+
+.live-strip-title {
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: -0.01em;
+}
+
+.live-exams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.live-exam-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  transition: all 0.3s;
+}
+
+.live-exam-card:hover {
+  border-color: rgba(239, 68, 68, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.08);
+}
+
+.live-exam-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.live-exam-name {
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.live-exam-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.live-exam-timer {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--warning);
+  font-weight: 600;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.8rem;
+}
+
+.btn-live-start {
+  padding: 9px 18px;
+  background: linear-gradient(135deg, var(--live), #dc2626);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-live-start:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+}
+
+/* ═══════════════ RANKING STRIP ═══════════════ */
+.rankings-strip {
+  margin-bottom: 36px;
+}
+
+.rankings-strip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.rankings-title {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-bright);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rankings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.ranking-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.3s;
+}
+
+.ranking-card:hover {
+  border-color: rgba(99, 102, 241, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.ranking-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: 'Lexend', sans-serif;
+}
+
+.ranking-badge-number {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--accent2);
+  line-height: 1;
+}
+
+.ranking-badge-label {
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.ranking-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ranking-exam-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-bright);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ranking-detail {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.ranking-bar-wrap {
+  width: 100%;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.ranking-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 2px;
+  transition: width 0.8s ease;
+}
+
+/* ═══════════════ SECTION HEADER ═══════════════ */
+.section-wrap {
+  margin-bottom: 36px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.section-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-bright);
+}
+
+.section-count {
+  font-size: 0.74rem;
+  color: var(--muted);
+  background: var(--surface2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+/* ═══════════════ FILTER BAR ═══════════════ */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 11px 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.86rem;
+  color: var(--text);
+  outline: none;
+  transition: all 0.3s;
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.05);
+}
+
+.search-input::placeholder {
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.filter-select {
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.84rem;
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s;
+  min-width: 130px;
+}
+
+.filter-select:focus {
+  border-color: var(--accent);
+}
+
+/* ═══════════════ EXAMS GRID ═══════════════ */
+.batch-section {
+  margin-bottom: 24px;
+}
+
+.batch-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.25s;
+  user-select: none;
+}
+
+.batch-header:hover {
+  border-color: rgba(99, 102, 241, 0.2);
+  background: var(--surface2);
+}
+
+.batch-header-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent2);
+  flex-shrink: 0;
+  transition: transform 0.3s;
+}
+
+.batch-header.open .batch-header-icon {
+  transform: rotate(90deg);
+}
+
+.batch-header-name {
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  flex: 1;
+}
+
+.batch-header-count {
+  font-size: 0.7rem;
+  color: var(--muted);
+  background: var(--surface3);
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.batch-exams {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 16px;
+  padding-left: 8px;
+  margin-bottom: 8px;
+}
+
+.ungrouped-section {
+  margin-top: 8px;
+}
+
+.ungrouped-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 14px;
+  padding-left: 8px;
+}
+
+.exam-card {
+  background: linear-gradient(135deg, var(--surface), var(--surface2));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.4s;
+  position: relative;
+  overflow: hidden;
+}
+
+.exam-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.exam-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-5px);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.35), 0 0 30px rgba(99, 102, 241, 0.04);
+}
+
+.exam-card:hover::after {
+  opacity: 1;
+}
+
+.exam-card.locked {
+  opacity: 0.65;
+  filter: grayscale(0.3);
+}
+
+.exam-card.locked:hover {
+  transform: none;
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+.exam-card.locked:hover::after {
+  opacity: 0;
+}
+
+.exam-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.exam-badge {
+  font-size: 0.64rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 5px 12px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.badge-free {
+  background: rgba(34, 197, 94, 0.08);
+  color: var(--success);
+  border: 1px solid rgba(34, 197, 94, 0.15);
+}
+
+.badge-premium {
+  background: rgba(168, 85, 247, 0.08);
+  color: var(--premium);
+  border: 1px solid rgba(168, 85, 247, 0.15);
+}
+
+.badge-live {
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--live);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  animation: liveBadgePulse 2s ease-in-out infinite;
+}
+
+@keyframes liveBadgePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+}
+
+.exam-time-badge {
+  font-size: 0.7rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.exam-name {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-bright);
+}
+
+.exam-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.exam-meta {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.exam-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.exam-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.score-badge {
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.score-badge-good {
+  background: rgba(34, 197, 94, 0.06);
+  color: var(--success);
+  border: 1px solid rgba(34, 197, 94, 0.15);
+}
+
+.score-badge-avg {
+  background: rgba(245, 158, 11, 0.06);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.exam-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-start {
+  padding: 9px 20px;
+  background: linear-gradient(135deg, var(--accent), var(--accent3));
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-start:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+}
+
+.btn-practice {
+  padding: 9px 16px;
+  background: var(--surface3);
+  color: var(--accent2);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 10px;
+  font-size: 0.76rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.3s;
+}
+
+.btn-practice:hover {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: var(--accent);
+}
+
+.btn-locked {
+  padding: 9px 16px;
+  background: var(--surface3);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: not-allowed;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ═══════════════ LOADING & EMPTY STATES ═══════════════ */
+.loading-state {
+  text-align: center;
+  padding: 60px;
+  color: var(--muted);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 14px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 50px;
+  color: var(--muted);
+  grid-column: 1 / -1;
+}
+
+.empty-state svg {
+  margin-bottom: 12px;
+  opacity: 0.3;
+}
+
+/* ═══════════════ FOOTER ═══════════════ */
+.site-footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.footer-glow {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 200px;
+  background: radial-gradient(ellipse, rgba(99, 102, 241, 0.03) 0, transparent 70%);
+  pointer-events: none;
+}
+
+.footer-inner {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: 50px 28px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 32px;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.footer-logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(129, 140, 248, 0.08));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+.footer-logo-icon img {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+.footer-brand-name {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-bright);
+}
+
+.footer-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 14px;
+  max-width: 250px;
+}
+
+.footer-social {
+  display: flex;
+  gap: 8px;
+}
+
+.footer-social-link {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  transition: all 0.25s;
+  text-decoration: none;
+}
+
+.footer-social-link:hover {
+  border-color: var(--accent);
+  color: var(--accent2);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.footer-col-title {
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-bright);
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.footer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.82rem;
+  transition: all 0.25s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer-links a:hover {
+  color: var(--accent2);
+  transform: translateX(3px);
+}
+
+.footer-bottom {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: 20px 28px;
+  margin-top: 36px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.footer-copyright {
+  font-size: 0.72rem;
+  color: var(--muted);
+  opacity: 0.65;
+}
+
+.footer-bottom-links {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.footer-bottom-links a {
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.25s;
+}
+
+.footer-bottom-links a:hover {
+  color: var(--accent2);
+}
+
+/* ═══════════════ RESPONSIVE ═══════════════ */
+@media (max-width: 900px) {
+  .header-inner {
+    padding: 0 18px;
+    height: 60px;
+  }
+
+  .brand-tagline {
+    display: none;
+  }
+
+  .btn-nav-icon {
+    display: block;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 24px 14px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .live-exams-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rankings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .batch-exams {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-text h1 {
+    font-size: 1.5rem;
+  }
+
+  .exam-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .exam-actions {
+    width: 100%;
+  }
+
+  .btn-start,
+  .btn-practice {
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .welcome-actions {
+    width: 100%;
+  }
+
+  .btn-action {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 </style>
 </head>
 <body>
 
-<!-- ═══════════════ PREMIUM HEADER ═══════════════ -->
+<!-- ═══════════════ HEADER ═══════════════ -->
 <header class="site-header">
   <div class="header-glow"></div>
   <div class="header-inner">
@@ -250,9 +1390,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         <img src="/images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none';this.parentElement.querySelector('.logo-svg-fallback').style.display='flex'">
         <div class="logo-svg-fallback" style="display:none;">
           <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-            <rect width="26" height="26" rx="7" fill="url(#lgoD)"/>
+            <rect width="26" height="26" rx="7" fill="url(#logoGradient)"/>
             <path d="M7 13L11 17L19 9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <defs><linearGradient id="lgoD" x1="0" y1="0" x2="26" y2="26"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#818cf8"/></linearGradient></defs>
+            <defs>
+              <linearGradient id="logoGradient" x1="0" y1="0" x2="26" y2="26">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#818cf8"/>
+              </linearGradient>
+            </defs>
           </svg>
         </div>
       </div>
@@ -261,21 +1406,28 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         <span class="brand-tagline">Dashboard</span>
       </div>
     </a>
+
     <div class="header-actions">
       <div class="user-greeting">
         <div class="user-avatar" id="userAvatar">S</div>
         <span id="userName">Student</span>
       </div>
       <button class="btn-logout" onclick="logout()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
         Sign Out
       </button>
     </div>
   </div>
 </header>
 
-<!-- ═══════════════ DASHBOARD CONTENT ═══════════════ -->
+<!-- ═══════════════ MAIN CONTENT ═══════════════ -->
 <main class="main">
+
+  <!-- Dashboard Header -->
   <div class="dashboard-header">
     <div class="welcome-row">
       <div class="welcome-text">
@@ -283,39 +1435,53 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         <p>Your precision examination dashboard. Track progress and ace every test.</p>
       </div>
       <div class="welcome-actions">
-        <a href="/courses.html" class="btn-action btn-action-ghost">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          Browse Courses
+        <a href="/exam-history.html" class="btn-action btn-action-ghost">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Exam History
         </a>
-        <a href="/leaderboard.html" class="btn-action btn-action-primary">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 6 9 6 9z"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 18 9 18 9z"/><path d="M4 22h16"/><path d="M10 22V8h4v14"/></svg>
-          Leaderboard
+        <a href="/pricing.html" class="btn-action btn-action-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          Premium
         </a>
       </div>
     </div>
   </div>
 
-  <!-- Stats -->
+  <!-- Stats Grid -->
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-icon available">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="9" y1="21" x2="9" y2="9"/>
+        </svg>
       </div>
       <div class="stat-label">Available Exams</div>
-      <div class="stat-val available" id="statAvail">—</div>
+      <div class="stat-val available" id="statAvailable">—</div>
       <div class="stat-sub">Ready to attempt</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon completed">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
       </div>
       <div class="stat-label">Completed</div>
-      <div class="stat-val completed" id="statDone">—</div>
+      <div class="stat-val completed" id="statCompleted">—</div>
       <div class="stat-sub">Exams attempted</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon best">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
       </div>
       <div class="stat-label">Best Score</div>
       <div class="stat-val best" id="statBest">—</div>
@@ -323,30 +1489,57 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     </div>
     <div class="stat-card">
       <div class="stat-icon available">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
       </div>
       <div class="stat-label">Practice Mode</div>
       <div class="stat-val available" style="font-size:1.4rem">Unlimited</div>
-      <div class="stat-sub">Free for all exams</div>
+      <div class="stat-sub">For completed exams</div>
     </div>
   </div>
 
-  <!-- Section -->
+  <!-- Live Exams Strip -->
+  <div class="live-strip" id="liveStrip" style="display:none;">
+    <div class="live-strip-header">
+      <div class="live-pulse-dot"></div>
+      <div class="live-strip-title">Happening Now</div>
+    </div>
+    <div class="live-exams-grid" id="liveExamsGrid"></div>
+  </div>
+
+  <!-- Rankings Strip -->
+  <div class="rankings-strip" id="rankingsStrip" style="display:none;">
+    <div class="rankings-strip-header">
+      <div class="rankings-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        Your Rankings
+      </div>
+      <a href="/exam-history.html" style="font-size:0.78rem;color:var(--accent2);text-decoration:none;font-weight:600;">View All</a>
+    </div>
+    <div class="rankings-grid" id="rankingsGrid"></div>
+  </div>
+
+  <!-- Exams Section -->
   <div class="section-wrap">
     <div class="section-header">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="section-title">Available Examinations</div>
+      <div class="section-title-group">
+        <div class="section-title">All Examinations</div>
         <span class="section-count" id="examCount">0 exams</span>
       </div>
     </div>
 
     <!-- Filter Bar -->
     <div class="filter-bar">
-      <input type="text" class="search-input" id="searchExam" placeholder="🔍  Search exams..." oninput="filterExams()">
+      <input type="text" class="search-input" id="searchExam" placeholder="Search exams..." oninput="filterExams()">
       <select class="filter-select" id="filterType" onchange="filterExams()">
         <option value="all">All Types</option>
         <option value="free">Free</option>
         <option value="premium">Premium</option>
+        <option value="live">Live Now</option>
       </select>
       <select class="filter-select" id="filterStatus" onchange="filterExams()">
         <option value="all">All Status</option>
@@ -354,9 +1547,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         <option value="completed">Completed</option>
         <option value="locked">Locked</option>
       </select>
+      <select class="filter-select" id="filterBatch" onchange="filterExams()">
+        <option value="all">All Batches</option>
+      </select>
     </div>
 
-    <div id="examsGrid" class="exams-grid">
+    <!-- Exams Container -->
+    <div id="examsContainer">
       <div class="loading-state" style="grid-column:1/-1">
         <div class="spinner"></div>
         <p>Loading examinations...</p>
@@ -365,28 +1562,29 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   </div>
 </main>
 
-<!-- ═══════════════ PREMIUM FOOTER ═══════════════ -->
+<!-- ═══════════════ FOOTER ═══════════════ -->
 <footer class="site-footer">
   <div class="footer-glow"></div>
   <div class="footer-inner">
     <div class="footer-grid">
       <div>
         <div class="footer-brand">
-          <div class="logo-icon">
-            <img src="/images/exalyte.png" alt="Exalyte" width="22" height="22" style="border-radius:4px;z-index:1" onerror="this.style.display='none'">
+          <div class="footer-logo-icon">
+            <img src="/images/exalyte.png" alt="Exalyte" onerror="this.style.display='none'">
           </div>
           <span class="footer-brand-name">Exalyte</span>
         </div>
         <p class="footer-desc">Precision examination platform for students, educators, and institutions worldwide.</p>
         <div class="footer-social">
           <a href="#" class="footer-social-link" aria-label="Twitter">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+            </svg>
           </a>
           <a href="#" class="footer-social-link" aria-label="GitHub">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-          </a>
-          <a href="#" class="footer-social-link" aria-label="Discord">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 9a5 5 0 0 0-5-5H9a5 5 0 0 0-5 5v2a5 5 0 0 0 5 5h1"/><circle cx="16" cy="16" r="4"/><line x1="8" y1="12" x2="8" y2="12.01"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+            </svg>
           </a>
         </div>
       </div>
@@ -394,9 +1592,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         <h4 class="footer-col-title">Platform</h4>
         <ul class="footer-links">
           <li><a href="/dashboard.html">Dashboard</a></li>
-          <li><a href="/courses.html">Courses</a></li>
+          <li><a href="/exam-history.html">Exam History</a></li>
           <li><a href="/pricing.html">Pricing</a></li>
-          <li><a href="/leaderboard.html">Leaderboard <span class="footer-link-badge">New</span></a></li>
         </ul>
       </div>
       <div>
@@ -405,19 +1602,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
           <li><a href="/contact.html">Contact</a></li>
           <li><a href="/privacy.html">Privacy Policy</a></li>
           <li><a href="/tos.html">Terms of Service</a></li>
-          <li><a href="/faq.html">FAQ</a></li>
         </ul>
       </div>
       <div>
         <h4 class="footer-col-title">Contact</h4>
-        <div class="footer-contact-item">
-          <svg class="footer-contact-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          <a href="mailto:support@exalyte.com" style="color:var(--muted);text-decoration:none">support@exalyte.com</a>
-        </div>
-        <div class="footer-contact-item">
-          <svg class="footer-contact-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"/></svg>
-          <span style="color:var(--muted)">Dhaka, Bangladesh</span>
-        </div>
+        <ul class="footer-links">
+          <li><a href="mailto:support@exalyte.com">support@exalyte.com</a></li>
+          <li><span style="color:var(--muted)">Dhaka, Bangladesh</span></li>
+        </ul>
       </div>
     </div>
   </div>
@@ -426,171 +1618,510 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     <div class="footer-bottom-links">
       <a href="/privacy.html">Privacy</a>
       <a href="/tos.html">Terms</a>
-      <a href="/sitemap.html">Sitemap</a>
     </div>
   </div>
 </footer>
 
 <script>
-// ═══════════ AUTH CHECK ═══════════
+// ═══════════════ AUTH CHECK ═══════════════
 const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || 'null');
-if (!token || !user) window.location.href = '/';
-if (user?.is_admin) window.location.href = '/admin.html';
+
+if (!token || !user) {
+  window.location.href = '/';
+}
+
+if (user.is_admin) {
+  window.location.href = '/admin.html';
+}
 
 // Update UI
-document.getElementById('userName').textContent = user?.name || 'Student';
-document.getElementById('welcomeName').textContent = user?.name?.split(' ')[0] || 'Student';
-document.getElementById('userAvatar').textContent = (user?.name || 'S').charAt(0).toUpperCase();
+document.getElementById('userName').textContent = user.name || 'Student';
+document.getElementById('welcomeName').textContent = (user.name || 'Student').split(' ')[0];
+document.getElementById('userAvatar').textContent = (user.name || 'S').charAt(0).toUpperCase();
 
 function logout() {
   localStorage.clear();
   window.location.href = '/';
 }
 
-// ═══════════ LOAD EXAMS ═══════════
+// ═══════════════ DATA ═══════════════
 let allExams = [];
+let allBatches = [];
+let liveTimerIntervals = {};
 
-async function loadExams() {
+// ═══════════════ API HELPER ═══════════════
+async function api(method, path) {
   try {
-    const res = await fetch('/api/exams/', {
-      headers: { Authorization: `Bearer ${token}` }
+    const response = await fetch('/api' + path, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      }
     });
-    if (res.status === 401) { logout(); return; }
-    allExams = await res.json();
-    updateStats();
-    renderExams(allExams);
-  } catch (e) {
-    document.getElementById('examsGrid').innerHTML = `
-      <div class="empty-state">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <p>Failed to load examinations. Check your connection.</p>
-      </div>`;
+
+    if (response.status === 401) {
+      logout();
+      return null;
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('API error:', error);
+    return null;
   }
 }
 
-function updateStats() {
-  const accessible = allExams.filter(e => e.accessible);
-  const stored = allExams.filter(e => e.stored_attempt);
-  const bestPct = stored.length ? Math.max(...stored.map(e => e.stored_attempt.percentage)) : null;
-  
-  document.getElementById('statAvail').textContent = accessible.length;
-  document.getElementById('statDone').textContent = stored.length;
-  document.getElementById('statBest').textContent = bestPct !== null ? bestPct + '%' : '—';
-  document.getElementById('examCount').textContent = `${accessible.length} exams`;
+// ═══════════════ LOAD ALL DATA ═══════════════
+async function loadDashboard() {
+  // Load batches first
+  allBatches = await api('GET', '/batches') || [];
+
+  // Load exams
+  allExams = await api('GET', '/exams/') || [];
+
+  // Populate batch filter
+  populateBatchFilter();
+
+  // Load rankings
+  loadRankings();
+
+  // Update stats
+  updateStats();
+
+  // Render exams
+  renderAllExams();
+
+  // Render live strip
+  renderLiveStrip();
 }
 
-function renderExams(exams) {
-  const grid = document.getElementById('examsGrid');
-  
-  if (!exams.length) {
-    grid.innerHTML = `
-      <div class="empty-state">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-        <p>No examinations match your filters.</p>
-      </div>`;
+function populateBatchFilter() {
+  const filterBatch = document.getElementById('filterBatch');
+  filterBatch.innerHTML = '<option value="all">All Batches</option>' +
+    allBatches.map(batch => `<option value="${batch.id}">${esc(batch.name)}</option>`).join('');
+}
+
+// ═══════════════ STATS ═══════════════
+function updateStats() {
+  const accessible = allExams.filter(e => e.accessible);
+  const completed = allExams.filter(e => e.stored_attempt && !e.stored_attempt.is_practice);
+  const bestScore = completed.length
+    ? Math.max(...completed.map(e => e.stored_attempt.percentage))
+    : null;
+
+  document.getElementById('statAvailable').textContent = accessible.length;
+  document.getElementById('statCompleted').textContent = completed.length;
+  document.getElementById('statBest').textContent = bestScore !== null ? bestScore + '%' : '--';
+  document.getElementById('examCount').textContent = accessible.length + ' exams';
+}
+
+// ═══════════════ LIVE EXAMS STRIP ═══════════════
+function renderLiveStrip() {
+  const liveExams = allExams.filter(e => e.is_live && !e.stored_attempt);
+  const liveStrip = document.getElementById('liveStrip');
+  const liveExamsGrid = document.getElementById('liveExamsGrid');
+
+  if (!liveExams.length) {
+    liveStrip.style.display = 'none';
+    // Clear existing timers
+    Object.values(liveTimerIntervals).forEach(clearInterval);
+    liveTimerIntervals = {};
     return;
   }
 
-  grid.innerHTML = exams.map(exam => {
-    const isPremium = !!exam.is_premium;
-    const locked = !exam.accessible;
-    const storedAttempt = exam.stored_attempt;
-    
-    const typeBadge = isPremium
-      ? `<span class="exam-badge badge-premium"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Premium</span>`
-      : `<span class="exam-badge badge-free"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Free</span>`;
+  liveStrip.style.display = 'block';
 
-    let actionBtn;
-    if (locked) {
-      actionBtn = `<span class="btn-locked"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Restricted</span>`;
-    } else {
-      actionBtn = `
-        <div class="exam-actions">
-          <a href="/exam.html?id=${exam.id}&mode=exam" class="btn-start">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            Start
-          </a>
-          <a href="/exam.html?id=${exam.id}&mode=practice" class="btn-practice">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            Practice
-          </a>
-        </div>`;
-    }
-
-    let scoreHtml = '';
-    if (storedAttempt) {
-      const pct = storedAttempt.percentage;
-      const scoreClass = pct >= 80 ? 'score-badge-good' : 'score-badge-avg';
-      scoreHtml = `<span class="score-badge ${scoreClass}">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        ${storedAttempt.score}/${storedAttempt.total_questions} · ${pct}%
-      </span>`;
-    }
-
-    return `
-      <div class="exam-card ${locked ? 'locked' : ''}">
-        <div class="exam-card-top">
-          ${typeBadge}
-          <span class="exam-time-badge">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            ${exam.time_limit} min
+  liveExamsGrid.innerHTML = liveExams.map(exam => `
+    <div class="live-exam-card">
+      <div class="live-exam-info">
+        <div class="live-exam-name">${esc(exam.name)}</div>
+        <div class="live-exam-meta">
+          <span>${exam.question_count} questions</span>
+          <span>${exam.time_limit} min</span>
+          <span class="live-exam-timer" id="liveTimer${exam.id}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            ${formatTimeRemaining(exam.live_seconds_remaining)}
           </span>
         </div>
-        <div class="exam-name">${esc(exam.name)}</div>
-        ${exam.description ? `<div class="exam-desc">${esc(exam.description)}</div>` : ''}
-        <div class="exam-meta">
-          <div class="exam-meta-item">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <span>${exam.question_count} questions</span>
-          </div>
-          ${exam.negative_marking > 0 ? `
-          <div class="exam-meta-item">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            <span>-${exam.negative_marking}/wrong</span>
-          </div>` : ''}
-        </div>
-        <div class="exam-footer">
-          ${scoreHtml || '<span></span>'}
-          ${actionBtn}
-        </div>
-      </div>`;
-  }).join('');
+      </div>
+      <a href="/exam.html?id=${exam.id}&mode=exam" class="btn-live-start">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        Start Exam
+      </a>
+    </div>
+  `).join('');
+
+  // Start countdown timers
+  liveExams.forEach(exam => {
+    if (liveTimerIntervals[exam.id]) {
+      clearInterval(liveTimerIntervals[exam.id]);
+    }
+
+    let secondsRemaining = exam.live_seconds_remaining;
+
+    liveTimerIntervals[exam.id] = setInterval(() => {
+      secondsRemaining--;
+
+      const timerElement = document.getElementById('liveTimer' + exam.id);
+      if (timerElement) {
+        timerElement.textContent = formatTimeRemaining(secondsRemaining);
+      }
+
+      if (secondsRemaining <= 0) {
+        clearInterval(liveTimerIntervals[exam.id]);
+        loadDashboard(); // Refresh to update live status
+      }
+    }, 1000);
+  });
 }
 
-function filterExams() {
-  const search = document.getElementById('searchExam').value.toLowerCase();
-  const typeFilter = document.getElementById('filterType').value;
-  const statusFilter = document.getElementById('filterStatus').value;
+function formatTimeRemaining(totalSeconds) {
+  if (totalSeconds <= 0) {
+    return 'Expired';
+  }
 
-  const filtered = allExams.filter(exam => {
-    const matchSearch = exam.name.toLowerCase().includes(search) ||
-                       (exam.description || '').toLowerCase().includes(search);
-    const matchType = typeFilter === 'all' ||
-                     (typeFilter === 'free' && !exam.is_premium) ||
-                     (typeFilter === 'premium' && exam.is_premium);
-    
-    let matchStatus = true;
-    if (statusFilter === 'available') matchStatus = exam.accessible && !exam.stored_attempt;
-    else if (statusFilter === 'completed') matchStatus = !!exam.stored_attempt;
-    else if (statusFilter === 'locked') matchStatus = !exam.accessible;
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
 
-    return matchSearch && matchType && matchStatus;
+  if (hours > 0) {
+    return `${hours}h ${minutes}m left`;
+  }
+
+  if (minutes > 0) {
+    return `${minutes}m ${seconds}s left`;
+  }
+
+  return `${seconds}s left`;
+}
+
+// ═══════════════ RANKINGS ═══════════════
+async function loadRankings() {
+  const completedExams = allExams.filter(e => e.stored_attempt && !e.stored_attempt.is_practice);
+
+  if (!completedExams.length) {
+    document.getElementById('rankingsStrip').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('rankingsStrip').style.display = 'block';
+
+  const rankingsData = await Promise.all(
+    completedExams.slice(0, 4).map(async exam => {
+      const leaderboard = await api('GET', '/leaderboard/' + exam.id);
+      return { exam, leaderboard };
+    })
+  );
+
+  const rankingsGrid = document.getElementById('rankingsGrid');
+  rankingsGrid.innerHTML = rankingsData
+    .filter(item => item.leaderboard && item.leaderboard.attempted)
+    .sort((a, b) => b.leaderboard.percentile - a.leaderboard.percentile)
+    .map(item => {
+      const { exam, leaderboard } = item;
+      const percentile = leaderboard.percentile;
+
+      return `
+        <div class="ranking-card">
+          <div class="ranking-badge">
+            <div class="ranking-badge-number">#${leaderboard.rank}</div>
+            <div class="ranking-badge-label">Rank</div>
+          </div>
+          <div class="ranking-info">
+            <div class="ranking-exam-name">${esc(exam.name)}</div>
+            <div class="ranking-detail">
+              ${leaderboard.score}/${leaderboard.total_questions} &middot;
+              ${leaderboard.percentage}% &middot;
+              Top ${percentile}%
+            </div>
+            <div class="ranking-bar-wrap">
+              <div class="ranking-bar-fill" style="width:${percentile}%"></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+}
+
+// ═══════════════ RENDER EXAMS ═══════════════
+function renderAllExams(filteredExams = null) {
+  const examsToRender = filteredExams || allExams;
+  const container = document.getElementById('examsContainer');
+
+  // Group exams by batch
+  const examBatchMap = {};
+  const ungroupedExams = [];
+
+  examsToRender.forEach(exam => {
+    if (exam.batch_id) {
+      if (!examBatchMap[exam.batch_id]) {
+        examBatchMap[exam.batch_id] = {
+          batchName: exam.batch_name || 'Unknown Batch',
+          exams: []
+        };
+      }
+      examBatchMap[exam.batch_id].exams.push(exam);
+    } else {
+      ungroupedExams.push(exam);
+    }
   });
 
-  updateStats();
-  renderExams(filtered);
-  document.getElementById('examCount').textContent = `${filtered.length} exams`;
+  let html = '';
+
+  // Render batched exams
+  Object.entries(examBatchMap).forEach(([batchId, batchData]) => {
+    const batch = allBatches.find(b => b.id === parseInt(batchId));
+    const examCount = batchData.exams.length;
+    const completedCount = batchData.exams.filter(e => e.stored_attempt).length;
+
+    html += `
+      <div class="batch-section">
+        <div class="batch-header" onclick="toggleBatch(this)" data-batch-id="${batchId}">
+          <div class="batch-header-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>
+          <div class="batch-header-name">${esc(batchData.batchName)}</div>
+          <div class="batch-header-count">${completedCount}/${examCount} completed</div>
+        </div>
+        <div class="batch-exams" id="batchExams${batchId}">
+          ${batchData.exams.map(exam => renderExamCard(exam)).join('')}
+        </div>
+      </div>
+    `;
+  });
+
+  // Render ungrouped exams
+  if (ungroupedExams.length) {
+    html += `
+      <div class="ungrouped-section">
+        <div class="ungrouped-label">Other Exams</div>
+        <div class="batch-exams">
+          ${ungroupedExams.map(exam => renderExamCard(exam)).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // Empty state
+  if (!examsToRender.length) {
+    html = `
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="9" y1="21" x2="9" y2="9"/>
+        </svg>
+        <p>No examinations match your filters.</p>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
 }
 
-function esc(s) {
-  const d = document.createElement('div');
-  d.textContent = String(s || '');
-  return d.innerHTML;
+function renderExamCard(exam) {
+  const isPremium = exam.is_premium === 1;
+  const isLive = exam.is_live;
+  const locked = !exam.accessible;
+  const storedAttempt = exam.stored_attempt;
+  const canPractice = exam.can_practice;
+
+  // Type badge
+  let typeBadge;
+  if (isLive && !storedAttempt) {
+    typeBadge = `<span class="exam-badge badge-live">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+      Live
+    </span>`;
+  } else if (isPremium) {
+    typeBadge = `<span class="exam-badge badge-premium">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Premium
+    </span>`;
+  } else {
+    typeBadge = `<span class="exam-badge badge-free">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      Free
+    </span>`;
+  }
+
+  // Action buttons
+  let actionButtons;
+  if (locked) {
+    actionButtons = `
+      <span class="btn-locked">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        Restricted
+      </span>`;
+  } else {
+    actionButtons = '<div class="exam-actions">';
+
+    if (isLive && !storedAttempt) {
+      actionButtons += `
+        <a href="/exam.html?id=${exam.id}&mode=exam" class="btn-start">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          Take Live Exam
+        </a>`;
+    } else if (!storedAttempt) {
+      actionButtons += `
+        <a href="/exam.html?id=${exam.id}&mode=exam" class="btn-start">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          Start Exam
+        </a>`;
+    }
+
+    if (canPractice || (storedAttempt && !isLive)) {
+      actionButtons += `
+        <a href="/exam.html?id=${exam.id}&mode=practice" class="btn-practice">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+          Practice
+        </a>`;
+    }
+
+    actionButtons += '</div>';
+  }
+
+  // Score badge
+  let scoreHtml = '';
+  if (storedAttempt && !storedAttempt.is_practice) {
+    const pct = storedAttempt.percentage;
+    const scoreClass = pct >= 60 ? 'score-badge-good' : 'score-badge-avg';
+    scoreHtml = `
+      <span class="score-badge ${scoreClass}">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        ${storedAttempt.score}/${storedAttempt.total_questions} &middot; ${pct}%
+      </span>`;
+  }
+
+  return `
+    <div class="exam-card ${locked ? 'locked' : ''}">
+      <div class="exam-card-top">
+        ${typeBadge}
+        <span class="exam-time-badge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          ${exam.time_limit} min
+        </span>
+      </div>
+      <div class="exam-name">${esc(exam.name)}</div>
+      ${exam.description ? `<div class="exam-desc">${esc(exam.description)}</div>` : ''}
+      <div class="exam-meta">
+        <div class="exam-meta-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <span>${exam.question_count} questions</span>
+        </div>
+        ${exam.negative_marking > 0 ? `
+        <div class="exam-meta-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          <span>-${exam.negative_marking}/wrong</span>
+        </div>` : ''}
+      </div>
+      <div class="exam-footer">
+        ${scoreHtml || '<span></span>'}
+        ${actionButtons}
+      </div>
+    </div>
+  `;
 }
 
-// ═══════════ INIT ═══════════
-loadExams();
+// ═══════════════ BATCH TOGGLE ═══════════════
+function toggleBatch(headerElement) {
+  const batchId = headerElement.getAttribute('data-batch-id');
+  const examsContainer = document.getElementById('batchExams' + batchId);
+
+  if (examsContainer.style.display === 'none') {
+    examsContainer.style.display = '';
+    headerElement.classList.remove('open');
+  } else {
+    examsContainer.style.display = 'none';
+    headerElement.classList.add('open');
+  }
+}
+
+// ═══════════════ FILTER ═══════════════
+function filterExams() {
+  const searchTerm = document.getElementById('searchExam').value.toLowerCase();
+  const typeFilter = document.getElementById('filterType').value;
+  const statusFilter = document.getElementById('filterStatus').value;
+  const batchFilter = document.getElementById('filterBatch').value;
+
+  const filtered = allExams.filter(exam => {
+    // Search filter
+    const matchesSearch = exam.name.toLowerCase().includes(searchTerm) ||
+      (exam.description || '').toLowerCase().includes(searchTerm);
+
+    // Type filter
+    let matchesType = true;
+    if (typeFilter === 'free') matchesType = exam.is_premium === 0;
+    else if (typeFilter === 'premium') matchesType = exam.is_premium === 1;
+    else if (typeFilter === 'live') matchesType = exam.is_live === true;
+
+    // Status filter
+    let matchesStatus = true;
+    if (statusFilter === 'available') matchesStatus = exam.accessible && !exam.stored_attempt;
+    else if (statusFilter === 'completed') matchesStatus = !!exam.stored_attempt;
+    else if (statusFilter === 'locked') matchesStatus = !exam.accessible;
+
+    // Batch filter
+    let matchesBatch = true;
+    if (batchFilter !== 'all') {
+      matchesBatch = exam.batch_id === parseInt(batchFilter);
+    }
+
+    return matchesSearch && matchesType && matchesStatus && matchesBatch;
+  });
+
+  renderAllExams(filtered);
+  document.getElementById('examCount').textContent = filtered.length + ' exams';
+}
+
+// ═══════════════ UTILITY ═══════════════
+function esc(text) {
+  const div = document.createElement('div');
+  div.textContent = String(text || '');
+  return div.innerHTML;
+}
+
+// ═══════════════ INIT ═══════════════
+loadDashboard();
+
+// Refresh live exams every 30 seconds
+setInterval(() => {
+  const liveExams = allExams.filter(e => e.is_live);
+  if (liveExams.length) {
+    renderLiveStrip();
+  }
+}, 30000);
 </script>
 </body>
 </html>
