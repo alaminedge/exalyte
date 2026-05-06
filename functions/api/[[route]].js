@@ -68,8 +68,9 @@ async function requireAdmin(request, db) {
 
 // ─── DB init ──────────────────────────────────────────────────────────────────
 async function initDB(db) {
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
+  // D1 requires each statement run separately — never use db.exec with multiple statements
+  const statements = [
+    `CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
@@ -78,14 +79,14 @@ async function initDB(db) {
       is_premium_allowed INTEGER DEFAULT 0,
       premium_until DATETIME,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-    CREATE TABLE IF NOT EXISTS batches (
+    )`,
+    `CREATE TABLE IF NOT EXISTS batches (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       description TEXT DEFAULT '',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-    CREATE TABLE IF NOT EXISTS exams (
+    )`,
+    `CREATE TABLE IF NOT EXISTS exams (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       description TEXT,
@@ -96,8 +97,8 @@ async function initDB(db) {
       batch_id INTEGER REFERENCES batches(id) ON DELETE SET NULL,
       live_deadline_hours INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-    CREATE TABLE IF NOT EXISTS questions (
+    )`,
+    `CREATE TABLE IF NOT EXISTS questions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       exam_id INTEGER NOT NULL REFERENCES exams(id) ON DELETE CASCADE,
       question_text TEXT NOT NULL,
@@ -107,8 +108,8 @@ async function initDB(db) {
       option_d TEXT NOT NULL,
       correct_answer TEXT NOT NULL,
       image_url TEXT
-    );
-    CREATE TABLE IF NOT EXISTS exam_attempts (
+    )`,
+    `CREATE TABLE IF NOT EXISTS exam_attempts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
       exam_id INTEGER NOT NULL,
@@ -117,8 +118,8 @@ async function initDB(db) {
       percentage REAL DEFAULT 0,
       answers TEXT,
       submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-    CREATE TABLE IF NOT EXISTS exam_results_stored (
+    )`,
+    `CREATE TABLE IF NOT EXISTS exam_results_stored (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
       exam_id INTEGER NOT NULL,
@@ -130,8 +131,8 @@ async function initDB(db) {
       attempt_number INTEGER DEFAULT 1,
       is_first_attempt INTEGER DEFAULT 1,
       is_practice INTEGER DEFAULT 0
-    );
-    CREATE TABLE IF NOT EXISTS premium_access (
+    )`,
+    `CREATE TABLE IF NOT EXISTS premium_access (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL REFERENCES users(id),
       exam_id INTEGER REFERENCES exams(id) ON DELETE CASCADE,
@@ -140,16 +141,20 @@ async function initDB(db) {
       granted_by INTEGER,
       granted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       expires_at DATETIME
-    );
-    CREATE TABLE IF NOT EXISTS signup_logs (
+    )`,
+    `CREATE TABLE IF NOT EXISTS signup_logs (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       ip_address TEXT NOT NULL,
       email TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-  `);
+    )`,
+  ];
 
-  // Seed admin
+  for (const sql of statements) {
+    await db.prepare(sql).run();
+  }
+
+  // Seed default admin account
   const adminHash = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind('admin@exalyte.com').first();
   if (!existing) {
