@@ -1,8 +1,8 @@
-name = "exalytte-inc"
+name = "myplatform"
 compatibility_date = "2024-01-01"
 pages_build_output_dir = "."
 
 [[d1_databases]]
 binding = "DB"
-database_name = "exalyte"
-database_id = "db85dc30-953a-4337-9a26-2e1db522117e"
+database_name = "exa"
+database_id = "33cd4412-d2a3-4b52-8689-2f3f4813ad9c"
