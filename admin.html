@@ -1,1616 +1,855 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin Panel — Exalyte</title>
-<meta name="description" content="Exalyte Administration — Manage exams, users, batches, and premium access.">
-<meta name="theme-color" content="#05050a">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #05050a;
-  --sidebar-bg: #080810;
-  --surface: #0c0c16;
-  --surface2: #141424;
-  --surface3: #1a1a2e;
-  --border: #1e1e32;
-  --border-light: #282845;
-  --accent: #6366f1;
-  --accent2: #818cf8;
-  --accent3: #4f46e5;
-  --accent-glow: rgba(99, 102, 241, 0.25);
-  --text: #e9e9f0;
-  --text-bright: #f5f5ff;
-  --muted: #76768e;
-  --muted-light: #9a9ab0;
-  --error: #ef4444;
-  --error-glow: rgba(239, 68, 68, 0.2);
-  --success: #22c55e;
-  --success-glow: rgba(34, 197, 94, 0.2);
-  --warning: #f59e0b;
-  --premium: #a855f7;
-  --premium-glow: rgba(168, 85, 247, 0.2);
-  --live: #ef4444;
-  --radius: 12px;
-  --radius-sm: 8px;
-  --radius-xs: 4px;
-  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
-  --sidebar-width: 240px;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  display: flex;
-  min-height: 100vh;
-}
-
-/* ═══════════════ SIDEBAR ═══════════════ */
-.sidebar {
-  width: var(--sidebar-width);
-  background: var(--sidebar-bg);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  z-index: 50;
-  transition: transform 0.3s;
-}
-
-.sidebar-top {
-  padding: 20px;
-  border-bottom: 1px solid var(--border);
-}
-
-.logo {
-  font-family: 'Lexend', sans-serif;
-  font-weight: 800;
-  font-size: 1rem;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  letter-spacing: -0.02em;
-}
-
-.logo img {
-  width: 26px;
-  height: 26px;
-  border-radius: 4px;
-}
-
-.admin-tag {
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  margin-top: 3px;
-  font-weight: 600;
-}
-
-.nav-section {
-  padding: 6px 0;
-}
-
-.nav-label {
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 0.11em;
-  color: var(--muted);
-  font-weight: 700;
-  padding: 10px 18px 4px;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 18px;
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--muted);
-  cursor: pointer;
-  border: none;
-  background: transparent;
-  width: 100%;
-  text-align: left;
-  transition: all var(--transition);
-  border-left: 2px solid transparent;
-  font-family: 'Inter', sans-serif;
-}
-
-.nav-item:hover {
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.nav-item.active {
-  color: var(--accent2);
-  background: rgba(99, 102, 241, 0.04);
-  border-left-color: var(--accent);
-}
-
-.sidebar-footer {
-  margin-top: auto;
-  padding: 16px 18px;
-  border-top: 1px solid var(--border);
-}
-
-.user-info {
-  font-size: 0.76rem;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
-
-.btn-logout {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  padding: 8px 14px;
-  border-radius: var(--radius-sm);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.78rem;
-  cursor: pointer;
-  transition: all var(--transition);
-  width: 100%;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  justify-content: center;
-}
-
-.btn-logout:hover {
-  border-color: var(--error);
-  color: var(--error);
-}
-
-/* ═══════════════ MAIN ═══════════════ */
-.main {
-  margin-left: var(--sidebar-width);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.topbar {
-  height: 56px;
-  padding: 0 28px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 40;
-}
-
-.topbar-title {
-  font-family: 'Lexend', sans-serif;
-  font-weight: 700;
-  font-size: 0.95rem;
-  letter-spacing: -0.01em;
-}
-
-.admin-badge {
-  font-size: 0.64rem;
-  background: rgba(99, 102, 241, 0.1);
-  color: var(--accent2);
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--text);
-  font-size: 1.3rem;
-  cursor: pointer;
-}
-
-.content {
-  padding: 28px;
-  flex: 1;
-}
-
-.view {
-  display: none;
-}
-
-.view.active {
-  display: block;
-}
-
-/* ═══════════════ STATS ═══════════════ */
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 14px;
-  margin-bottom: 28px;
-}
-
-.stat {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px;
-}
-
-.stat-label {
-  font-size: 0.66rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.stat-val {
-  font-family: 'Lexend', sans-serif;
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--accent2);
-  letter-spacing: -0.02em;
-}
-
-/* ═══════════════ SECTIONS ═══════════════ */
-.section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.section-title {
-  font-family: 'Lexend', sans-serif;
-  font-size: 1.05rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-
-.card-body {
-  padding: 22px;
-}
-
-/* ═══════════════ FORMS ═══════════════ */
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-.form-group {
-  margin-bottom: 14px;
-}
-
-.form-label {
-  display: block;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-
-.form-input,
-.form-select,
-.form-textarea {
-  width: 100%;
-  padding: 10px 13px;
-  background: var(--bg);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.86rem;
-  color: var(--text);
-  outline: none;
-  transition: border-color var(--transition);
-}
-
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.06);
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 120px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-}
-
-.form-hint {
-  font-size: 0.66rem;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-.toggle-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.84rem;
-  cursor: pointer;
-  color: var(--muted);
-}
-
-input[type="checkbox"] {
-  accent-color: var(--accent);
-  width: 15px;
-  height: 15px;
-}
-
-/* ═══════════════ BUTTONS ═══════════════ */
-.btn {
-  font-family: 'Lexend', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 9px 18px;
-  border-radius: var(--radius-sm);
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  text-decoration: none;
-  letter-spacing: 0.01em;
-}
-
-.btn-primary {
-  background: var(--accent);
-  color: #fff;
-}
-
-.btn-primary:hover {
-  background: var(--accent3);
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
-}
-
-.btn-ghost {
-  background: transparent;
-  color: var(--muted);
-  border: 1px solid var(--border);
-}
-
-.btn-ghost:hover {
-  border-color: var(--accent);
-  color: var(--accent2);
-}
-
-.btn-danger {
-  background: rgba(239, 68, 68, 0.06);
-  color: var(--error);
-  border: 1px solid rgba(239, 68, 68, 0.15);
-}
-
-.btn-danger:hover {
-  background: var(--error);
-  color: #fff;
-  border-color: var(--error);
-}
-
-.btn-success {
-  background: rgba(34, 197, 94, 0.06);
-  color: var(--success);
-  border: 1px solid rgba(34, 197, 94, 0.15);
-}
-
-.btn-success:hover {
-  background: var(--success);
-  color: #fff;
-  border-color: var(--success);
-}
-
-.btn-sm {
-  padding: 5px 12px;
-  font-size: 0.73rem;
-}
-
-.btn-xs {
-  padding: 3px 7px;
-  font-size: 0.66rem;
-  border-radius: 4px;
-}
-
-/* ═══════════════ TABLES ═══════════════ */
-.table-wrap {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th {
-  padding: 10px 14px;
-  text-align: left;
-  font-size: 0.66rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  font-weight: 700;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface2);
-  white-space: nowrap;
-}
-
-td {
-  padding: 11px 14px;
-  font-size: 0.82rem;
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-}
-
-tr:last-child td {
-  border-bottom: none;
-}
-
-tr:hover td {
-  background: rgba(255, 255, 255, 0.015);
-}
-
-/* ═══════════════ BADGES ═══════════════ */
-.badge {
-  font-size: 0.64rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 3px 9px;
-  border-radius: 20px;
-  display: inline-block;
-}
-
-.badge-free {
-  background: rgba(34, 197, 94, 0.08);
-  color: var(--success);
-}
-
-.badge-premium {
-  background: rgba(168, 85, 247, 0.08);
-  color: var(--premium);
-}
-
-.badge-live {
-  background: rgba(239, 68, 68, 0.08);
-  color: var(--error);
-}
-
-.badge-pass {
-  background: rgba(34, 197, 94, 0.08);
-  color: var(--success);
-}
-
-.badge-fail {
-  background: rgba(239, 68, 68, 0.08);
-  color: var(--error);
-}
-
-.badge-account {
-  background: rgba(99, 102, 241, 0.08);
-  color: var(--accent2);
-}
-
-.badge-batch {
-  background: rgba(245, 158, 11, 0.08);
-  color: var(--warning);
-}
-
-/* ═══════════════ ALERTS ═══════════════ */
-.alert {
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 0.82rem;
-  margin-bottom: 14px;
-  line-height: 1.4;
-}
-
-.alert-error {
-  background: rgba(239, 68, 68, 0.06);
-  border: 1px solid rgba(239, 68, 68, 0.15);
-  color: var(--error);
-}
-
-.alert-success {
-  background: rgba(34, 197, 94, 0.06);
-  border: 1px solid rgba(34, 197, 94, 0.15);
-  color: var(--success);
-}
-
-/* ═══════════════ CSV ZONE ═══════════════ */
-.csv-zone {
-  border: 2px dashed var(--border);
-  border-radius: var(--radius-sm);
-  padding: 28px;
-  text-align: center;
-  color: var(--muted);
-  cursor: pointer;
-  transition: border-color var(--transition);
-}
-
-.csv-zone:hover {
-  border-color: var(--accent);
-  color: var(--text);
-}
-
-.csv-zone input {
-  display: none;
-}
-
-.csv-preview {
-  margin-top: 12px;
-  background: var(--bg);
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  font-size: 0.76rem;
-  color: var(--muted);
-  max-height: 140px;
-  overflow-y: auto;
-  font-family: 'JetBrains Mono', monospace;
-  line-height: 1.6;
-}
-
-.q-mini-list {
-  max-height: 320px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.q-mini-item {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 8px 10px;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 0.76rem;
-  transition: all var(--transition);
-}
-
-.q-mini-item:hover {
-  background: var(--bg);
-}
-
-.q-mini-text {
-  flex: 1;
-  line-height: 1.4;
-  word-break: break-word;
-}
-
-.q-mini-meta {
-  font-size: 0.66rem;
-  color: var(--muted);
-  margin-top: 2px;
-}
-
-/* ═══════════════ MODALS ═══════════════ */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(5, 5, 10, 0.85);
-  z-index: 200;
-  display: none;
-  place-items: center;
-  padding: 20px;
-  backdrop-filter: blur(4px);
-}
-
-.modal-overlay.open {
-  display: grid;
-}
-
-.modal {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 28px;
-  max-width: 500px;
-  width: 100%;
-  position: relative;
-}
-
-.edit-modal {
-  max-width: 650px;
-}
-
-.modal-title {
-  font-family: 'Lexend', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 800;
-  margin-bottom: 18px;
-  letter-spacing: -0.02em;
-}
-
-.modal-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: 1.3rem;
-  cursor: pointer;
-}
-
-/* ═══════════════ MEMBERSHIP DISPLAY ═══════════════ */
-.membership-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.membership-tag {
-  font-size: 0.68rem;
-  padding: 3px 8px;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.membership-tag.account {
-  background: rgba(99, 102, 241, 0.08);
-  color: var(--accent2);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-}
-
-.membership-tag.batch {
-  background: rgba(245, 158, 11, 0.08);
-  color: var(--warning);
-  border: 1px solid rgba(245, 158, 11, 0.2);
-}
-
-.membership-tag.exam {
-  background: rgba(168, 85, 247, 0.08);
-  color: var(--premium);
-  border: 1px solid rgba(168, 85, 247, 0.2);
-}
-
-.membership-tag:hover {
-  opacity: 0.8;
-}
-
-.membership-tag .revoke-icon {
-  margin-left: 2px;
-  opacity: 0.6;
-}
-
-.membership-tag .revoke-icon:hover {
-  opacity: 1;
-  color: var(--error);
-}
-
-/* ═══════════════ LOADING ═══════════════ */
-.loading {
-  text-align: center;
-  padding: 40px;
-  color: var(--muted);
-}
-
-.spinner {
-  width: 28px;
-  height: 28px;
-  border: 2px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  margin: 0 auto 12px;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.empty-row {
-  text-align: center;
-  color: var(--muted);
-  padding: 28px !important;
-  font-size: 0.82rem;
-}
-
-.score-bar-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.score-bar {
-  height: 5px;
-  background: var(--border);
-  border-radius: 3px;
-  flex: 1;
-  overflow: hidden;
-}
-
-.score-bar-fill {
-  height: 100%;
-  border-radius: 3px;
-}
-
-/* ═══════════════ RESPONSIVE ═══════════════ */
-@media (max-width: 900px) {
-  .sidebar {
-    transform: translateX(-100%);
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .main {
-    margin-left: 0;
-  }
-
-  .menu-btn {
-    display: block;
-  }
-
-  .content {
-    padding: 16px;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-
-  .stats {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .edit-modal {
-    max-width: 95%;
-  }
-
-  .edit-modal .form-row {
-    grid-template-columns: 1fr;
-  }
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#05050a;--surface:#0a0a16;--surface2:#111122;--surface3:#16162a;
+  --border:#1e1e38;--accent:#6366f1;--accent2:#818cf8;--accent3:#4f46e5;
+  --text:#e9e9f0;--text-bright:#f5f5ff;--muted:#7c7c96;
+  --error:#ef4444;--success:#22c55e;--warning:#f59e0b;--premium:#a855f7;--live:#ef4444;
+}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex}
+
+/* Sidebar */
+.sidebar{width:240px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:50;overflow-y:auto}
+.sidebar-logo{padding:24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-icon svg{width:18px;height:18px;fill:none;stroke:white;stroke-width:2}
+.logo-text{font-family:'Lexend',sans-serif;font-weight:700;font-size:1.1rem;color:var(--text-bright);letter-spacing:-.02em}
+.admin-badge{font-size:.6rem;font-weight:700;background:var(--accent);color:white;padding:2px 6px;border-radius:4px;letter-spacing:.06em;text-transform:uppercase;margin-left:4px}
+.sidebar-nav{padding:16px 12px;flex:1}
+.nav-section{margin-bottom:16px}
+.nav-section-label{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:.875rem;font-weight:500;transition:all .2s;cursor:pointer;border:none;background:none;width:100%;font-family:'Inter',sans-serif}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(99,102,241,.15);color:var(--accent2)}
+.nav-item svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
+.sidebar-footer{padding:16px 12px;border-top:1px solid var(--border);flex-shrink:0}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--surface2)}
+.user-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Lexend',sans-serif;font-weight:700;font-size:.875rem;color:white;flex-shrink:0}
+.user-info{overflow:hidden;flex:1}
+.user-name{font-weight:600;font-size:.8rem;color:var(--text-bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:.7rem;color:var(--accent2);font-weight:600}
+
+/* Main */
+.main{margin-left:240px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{padding:18px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;background:rgba(5,5,10,.8);backdrop-filter:blur(20px)}
+.topbar-title{font-family:'Lexend',sans-serif;font-size:1rem;font-weight:700;color:var(--text-bright)}
+.topbar-actions{display:flex;gap:8px}
+
+/* Panels */
+.panel{display:none;padding:32px;flex:1}
+.panel.active{display:block}
+
+/* Stats overview */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:32px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(99,102,241,.05),transparent);pointer-events:none}
+.stat-val{font-family:'Lexend',sans-serif;font-size:2.2rem;font-weight:900;color:var(--text-bright);letter-spacing:-.03em}
+.stat-label{font-size:.75rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+
+/* Section header */
+.sect-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.sect-title{font-family:'Lexend',sans-serif;font-size:1rem;font-weight:700;color:var(--text-bright)}
+
+/* Buttons */
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent3));color:white;border:none;padding:10px 20px;border-radius:10px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-primary svg,.btn-secondary svg,.btn-danger svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5}
+.btn-secondary{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 18px;border-radius:10px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+.btn-secondary:hovr{border-color:var(--accent2);color:var(--accent2)}
+.btn-danger{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:var(--error);padding:7px 14px;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:5px}
+.btn-danger:hover{background:rgba(239,68,68,.2)}
+.btn-sm{padding:6px 12px;font-size:.75rem;border-radius:8px}
+
+/* Table */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px}
+table{width:100%;border-collapse:collapse}
+th{padding:12px 16px;text-align:left;font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap}
+td{padding:12px 16px;font-size:.85rem;color:var(--text);border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(99,102,241,.04)}
+.td-name{font-weight:600;color:var(--text-bright)}
+.td-mono{font-family:'JetBrains Mono',monospace;font-size:.8rem}
+.td-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+
+/* Badges */
+.badge{padding:3px 8px;border-radius:5px;font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;display:inline-flex;align-items:center;gap:4px}
+.badge-admin{background:rgba(99,102,241,.2);color:var(--accent2)}
+.badge-student{background:var(--surface2);color:var(--muted)}
+.badge-premium{background:rgba(168,85,247,.2);color:var(--premium)}
+.badge-batch{background:rgba(245,158,11,.2);color:var(--warning)}
+.badge-account{background:rgba(99,102,241,.2);color:var(--accent2)}
+.badge-free{background:rgba(34,197,94,.15);color:var(--success)}
+.badge-live{background:rgba(239,68,68,.15);color:var(--error)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;transform:translateY(16px) scale(.97);transition:transform .25s;position:relative}
+.modal-overlay.open .modal{transform:none}
+.modal-header{padding:24px 24px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.modal-title{font-family:'Lexend',sans-serif;font-weight:800;font-size:1.1rem;color:var(--text-bright);letter-spacing:-.02em}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--muted);width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .2s}
+.modal-close:hover{background:var(--surface2);color:var(--text)}
+.modal-close svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.modal-body{padding:0 24px 24px}
+
+/* Form */
+.form-row{display:grid;gap:16px;margin-bottom:0}
+.form-row.cols2{grid-template-columns:1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.form-group:last-child{margin-bottom:0}
+label{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+input[type=text],input[type=email],input[type=number],input[type=password],select,textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text-bright);font-size:.875rem;font-family:'Inter',sans-serif;transition:all .2s;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+select{cursor:pointer}
+textarea{resize:vertical;min-height:80px;font-family:'JetBrains Mono',monospace;font-size:.8rem}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px}
+.toggle-label{font-size:.875rem;color:var(--text)}
+.toggle{width:42px;height:24px;background:var(--surface3);border-radius:12px;position:relative;cursor:pointer;border:none;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--accent)}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;background:white;border-radius:9px;top:3px;left:3px;transition:transform .2s}
+.toggle.on::after{transform:translateX(18px)}
+.form-error{color:var(--error);font-size:.78rem;margin-top:4px;display:none}
+.form-error.show{display:block}
+.modal-footer{padding:16px 24px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+
+/* Questions manager */
+.q-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:300px;overflow-y:auto}
+.q-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;align-items:flex-start;gap:10px}
+.q-num{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;color:var(--muted);padding:2px 6px;background:var(--surface3);border-radius:5px;flex-shrink:0}
+.q-text{font-size:.8rem;color:var(--text);flex:1;line-height:1.4}
+.q-ans{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;color:var(--success);background:rgba(34,197,94,.1);padding:2px 6px;border-radius:4px;flex-shrink:0}
+
+/* Progress bar in table */
+.mini-bar{height:4px;background:var(--surface2);border-radius:2px;width:60px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:6px}
+.mini-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px}
+
+/* Premium tag */
+.prem-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:7px;font-size:.7rem;font-weight:700}
+.prem-tag svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;cursor:pointer}
+.prem-exam{background:rgba(168,85,247,.15);color:var(--premium);border:1px solid rgba(168,85,247,.3)}
+.prem-batch{background:rgba(245,158,11,.15);color:var(--warning);border:1px solid rgba(245,158,11,.3)}
+.prem-account{background:rgba(99,102,241,.15);color:var(--accent2);border:1px solid rgba(99,102,241,.3)}
+
+/* Spinner */
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+button.loading .spinner{display:flex}
+button.loading .btn-label{display:none}
+
+/* Empty */
+.empty-row td{text-align:center;padding:32px;color:var(--muted);font-size:.875rem}
+
+/* Tabs */
+.tab-row{display:flex;gap:4px;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:24px;width:fit-content}
+.tab-pill{padding:8px 20px;border-radius:7px;background:none;border:none;color:var(--muted);font-size:.8rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.tab-pill.active{background:var(--surface3);color:var(--text-bright);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+
+/* Notification */
+.notif{position:fixed;top:24px;right:24px;background:var(--surface);border:1px solid var(--success);color:var(--success);padding:12px 20px;border-radius:12px;font-size:.875rem;font-weight:600;z-index:999;transform:translateX(120%);transition:transform .3s;display:flex;align-items:center;gap:8px}
+.notif.error{border-color:var(--error);color:var(--error)}
+.notif.show{transform:none}
+.notif svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+
+@media(max-width:900px){.form-row.cols2{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}.panel{padding:20px}}
 </style>
 </head>
 <body>
-
-<!-- ═══════════════ SIDEBAR ═══════════════ -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-top">
-    <div class="logo">
-      <img src="/images/exalyte.png" alt="Exalyte">
-      Exalyte
+<aside class="sidebar">
+  <a href="/" class="sidebar-logo">
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div>
+    <span class="logo-text">Exalyte<span class="admin-badge">Admin</span></span>
+  </a>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-label">Overview</div>
+      <button class="nav-item active" onclick="showPanel('dashboard')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </button>
     </div>
-    <div class="admin-tag">Administration</div>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">Overview</div>
-    <button class="nav-item active" onclick="showView('dashboard')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="7" height="7" rx="1"/>
-        <rect x="14" y="3" width="7" height="7" rx="1"/>
-        <rect x="14" y="14" width="7" height="7" rx="1"/>
-        <rect x="3" y="14" width="7" height="7" rx="1"/>
-      </svg>
-      Dashboard
-    </button>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">Management</div>
-    <button class="nav-item" onclick="showView('batches')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-      </svg>
-      Batches
-    </button>
-    <button class="nav-item" onclick="showView('createExam')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="12" y1="5" x2="12" y2="19"/>
-        <line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-      Create Exam
-    </button>
-    <button class="nav-item" onclick="showView('exams')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-      </svg>
-      All Exams
-    </button>
-    <button class="nav-item" onclick="showView('uploadCSV')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-        <polyline points="17 8 12 3 7 8"/>
-        <line x1="12" y1="3" x2="12" y2="15"/>
-      </svg>
-      Upload CSV
-    </button>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">People</div>
-    <button class="nav-item" onclick="showView('users')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-      Users
-    </button>
-    <button class="nav-item" onclick="showView('results')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-      Results
-    </button>
-  </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Content</div>
+      <button class="nav-item" onclick="showPanel('batches')">
+        <svg viewBox="0 0 24 24"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg>
+        Batches
+      </button>
+      <button class="nav-item" onclick="showPanel('exams')">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        Exams
+      </button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">People</div>
+      <button class="nav-item" onclick="showPanel('users')">
+        <svg viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Users
+      </button>
+      <button class="nav-item" onclick="showPanel('results')">
+        <svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Results
+      </button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Account</div>
+      <button class="nav-item" onclick="logout()">
+        <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </nav>
   <div class="sidebar-footer">
-    <div class="user-info" id="adminEmail"></div>
-    <button class="btn-logout" onclick="logout()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-      Sign Out
-    </button>
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">Admin</div>
+        <div class="user-role">Administrator</div>
+      </div>
+    </div>
   </div>
 </aside>
 
-<!-- ═══════════════ MAIN ═══════════════ -->
-<main class="main">
+<div class="main">
   <div class="topbar">
-    <div style="display:flex;align-items:center;gap:10px">
-      <button class="menu-btn" onclick="toggleSidebar()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e9e9f0" stroke-width="2">
-          <line x1="3" y1="6" x2="21" y2="6"/>
-          <line x1="3" y1="12" x2="21" y2="12"/>
-          <line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-      </button>
-      <div class="topbar-title" id="topbarTitle">Dashboard</div>
-    </div>
-    <span class="admin-badge">Admin</span>
+    <span class="topbar-title" id="topbarTitle">Dashboard</span>
+    <div class="topbar-actions" id="topbarActions"></div>
   </div>
-  <div class="content">
 
-    <!-- DASHBOARD -->
-    <div class="view active" id="view-dashboard">
-      <div class="stats" id="dashStats"></div>
-      <div class="section-head"><div class="section-title">Recent Submissions</div></div>
-      <div class="card"><div class="table-wrap"><table><thead><tr><th>Student</th><th>Examination</th><th>Score</th><th>Percentage</th><th>Date</th></tr></thead><tbody id="recentResults"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
+  <!-- Dashboard Panel -->
+  <div class="panel active" id="panel-dashboard">
+    <div class="stats-row" id="dashStats">
+      <div class="stat-card"><div class="stat-val" id="dExams">—</div><div class="stat-label">Total Exams</div></div>
+      <div class="stat-card"><div class="stat-val" id="dBatches">—</div><div class="stat-label">Batches</div></div>
+      <div class="stat-card"><div class="stat-val" id="dUsers">—</div><div class="stat-label">Users</div></div>
+      <div class="stat-card"><div class="stat-val" id="dResults">—</div><div class="stat-label">Submissions</div></div>
     </div>
-
-    <!-- BATCHES -->
-    <div class="view" id="view-batches">
-      <div class="section-head"><div class="section-title">Batch Management</div></div>
-      <div class="card"><div class="card-body"><div id="batchAlert"></div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Batch Name *</label><input class="form-input" id="batchName" placeholder="e.g. JEE Advanced 2026"></div>
-          <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="batchDesc" placeholder="Optional description"></div>
-        </div>
-        <button class="btn btn-primary" onclick="createBatch()">Create Batch</button>
-      </div></div>
-      <div style="margin-top:20px;"><div class="section-head"><div class="section-title">Existing Batches</div></div>
-      <div class="card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Exams</th><th>Created</th><th>Actions</th></tr></thead><tbody id="batchesTable"><tr><td colspan="4" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div></div>
-    </div>
-
-    <!-- CREATE EXAM -->
-    <div class="view" id="view-createExam">
-      <div class="section-head"><div class="section-title">Create Examination</div></div>
-      <div class="card"><div class="card-body"><div id="createExamAlert"></div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Exam Name *</label><input class="form-input" id="eName" placeholder="e.g. Physics Mock Test 1"></div>
-          <div class="form-group"><label class="form-label">Batch</label><select class="form-select" id="eBatch"><option value="">None (Ungrouped)</option></select></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Time Limit (minutes)</label><input class="form-input" type="number" id="eTime" value="30" min="1" max="300"></div>
-          <div class="form-group"><label class="form-label">Negative Marking</label><input class="form-input" type="number" id="eNegMark" value="0" min="0" max="5" step="0.25" placeholder="e.g. 0.25"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Live Deadline (hours)</label><input class="form-input" type="number" id="eLiveDeadline" value="0" min="0" max="8760" placeholder="0 = no deadline"><span class="form-hint">Hours from creation. 0 means always available.</span></div>
-        </div>
-        <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="eDesc" placeholder="Brief description"></div>
-        <div class="form-group"><label class="toggle-label"><input type="checkbox" id="ePremium"><span>Premium exam (restricted access)</span></label></div>
-        <div class="form-group"><label class="toggle-label"><input type="checkbox" id="ePractice" checked><span>Allow practice mode after live exam</span></label></div>
-        <button class="btn btn-primary" id="createExamBtn" onclick="createExam()">Create Examination</button>
-      </div></div>
-    </div>
-
-    <!-- ALL EXAMS -->
-    <div class="view" id="view-exams">
-      <div class="section-head"><div class="section-title">All Examinations</div><button class="btn btn-primary" onclick="showView('createExam')">New Exam</button></div>
-      <div class="card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Live</th><th>Qns</th><th>Neg.</th><th>Actions</th></tr></thead><tbody id="examsTable"><tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
-    </div>
-
-    <!-- UPLOAD CSV -->
-    <div class="view" id="view-uploadCSV">
-      <div class="section-head"><div class="section-title">Upload Questions</div></div>
-      <div class="card"><div class="card-body"><div id="csvAlert"></div>
-        <div class="form-group"><label class="form-label">Select Examination *</label><select class="form-select" id="csvExamId"><option value="">-- Select --</option></select></div>
-        <div class="form-group"><label class="form-label">CSV Format</label><div class="csv-preview">question,option_a,option_b,option_c,option_d,correct_answer,image_url(optional)
-"What is the derivative of sin(x)?",cos(x),-cos(x),sin(x),-sin(x),A,
-"Solve: 2x+5=15",3,5,10,7,B,https://example.com/equation.png</div></div>
-        <div class="form-group"><label class="form-label">Upload CSV File</label><div class="csv-zone" onclick="document.getElementById('csvFile').click()"><input type="file" id="csvFile" accept=".csv,.txt" onchange="handleCSVFile(this)"><div style="font-size:1.4rem;margin-bottom:8px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div>Click to upload CSV file or paste below</div></div></div>
-        <div class="form-group"><label class="form-label">CSV Content</label><textarea class="form-textarea" id="csvContent" placeholder="Paste CSV content here..." style="min-height:160px"></textarea></div>
-        <div class="form-group"><label class="toggle-label"><input type="checkbox" id="csvReplace"><span>Delete existing questions before upload</span></label></div>
-        <button class="btn btn-primary" id="uploadBtn" onclick="uploadCSV()">Upload Questions</button>
-      </div></div>
-    </div>
-
-    <!-- USERS -->
-    <div class="view" id="view-users">
-      <div class="section-head"><div class="section-title">Registered Users</div></div>
-      <div class="card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Membership</th><th>Actions</th></tr></thead><tbody id="usersTable"><tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
-    </div>
-
-    <!-- RESULTS -->
-    <div class="view" id="view-results">
-      <div class="section-head"><div class="section-title">Results — First Attempts Only</div><select class="form-select" id="resultExamFilter" onchange="loadFilteredResults()" style="max-width:280px"><option value="all">All Examinations</option></select></div>
-      <div class="card"><div class="table-wrap"><table><thead><tr><th>Student</th><th>Examination</th><th>Score</th><th>Result</th><th>Date</th><th>Action</th></tr></thead><tbody id="resultsTable"><tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr></tbody></table></div></div>
-    </div>
-
+    <div class="sect-header"><span class="sect-title">Recent Submissions</span></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>User</th><th>Exam</th><th>Score</th><th>Date</th></tr></thead>
+      <tbody id="recentResults"></tbody>
+    </table></div>
   </div>
-</main>
 
-<!-- GRANT MODAL -->
-<div class="modal-overlay" id="grantModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-    <div class="modal-title">Grant Premium Access</div>
-    <p style="color:var(--muted);font-size:.82rem;margin-bottom:16px;">Grant <strong id="grantUserName">--</strong> premium access.</p>
-    <div id="grantModalAlert"></div>
+  <!-- Batches Panel -->
+  <div class="panel" id="panel-batches">
+    <div class="sect-header">
+      <span class="sect-title">Batches</span>
+      <button class="btn-primary" onclick="openBatchModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Batch</button>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Name</th><th>Description</th><th>Exams</th><th>Created</th><th style="text-align:right">Actions</th></tr></thead>
+      <tbody id="batchesTable"></tbody>
+    </table></div>
+  </div>
 
-    <div class="form-group"><label class="form-label">Access Level</label><select class="form-select" id="grantScope" onchange="toggleGrantScope()"><option value="exam">Specific Exam</option><option value="batch">Entire Batch</option><option value="account">Account-Wide (All Exams)</option></select></div>
+  <!-- Exams Panel -->
+  <div class="panel" id="panel-exams">
+    <div class="sect-header">
+      <span class="sect-title">Exams</span>
+      <button class="btn-primary" onclick="openExamModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Exam</button>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Qs</th><th>Time</th><th style="text-align:right">Actions</th></tr></thead>
+      <tbody id="examsTable"></tbody>
+    </table></div>
+  </div>
 
-    <div id="grantExamGroup"><div class="form-group"><label class="form-label">Select Examination</label><select class="form-select" id="grantExamSel"><option value="">-- Loading --</option></select></div></div>
+  <!-- Users Panel -->
+  <div class="panel" id="panel-users">
+    <div class="sect-header"><span class="sect-title">Users</span></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Premium</th><th style="text-align:right">Actions</th></tr></thead>
+      <tbody id="usersTable"></tbody>
+    </table></div>
+  </div>
 
-    <div id="grantBatchGroup" style="display:none;"><div class="form-group"><label class="form-label">Select Batch</label><select class="form-select" id="grantBatchSel"><option value="">-- Loading --</option></select></div></div>
-
-    <div class="form-group"><label class="form-label">Duration</label><select class="form-select" id="grantDuration" onchange="toggleCustomDuration()"><option value="0">Permanent (no expiry)</option><option value="24">24 Hours</option><option value="72">3 Days</option><option value="168">7 Days</option><option value="720">30 Days</option><option value="custom">Custom Hours</option></select></div>
-
-    <div class="form-group" id="customDurationGroup" style="display:none"><label class="form-label">Custom Hours</label><input class="form-input" type="number" id="grantCustomHours" min="1" max="8760" placeholder="Enter hours"></div>
-
-    <div style="display:flex;gap:10px"><button class="btn btn-primary" onclick="grantAccess()">Grant Access</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>
+  <!-- Results Panel -->
+  <div class="panel" id="panel-results">
+    <div class="sect-header">
+      <span class="sect-title">Results</span>
+      <select id="resultsFilter" onchange="loadResults()" style="width:auto;padding:8px 14px;font-size:.8rem">
+        <option value="">All Exams</option>
+      </select>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>User</th><th>Exam</th><th>Score</th><th>%</th><th>Date</th><th style="text-align:right">Actions</th></tr></thead>
+      <tbody id="resultsTable"></tbody>
+    </table></div>
   </div>
 </div>
 
-<!-- EDIT EXAM MODAL -->
-<div class="modal-overlay" id="editModal">
-  <div class="modal edit-modal">
-    <button class="modal-close" onclick="closeEditModal()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#76768e" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-    <div class="modal-title">Edit Examination</div>
-    <div id="editModalAlert"></div>
-    <input type="hidden" id="editExamId">
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Exam Name *</label><input class="form-input" id="editName"></div>
-      <div class="form-group"><label class="form-label">Batch</label><select class="form-select" id="editBatch"><option value="">None</option></select></div>
+<!-- Batch Modal -->
+<div class="modal-overlay" id="batchModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="batchModalTitle">New Batch</span>
+      <button class="modal-close" onclick="closeModal('batchModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Time Limit (min)</label><input class="form-input" type="number" id="editTime" min="1" max="300"></div>
-      <div class="form-group"><label class="form-label">Negative Marking</label><input class="form-input" type="number" id="editNegMark" min="0" max="5" step="0.25"></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Batch Name</label><input type="text" id="batchName" placeholder="e.g. JEE Advanced 2026"></div>
+      <div class="form-group"><label>Description</label><input type="text" id="batchDesc" placeholder="Optional description"></div>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Live Deadline (hours)</label><input class="form-input" type="number" id="editLiveDeadline" min="0" max="8760"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('batchModal')">Cancel</button>
+      <button class="btn-primary" id="saveBatchBtn" onclick="saveBatch()"><span class="btn-label">Save Batch</span><div class="spinner"></div></button>
     </div>
-    <div class="form-group"><label class="form-label">Description</label><input class="form-input" id="editDesc"></div>
-    <div class="form-group"><label class="toggle-label"><input type="checkbox" id="editPremium"><span>Premium exam</span></label></div>
-    <div class="form-group"><label class="toggle-label"><input type="checkbox" id="editPractice"><span>Allow practice mode</span></label></div>
-    <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:14px"><label class="form-label" style="margin-bottom:8px">Questions in this Exam</label><div id="editQuestionsList" class="q-mini-list"><span style="color:var(--muted);text-align:center;padding:20px">Select an exam to view questions</span></div></div>
-    <div style="display:flex;gap:10px;margin-top:14px"><button class="btn btn-primary" onclick="saveEditExam()">Save Changes</button><button class="btn btn-ghost" onclick="closeEditModal()">Cancel</button></div>
   </div>
+</div>
+
+<!-- Exam Modal -->
+<div class="modal-overlay" id="examModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="examModalTitle">New Exam</span>
+      <button class="modal-close" onclick="closeModal('examModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Exam Name</label><input type="text" id="examName" placeholder="e.g. Physics Mock Test 1"></div>
+      <div class="form-group"><label>Description</label><input type="text" id="examDesc" placeholder="Optional description"></div>
+      <div class="form-row cols2">
+        <div class="form-group"><label>Time Limit (min)</label><input type="number" id="examTime" value="30" min="1"></div>
+        <div class="form-group"><label>Batch</label><select id="examBatch"><option value="">— No Batch —</option></select></div>
+      </div>
+      <div class="form-row cols2">
+        <div class="form-group"><label>Negative Marking</label><input type="number" id="examNeg" value="0" min="0" step="0.25"></div>
+        <div class="form-group"><label>Live Deadline (hours)</label><input type="number" id="examLive" value="0" min="0" title="0 = always available"></div>
+      </div>
+      <div class="form-group">
+        <div class="toggle-row"><span class="toggle-label">Premium (paid) exam</span><button class="toggle" id="examPremToggle" onclick="this.classList.toggle('on')"></button></div>
+      </div>
+      <div class="form-group">
+        <div class="toggle-row"><span class="toggle-label">Allow practice mode</span><button class="toggle on" id="examPractToggle" onclick="this.classList.toggle('on')"></button></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('examModal')">Cancel</button>
+      <button class="btn-primary" id="saveExamBtn" onclick="saveExam()"><span class="btn-label">Save Exam</span><div class="spinner"></div></button>
+    </div>
+  </div>
+</div>
+
+<!-- Questions Modal -->
+<div class="modal-overlay" id="questionsModal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <span class="modal-title" id="qModalTitle">Manage Questions</span>
+      <button class="modal-close" onclick="closeModal('questionsModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="tab-row">
+        <button class="tab-pill active" onclick="switchQTab('list',this)">Current Questions</button>
+        <button class="tab-pill" onclick="switchQTab('upload',this)">Bulk Upload CSV</button>
+      </div>
+      <div id="qTabList">
+        <div class="q-list" id="questionsList"></div>
+        <div style="margin-top:14px;display:flex;gap:8px">
+          <button class="btn-danger" id="deleteAllQBtn" onclick="deleteAllQuestions()"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>Delete All</button>
+        </div>
+      </div>
+      <div id="qTabUpload" style="display:none">
+        <div class="form-group">
+          <label>CSV Content</label>
+          <textarea id="csvContent" placeholder="question,option_a,option_b,option_c,option_d,correct_answer,image_url&#10;&quot;What is 2+2?&quot;,3,4,5,6,B," rows="8"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Or upload a CSV file</label>
+          <input type="file" id="csvFile" accept=".csv" onchange="loadCSVFile()" style="padding:8px">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="replaceQs" style="width:auto">
+          <label style="text-transform:none;letter-spacing:0;font-size:.85rem;color:var(--text)">Replace all existing questions</label>
+        </div>
+        <div class="form-error" id="csvError"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('questionsModal')">Close</button>
+      <button class="btn-primary" id="uploadQBtn" style="display:none" onclick="uploadQuestions()"><span class="btn-label">Upload Questions</span><div class="spinner"></div></button>
+    </div>
+  </div>
+</div>
+
+<!-- Grant Premium Modal -->
+<div class="modal-overlay" id="grantModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Grant Premium Access</span>
+      <button class="modal-close" onclick="closeModal('grantModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>User</label><div id="grantUserName" style="padding:11px 14px;background:var(--surface2);border-radius:10px;font-weight:600;color:var(--text-bright)"></div></div>
+      <div class="form-group">
+        <label>Access Scope</label>
+        <select id="grantScope" onchange="updateGrantUI()">
+          <option value="exam">Single Exam</option>
+          <option value="batch">Entire Batch</option>
+          <option value="account">Account-Wide (All Exams)</option>
+        </select>
+      </div>
+      <div class="form-group" id="grantExamField">
+        <label>Exam</label><select id="grantExam"></select>
+      </div>
+      <div class="form-group" id="grantBatchField" style="display:none">
+        <label>Batch</label><select id="grantBatch"></select>
+      </div>
+      <div class="form-group">
+        <label>Duration</label>
+        <select id="grantDuration">
+          <option value="">Permanent</option>
+          <option value="24">24 hours</option>
+          <option value="72">72 hours</option>
+          <option value="168">7 days</option>
+          <option value="720">30 days</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('grantModal')">Cancel</button>
+      <button class="btn-primary" id="grantBtn" onclick="grantPremium()"><span class="btn-label">Grant Access</span><div class="spinner"></div></button>
+    </div>
+  </div>
+</div>
+
+<!-- Notification -->
+<div class="notif" id="notif">
+  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="notifMsg"></span>
 </div>
 
 <script>
-const token = localStorage.getItem('token');
-const user = JSON.parse(localStorage.getItem('user') || 'null');
+const API = '/api';
+const token = localStorage.getItem('exalyte_token');
+const user = JSON.parse(localStorage.getItem('exalyte_user') || 'null');
+if (!token || !user || !user.is_admin) window.location.href = 'index.html';
 
-if (!token || !user) window.location.href = '/';
-if (!user.is_admin) window.location.href = '/dashboard.html';
+document.getElementById('userName').textContent = user?.name || 'Admin';
+document.getElementById('userAvatar').textContent = (user?.name || 'A')[0].toUpperCase();
 
-document.getElementById('adminEmail').textContent = user.email || 'admin';
+let currentPanel = 'dashboard';
+let editingExamId = null, editingBatchId = null, currentQExamId = null, grantUserId = null;
+let allExams = [], allBatches = [], allUsers = [];
 
-let allExams = [];
-let allBatches = [];
-let allUsers = [];
-let grantUserId = null;
-let currentEditExamId = null;
+function h(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-const viewTitles = {
-  dashboard: 'Dashboard',
-  batches: 'Batch Management',
-  createExam: 'Create Examination',
-  exams: 'All Examinations',
-  uploadCSV: 'Upload Questions',
-  users: 'Users',
-  results: 'Results'
-};
-
-function showView(id) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-  document.getElementById('view-' + id).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(b => {
-    if (b.getAttribute('onclick')?.includes("'" + id + "'")) b.classList.add('active');
-  });
-  document.getElementById('topbarTitle').textContent = viewTitles[id] || id;
-  document.getElementById('sidebar').classList.remove('open');
-  if (id === 'dashboard') loadDashboard();
-  if (id === 'batches') loadBatches();
-  if (id === 'exams') loadExams();
-  if (id === 'users') loadUsers();
-  if (id === 'results') loadResultsView();
-  if (id === 'uploadCSV') loadExamsForSelect();
-  if (id === 'createExam') loadBatchesForSelect();
+// ── Notification ──
+function notify(msg, isError = false) {
+  const n = document.getElementById('notif');
+  document.getElementById('notifMsg').textContent = msg;
+  n.classList.toggle('error', isError);
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), 3000);
 }
 
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
+// ── Panels ──
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => { if (n.getAttribute('onclick')?.includes("'"+name+"'")) n.classList.add('active'); });
+  document.getElementById('topbarTitle').textContent = { dashboard:'Dashboard', batches:'Batches', exams:'Exams', users:'Users', results:'Results' }[name];
+  currentPanel = name;
+
+  const actions = document.getElementById('topbarActions');
+  actions.innerHTML = '';
+
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'batches') loadBatches();
+  if (name === 'exams') loadExams();
+  if (name === 'users') loadUsers();
+  if (name === 'results') { loadResultsFilter(); loadResults(); }
 }
 
-function logout() {
-  localStorage.clear();
-  window.location.href = '/';
-}
-
-async function api(method, path, body) {
-  const opts = {
-    method,
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }
-  };
-  if (body) opts.body = JSON.stringify(body);
-  const res = await fetch('/api' + path, opts);
-  const data = await res.json();
-  return { ok: res.ok, data };
-}
-
-// ═══════════════ DASHBOARD ═══════════════
+// ── Dashboard ──
 async function loadDashboard() {
-  const [exRes, batRes, usRes, resRes] = await Promise.all([
-    api('GET', '/exams/'), api('GET', '/batches'), api('GET', '/admin/users'), api('GET', '/admin/results')
+  const [examsRes, usersRes, resultsRes, batchesRes] = await Promise.all([
+    fetch(`${API}/exams/`, { headers: { Authorization: `Bearer ${token}` } }),
+    fetch(`${API}/admin/users`, { headers: { Authorization: `Bearer ${token}` } }),
+    fetch(`${API}/admin/results`, { headers: { Authorization: `Bearer ${token}` } }),
+    fetch(`${API}/batches`, { headers: { Authorization: `Bearer ${token}` } }),
   ]);
-  allExams = exRes.ok ? exRes.data : [];
-  allBatches = batRes.ok ? batRes.data : [];
-  allUsers = usRes.ok ? usRes.data : [];
-  const results = resRes.ok ? resRes.data : [];
+  const exams = await examsRes.json();
+  const users = await usersRes.json();
+  const results = await resultsRes.json();
+  const batches = await batchesRes.json();
 
-  document.getElementById('dashStats').innerHTML = `
-    <div class="stat"><div class="stat-label">Examinations</div><div class="stat-val">${allExams.length}</div></div>
-    <div class="stat"><div class="stat-label">Batches</div><div class="stat-val">${allBatches.length}</div></div>
-    <div class="stat"><div class="stat-label">Users</div><div class="stat-val">${allUsers.length}</div></div>
-    <div class="stat"><div class="stat-label">Submissions</div><div class="stat-val">${results.length}</div></div>`;
+  document.getElementById('dExams').textContent = exams.length || 0;
+  document.getElementById('dBatches').textContent = batches.length || 0;
+  document.getElementById('dUsers').textContent = users.length || 0;
+  document.getElementById('dResults').textContent = results.length || 0;
 
-  const tbody = document.getElementById('recentResults');
-  if (!results.length) {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-row">No submissions yet.</td></tr>';
-    return;
-  }
-  tbody.innerHTML = results.slice(0, 10).map(r => {
-    const pct = Math.round(r.percentage);
-    return `<tr><td style="font-weight:500">${esc(r.user_name)}<br><span style="font-size:.7rem;color:var(--muted)">${esc(r.user_email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><div class="score-bar-wrap"><div class="score-bar"><div class="score-bar-fill" style="width:${pct}%;background:${pct>=50?'var(--success)':'var(--error)'}"></div></div><span style="font-size:.76rem;font-weight:600;min-width:34px">${pct}%</span></div></td><td style="font-size:.76rem;color:var(--muted)">${new Date(r.submitted_at).toLocaleDateString()}</td></tr>`;
-  }).join('');
+  const recent = results.slice(0, 10);
+  document.getElementById('recentResults').innerHTML = recent.length
+    ? recent.map(r => `<tr>
+        <td class="td-name">${h(r.user_name)}<br><small style="color:var(--muted);font-size:.75rem">${h(r.email)}</small></td>
+        <td>${h(r.exam_name)}</td>
+        <td><span class="td-mono">${r.score}/${r.total_questions}</span>
+          <div class="mini-bar"><div class="mini-fill" style="width:${r.percentage}%"></div></div>
+        </td>
+        <td style="color:var(--muted);font-size:.8rem">${new Date(r.submitted_at).toLocaleDateString()}</td>
+      </tr>`).join('')
+    : '<tr class="empty-row"><td colspan="4">No submissions yet</td></tr>';
 }
 
-// ═══════════════ BATCHES ═══════════════
+// ── Batches ──
 async function loadBatches() {
-  if (!allBatches.length) {
-    const res = await api('GET', '/batches');
-    allBatches = res.ok ? res.data : [];
-  }
-  const tbody = document.getElementById('batchesTable');
-  if (!allBatches.length) {
-    tbody.innerHTML = '<tr><td colspan="4" class="empty-row">No batches created yet.</td></tr>';
-    return;
-  }
-  tbody.innerHTML = allBatches.map(b => `
-    <tr>
-      <td style="font-weight:500">${esc(b.name)}</td>
-      <td>${b.exam_count || 0} exams</td>
-      <td style="font-size:.76rem;color:var(--muted)">${new Date(b.created_at).toLocaleDateString()}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteBatch(${b.id}, '${esc(b.name)}')">Delete</button></td>
-    </tr>`).join('');
+  const res = await fetch(`${API}/batches`, { headers: { Authorization: `Bearer ${token}` } });
+  allBatches = await res.json();
+  document.getElementById('batchesTable').innerHTML = allBatches.length
+    ? allBatches.map(b => `<tr>
+        <td class="td-name">${h(b.name)}</td>
+        <td style="color:var(--muted)">${h(b.description) || '—'}</td>
+        <td><span class="badge badge-student">${b.exam_count}</span></td>
+        <td style="color:var(--muted);font-size:.8rem">${new Date(b.created_at).toLocaleDateString()}</td>
+        <td><div class="td-actions">
+          <button class="btn-danger btn-sm" onclick="deleteBatch(${b.id},'${h(b.name)}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>Delete</button>
+        </div></td>
+      </tr>`).join('')
+    : '<tr class="empty-row"><td colspan="5">No batches yet</td></tr>';
 }
 
-async function createBatch() {
+function openBatchModal(batch = null) {
+  editingBatchId = batch?.id || null;
+  document.getElementById('batchModalTitle').textContent = batch ? 'Edit Batch' : 'New Batch';
+  document.getElementById('batchName').value = batch?.name || '';
+  document.getElementById('batchDesc').value = batch?.description || '';
+  openModal('batchModal');
+}
+
+async function saveBatch() {
   const name = document.getElementById('batchName').value.trim();
-  const description = document.getElementById('batchDesc').value.trim();
-  const alertEl = document.getElementById('batchAlert');
-  alertEl.innerHTML = '';
-  if (!name) {
-    alertEl.innerHTML = '<div class="alert alert-error">Batch name is required.</div>';
-    return;
-  }
-  const { ok, data } = await api('POST', '/admin/batches', { name, description });
-  if (!ok) {
-    alertEl.innerHTML = '<div class="alert alert-error">' + data.error + '</div>';
-    return;
-  }
-  alertEl.innerHTML = '<div class="alert alert-success">Batch created successfully.</div>';
-  document.getElementById('batchName').value = '';
-  document.getElementById('batchDesc').value = '';
-  loadBatches();
-  loadBatchesForSelect();
+  if (!name) return;
+  const btn = document.getElementById('saveBatchBtn');
+  btn.classList.add('loading'); btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/admin/batches`, {
+      method: 'POST', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ name, description: document.getElementById('batchDesc').value })
+    });
+    if (res.ok) { closeModal('batchModal'); loadBatches(); notify('Batch created!'); }
+    else { const d = await res.json(); notify(d.error, true); }
+  } finally { btn.classList.remove('loading'); btn.disabled = false; }
 }
 
 async function deleteBatch(id, name) {
-  if (!confirm('Delete batch "' + name + '"? Exams will become ungrouped.')) return;
-  await api('DELETE', '/admin/batches/' + id);
-  loadBatches();
-  loadBatchesForSelect();
+  if (!confirm(`Delete batch "${name}"? Exams will be ungrouped.`)) return;
+  await fetch(`${API}/admin/batches/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  loadBatches(); notify('Batch deleted');
 }
 
-async function loadBatchesForSelect() {
-  if (!allBatches.length) {
-    const res = await api('GET', '/batches');
-    allBatches = res.ok ? res.data : [];
-  }
-  const options = '<option value="">None (Ungrouped)</option>' + allBatches.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
-  document.getElementById('eBatch').innerHTML = options;
-  document.getElementById('editBatch').innerHTML = options;
-}
-
-// ═══════════════ EXAMS ═══════════════
-async function createExam() {
-  const name = document.getElementById('eName').value.trim();
-  const time_limit = parseInt(document.getElementById('eTime').value) || 30;
-  const description = document.getElementById('eDesc').value.trim();
-  const is_premium = document.getElementById('ePremium').checked;
-  const negative_marking = parseFloat(document.getElementById('eNegMark').value) || 0;
-  const allow_practice = document.getElementById('ePractice').checked;
-  const batch_id = document.getElementById('eBatch').value || null;
-  const live_deadline_hours = parseInt(document.getElementById('eLiveDeadline').value) || 0;
-  const alertEl = document.getElementById('createExamAlert');
-  alertEl.innerHTML = '';
-
-  if (!name) {
-    alertEl.innerHTML = '<div class="alert alert-error">Exam name is required.</div>';
-    return;
-  }
-
-  const btn = document.getElementById('createExamBtn');
-  btn.disabled = true;
-  btn.textContent = 'Creating...';
-
-  const { ok, data } = await api('POST', '/admin/exams', {
-    name, description, time_limit, is_premium, negative_marking, allow_practice,
-    batch_id: batch_id ? parseInt(batch_id) : null, live_deadline_hours
-  });
-
-  btn.disabled = false;
-  btn.textContent = 'Create Examination';
-
-  if (!ok) {
-    alertEl.innerHTML = '<div class="alert alert-error">' + data.error + '</div>';
-    return;
-  }
-
-  alertEl.innerHTML = '<div class="alert alert-success">Exam created. Now upload questions via CSV.</div>';
-  document.getElementById('eName').value = '';
-  document.getElementById('eDesc').value = '';
-  document.getElementById('eLiveDeadline').value = '0';
-  document.getElementById('ePremium').checked = false;
-  document.getElementById('eNegMark').value = '0';
-  document.getElementById('ePractice').checked = true;
-}
-
+// ── Exams ──
 async function loadExams() {
-  const { ok, data } = await api('GET', '/exams/');
-  allExams = ok ? data : [];
-  const tbody = document.getElementById('examsTable');
-  if (!allExams.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty-row">No exams created yet.</td></tr>';
-    return;
-  }
-  tbody.innerHTML = allExams.map(e => `
-    <tr>
-      <td style="font-weight:500">${esc(e.name)}</td>
-      <td style="font-size:.76rem;color:var(--muted)">${e.batch_name ? esc(e.batch_name) : '--'}</td>
-      <td><span class="badge ${e.is_premium ? 'badge-premium' : 'badge-free'}">${e.is_premium ? 'Premium' : 'Free'}</span></td>
-      <td>${e.live_deadline_hours > 0 ? '<span class="badge badge-live">' + e.live_deadline_hours + 'h</span>' : '<span style="color:var(--muted);font-size:.72rem">No</span>'}</td>
-      <td>${e.question_count || 0}</td>
-      <td>${e.negative_marking || 0}</td>
-      <td><div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn btn-ghost btn-sm" onclick="openEditModal(${e.id})">Edit</button>
-        <button class="btn btn-ghost btn-sm" onclick="goUpload(${e.id})">CSV</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id},'${esc(e.name)}')">Del</button>
-      </div></td>
-    </tr>`).join('');
+  const res = await fetch(`${API}/exams/`, { headers: { Authorization: `Bearer ${token}` } });
+  allExams = await res.json();
+  document.getElementById('examsTable').innerHTML = allExams.length
+    ? allExams.map(e => {
+        const typeBadge = e.is_live ? `<span class="badge badge-live">Live</span>` : e.is_premium ? `<span class="badge badge-premium">Premium</span>` : `<span class="badge badge-free">Free</span>`;
+        return `<tr>
+          <td class="td-name">${h(e.name)}</td>
+          <td style="color:var(--muted)">${h(e.batch_name) || '—'}</td>
+          <td>${typeBadge}</td>
+          <td class="td-mono">${e.question_count}</td>
+          <td class="td-mono">${e.time_limit}m</td>
+          <td><div class="td-actions">
+            <button class="btn-secondary btn-sm" onclick="openQModal(${e.id},'${h(e.name)}')">Questions</button>
+            <button class="btn-secondary btn-sm" onclick="openExamModal(${JSON.stringify(e).replace(/"/g,'&quot;')})">Edit</button>
+            <button class="btn-danger btn-sm" onclick="deleteExam(${e.id},'${h(e.name)}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
+          </div></td>
+        </tr>`;
+      }).join('')
+    : '<tr class="empty-row"><td colspan="6">No exams yet</td></tr>';
 }
 
-function goUpload(id) {
-  showView('uploadCSV');
-  setTimeout(() => { document.getElementById('csvExamId').value = id; }, 300);
+async function openExamModal(exam = null) {
+  if (typeof exam === 'string') exam = null;
+  editingExamId = exam?.id || null;
+  document.getElementById('examModalTitle').textContent = exam ? 'Edit Exam' : 'New Exam';
+  document.getElementById('examName').value = exam?.name || '';
+  document.getElementById('examDesc').value = exam?.description || '';
+  document.getElementById('examTime').value = exam?.time_limit || 30;
+  document.getElementById('examNeg').value = exam?.negative_marking || 0;
+  document.getElementById('examLive').value = exam?.live_deadline_hours || 0;
+  document.getElementById('examPremToggle').classList.toggle('on', !!exam?.is_premium);
+  document.getElementById('examPractToggle').classList.toggle('on', exam?.allow_practice !== 0);
+
+  // Populate batch select
+  const batchSel = document.getElementById('examBatch');
+  batchSel.innerHTML = '<option value="">— No Batch —</option>';
+  if (!allBatches.length) {
+    const res = await fetch(`${API}/batches`, { headers: { Authorization: `Bearer ${token}` } });
+    allBatches = await res.json();
+  }
+  allBatches.forEach(b => {
+    batchSel.innerHTML += `<option value="${b.id}" ${exam?.batch_id == b.id ? 'selected' : ''}>${h(b.name)}</option>`;
+  });
+  openModal('examModal');
+}
+
+async function saveExam() {
+  const name = document.getElementById('examName').value.trim();
+  if (!name) return;
+  const btn = document.getElementById('saveExamBtn');
+  btn.classList.add('loading'); btn.disabled = true;
+  const body = {
+    name, description: document.getElementById('examDesc').value,
+    time_limit: parseInt(document.getElementById('examTime').value) || 30,
+    negative_marking: parseFloat(document.getElementById('examNeg').value) || 0,
+    live_deadline_hours: parseInt(document.getElementById('examLive').value) || 0,
+    is_premium: document.getElementById('examPremToggle').classList.contains('on') ? 1 : 0,
+    allow_practice: document.getElementById('examPractToggle').classList.contains('on') ? 1 : 0,
+    batch_id: document.getElementById('examBatch').value || null,
+  };
+  try {
+    const url = editingExamId ? `${API}/admin/exams/${editingExamId}` : `${API}/admin/exams`;
+    const res = await fetch(url, {
+      method: editingExamId ? 'PUT' : 'POST',
+      headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) { closeModal('examModal'); loadExams(); notify(editingExamId ? 'Exam updated!' : 'Exam created!'); }
+    else { const d = await res.json(); notify(d.error, true); }
+  } finally { btn.classList.remove('loading'); btn.disabled = false; }
 }
 
 async function deleteExam(id, name) {
-  if (!confirm('Delete "' + name + '"? All questions and results will be removed.')) return;
-  await api('DELETE', '/admin/exams/' + id);
-  loadExams();
+  if (!confirm(`Delete exam "${name}" and all its data?`)) return;
+  await fetch(`${API}/admin/exams/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  loadExams(); notify('Exam deleted');
 }
 
-function openEditModal(id) {
-  const exam = allExams.find(e => e.id === id);
-  if (!exam) return;
-  currentEditExamId = id;
-  document.getElementById('editExamId').value = exam.id;
-  document.getElementById('editName').value = exam.name || '';
-  document.getElementById('editTime').value = exam.time_limit || 30;
-  document.getElementById('editNegMark').value = exam.negative_marking || 0;
-  document.getElementById('editLiveDeadline').value = exam.live_deadline_hours || 0;
-  document.getElementById('editDesc').value = exam.description || '';
-  document.getElementById('editPremium').checked = !!exam.is_premium;
-  document.getElementById('editPractice').checked = exam.allow_practice !== 0;
-  document.getElementById('editBatch').value = exam.batch_id || '';
-  document.getElementById('editModalAlert').innerHTML = '';
-  loadBatchesForSelect();
-  document.getElementById('editModal').classList.add('open');
-  loadEditQuestions(id);
+// ── Questions ──
+async function openQModal(examId, examName) {
+  currentQExamId = examId;
+  document.getElementById('qModalTitle').textContent = `Questions — ${examName}`;
+  document.getElementById('qTabList').style.display = 'block';
+  document.getElementById('qTabUpload').style.display = 'none';
+  document.getElementById('uploadQBtn').style.display = 'none';
+  document.querySelectorAll('.tab-pill').forEach((p,i) => p.classList.toggle('active', i===0));
+  await loadQuestions(examId);
+  openModal('questionsModal');
 }
 
-function closeEditModal() {
-  document.getElementById('editModal').classList.remove('open');
-  currentEditExamId = null;
+async function loadQuestions(examId) {
+  const res = await fetch(`${API}/admin/questions/${examId}`, { headers: { Authorization: `Bearer ${token}` } });
+  const qs = await res.json();
+  document.getElementById('questionsList').innerHTML = qs.length
+    ? qs.map((q,i) => `<div class="q-item">
+        <span class="q-num">${i+1}</span>
+        <span class="q-text">${h(q.question_text)}</span>
+        <span class="q-ans">${q.correct_answer}</span>
+        <button class="btn-danger btn-sm" style="padding:4px 8px" onclick="deleteSingleQ(${q.id})"><svg viewBox="0 0 24 24" style="width:12px;height:12px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button>
+      </div>`).join('')
+    : '<div style="text-align:center;padding:24px;color:var(--muted);font-size:.875rem">No questions yet. Upload via CSV.</div>';
 }
 
-async function loadEditQuestions(examId) {
-  const list = document.getElementById('editQuestionsList');
-  list.innerHTML = '<span style="color:var(--muted);text-align:center;padding:20px">Loading...</span>';
-  const { ok, data } = await api('GET', '/admin/questions/' + examId);
-  if (!ok || !data.length) {
-    list.innerHTML = '<span style="color:var(--muted);text-align:center;padding:20px">No questions yet.</span>';
-    return;
-  }
-  list.innerHTML = data.map(q => `
-    <div class="q-mini-item">
-      <div class="q-mini-text">${esc(q.question_text)}<div class="q-mini-meta">Ans: ${q.correct_answer} | A: ${esc(q.option_a)} | B: ${esc(q.option_b)} | C: ${esc(q.option_c)} | D: ${esc(q.option_d)}</div></div>
-      <button class="btn btn-danger btn-xs" onclick="deleteQuestion(${q.id})" title="Delete">&times;</button>
-    </div>`).join('');
+function switchQTab(tab, btn) {
+  document.querySelectorAll('.tab-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('qTabList').style.display = tab === 'list' ? 'block' : 'none';
+  document.getElementById('qTabUpload').style.display = tab === 'upload' ? 'block' : 'none';
+  document.getElementById('uploadQBtn').style.display = tab === 'upload' ? 'flex' : 'none';
 }
 
-async function deleteQuestion(qId) {
-  if (!confirm('Delete this question?')) return;
-  const { ok } = await api('DELETE', '/admin/questions/single/' + qId);
-  if (ok) loadEditQuestions(currentEditExamId);
-}
-
-async function saveEditExam() {
-  const id = document.getElementById('editExamId').value;
-  const name = document.getElementById('editName').value.trim();
-  const time_limit = parseInt(document.getElementById('editTime').value) || 30;
-  const negative_marking = parseFloat(document.getElementById('editNegMark').value) || 0;
-  const live_deadline_hours = parseInt(document.getElementById('editLiveDeadline').value) || 0;
-  const description = document.getElementById('editDesc').value.trim();
-  const is_premium = document.getElementById('editPremium').checked ? 1 : 0;
-  const allow_practice = document.getElementById('editPractice').checked ? 1 : 0;
-  const batch_id = document.getElementById('editBatch').value || null;
-  const alertEl = document.getElementById('editModalAlert');
-  alertEl.innerHTML = '';
-
-  if (!name) {
-    alertEl.innerHTML = '<div class="alert alert-error">Name is required.</div>';
-    return;
-  }
-
-  const { ok, data } = await api('PUT', '/admin/exams/' + id, {
-    name, description, time_limit, is_premium, negative_marking, allow_practice,
-    batch_id: batch_id ? parseInt(batch_id) : null, live_deadline_hours
-  });
-
-  if (!ok) {
-    alertEl.innerHTML = '<div class="alert alert-error">' + data.error + '</div>';
-    return;
-  }
-
-  alertEl.innerHTML = '<div class="alert alert-success">Saved.</div>';
-  setTimeout(() => { closeEditModal(); loadExams(); }, 800);
-}
-
-async function loadExamsForSelect() {
-  if (!allExams.length) {
-    const { ok, data } = await api('GET', '/exams/');
-    allExams = ok ? data : [];
-  }
-  document.getElementById('csvExamId').innerHTML = '<option value="">-- Select --</option>' +
-    allExams.map(e => `<option value="${e.id}">${esc(e.name)} ${e.is_premium ? '(Premium)' : '(Free)'}</option>`).join('');
-}
-
-function handleCSVFile(input) {
-  const file = input.files[0];
+function loadCSVFile() {
+  const file = document.getElementById('csvFile').files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => { document.getElementById('csvContent').value = e.target.result; };
+  reader.onload = e => document.getElementById('csvContent').value = e.target.result;
   reader.readAsText(file);
 }
 
-async function uploadCSV() {
-  const exam_id = document.getElementById('csvExamId').value;
+async function uploadQuestions() {
   const csv = document.getElementById('csvContent').value.trim();
-  const replace = document.getElementById('csvReplace').checked;
-  const alertEl = document.getElementById('csvAlert');
-  alertEl.innerHTML = '';
-  if (!exam_id) { alertEl.innerHTML = '<div class="alert alert-error">Select an exam.</div>'; return; }
-  if (!csv) { alertEl.innerHTML = '<div class="alert alert-error">No CSV content.</div>'; return; }
-  if (replace) {
-    if (!confirm('Delete ALL existing questions for this exam?')) return;
-    await api('DELETE', '/admin/questions/' + exam_id);
-  }
-  const btn = document.getElementById('uploadBtn');
-  btn.disabled = true;
-  btn.textContent = 'Uploading...';
-  const { ok, data } = await api('POST', '/admin/questions/bulk', { exam_id: parseInt(exam_id), csv });
-  btn.disabled = false;
-  btn.textContent = 'Upload Questions';
-  if (!ok) { alertEl.innerHTML = '<div class="alert alert-error">' + data.error + '</div>'; return; }
-  let msg = '<div class="alert alert-success">' + data.inserted + ' question(s) inserted.';
-  if (data.errors.length) msg += ' ' + data.errors.length + ' error(s).';
-  msg += '</div>';
-  alertEl.innerHTML = msg;
-  document.getElementById('csvContent').value = '';
-  document.getElementById('csvReplace').checked = false;
+  if (!csv) return;
+  const btn = document.getElementById('uploadQBtn');
+  btn.classList.add('loading'); btn.disabled = true;
+  const errEl = document.getElementById('csvError');
+  errEl.classList.remove('show');
+  try {
+    if (document.getElementById('replaceQs').checked) {
+      await fetch(`${API}/admin/questions/${currentQExamId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    }
+    const res = await fetch(`${API}/admin/questions/bulk`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ exam_id: currentQExamId, csv })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      notify(`${data.inserted} questions uploaded!`);
+      document.getElementById('csvContent').value = '';
+      switchQTab('list', document.querySelectorAll('.tab-pill')[0]);
+      await loadQuestions(currentQExamId);
+      loadExams();
+    } else {
+      errEl.textContent = data.error; errEl.classList.add('show');
+    }
+  } finally { btn.classList.remove('loading'); btn.disabled = false; }
 }
 
-// ═══════════════ USERS & MEMBERSHIP ═══════════════
+async function deleteAllQuestions() {
+  if (!confirm('Delete ALL questions for this exam?')) return;
+  await fetch(`${API}/admin/questions/${currentQExamId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  loadQuestions(currentQExamId); loadExams(); notify('All questions deleted');
+}
+
+async function deleteSingleQ(id) {
+  await fetch(`${API}/admin/questions/single/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  loadQuestions(currentQExamId); loadExams(); notify('Question deleted');
+}
+
+// ── Users ──
 async function loadUsers() {
-  const [usRes, exRes, batRes, grantRes] = await Promise.all([
-    api('GET', '/admin/users'), api('GET', '/exams/'), api('GET', '/batches'), api('GET', '/admin/premium-grants')
-  ]);
-  allUsers = usRes.ok ? usRes.data : [];
-  allExams = exRes.ok ? exRes.data : [];
-  allBatches = batRes.ok ? batRes.data : [];
-  const grants = grantRes.ok ? grantRes.data : [];
+  const res = await fetch(`${API}/admin/users`, { headers: { Authorization: `Bearer ${token}` } });
+  allUsers = await res.json();
 
-  const grantMap = {};
-  grants.forEach(g => {
-    if (!grantMap[g.user_id]) grantMap[g.user_id] = [];
-    grantMap[g.user_id].push(g);
-  });
+  document.getElementById('usersTable').innerHTML = allUsers.length
+    ? allUsers.map(u => {
+        const grants = u.premium_grants || [];
+        const now = new Date().toISOString();
+        const activeGrants = grants.filter(g => !g.expires_at || g.expires_at > now);
+        const hasAccount = u.premium_until && u.premium_until > now;
 
-  const tbody = document.getElementById('usersTable');
-  if (!allUsers.length) {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-row">No users yet.</td></tr>';
-    return;
-  }
+        let premHtml = '';
+        if (hasAccount) {
+          premHtml += `<span class="prem-tag prem-account">
+            Account
+            <svg viewBox="0 0 24 24" onclick="revokeAccount(${u.id})" title="Revoke"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </span> `;
+        }
+        activeGrants.forEach(g => {
+          const cls = g.grant_scope === 'batch' ? 'prem-batch' : 'prem-exam';
+          const name = g.exam_name || g.batch_name || g.grant_scope;
+          premHtml += `<span class="prem-tag ${cls}">
+            ${h(name)}
+            <svg viewBox="0 0 24 24" onclick="revokeGrant(${u.id},${g.exam_id})" title="Revoke"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </span> `;
+        });
 
-  tbody.innerHTML = allUsers.map(u => {
-    const accountPremium = u.premium_until;
-    let membershipTags = '';
-
-    if (accountPremium) {
-      const expDate = new Date(accountPremium + ' UTC');
-      const now = new Date();
-      const hoursLeft = Math.round((expDate - now) / (1000 * 60 * 60));
-      if (hoursLeft > 0) {
-        membershipTags += `<span class="membership-tag account" onclick="revokeAccess(${u.id}, null, 'account')" title="Click to revoke">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          All Exams &middot; ${hoursLeft}h
-          <span class="revoke-icon">&times;</span>
-        </span>`;
-      } else {
-        membershipTags += '<span class="badge badge-fail">Expired</span>';
-      }
-    }
-
-    const userGrants = grantMap[u.id] || [];
-    userGrants.forEach(g => {
-      let expiryText = '';
-      if (g.expires_at) {
-        const expDate = new Date(g.expires_at + ' UTC');
-        const now = new Date();
-        const hoursLeft = Math.round((expDate - now) / (1000 * 60 * 60));
-        if (hoursLeft > 0) expiryText = ' &middot; ' + hoursLeft + 'h';
-        else expiryText = ' &middot; Expired';
-      }
-      const scope = g.grant_scope || 'exam';
-      const tagClass = scope === 'batch' ? 'batch' : 'exam';
-      const label = scope === 'batch'
-        ? (g.batch_name || 'Batch') + expiryText
-        : (g.exam_name || 'Exam') + expiryText;
-      membershipTags += `<span class="membership-tag ${tagClass}" onclick="revokeAccess(${u.id}, ${g.exam_id || 'null'}, '${scope}')" title="Click to revoke">
-        ${scope === 'batch' ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>' : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'}
-        ${label}
-        <span class="revoke-icon">&times;</span>
-      </span>`;
-    });
-
-    return `<tr>
-      <td style="font-weight:500">${esc(u.name)}</td>
-      <td style="font-size:.8rem;color:var(--muted)">${esc(u.email)}</td>
-      <td><span class="badge ${u.is_admin ? 'badge-premium' : 'badge-free'}">${u.is_admin ? 'Admin' : 'Student'}</span></td>
-      <td><div class="membership-tags">${membershipTags || '<span style="color:var(--muted);font-size:.76rem">None</span>'}</div></td>
-      <td><button class="btn btn-success btn-sm" onclick="openGrantModal(${u.id},'${esc(u.name)}')">Grant Access</button></td>
-    </tr>`;
-  }).join('');
+        return `<tr>
+          <td class="td-name">${h(u.name)}</td>
+          <td style="color:var(--muted);font-size:.8rem">${h(u.email)}</td>
+          <td>${u.is_admin ? '<span class="badge badge-admin">Admin</span>' : '<span class="badge badge-student">Student</span>'}</td>
+          <td style="max-width:200px">${premHtml || '<span style="color:var(--muted);font-size:.8rem">None</span>'}</td>
+          <td><div class="td-actions"><button class="btn-primary btn-sm" onclick="openGrantModal(${u.id},'${h(u.name)}')">Grant Premium</button></div></td>
+        </tr>`;
+      }).join('')
+    : '<tr class="empty-row"><td colspan="5">No users</td></tr>';
 }
 
 function openGrantModal(userId, userName) {
   grantUserId = userId;
   document.getElementById('grantUserName').textContent = userName;
-  document.getElementById('grantModalAlert').innerHTML = '';
+  // Populate exams & batches
+  const examSel = document.getElementById('grantExam');
+  examSel.innerHTML = allExams.map(e => `<option value="${e.id}">${h(e.name)}</option>`).join('');
+  const batchSel = document.getElementById('grantBatch');
+  batchSel.innerHTML = allBatches.length ? allBatches.map(b => `<option value="${b.id}">${h(b.name)}</option>`).join('') : '<option value="">No batches</option>';
   document.getElementById('grantScope').value = 'exam';
-  document.getElementById('grantDuration').value = '0';
-  document.getElementById('grantCustomHours').value = '';
-  document.getElementById('customDurationGroup').style.display = 'none';
-  document.getElementById('grantExamGroup').style.display = 'block';
-  document.getElementById('grantBatchGroup').style.display = 'none';
-
-  const premiumExams = allExams.filter(e => e.is_premium);
-  document.getElementById('grantExamSel').innerHTML = premiumExams.length
-    ? '<option value="">-- Select --</option>' + premiumExams.map(e => `<option value="${e.id}">${esc(e.name)}</option>`).join('')
-    : '<option value="">No premium exams</option>';
-
-  document.getElementById('grantBatchSel').innerHTML = allBatches.length
-    ? '<option value="">-- Select --</option>' + allBatches.map(b => `<option value="${b.id}">${esc(b.name)} (${b.exam_count || 0} exams)</option>`).join('')
-    : '<option value="">No batches</option>';
-
-  document.getElementById('grantModal').classList.add('open');
+  updateGrantUI();
+  openModal('grantModal');
 }
 
-function toggleGrantScope() {
+function updateGrantUI() {
   const scope = document.getElementById('grantScope').value;
-  document.getElementById('grantExamGroup').style.display = scope === 'exam' ? 'block' : 'none';
-  document.getElementById('grantBatchGroup').style.display = scope === 'batch' ? 'block' : 'none';
+  document.getElementById('grantExamField').style.display = scope === 'exam' ? 'flex' : 'none';
+  document.getElementById('grantBatchField').style.display = scope === 'batch' ? 'flex' : 'none';
 }
 
-function toggleCustomDuration() {
-  document.getElementById('customDurationGroup').style.display =
-    document.getElementById('grantDuration').value === 'custom' ? 'block' : 'none';
-}
-
-function closeModal() {
-  document.getElementById('grantModal').classList.remove('open');
-  grantUserId = null;
-}
-
-async function grantAccess() {
+async function grantPremium() {
   const scope = document.getElementById('grantScope').value;
-  const durationVal = document.getElementById('grantDuration').value;
-  const alertEl = document.getElementById('grantModalAlert');
-  let duration_hours = 0;
-
-  if (durationVal === 'custom') {
-    duration_hours = parseInt(document.getElementById('grantCustomHours').value) || 0;
-    if (duration_hours <= 0) {
-      alertEl.innerHTML = '<div class="alert alert-error">Enter valid hours.</div>';
-      return;
-    }
-  } else {
-    duration_hours = parseInt(durationVal) || 0;
-  }
-
-  let body = { user_id: grantUserId, grant_scope: scope, duration_hours };
-
-  if (scope === 'exam') {
-    const exam_id = document.getElementById('grantExamSel').value;
-    if (!exam_id) { alertEl.innerHTML = '<div class="alert alert-error">Select an exam.</div>'; return; }
-    body.exam_id = parseInt(exam_id);
-  } else if (scope === 'batch') {
-    const batch_id = document.getElementById('grantBatchSel').value;
-    if (!batch_id) { alertEl.innerHTML = '<div class="alert alert-error">Select a batch.</div>'; return; }
-    body.batch_id = parseInt(batch_id);
-  }
-
-  const { ok, data } = await api('POST', '/admin/grant-premium', body);
-
-  if (!ok) {
-    alertEl.innerHTML = '<div class="alert alert-error">' + data.error + '</div>';
-    return;
-  }
-
-  alertEl.innerHTML = '<div class="alert alert-success">Access granted.' +
-    (data.expires_at ? ' Expires: ' + new Date(data.expires_at + ' UTC').toLocaleString() : ' Permanent') + '</div>';
-
-  setTimeout(() => { closeModal(); loadUsers(); }, 1500);
+  const duration = document.getElementById('grantDuration').value;
+  const body = { user_id: grantUserId, grant_scope: scope, duration_hours: duration ? parseInt(duration) : null };
+  if (scope === 'exam') body.exam_id = parseInt(document.getElementById('grantExam').value);
+  if (scope === 'batch') body.batch_id = parseInt(document.getElementById('grantBatch').value);
+  const btn = document.getElementById('grantBtn');
+  btn.classList.add('loading'); btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/admin/grant-premium`, {
+      method: 'POST', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) { closeModal('grantModal'); loadUsers(); notify('Premium granted!'); }
+    else { const d = await res.json(); notify(d.error, true); }
+  } finally { btn.classList.remove('loading'); btn.disabled = false; }
 }
 
-async function revokeAccess(user_id, exam_id, scope) {
-  let confirmMsg = 'Revoke this access?';
-  if (scope === 'account') confirmMsg = 'Revoke account-wide premium access?';
-  if (!confirm(confirmMsg)) return;
-
-  if (scope === 'account' || !exam_id) {
-    await api('DELETE', '/admin/revoke-account-premium', { user_id });
-  } else {
-    await api('DELETE', '/admin/revoke-premium', { user_id, exam_id });
-  }
-  loadUsers();
+async function revokeGrant(userId, examId) {
+  if (!examId || !confirm('Revoke this exam-level grant?')) return;
+  const res = await fetch(`${API}/admin/revoke-premium`, {
+    method: 'DELETE', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ user_id: userId, exam_id: examId })
+  });
+  if (res.ok) { loadUsers(); notify('Grant revoked'); }
 }
 
-// ═══════════════ RESULTS ═══════════════
-async function loadResultsView() {
+async function revokeAccount(userId) {
+  if (!confirm('Revoke account-wide premium?')) return;
+  const res = await fetch(`${API}/admin/revoke-account-premium`, {
+    method: 'DELETE', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ user_id: userId })
+  });
+  if (res.ok) { loadUsers(); notify('Account premium revoked'); }
+}
+
+// ── Results ──
+async function loadResultsFilter() {
   if (!allExams.length) {
-    const { ok, data } = await api('GET', '/exams/');
-    allExams = ok ? data : [];
+    const res = await fetch(`${API}/exams/`, { headers: { Authorization: `Bearer ${token}` } });
+    allExams = await res.json();
   }
-  document.getElementById('resultExamFilter').innerHTML = '<option value="all">All Examinations</option>' +
-    allExams.map(e => `<option value="${e.id}">${esc(e.name)}</option>`).join('');
-  loadFilteredResults();
+  const sel = document.getElementById('resultsFilter');
+  sel.innerHTML = '<option value="">All Exams</option>' + allExams.map(e => `<option value="${e.id}">${h(e.name)}</option>`).join('');
 }
 
-async function loadFilteredResults() {
-  const examId = document.getElementById('resultExamFilter').value;
-  const url = examId === 'all' ? '/admin/results' : '/admin/results/' + examId;
-  const { ok, data } = await api('GET', url);
-  const tbody = document.getElementById('resultsTable');
-  if (!ok || !data.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-row">No first attempts yet.</td></tr>';
-    return;
-  }
-  tbody.innerHTML = data.map(r => {
-    const pct = Math.round(r.percentage);
-    return `<tr>
-      <td style="font-weight:500">${esc(r.user_name)}<br><span style="font-size:.7rem;color:var(--muted)">${esc(r.user_email)}</span></td>
-      <td>${esc(r.exam_name)}</td>
-      <td style="font-weight:600">${r.score}/${r.total_questions}</td>
-      <td><div class="score-bar-wrap"><div class="score-bar"><div class="score-bar-fill" style="width:${pct}%;background:${pct>=50?'var(--success)':'var(--error)'}"></div></div><span class="badge ${pct>=50?'badge-pass':'badge-fail'}">${pct}%</span></div></td>
-      <td style="font-size:.76rem;color:var(--muted);white-space:nowrap">${new Date(r.submitted_at).toLocaleString()}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteResult(${r.id})">Del</button></td>
-    </tr>`;
-  }).join('');
+async function loadResults() {
+  const examId = document.getElementById('resultsFilter')?.value;
+  const url = examId ? `${API}/admin/results/${examId}` : `${API}/admin/results`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  const results = await res.json();
+  document.getElementById('resultsTable').innerHTML = results.length
+    ? results.map(r => `<tr>
+        <td class="td-name">${h(r.user_name)}<br><small style="color:var(--muted);font-size:.75rem">${h(r.email)}</small></td>
+        <td style="font-size:.8rem">${h(r.exam_name)}</td>
+        <td class="td-mono">${r.score}/${r.total_questions}</td>
+        <td>
+          <span style="font-weight:700;color:${r.percentage>=80?'var(--success)':r.percentage>=60?'var(--premium)':r.percentage>=40?'var(--warning)':'var(--error)'}">${r.percentage?.toFixed(0)}%</span>
+          <div class="mini-bar"><div class="mini-fill" style="width:${r.percentage}%"></div></div>
+        </td>
+        <td style="color:var(--muted);font-size:.8rem">${new Date(r.submitted_at).toLocaleDateString()}</td>
+        <td><div class="td-actions"><button class="btn-danger btn-sm" onclick="deleteResult(${r.id})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>Delete</button></div></td>
+      </tr>`).join('')
+    : '<tr class="empty-row"><td colspan="6">No results</td></tr>';
 }
 
 async function deleteResult(id) {
-  if (!confirm('Delete this result permanently?')) return;
-  await api('DELETE', '/admin/results/' + id);
-  loadFilteredResults();
+  if (!confirm('Delete this result?')) return;
+  await fetch(`${API}/admin/results/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  loadResults(); notify('Result deleted');
 }
 
-// ═══════════════ HELPERS ═══════════════
-function esc(s) {
-  const d = document.createElement('div');
-  d.textContent = String(s || '');
-  return d.innerHTML;
+// ── Modal helpers ──
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+});
+
+function logout() {
+  localStorage.removeItem('exalyte_token');
+  localStorage.removeItem('exalyte_user');
+  window.location.href = 'index.html';
 }
 
-// ═══════════════ MODAL CLOSE ON OUTSIDE CLICK ═══════════════
-document.getElementById('grantModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-document.getElementById('editModal').addEventListener('click', function(e) {
-  if (e.target === this) closeEditModal();
-});
-
-// ═══════════════ INIT ═══════════════
+// Init
 loadDashboard();
 </script>
 </body>
