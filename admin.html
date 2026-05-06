@@ -46,14 +46,14 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .panel{display:none;padding:32px;flex:1}
 .panel.active{display:block}
 
-/* Stats overview */
+/* Stats */
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:32px}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;position:relative;overflow:hidden}
 .stat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(99,102,241,.05),transparent);pointer-events:none}
 .stat-val{font-family:'Lexend',sans-serif;font-size:2.2rem;font-weight:900;color:var(--text-bright);letter-spacing:-.03em}
 .stat-label{font-size:.75rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
 
-/* Section header */
+/* Section */
 .sect-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
 .sect-title{font-family:'Lexend',sans-serif;font-size:1rem;font-weight:700;color:var(--text-bright)}
 
@@ -62,10 +62,12 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .btn-primary:hover{opacity:.9;transform:translateY(-1px)}
 .btn-primary svg,.btn-secondary svg,.btn-danger svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5}
 .btn-secondary{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 18px;border-radius:10px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
-.btn-secondary:hovr{border-color:var(--accent2);color:var(--accent2)}
+.btn-secondary:hover{border-color:var(--accent2);color:var(--accent2)}
 .btn-danger{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:var(--error);padding:7px 14px;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:5px}
 .btn-danger:hover{background:rgba(239,68,68,.2)}
 .btn-sm{padding:6px 12px;font-size:.75rem;border-radius:8px}
+.btn-success{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.25);color:var(--success);padding:7px 14px;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:5px}
+.btn-success:hover{background:rgba(34,197,94,.25)}
 
 /* Table */
 .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px}
@@ -83,8 +85,6 @@ tr:hover td{background:rgba(99,102,241,.04)}
 .badge-admin{background:rgba(99,102,241,.2);color:var(--accent2)}
 .badge-student{background:var(--surface2);color:var(--muted)}
 .badge-premium{background:rgba(168,85,247,.2);color:var(--premium)}
-.badge-batch{background:rgba(245,158,11,.2);color:var(--warning)}
-.badge-account{background:rgba(99,102,241,.2);color:var(--accent2)}
 .badge-free{background:rgba(34,197,94,.15);color:var(--success)}
 .badge-live{background:rgba(239,68,68,.15);color:var(--error)}
 
@@ -120,18 +120,18 @@ textarea{resize:vertical;min-height:80px;font-family:'JetBrains Mono',monospace;
 .form-error.show{display:block}
 .modal-footer{padding:16px 24px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
 
-/* Questions manager */
+/* Questions */
 .q-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:300px;overflow-y:auto}
 .q-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;align-items:flex-start;gap:10px}
 .q-num{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;color:var(--muted);padding:2px 6px;background:var(--surface3);border-radius:5px;flex-shrink:0}
 .q-text{font-size:.8rem;color:var(--text);flex:1;line-height:1.4}
 .q-ans{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;color:var(--success);background:rgba(34,197,94,.1);padding:2px 6px;border-radius:4px;flex-shrink:0}
 
-/* Progress bar in table */
+/* Mini bar */
 .mini-bar{height:4px;background:var(--surface2);border-radius:2px;width:60px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:6px}
 .mini-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px}
 
-/* Premium tag */
+/* Premium tags */
 .prem-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:7px;font-size:.7rem;font-weight:700}
 .prem-tag svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;cursor:pointer}
 .prem-exam{background:rgba(168,85,247,.15);color:var(--premium);border:1px solid rgba(168,85,247,.3)}
@@ -152,7 +152,7 @@ button.loading .btn-label{display:none}
 .tab-pill{padding:8px 20px;border-radius:7px;background:none;border:none;color:var(--muted);font-size:.8rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
 .tab-pill.active{background:var(--surface3);color:var(--text-bright);box-shadow:0 2px 8px rgba(0,0,0,.3)}
 
-/* Notification */
+/* Notif */
 .notif{position:fixed;top:24px;right:24px;background:var(--surface);border:1px solid var(--success);color:var(--success);padding:12px 20px;border-radius:12px;font-size:.875rem;font-weight:600;z-index:999;transform:translateX(120%);transition:transform .3s;display:flex;align-items:center;gap:8px}
 .notif.error{border-color:var(--error);color:var(--error)}
 .notif.show{transform:none}
@@ -223,7 +223,7 @@ button.loading .btn-label{display:none}
     <div class="topbar-actions" id="topbarActions"></div>
   </div>
 
-  <!-- Dashboard Panel -->
+  <!-- Dashboard -->
   <div class="panel active" id="panel-dashboard">
     <div class="stats-row" id="dashStats">
       <div class="stat-card"><div class="stat-val" id="dExams">—</div><div class="stat-label">Total Exams</div></div>
@@ -238,7 +238,7 @@ button.loading .btn-label{display:none}
     </table></div>
   </div>
 
-  <!-- Batches Panel -->
+  <!-- Batches -->
   <div class="panel" id="panel-batches">
     <div class="sect-header">
       <span class="sect-title">Batches</span>
@@ -250,7 +250,7 @@ button.loading .btn-label{display:none}
     </table></div>
   </div>
 
-  <!-- Exams Panel -->
+  <!-- Exams -->
   <div class="panel" id="panel-exams">
     <div class="sect-header">
       <span class="sect-title">Exams</span>
@@ -262,7 +262,7 @@ button.loading .btn-label{display:none}
     </table></div>
   </div>
 
-  <!-- Users Panel -->
+  <!-- Users -->
   <div class="panel" id="panel-users">
     <div class="sect-header"><span class="sect-title">Users</span></div>
     <div class="table-wrap"><table>
@@ -271,7 +271,7 @@ button.loading .btn-label{display:none}
     </table></div>
   </div>
 
-  <!-- Results Panel -->
+  <!-- Results -->
   <div class="panel" id="panel-results">
     <div class="sect-header">
       <span class="sect-title">Results</span>
@@ -344,7 +344,7 @@ button.loading .btn-label{display:none}
       <button class="modal-close" onclick="closeModal('questionsModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
-      <div class="tab-row">
+      <div class="tab-row" id="qTabs">
         <button class="tab-pill active" onclick="switchQTab('list',this)">Current Questions</button>
         <button class="tab-pill" onclick="switchQTab('upload',this)">Bulk Upload CSV</button>
       </div>
@@ -356,28 +356,28 @@ button.loading .btn-label{display:none}
       </div>
       <div id="qTabUpload" style="display:none">
         <div class="form-group">
-          <label>CSV Content</label>
-          <textarea id="csvContent" placeholder="question,option_a,option_b,option_c,option_d,correct_answer,image_url&#10;&quot;What is 2+2?&quot;,3,4,5,6,B," rows="8"></textarea>
+          <label>Paste CSV Content Below</label>
+          <textarea id="csvContent" placeholder="question,option_a,option_b,option_c,option_d,correct_answer,image_url&#10;&quot;What is 2+2?&quot;,3,4,5,6,B," rows="10"></textarea>
         </div>
         <div class="form-group">
-          <label>Or upload a CSV file</label>
+          <label>Or Upload a CSV File</label>
           <input type="file" id="csvFile" accept=".csv" onchange="loadCSVFile()" style="padding:8px">
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
           <input type="checkbox" id="replaceQs" style="width:auto">
-          <label style="text-transform:none;letter-spacing:0;font-size:.85rem;color:var(--text)">Replace all existing questions</label>
+          <label style="text-transform:none;letter-spacing:0;font-size:.85rem;color:var(--text)">Replace all existing questions before upload</label>
         </div>
         <div class="form-error" id="csvError"></div>
+        <button class="btn-primary" id="uploadQBtn" onclick="uploadQuestions()" style="width:100%;justify-content:center"><span class="btn-label">Upload Questions Now</span><div class="spinner"></div></button>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('questionsModal')">Close</button>
-      <button class="btn-primary" id="uploadQBtn" style="display:none" onclick="uploadQuestions()"><span class="btn-label">Upload Questions</span><div class="spinner"></div></button>
     </div>
   </div>
 </div>
 
-<!-- Grant Premium Modal -->
+<!-- Grant Modal -->
 <div class="modal-overlay" id="grantModal">
   <div class="modal">
     <div class="modal-header">
@@ -426,20 +426,20 @@ button.loading .btn-label{display:none}
 
 <script>
 const API = '/api';
-const token = localStorage.getItem('exalyte_token');
-const user = JSON.parse(localStorage.getItem('exalyte_user') || 'null');
-if (!token || !user || !user.is_admin) window.location.href = 'index.html';
+const token = localStorage.getItem('token');
+const user = JSON.parse(localStorage.getItem('user') || 'null');
+if (!token || !user || !user.is_admin) window.location.href = '/';
 
 document.getElementById('userName').textContent = user?.name || 'Admin';
 document.getElementById('userAvatar').textContent = (user?.name || 'A')[0].toUpperCase();
 
 let currentPanel = 'dashboard';
 let editingExamId = null, editingBatchId = null, currentQExamId = null, grantUserId = null;
-let allExams = [], allBatches = [], allUsers = [];
+let allExams = [], allBatches = [], allUsers = [], allGrants = [];
 
 function h(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ── Notification ──
+// Notification
 function notify(msg, isError = false) {
   const n = document.getElementById('notif');
   document.getElementById('notifMsg').textContent = msg;
@@ -448,7 +448,7 @@ function notify(msg, isError = false) {
   setTimeout(() => n.classList.remove('show'), 3000);
 }
 
-// ── Panels ──
+// Panels
 function showPanel(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -456,9 +456,7 @@ function showPanel(name) {
   document.querySelectorAll('.nav-item').forEach(n => { if (n.getAttribute('onclick')?.includes("'"+name+"'")) n.classList.add('active'); });
   document.getElementById('topbarTitle').textContent = { dashboard:'Dashboard', batches:'Batches', exams:'Exams', users:'Users', results:'Results' }[name];
   currentPanel = name;
-
-  const actions = document.getElementById('topbarActions');
-  actions.innerHTML = '';
+  document.getElementById('topbarActions').innerHTML = '';
 
   if (name === 'dashboard') loadDashboard();
   if (name === 'batches') loadBatches();
@@ -467,7 +465,7 @@ function showPanel(name) {
   if (name === 'results') { loadResultsFilter(); loadResults(); }
 }
 
-// ── Dashboard ──
+// Dashboard
 async function loadDashboard() {
   const [examsRes, usersRes, resultsRes, batchesRes] = await Promise.all([
     fetch(`${API}/exams/`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -488,7 +486,7 @@ async function loadDashboard() {
   const recent = results.slice(0, 10);
   document.getElementById('recentResults').innerHTML = recent.length
     ? recent.map(r => `<tr>
-        <td class="td-name">${h(r.user_name)}<br><small style="color:var(--muted);font-size:.75rem">${h(r.email)}</small></td>
+        <td class="td-name">${h(r.user_name)}<br><small style="color:var(--muted);font-size:.75rem">${h(r.user_email)}</small></td>
         <td>${h(r.exam_name)}</td>
         <td><span class="td-mono">${r.score}/${r.total_questions}</span>
           <div class="mini-bar"><div class="mini-fill" style="width:${r.percentage}%"></div></div>
@@ -498,7 +496,7 @@ async function loadDashboard() {
     : '<tr class="empty-row"><td colspan="4">No submissions yet</td></tr>';
 }
 
-// ── Batches ──
+// Batches
 async function loadBatches() {
   const res = await fetch(`${API}/batches`, { headers: { Authorization: `Bearer ${token}` } });
   allBatches = await res.json();
@@ -544,7 +542,7 @@ async function deleteBatch(id, name) {
   loadBatches(); notify('Batch deleted');
 }
 
-// ── Exams ──
+// Exams
 async function loadExams() {
   const res = await fetch(`${API}/exams/`, { headers: { Authorization: `Bearer ${token}` } });
   allExams = await res.json();
@@ -558,17 +556,21 @@ async function loadExams() {
           <td class="td-mono">${e.question_count}</td>
           <td class="td-mono">${e.time_limit}m</td>
           <td><div class="td-actions">
-            <button class="btn-secondary btn-sm" onclick="openQModal(${e.id},'${h(e.name)}')">Questions</button>
-            <button class="btn-secondary btn-sm" onclick="openExamModal(${JSON.stringify(e).replace(/"/g,'&quot;')})">Edit</button>
-            <button class="btn-danger btn-sm" onclick="deleteExam(${e.id},'${h(e.name)}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
+            <button class="btn-success btn-sm" onclick="openQModal(${e.id},'${h(e.name).replace(/'/g,"\\'")}')">Questions</button>
+            <button class="btn-secondary btn-sm" onclick="openExamModalById(${e.id})">Edit</button>
+            <button class="btn-danger btn-sm" onclick="deleteExam(${e.id},'${h(e.name).replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
           </div></td>
         </tr>`;
       }).join('')
     : '<tr class="empty-row"><td colspan="6">No exams yet</td></tr>';
 }
 
+async function openExamModalById(id) {
+  const exam = allExams.find(e => e.id === id);
+  if (exam) openExamModal(exam);
+}
+
 async function openExamModal(exam = null) {
-  if (typeof exam === 'string') exam = null;
   editingExamId = exam?.id || null;
   document.getElementById('examModalTitle').textContent = exam ? 'Edit Exam' : 'New Exam';
   document.getElementById('examName').value = exam?.name || '';
@@ -579,7 +581,6 @@ async function openExamModal(exam = null) {
   document.getElementById('examPremToggle').classList.toggle('on', !!exam?.is_premium);
   document.getElementById('examPractToggle').classList.toggle('on', exam?.allow_practice !== 0);
 
-  // Populate batch select
   const batchSel = document.getElementById('examBatch');
   batchSel.innerHTML = '<option value="">— No Batch —</option>';
   if (!allBatches.length) {
@@ -624,15 +625,22 @@ async function deleteExam(id, name) {
   loadExams(); notify('Exam deleted');
 }
 
-// ── Questions ──
+// Questions
 async function openQModal(examId, examName) {
   currentQExamId = examId;
   document.getElementById('qModalTitle').textContent = `Questions — ${examName}`;
-  document.getElementById('qTabList').style.display = 'block';
-  document.getElementById('qTabUpload').style.display = 'none';
-  document.getElementById('uploadQBtn').style.display = 'none';
-  document.querySelectorAll('.tab-pill').forEach((p,i) => p.classList.toggle('active', i===0));
+  const res = await fetch(`${API}/admin/questions/${examId}`, { headers: { Authorization: `Bearer ${token}` } });
+  const qs = await res.json();
+
+  if (!qs.length) {
+    switchQTab('upload', document.querySelectorAll('#qTabs .tab-pill')[1]);
+  } else {
+    switchQTab('list', document.querySelectorAll('#qTabs .tab-pill')[0]);
+  }
   await loadQuestions(examId);
+  document.getElementById('csvError').classList.remove('show');
+  document.getElementById('csvContent').value = '';
+  document.getElementById('replaceQs').checked = false;
   openModal('questionsModal');
 }
 
@@ -650,11 +658,10 @@ async function loadQuestions(examId) {
 }
 
 function switchQTab(tab, btn) {
-  document.querySelectorAll('.tab-pill').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#qTabs .tab-pill').forEach(p => p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('qTabList').style.display = tab === 'list' ? 'block' : 'none';
   document.getElementById('qTabUpload').style.display = tab === 'upload' ? 'block' : 'none';
-  document.getElementById('uploadQBtn').style.display = tab === 'upload' ? 'flex' : 'none';
 }
 
 function loadCSVFile() {
@@ -667,7 +674,7 @@ function loadCSVFile() {
 
 async function uploadQuestions() {
   const csv = document.getElementById('csvContent').value.trim();
-  if (!csv) return;
+  if (!csv) { document.getElementById('csvError').textContent = 'Paste CSV content or upload a file'; document.getElementById('csvError').classList.add('show'); return; }
   const btn = document.getElementById('uploadQBtn');
   btn.classList.add('loading'); btn.disabled = true;
   const errEl = document.getElementById('csvError');
@@ -677,20 +684,24 @@ async function uploadQuestions() {
       await fetch(`${API}/admin/questions/${currentQExamId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
     }
     const res = await fetch(`${API}/admin/questions/bulk`, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` },
+      method: 'POST', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ exam_id: currentQExamId, csv })
     });
     const data = await res.json();
     if (res.ok) {
       notify(`${data.inserted} questions uploaded!`);
       document.getElementById('csvContent').value = '';
-      switchQTab('list', document.querySelectorAll('.tab-pill')[0]);
+      document.getElementById('csvFile').value = '';
+      switchQTab('list', document.querySelectorAll('#qTabs .tab-pill')[0]);
       await loadQuestions(currentQExamId);
       loadExams();
     } else {
-      errEl.textContent = data.error; errEl.classList.add('show');
+      errEl.textContent = data.error || 'Upload failed';
+      errEl.classList.add('show');
     }
+  } catch(e) {
+    errEl.textContent = 'Network error';
+    errEl.classList.add('show');
   } finally { btn.classList.remove('loading'); btn.disabled = false; }
 }
 
@@ -702,29 +713,32 @@ async function deleteAllQuestions() {
 
 async function deleteSingleQ(id) {
   await fetch(`${API}/admin/questions/single/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-  loadQuestions(currentQExamId); loadExams(); notify('Question deleted');
+  loadQuestions(currentQExamId); loadExams();
 }
 
-// ── Users ──
+// Users
 async function loadUsers() {
-  const res = await fetch(`${API}/admin/users`, { headers: { Authorization: `Bearer ${token}` } });
-  allUsers = await res.json();
+  const [usersRes, grantsRes] = await Promise.all([
+    fetch(`${API}/admin/users`, { headers: { Authorization: `Bearer ${token}` } }),
+    fetch(`${API}/admin/premium-grants`, { headers: { Authorization: `Bearer ${token}` } })
+  ]);
+  allUsers = await usersRes.json();
+  allGrants = await grantsRes.json();
 
   document.getElementById('usersTable').innerHTML = allUsers.length
     ? allUsers.map(u => {
-        const grants = u.premium_grants || [];
         const now = new Date().toISOString();
-        const activeGrants = grants.filter(g => !g.expires_at || g.expires_at > now);
+        const userGrants = allGrants.filter(g => g.user_id === u.id && (!g.expires_at || g.expires_at > now));
         const hasAccount = u.premium_until && u.premium_until > now;
 
         let premHtml = '';
         if (hasAccount) {
           premHtml += `<span class="prem-tag prem-account">
-            Account
+            All Exams
             <svg viewBox="0 0 24 24" onclick="revokeAccount(${u.id})" title="Revoke"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </span> `;
         }
-        activeGrants.forEach(g => {
+        userGrants.forEach(g => {
           const cls = g.grant_scope === 'batch' ? 'prem-batch' : 'prem-exam';
           const name = g.exam_name || g.batch_name || g.grant_scope;
           premHtml += `<span class="prem-tag ${cls}">
@@ -737,8 +751,8 @@ async function loadUsers() {
           <td class="td-name">${h(u.name)}</td>
           <td style="color:var(--muted);font-size:.8rem">${h(u.email)}</td>
           <td>${u.is_admin ? '<span class="badge badge-admin">Admin</span>' : '<span class="badge badge-student">Student</span>'}</td>
-          <td style="max-width:200px">${premHtml || '<span style="color:var(--muted);font-size:.8rem">None</span>'}</td>
-          <td><div class="td-actions"><button class="btn-primary btn-sm" onclick="openGrantModal(${u.id},'${h(u.name)}')">Grant Premium</button></div></td>
+          <td style="max-width:220px">${premHtml || '<span style="color:var(--muted);font-size:.8rem">None</span>'}</td>
+          <td><div class="td-actions"><button class="btn-primary btn-sm" onclick="openGrantModal(${u.id},'${h(u.name).replace(/'/g,"\\'")}')">Grant Premium</button></div></td>
         </tr>`;
       }).join('')
     : '<tr class="empty-row"><td colspan="5">No users</td></tr>';
@@ -747,9 +761,8 @@ async function loadUsers() {
 function openGrantModal(userId, userName) {
   grantUserId = userId;
   document.getElementById('grantUserName').textContent = userName;
-  // Populate exams & batches
   const examSel = document.getElementById('grantExam');
-  examSel.innerHTML = allExams.map(e => `<option value="${e.id}">${h(e.name)}</option>`).join('');
+  examSel.innerHTML = allExams.filter(e => e.is_premium).map(e => `<option value="${e.id}">${h(e.name)}</option>`).join('') || '<option value="">No premium exams</option>';
   const batchSel = document.getElementById('grantBatch');
   batchSel.innerHTML = allBatches.length ? allBatches.map(b => `<option value="${b.id}">${h(b.name)}</option>`).join('') : '<option value="">No batches</option>';
   document.getElementById('grantScope').value = 'exam';
@@ -782,31 +795,30 @@ async function grantPremium() {
 }
 
 async function revokeGrant(userId, examId) {
-  if (!examId || !confirm('Revoke this exam-level grant?')) return;
-  const res = await fetch(`${API}/admin/revoke-premium`, {
+  if (!examId || !confirm('Revoke this grant?')) return;
+  await fetch(`${API}/admin/revoke-premium`, {
     method: 'DELETE', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ user_id: userId, exam_id: examId })
   });
-  if (res.ok) { loadUsers(); notify('Grant revoked'); }
+  loadUsers(); notify('Grant revoked');
 }
 
 async function revokeAccount(userId) {
   if (!confirm('Revoke account-wide premium?')) return;
-  const res = await fetch(`${API}/admin/revoke-account-premium`, {
+  await fetch(`${API}/admin/revoke-account-premium`, {
     method: 'DELETE', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ user_id: userId })
   });
-  if (res.ok) { loadUsers(); notify('Account premium revoked'); }
+  loadUsers(); notify('Account premium revoked');
 }
 
-// ── Results ──
+// Results
 async function loadResultsFilter() {
   if (!allExams.length) {
     const res = await fetch(`${API}/exams/`, { headers: { Authorization: `Bearer ${token}` } });
     allExams = await res.json();
   }
-  const sel = document.getElementById('resultsFilter');
-  sel.innerHTML = '<option value="">All Exams</option>' + allExams.map(e => `<option value="${e.id}">${h(e.name)}</option>`).join('');
+  document.getElementById('resultsFilter').innerHTML = '<option value="">All Exams</option>' + allExams.map(e => `<option value="${e.id}">${h(e.name)}</option>`).join('');
 }
 
 async function loadResults() {
@@ -815,17 +827,20 @@ async function loadResults() {
   const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   const results = await res.json();
   document.getElementById('resultsTable').innerHTML = results.length
-    ? results.map(r => `<tr>
-        <td class="td-name">${h(r.user_name)}<br><small style="color:var(--muted);font-size:.75rem">${h(r.email)}</small></td>
-        <td style="font-size:.8rem">${h(r.exam_name)}</td>
-        <td class="td-mono">${r.score}/${r.total_questions}</td>
-        <td>
-          <span style="font-weight:700;color:${r.percentage>=80?'var(--success)':r.percentage>=60?'var(--premium)':r.percentage>=40?'var(--warning)':'var(--error)'}">${r.percentage?.toFixed(0)}%</span>
-          <div class="mini-bar"><div class="mini-fill" style="width:${r.percentage}%"></div></div>
-        </td>
-        <td style="color:var(--muted);font-size:.8rem">${new Date(r.submitted_at).toLocaleDateString()}</td>
-        <td><div class="td-actions"><button class="btn-danger btn-sm" onclick="deleteResult(${r.id})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>Delete</button></div></td>
-      </tr>`).join('')
+    ? results.map(r => {
+        const pct = r.percentage?.toFixed(0) || 0;
+        const color = pct >= 80 ? 'var(--success)' : pct >= 50 ? 'var(--premium)' : 'var(--error)';
+        return `<tr>
+          <td class="td-name">${h(r.user_name)}<br><small style="color:var(--muted);font-size:.75rem">${h(r.user_email)}</small></td>
+          <td style="font-size:.8rem">${h(r.exam_name)}</td>
+          <td class="td-mono">${r.score}/${r.total_questions}</td>
+          <td><span style="font-weight:700;color:${color}">${pct}%</span>
+            <div class="mini-bar"><div class="mini-fill" style="width:${r.percentage}%"></div></div>
+          </td>
+          <td style="color:var(--muted);font-size:.8rem">${new Date(r.submitted_at).toLocaleDateString()}</td>
+          <td><div class="td-actions"><button class="btn-danger btn-sm" onclick="deleteResult(${r.id})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>Delete</button></div></td>
+        </tr>`;
+      }).join('')
     : '<tr class="empty-row"><td colspan="6">No results</td></tr>';
 }
 
@@ -835,7 +850,7 @@ async function deleteResult(id) {
   loadResults(); notify('Result deleted');
 }
 
-// ── Modal helpers ──
+// Modal helpers
 function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
 
@@ -844,9 +859,8 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
 });
 
 function logout() {
-  localStorage.removeItem('exalyte_token');
-  localStorage.removeItem('exalyte_user');
-  window.location.href = 'index.html';
+  localStorage.clear();
+  window.location.href = '/';
 }
 
 // Init
