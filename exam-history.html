@@ -1,1221 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Exam History — Exalyte</title>
-<meta name="description" content="View your complete examination history and rankings on Exalyte.">
-<meta name="theme-color" content="#05050a">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #05050a;
-  --surface: #0a0a16;
-  --surface2: #111122;
-  --surface3: #16162a;
-  --border: #1e1e38;
-  --border-light: #252545;
-  --accent: #6366f1;
-  --accent2: #818cf8;
-  --accent3: #4f46e5;
-  --accent-glow: rgba(99, 102, 241, 0.25);
-  --text: #e9e9f0;
-  --text-bright: #f5f5ff;
-  --muted: #7c7c96;
-  --muted-light: #9a9ab0;
-  --error: #ef4444;
-  --error-glow: rgba(239, 68, 68, 0.2);
-  --success: #22c55e;
-  --success-glow: rgba(34, 197, 94, 0.2);
-  --warning: #f59e0b;
-  --premium: #a855f7;
-  --radius: 14px;
-  --radius-lg: 20px;
-  --radius-sm: 8px;
-  --radius-xs: 4px;
-  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-  line-height: 1.6;
-  background-image:
-    radial-gradient(ellipse 60% 50% at 80% 0, rgba(99, 102, 241, 0.04) 0, transparent 70%),
-    radial-gradient(ellipse 40% 40% at 20% 100%, rgba(34, 197, 94, 0.02) 0, transparent 70%);
-}
-
-/* ═══════════════ HEADER ═══════════════ */
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  transition: all 0.35s;
-}
-
-.header-inner {
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 0 32px;
-  height: 66px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(10, 10, 22, 0.78);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-  transition: all 0.35s;
-}
-
-.brand-logo {
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.logo-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(129, 140, 248, 0.08));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(99, 102, 241, 0.25);
-  position: relative;
-  overflow: hidden;
-}
-
-.logo-icon img {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  z-index: 1;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.brand-name {
-  font-family: 'Lexend', sans-serif;
-  font-weight: 800;
-  font-size: 1.1rem;
-  letter-spacing: -0.03em;
-  color: var(--text-bright);
-  line-height: 1;
-}
-
-.brand-tagline {
-  font-size: 0.56rem;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--accent2);
-  font-weight: 600;
-  margin-top: 1px;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-greeting {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 16px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 25px;
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--text);
-  transition: all 0.3s;
-}
-
-.user-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--accent3));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Lexend', sans-serif;
-  font-weight: 700;
-  font-size: 0.78rem;
-  color: #fff;
-  flex-shrink: 0;
-}
-
-.btn-logout {
-  padding: 8px 18px;
-  border-radius: 10px;
-  font-family: 'Lexend', sans-serif;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  letter-spacing: 0.02em;
-  background: transparent;
-  border: 1.5px solid rgba(239, 68, 68, 0.25);
-  color: var(--error);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-logout:hover {
-  background: rgba(239, 68, 68, 0.06);
-  border-color: var(--error);
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.1);
-  transform: translateY(-1px);
-}
-
-/* ═══════════════ MAIN CONTENT ═══════════════ */
-.main {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 36px 28px 60px;
-  animation: fadeUp 0.5s ease;
-}
-
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ═══════════════ PAGE HEADER ═══════════════ */
-.page-header {
-  margin-bottom: 36px;
-}
-
-.page-header-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 8px;
-}
-
-.page-title {
-  font-family: 'Lexend', sans-serif;
-  font-size: 1.8rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--text-bright);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.page-title-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent2);
-}
-
-.page-subtitle {
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.btn-back {
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-family: 'Lexend', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: transparent;
-  border: 1.5px solid var(--border);
-  color: var(--muted);
-}
-
-.btn-back:hover {
-  border-color: var(--accent);
-  color: var(--accent2);
-}
-
-/* ═══════════════ STATS ROW ═══════════════ */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 14px;
-  margin-bottom: 36px;
-}
-
-.stat-card {
-  background: linear-gradient(135deg, var(--surface), var(--surface2));
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  text-align: center;
-  transition: all 0.3s;
-}
-
-.stat-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(99, 102, 241, 0.2);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
-
-.stat-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 10px;
-  border: 1px solid;
-}
-
-.stat-icon.total {
-  background: rgba(129, 140, 248, 0.08);
-  border-color: rgba(129, 140, 248, 0.2);
-  color: var(--accent2);
-}
-
-.stat-icon.average {
-  background: rgba(34, 197, 94, 0.08);
-  border-color: rgba(34, 197, 94, 0.2);
-  color: var(--success);
-}
-
-.stat-icon.best {
-  background: rgba(245, 158, 11, 0.08);
-  border-color: rgba(245, 158, 11, 0.2);
-  color: var(--warning);
-}
-
-.stat-icon.top {
-  background: rgba(168, 85, 247, 0.08);
-  border-color: rgba(168, 85, 247, 0.2);
-  color: var(--premium);
-}
-
-.stat-val {
-  font-family: 'Lexend', sans-serif;
-  font-size: 1.8rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  margin-bottom: 4px;
-}
-
-.stat-val.total {
-  color: var(--accent2);
-}
-
-.stat-val.average {
-  color: var(--success);
-}
-
-.stat-val.best {
-  color: var(--warning);
-}
-
-.stat-val.top {
-  color: var(--premium);
-}
-
-.stat-label {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  font-weight: 700;
-}
-
-/* ═══════════════ HISTORY LIST ═══════════════ */
-.history-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.history-item {
-  background: linear-gradient(135deg, var(--surface), var(--surface2));
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 22px 24px;
-  transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
-}
-
-.history-item:hover {
-  border-color: rgba(99, 102, 241, 0.2);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-}
-
-.history-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
-  opacity: 0;
-  transition: opacity 0.4s;
-}
-
-.history-item:hover::before {
-  opacity: 1;
-}
-
-.history-item-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.history-item-info {
-  flex: 1;
-  min-width: 200px;
-}
-
-.history-exam-name {
-  font-family: 'Lexend', sans-serif;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--text-bright);
-  margin-bottom: 6px;
-}
-
-.history-batch-name {
-  display: inline-block;
-  font-size: 0.66rem;
-  font-weight: 600;
-  color: var(--accent2);
-  background: rgba(99, 102, 241, 0.06);
-  padding: 3px 10px;
-  border-radius: 12px;
-  margin-bottom: 8px;
-  border: 1px solid rgba(99, 102, 241, 0.12);
-}
-
-.history-meta {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  font-size: 0.74rem;
-  color: var(--muted);
-  margin-bottom: 4px;
-}
-
-.history-meta span {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.history-date {
-  font-size: 0.7rem;
-  color: var(--muted);
-  opacity: 0.7;
-}
-
-.history-item-scores {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-shrink: 0;
-}
-
-.history-score {
-  text-align: center;
-}
-
-.history-score-val {
-  font-family: 'Lexend', sans-serif;
-  font-size: 1.6rem;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.history-score-val.high {
-  color: var(--success);
-}
-
-.history-score-val.medium {
-  color: var(--accent2);
-}
-
-.history-score-val.low {
-  color: var(--error);
-}
-
-.history-score-label {
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  font-weight: 700;
-  margin-top: 2px;
-}
-
-.history-divider {
-  width: 1px;
-  height: 40px;
-  background: var(--border);
-  flex-shrink: 0;
-}
-
-.history-rank {
-  text-align: center;
-  min-width: 80px;
-}
-
-.history-rank-val {
-  font-family: 'Lexend', sans-serif;
-  font-size: 1.2rem;
-  font-weight: 800;
-}
-
-.history-rank-val.top-rank {
-  color: var(--warning);
-}
-
-.history-rank-val.good-rank {
-  color: var(--accent2);
-}
-
-.history-rank-val.normal-rank {
-  color: var(--muted);
-}
-
-.history-rank-label {
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  font-weight: 700;
-  margin-top: 2px;
-}
-
-.history-rank-detail {
-  font-size: 0.64rem;
-  color: var(--muted);
-}
-
-.history-item-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 16px;
-  flex-wrap: wrap;
-}
-
-.btn-sm {
-  padding: 7px 14px;
-  border-radius: 8px;
-  font-family: 'Lexend', sans-serif;
-  font-size: 0.74rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--muted);
-}
-
-.btn-sm:hover {
-  border-color: var(--accent);
-  color: var(--accent2);
-}
-
-.btn-sm-primary {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-}
-
-.btn-sm-primary:hover {
-  background: var(--accent3);
-  border-color: var(--accent3);
-  color: #fff;
-}
-
-/* ═══════════════ PERFORMANCE BAR ═══════════════ */
-.perf-mini-bar {
-  width: 100%;
-  height: 5px;
-  background: var(--border);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-top: 12px;
-}
-
-.perf-mini-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.8s ease;
-}
-
-.perf-mini-fill.high {
-  background: linear-gradient(90deg, var(--success), #4ade80);
-}
-
-.perf-mini-fill.medium {
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-}
-
-.perf-mini-fill.low {
-  background: linear-gradient(90deg, var(--error), var(--warning));
-}
-
-/* ═══════════════ EMPTY STATE ═══════════════ */
-.empty-state {
-  text-align: center;
-  padding: 80px 20px;
-  color: var(--muted);
-}
-
-.empty-state-icon {
-  margin-bottom: 16px;
-  opacity: 0.4;
-}
-
-.empty-state h3 {
-  font-family: 'Lexend', sans-serif;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--text-bright);
-  margin-bottom: 8px;
-}
-
-.empty-state p {
-  font-size: 0.86rem;
-  margin-bottom: 24px;
-}
-
-/* ═══════════════ LOADING ═══════════════ */
-.loading-state {
-  text-align: center;
-  padding: 80px 20px;
-  color: var(--muted);
-}
-
-.spinner {
-  width: 36px;
-  height: 36px;
-  border: 2px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  margin: 0 auto 16px;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ═══════════════ FOOTER ═══════════════ */
-.site-footer {
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  margin-top: 40px;
-  position: relative;
-  overflow: hidden;
-}
-
-.footer-inner {
-  max-width: 1150px;
-  margin: 0 auto;
-  padding: 50px 28px 0;
-  position: relative;
-  z-index: 1;
-}
-
-.footer-grid {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr;
-  gap: 32px;
-}
-
-.footer-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.footer-logo-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(129, 140, 248, 0.08));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(99, 102, 241, 0.25);
-}
-
-.footer-logo-icon img {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-}
-
-.footer-brand-name {
-  font-family: 'Lexend', sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--text-bright);
-}
-
-.footer-desc {
-  font-size: 0.8rem;
-  color: var(--muted);
-  line-height: 1.7;
-  margin-bottom: 14px;
-  max-width: 250px;
-}
-
-.footer-col-title {
-  font-family: 'Lexend', sans-serif;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-bright);
-  margin-bottom: 16px;
-  font-weight: 700;
-}
-
-.footer-links {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.footer-links a {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 0.82rem;
-  transition: all 0.25s;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.footer-links a:hover {
-  color: var(--accent2);
-  transform: translateX(3px);
-}
-
-.footer-bottom {
-  max-width: 1150px;
-  margin: 0 auto;
-  padding: 20px 28px;
-  margin-top: 36px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.footer-copyright {
-  font-size: 0.72rem;
-  color: var(--muted);
-  opacity: 0.65;
-}
-
-.footer-bottom-links {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-
-.footer-bottom-links a {
-  font-size: 0.72rem;
-  color: var(--muted);
-  text-decoration: none;
-  transition: color 0.25s;
-}
-
-.footer-bottom-links a:hover {
-  color: var(--accent2);
-}
-
-/* ═══════════════ RESPONSIVE ═══════════════ */
-@media (max-width: 768px) {
-  .header-inner {
-    padding: 0 18px;
-    height: 60px;
-  }
-
-  .brand-tagline {
-    display: none;
-  }
-
-  .main {
-    padding: 24px 14px;
-  }
-
-  .page-title {
-    font-size: 1.4rem;
-  }
-
-  .stats-row {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .history-item-top {
-    flex-direction: column;
-  }
-
-  .history-item-scores {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-  }
-}
-
-@media (max-width: 480px) {
-  .stats-row {
-    grid-template-columns: 1fr;
-  }
-
-  .history-item-scores {
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .history-divider {
-    display: none;
-  }
-
-  .footer-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .footer-bottom {
-    flex-direction: column;
-    text-align: center;
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#05050a;--surface:#0a0a16;--surface2:#111122;--surface3:#16162a;
+  --border:#1e1e38;--accent:#6366f1;--accent2:#818cf8;--accent3:#4f46e5;
+  --text:#e9e9f0;--text-bright:#f5f5ff;--muted:#7c7c96;
+  --error:#ef4444;--success:#22c55e;--warning:#f59e0b;--premium:#a855f7;
+}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex}
+
+.sidebar{width:240px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:50}
+.sidebar-logo{padding:24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-icon svg{width:18px;height:18px;fill:none;stroke:white;stroke-width:2}
+.logo-text{font-family:'Lexend',sans-serif;font-weight:700;font-size:1.1rem;color:var(--text-bright);letter-spacing:-.02em}
+.sidebar-nav{padding:16px 12px;flex:1}
+.nav-section-label{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:.875rem;font-weight:500;transition:all .2s;cursor:pointer;border:none;background:none;width:100%;font-family:'Inter',sans-serif}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(99,102,241,.15);color:var(--accent2)}
+.nav-item svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
+.sidebar-footer{padding:16px 12px;border-top:1px solid var(--border)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--surface2)}
+.user-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Lexend',sans-serif;font-weight:700;font-size:.875rem;color:white;flex-shrink:0}
+.user-info{overflow:hidden;flex:1}
+.user-name{font-weight:600;font-size:.8rem;color:var(--text-bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:.7rem;color:var(--muted)}
+
+.main{margin-left:240px;flex:1;min-height:100vh}
+.topbar{padding:20px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;background:rgba(5,5,10,.8);backdrop-filter:blur(20px)}
+.topbar-title{font-family:'Lexend',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text-bright)}
+.content{padding:32px}
+
+/* Summary stats */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:40px}
+.summary-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;position:relative;overflow:hidden}
+.summary-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.summary-val{font-family:'Lexend',sans-serif;font-size:2rem;font-weight:900;color:var(--text-bright);letter-spacing:-.03em}
+.summary-label{font-size:.75rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+
+/* History list */
+.history-item{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;margin-bottom:12px;transition:all .2s;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
+.history-item:hover{border-color:rgba(99,102,241,.3);transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.hist-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.hist-name{font-family:'Lexend',sans-serif;font-weight:700;font-size:.95rem;color:var(--text-bright);letter-spacing:-.01em}
+.hist-batch{font-size:.7rem;color:var(--muted);background:var(--surface2);padding:2px 8px;border-radius:5px}
+.hist-date{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:4px}
+.hist-date svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+.hist-meta{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.hist-score{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:700;color:var(--text-bright)}
+.hist-perc-bar{width:80px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.hist-perc-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.rank-pill{display:flex;align-items:center;gap:6px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);padding:4px 10px;border-radius:8px}
+.rank-num{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;color:var(--accent2)}
+.rank-of{font-size:.7rem;color:var(--muted)}
+.percentile-chip{font-size:.7rem;font-weight:700;color:var(--success);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);padding:3px 8px;border-radius:6px}
+
+.hist-actions{display:flex;gap:8px;flex-direction:column;align-items:flex-end;flex-shrink:0}
+.btn-sm{padding:8px 16px;border-radius:9px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:5px;border:none;white-space:nowrap}
+.btn-sm svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5}
+.btn-view{background:rgba(99,102,241,.15);color:var(--accent2);border:1px solid rgba(99,102,241,.3)}
+.btn-view:hover{background:rgba(99,102,241,.25)}
+.btn-practice{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-practice:hover{border-color:var(--accent2);color:var(--accent2)}
+
+.empty-state{text-align:center;padding:80px 20px;color:var(--muted)}
+.empty-state svg{width:56px;height:56px;stroke:var(--muted);fill:none;stroke-width:1.5;margin:0 auto 20px;display:block;opacity:.3}
+.empty-state h3{font-family:'Lexend',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px}
+.empty-state p{font-size:.875rem;line-height:1.6;max-width:300px;margin:0 auto 24px}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent3));color:white;border:none;padding:12px 24px;border-radius:12px;font-size:.875rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+
+.skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:14px;height:90px;margin-bottom:12px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .main{margin-left:0}
+  .content{padding:20px}
+  .history-item{grid-template-columns:1fr}
+  .hist-actions{flex-direction:row;align-items:flex-start}
 }
 </style>
 </head>
 <body>
-
-<!-- ═══════════════ HEADER ═══════════════ -->
-<header class="site-header">
-  <div class="header-inner">
-    <a href="/" class="brand-logo">
-      <div class="logo-icon">
-        <img src="/images/exalyte.png" alt="Exalyte" onerror="this.style.display='none'">
-      </div>
-      <div class="brand-text">
-        <span class="brand-name">Exalyte</span>
-        <span class="brand-tagline">History</span>
-      </div>
+<aside class="sidebar">
+  <a href="/" class="sidebar-logo">
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div>
+    <span class="logo-text">Exalyte</span>
+  </a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="dashboard.html" class="nav-item">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
     </a>
+    <a href="exam-history.html" class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Exam History
+    </a>
+    <button class="nav-item" onclick="logout()">
+      <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      Sign Out
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">Loading...</div>
+        <div class="user-role">Student</div>
+      </div>
+    </div>
+  </div>
+</aside>
 
-    <div class="header-actions">
-      <div class="user-greeting">
-        <div class="user-avatar" id="userAvatar">S</div>
-        <span id="userName">Student</span>
-      </div>
-      <button class="btn-logout" onclick="logout()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-        Sign Out
-      </button>
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title">Exam History</span>
+  </div>
+  <div class="content">
+    <div class="summary-grid" id="summaryGrid">
+      <div class="summary-card"><div class="summary-val" id="sumTotal">—</div><div class="summary-label">Exams Taken</div></div>
+      <div class="summary-card"><div class="summary-val" id="sumAvg">—</div><div class="summary-label">Average Score</div></div>
+      <div class="summary-card"><div class="summary-val" id="sumBest">—</div><div class="summary-label">Best Score</div></div>
+      <div class="summary-card"><div class="summary-val" id="sumRank">—</div><div class="summary-label">Best Rank</div></div>
+    </div>
+    <div id="historyList">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
     </div>
   </div>
-</header>
-
-<!-- ═══════════════ MAIN CONTENT ═══════════════ -->
-<main class="main">
-  <div class="page-header">
-    <div class="page-header-top">
-      <div class="page-title">
-        <div class="page-title-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12 6 12 12 16 14"/>
-          </svg>
-        </div>
-        Exam History
-      </div>
-      <a href="/dashboard.html" class="btn-back">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
-        Back to Dashboard
-      </a>
-    </div>
-    <p class="page-subtitle">Your complete examination record and rankings</p>
-  </div>
-
-  <!-- Stats -->
-  <div class="stats-row" id="statsRow" style="display:none;">
-    <div class="stat-card">
-      <div class="stat-icon total">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-        </svg>
-      </div>
-      <div class="stat-val total" id="statTotal">0</div>
-      <div class="stat-label">Exams Taken</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon average">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
-      </div>
-      <div class="stat-val average" id="statAverage">0%</div>
-      <div class="stat-label">Average Score</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon best">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-        </svg>
-      </div>
-      <div class="stat-val best" id="statBest">0%</div>
-      <div class="stat-label">Best Score</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon top">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-        </svg>
-      </div>
-      <div class="stat-val top" id="statTop">--</div>
-      <div class="stat-label">Best Rank</div>
-    </div>
-  </div>
-
-  <!-- History List -->
-  <div id="historyContainer">
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading your exam history...</p>
-    </div>
-  </div>
-</main>
-
-<!-- ═══════════════ FOOTER ═══════════════ -->
-<footer class="site-footer">
-  <div class="footer-inner">
-    <div class="footer-grid">
-      <div>
-        <div class="footer-brand">
-          <div class="footer-logo-icon">
-            <img src="/images/exalyte.png" alt="Exalyte" onerror="this.style.display='none'">
-          </div>
-          <span class="footer-brand-name">Exalyte</span>
-        </div>
-        <p class="footer-desc">Precision examination platform for academic excellence. Track your progress and improve.</p>
-      </div>
-      <div>
-        <h4 class="footer-col-title">Quick Links</h4>
-        <ul class="footer-links">
-          <li><a href="/dashboard.html">Dashboard</a></li>
-          <li><a href="/exam-history.html">Exam History</a></li>
-          <li><a href="/pricing.html">Pricing</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="footer-col-title">Support</h4>
-        <ul class="footer-links">
-          <li><a href="/contact.html">Contact</a></li>
-          <li><a href="/privacy.html">Privacy Policy</a></li>
-          <li><a href="/tos.html">Terms of Service</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span class="footer-copyright">&copy; 2024 Exalyte Inc. All rights reserved.</span>
-    <div class="footer-bottom-links">
-      <a href="/privacy.html">Privacy</a>
-      <a href="/tos.html">Terms</a>
-    </div>
-  </div>
-</footer>
+</div>
 
 <script>
-// ═══════════════ AUTH CHECK ═══════════════
-const token = localStorage.getItem('token');
-const user = JSON.parse(localStorage.getItem('user') || 'null');
+const API = '/api';
+const token = localStorage.getItem('exalyte_token');
+const user = JSON.parse(localStorage.getItem('exalyte_user') || 'null');
+if (!token || !user) window.location.href = 'index.html';
+document.getElementById('userName').textContent = user?.name || '';
+document.getElementById('userAvatar').textContent = (user?.name || '?')[0].toUpperCase();
 
-if (!token || !user) {
-  window.location.href = '/';
+async function loadHistory() {
+  try {
+    const res = await fetch(`${API}/history`, { headers: { Authorization: `Bearer ${token}` } });
+    if (res.status === 401) { logout(); return; }
+    const history = await res.json();
+
+    // Summary
+    document.getElementById('sumTotal').textContent = history.length;
+    if (history.length) {
+      const avg = history.reduce((s, h) => s + h.percentage, 0) / history.length;
+      document.getElementById('sumAvg').textContent = avg.toFixed(0) + '%';
+      const best = Math.max(...history.map(h => h.percentage));
+      document.getElementById('sumBest').textContent = best.toFixed(0) + '%';
+      const bestRank = Math.min(...history.map(h => h.rank || 999));
+      document.getElementById('sumRank').textContent = bestRank < 999 ? '#' + bestRank : '—';
+    } else {
+      ['sumAvg','sumBest','sumRank'].forEach(id => document.getElementById(id).textContent = '—');
+    }
+
+    if (!history.length) {
+      document.getElementById('historyList').innerHTML = `
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <h3>No exams taken yet</h3>
+          <p>Head to the dashboard to find and take your first exam.</p>
+          <a href="dashboard.html" class="btn-primary">Go to Dashboard</a>
+        </div>`;
+      return;
+    }
+
+    document.getElementById('historyList').innerHTML = history.map(h => {
+      const perc = h.percentage || 0;
+      const grade = perc >= 80 ? 'var(--success)' : perc >= 60 ? 'var(--premium)' : perc >= 40 ? 'var(--warning)' : 'var(--error)';
+      const date = new Date(h.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      return `
+      <div class="history-item">
+        <div>
+          <div class="hist-top">
+            <span class="hist-name">${esc(h.exam_name)}</span>
+            ${h.batch_name ? `<span class="hist-batch">${esc(h.batch_name)}</span>` : ''}
+            <span class="hist-date"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${date}</span>
+          </div>
+          <div class="hist-meta">
+            <span class="hist-score" style="color:${grade}">${perc.toFixed(0)}%</span>
+            <span style="font-size:.8rem;color:var(--muted)">${h.score}/${h.total_questions} correct</span>
+            <div class="hist-perc-bar"><div class="hist-perc-fill" style="width:${perc}%;background:${grade}"></div></div>
+            ${h.rank ? `<div class="rank-pill"><span class="rank-num">#${h.rank}</span><span class="rank-of">of ${h.total_participants}</span></div>` : ''}
+            ${h.percentile ? `<span class="percentile-chip">Top ${h.percentile}%</span>` : ''}
+          </div>
+        </div>
+        <div class="hist-actions">
+          <a href="result.html?examId=${h.exam_id}&attemptId=${h.id}" class="btn-sm btn-view">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            View Result
+          </a>
+          <a href="exam.html?id=${h.exam_id}&practice=1" class="btn-sm btn-practice">
+            <svg viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Practice
+          </a>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('historyList').innerHTML = '<p style="color:var(--error);text-align:center;padding:40px">Failed to load history.</p>';
+  }
 }
-
-if (user.is_admin) {
-  window.location.href = '/admin.html';
-}
-
-// Update UI
-document.getElementById('userName').textContent = user.name || 'Student';
-document.getElementById('userAvatar').textContent = (user.name || 'S').charAt(0).toUpperCase();
 
 function logout() {
-  localStorage.clear();
-  window.location.href = '/';
+  localStorage.removeItem('exalyte_token');
+  localStorage.removeItem('exalyte_user');
+  window.location.href = 'index.html';
 }
 
-// ═══════════════ API HELPER ═══════════════
-async function api(path) {
-  try {
-    const response = await fetch('/api' + path, {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-
-    if (response.status === 401) {
-      logout();
-      return null;
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('API error:', error);
-    return null;
-  }
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ═══════════════ LOAD HISTORY ═══════════════
-async function loadHistory() {
-  const history = await api('/history');
-
-  if (!history) {
-    document.getElementById('historyContainer').innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-        </div>
-        <h3>Failed to Load History</h3>
-        <p>Please check your connection and try again.</p>
-        <a href="/dashboard.html" class="btn-back" style="display:inline-flex;">Return to Dashboard</a>
-      </div>`;
-    return;
-  }
-
-  if (!history.length) {
-    document.getElementById('historyContainer').innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12 6 12 12 16 14"/>
-          </svg>
-        </div>
-        <h3>No Exam History Yet</h3>
-        <p>You have not taken any exams yet. Start your first exam from the dashboard.</p>
-        <a href="/dashboard.html" class="btn-sm btn-sm-primary" style="display:inline-flex;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7" rx="1"/>
-            <rect x="14" y="3" width="7" height="7" rx="1"/>
-            <rect x="14" y="14" width="7" height="7" rx="1"/>
-            <rect x="3" y="14" width="7" height="7" rx="1"/>
-          </svg>
-          Go to Dashboard
-        </a>
-      </div>`;
-    return;
-  }
-
-  // Calculate statistics
-  const totalExams = history.length;
-  const avgPercentage = Math.round(history.reduce((sum, item) => sum + item.percentage, 0) / totalExams);
-  const bestPercentage = Math.max(...history.map(item => item.percentage));
-  const bestRank = Math.min(
-    ...history.filter(item => item.rank).map(item => item.rank)
-  );
-
-  // Show stats
-  document.getElementById('statsRow').style.display = '';
-  document.getElementById('statTotal').textContent = totalExams;
-  document.getElementById('statAverage').textContent = avgPercentage + '%';
-  document.getElementById('statBest').textContent = bestPercentage + '%';
-  document.getElementById('statTop').textContent = bestRank < Infinity ? '#' + bestRank : '--';
-
-  // Render history list
-  const container = document.getElementById('historyContainer');
-  container.innerHTML = '<div class="history-list">' + history.map(item => {
-    const percentage = item.percentage;
-    let scoreClass = 'low';
-    let barClass = 'low';
-
-    if (percentage >= 80) {
-      scoreClass = 'high';
-      barClass = 'high';
-    } else if (percentage >= 50) {
-      scoreClass = 'medium';
-      barClass = 'medium';
-    }
-
-    let rankClass = 'normal-rank';
-    if (item.rank === 1) {
-      rankClass = 'top-rank';
-    } else if (item.rank <= 5) {
-      rankClass = 'good-rank';
-    }
-
-    const formattedDate = new Date(item.submitted_at).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-
-    return `
-    <div class="history-item">
-      <div class="history-item-top">
-        <div class="history-item-info">
-          <div class="history-exam-name">${esc(item.exam_name)}</div>
-          ${item.batch_name ? `<div class="history-batch-name">${esc(item.batch_name)}</div>` : ''}
-          <div class="history-meta">
-            <span>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
-              ${item.time_limit} min
-            </span>
-            <span>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-              </svg>
-              ${item.total_questions} questions
-            </span>
-          </div>
-          <div class="history-date">${formattedDate}</div>
-        </div>
-
-        <div class="history-item-scores">
-          <div class="history-score">
-            <div class="history-score-val ${scoreClass}">${percentage}%</div>
-            <div class="history-score-label">Score</div>
-          </div>
-          <div class="history-divider"></div>
-          <div class="history-score">
-            <div class="history-score-val ${scoreClass}">${item.score}/${item.total_questions}</div>
-            <div class="history-score-label">Correct</div>
-          </div>
-          <div class="history-divider"></div>
-          <div class="history-rank">
-            <div class="history-rank-val ${rankClass}">#${item.rank}</div>
-            <div class="history-rank-label">Rank</div>
-            <div class="history-rank-detail">of ${item.total_participants} &middot; Top ${item.percentile}%</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="perf-mini-bar">
-        <div class="perf-mini-fill ${barClass}" style="width:${percentage}%"></div>
-      </div>
-
-      <div class="history-item-actions">
-        <a href="/result.html?attempt=${item.attempt_id}&exam=${item.exam_id}" class="btn-sm">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-          </svg>
-          View Result
-        </a>
-        <a href="/exam.html?id=${item.exam_id}&mode=practice" class="btn-sm">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-          </svg>
-          Practice Again
-        </a>
-        <a href="/exam.html?id=${item.exam_id}&mode=exam" class="btn-sm btn-sm-primary">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="1 4 1 10 7 10"/>
-            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-          </svg>
-          Retake Exam
-        </a>
-      </div>
-    </div>`;
-  }).join('') + '</div>';
-}
-
-// ═══════════════ UTILITY ═══════════════
-function esc(text) {
-  const div = document.createElement('div');
-  div.textContent = String(text || '');
-  return div.innerHTML;
-}
-
-// ═══════════════ INIT ═══════════════
 loadHistory();
 </script>
 </body>
