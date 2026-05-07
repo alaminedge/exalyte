@@ -60,6 +60,19 @@ body{min-height:100vh}
 .bottom-nav-item.active{color:var(--accent2)}
 .bottom-nav-item svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8}
 
+/* Revoke button inside premium tags */
+.revoke-btn{
+  background:none;border:none;cursor:pointer;
+  font-size:.75rem;font-weight:900;line-height:1;
+  color:currentColor;opacity:.6;
+  padding:1px 3px;margin-left:3px;
+  border-radius:3px;transition:opacity .15s, background .15s;
+  font-family:'Inter',sans-serif;
+  display:inline-flex;align-items:center;justify-content:center;
+  vertical-align:middle;
+}
+.revoke-btn:hover{opacity:1;background:rgba(0,0,0,.2);}
+
 @media(max-width:768px){
   .panel{padding:14px}
   .up-card{padding:18px}
@@ -561,8 +574,16 @@ async function loadUsers(){
       const gs=(u.premium_grants||[]).filter(g=>!g.expires_at||g.expires_at>now);
       const hasAcc=u.premium_until&&u.premium_until>now;
       let ph='';
-      if(hasAcc) ph+=`<span class="prem-tag prem-account">Account<svg class="revoke-x" viewBox="0 0 24 24" onclick="revokeAccount(${u.id})"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>`;
-      gs.forEach(g=>{const cls=g.grant_scope==='batch'?'prem-batch':'prem-exam';const nm=esc(g.exam_name||g.batch_name||g.grant_scope);ph+=`<span class="prem-tag ${cls}">${nm}<svg class="revoke-x" viewBox="0 0 24 24" onclick="revokeGrant(${u.id},${g.exam_id})"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>`;});
+      if(hasAcc) ph+=`<span class="prem-tag prem-account">Account<button class="revoke-btn" onclick="revokeAccount(${u.id})" title="Revoke account premium">&#x2715;</button></span>`;
+      gs.forEach(g=>{
+        const cls=g.grant_scope==='batch'?'prem-batch':'prem-exam';
+        const nm=esc(g.exam_name||g.batch_name||g.grant_scope);
+        // Pass grant scope and the correct id (exam_id or batch_id)
+        const revokeCall = g.grant_scope==='batch'
+          ? \`revokeBatchGrant(\${u.id},\${g.batch_id})\`
+          : \`revokeGrant(\${u.id},\${g.exam_id})\`;
+        ph+=\`<span class="prem-tag \${cls}">\${nm}<button class="revoke-btn" onclick="\${revokeCall}" title="Revoke">&#x2715;</button></span>\`;
+      });
       return `<tr>
         <td class="td-name">${esc(u.name)}</td>
         <td style="color:var(--muted);font-size:.8rem">${esc(u.email)}</td>
@@ -607,14 +628,20 @@ async function doGrant(){
   if(ok){closeModal('grantModal');loadUsers();notify('Premium access granted!');}else notify(data.error,true);
 }
 async function revokeGrant(uid,eid){
-  if(!eid||!confirm('Revoke this grant?'))return;
-  await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:uid,exam_id:eid})});
-  loadUsers();notify('Grant revoked');
+  if(!eid||!confirm('Revoke this exam grant?'))return;
+  const{ok,data}=await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:uid,exam_id:eid})});
+  if(ok){loadUsers();notify('Exam grant revoked');}else notify(data.error||'Failed',true);
+}
+async function revokeBatchGrant(uid,bid){
+  if(!bid||!confirm('Revoke this batch grant?'))return;
+  // Delete all premium_access rows for this user+batch
+  const{ok,data}=await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:uid,batch_id:bid})});
+  if(ok){loadUsers();notify('Batch grant revoked');}else notify(data.error||'Failed',true);
 }
 async function revokeAccount(uid){
-  if(!confirm('Revoke account-wide premium?'))return;
-  await apiFetch('/admin/revoke-account-premium',{method:'DELETE',body:JSON.stringify({user_id:uid})});
-  loadUsers();notify('Account premium revoked');
+  if(!confirm('Revoke account-wide premium for this user?'))return;
+  const{ok,data}=await apiFetch('/admin/revoke-account-premium',{method:'DELETE',body:JSON.stringify({user_id:uid})});
+  if(ok){loadUsers();notify('Account premium revoked');}else notify(data.error||'Failed',true);
 }
 
 // ── Results ──
