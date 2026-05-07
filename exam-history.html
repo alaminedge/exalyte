@@ -3,226 +3,221 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Exam History — Exalyte</title>
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/main.css">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#05050a;--surface:#0a0a16;--surface2:#111122;--surface3:#16162a;
-  --border:#1e1e38;--accent:#6366f1;--accent2:#818cf8;--accent3:#4f46e5;
-  --text:#e9e9f0;--text-bright:#f5f5ff;--muted:#7c7c96;
-  --error:#ef4444;--success:#22c55e;--warning:#f59e0b;--premium:#a855f7;
-}
-html,body{min-height:100%}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex}
+body{min-height:100vh}
 
-.sidebar{width:240px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:50}
-.sidebar-logo{padding:24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;text-decoration:none}
-.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.logo-icon svg{width:18px;height:18px;fill:none;stroke:white;stroke-width:2}
-.logo-text{font-family:'Lexend',sans-serif;font-weight:700;font-size:1.1rem;color:var(--text-bright);letter-spacing:-.02em}
-.sidebar-nav{padding:16px 12px;flex:1}
-.nav-section-label{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 8px;margin-bottom:6px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:.875rem;font-weight:500;transition:all .2s;cursor:pointer;border:none;background:none;width:100%;font-family:'Inter',sans-serif}
-.nav-item:hover{background:var(--surface2);color:var(--text)}
-.nav-item.active{background:rgba(99,102,241,.15);color:var(--accent2)}
-.nav-item svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
-.sidebar-footer{padding:16px 12px;border-top:1px solid var(--border)}
-.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--surface2)}
-.user-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Lexend',sans-serif;font-weight:700;font-size:.875rem;color:white;flex-shrink:0}
-.user-info{overflow:hidden;flex:1}
-.user-name{font-weight:600;font-size:.8rem;color:var(--text-bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.user-role{font-size:.7rem;color:var(--muted)}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:28px}
+.sum-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;text-align:center;position:relative;overflow:hidden}
+.sum-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.sum-val{font-family:'Lexend',sans-serif;font-size:1.9rem;font-weight:900;color:var(--text-bright);letter-spacing:-.03em}
+.sum-lbl{font-size:.7rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
 
-.main{margin-left:240px;flex:1;min-height:100vh}
-.topbar{padding:20px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;background:rgba(5,5,10,.8);backdrop-filter:blur(20px)}
-.topbar-title{font-family:'Lexend',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text-bright)}
-.content{padding:32px}
+/* History items */
+.hist-list{display:flex;flex-direction:column;gap:12px}
+.hist-item{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;transition:all .2s}
+.hist-item:hover{border-color:rgba(99,102,241,.3);transform:translateY(-1px);box-shadow:0 6px 24px var(--shadow)}
+.hist-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+.hist-left{flex:1;min-width:0}
+.hist-name{font-family:'Lexend',sans-serif;font-weight:700;font-size:.93rem;color:var(--text-bright);margin-bottom:4px;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist-meta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hist-batch{font-size:.68rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:5px}
+.hist-date{display:flex;align-items:center;gap:4px;font-size:.72rem;color:var(--muted)}
+.hist-date svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2}
+.hist-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.hist-perc{font-family:'Lexend',sans-serif;font-size:1.4rem;font-weight:900;letter-spacing:-.02em}
 
-/* Summary stats */
-.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:40px}
-.summary-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;position:relative;overflow:hidden}
-.summary-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-.summary-val{font-family:'Lexend',sans-serif;font-size:2rem;font-weight:900;color:var(--text-bright);letter-spacing:-.03em}
-.summary-label{font-size:.75rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.hist-stats-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.hist-score{font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;color:var(--text-bright)}
+.hist-pbar{height:5px;background:var(--surface2);border-radius:3px;flex:1;min-width:60px;overflow:hidden}
+.hist-pfill{height:100%;border-radius:3px;transition:width .6s ease}
+.rank-pill{display:flex;align-items:center;gap:5px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.22);padding:3px 9px;border-radius:7px;font-size:.72rem}
+.rank-pill strong{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;color:var(--accent2)}
+.perc-chip{font-size:.68rem;font-weight:700;color:var(--success);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);padding:2px 8px;border-radius:5px}
 
-/* History list */
-.history-item{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;margin-bottom:12px;transition:all .2s;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
-.history-item:hover{border-color:rgba(99,102,241,.3);transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
-.hist-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
-.hist-name{font-family:'Lexend',sans-serif;font-weight:700;font-size:.95rem;color:var(--text-bright);letter-spacing:-.01em}
-.hist-batch{font-size:.7rem;color:var(--muted);background:var(--surface2);padding:2px 8px;border-radius:5px}
-.hist-date{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:4px}
-.hist-date svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
-.hist-meta{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
-.hist-score{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:700;color:var(--text-bright)}
-.hist-perc-bar{width:80px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden}
-.hist-perc-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-.rank-pill{display:flex;align-items:center;gap:6px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);padding:4px 10px;border-radius:8px}
-.rank-num{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;color:var(--accent2)}
-.rank-of{font-size:.7rem;color:var(--muted)}
-.percentile-chip{font-size:.7rem;font-weight:700;color:var(--success);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);padding:3px 8px;border-radius:6px}
+.hist-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-view{background:rgba(99,102,241,.12);color:var(--accent2);border:1px solid rgba(99,102,241,.28);padding:7px 14px;border-radius:9px;font-size:.76rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:5px;text-decoration:none}
+.btn-view:hover{background:rgba(99,102,241,.22)}
+.btn-view svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5}
+.btn-prac{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:7px 14px;border-radius:9px;font-size:.76rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:5px;text-decoration:none}
+.btn-prac:hover{border-color:var(--accent2);color:var(--accent2)}
+.btn-prac svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5}
 
-.hist-actions{display:flex;gap:8px;flex-direction:column;align-items:flex-end;flex-shrink:0}
-.btn-sm{padding:8px 16px;border-radius:9px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:5px;border:none;white-space:nowrap}
-.btn-sm svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5}
-.btn-view{background:rgba(99,102,241,.15);color:var(--accent2);border:1px solid rgba(99,102,241,.3)}
-.btn-view:hover{background:rgba(99,102,241,.25)}
-.btn-practice{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
-.btn-practice:hover{border-color:var(--accent2);color:var(--accent2)}
+.empty-state{text-align:center;padding:70px 20px;color:var(--muted)}
+.empty-state svg{width:48px;height:48px;stroke:var(--muted);fill:none;stroke-width:1.5;margin:0 auto 16px;display:block;opacity:.3}
+.empty-state h3{font-family:'Lexend',sans-serif;font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:7px}
+.empty-state p{font-size:.82rem;line-height:1.6;max-width:280px;margin:0 auto 22px}
 
-.empty-state{text-align:center;padding:80px 20px;color:var(--muted)}
-.empty-state svg{width:56px;height:56px;stroke:var(--muted);fill:none;stroke-width:1.5;margin:0 auto 20px;display:block;opacity:.3}
-.empty-state h3{font-family:'Lexend',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px}
-.empty-state p{font-size:.875rem;line-height:1.6;max-width:300px;margin:0 auto 24px}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent3));color:white;border:none;padding:12px 24px;border-radius:12px;font-size:.875rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+/* Bottom nav */
+.bottom-nav-items{display:flex}
+.bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;color:var(--muted);font-size:.62rem;font-weight:600;border:none;background:none;cursor:pointer;transition:color .2s;font-family:'Inter',sans-serif}
+.bottom-nav-item.active{color:var(--accent2)}
+.bottom-nav-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8}
 
-.skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:14px;height:90px;margin-bottom:12px}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-
-@media(max-width:768px){
-  .sidebar{transform:translateX(-100%)}
-  .main{margin-left:0}
-  .content{padding:20px}
-  .history-item{grid-template-columns:1fr}
-  .hist-actions{flex-direction:row;align-items:flex-start}
+@media(max-width:600px){
+  .hist-top{flex-direction:column;gap:8px}
+  .hist-right{flex-direction:row;align-items:center;width:100%;justify-content:space-between}
+  .hist-actions{width:100%}
+  .btn-view,.btn-prac{flex:1;justify-content:center;text-align:center}
 }
 </style>
 </head>
-<body>
-<aside class="sidebar">
-  <a href="/" class="sidebar-logo">
-    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div>
-    <span class="logo-text">Exalyte</span>
-  </a>
+<body class="app-layout">
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <a href="/" class="logo-wrap">
+      <img src="images/exalyte.png" alt="Exalyte" class="logo-img">
+      <span class="logo-text">Exalyte</span>
+    </a>
+  </div>
   <nav class="sidebar-nav">
-    <div class="nav-section-label">Main</div>
-    <a href="dashboard.html" class="nav-item">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      Dashboard
-    </a>
-    <a href="exam-history.html" class="nav-item active">
-      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-      Exam History
-    </a>
-    <button class="nav-item" onclick="logout()">
-      <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-      Sign Out
-    </button>
+    <div class="nav-section">
+      <div class="nav-section-label">Main</div>
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard
+      </a>
+      <a href="exam-history.html" class="nav-item active">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Exam History
+      </a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Account</div>
+      <button class="nav-item" onclick="logout()">
+        <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>Sign Out
+      </button>
+    </div>
   </nav>
   <div class="sidebar-footer">
     <div class="user-card">
       <div class="user-avatar" id="userAvatar">?</div>
       <div class="user-info">
-        <div class="user-name" id="userName">Loading...</div>
+        <div class="user-name" id="userName"></div>
         <div class="user-role">Student</div>
       </div>
     </div>
   </div>
 </aside>
 
-<div class="main">
+<div class="app-main">
   <div class="topbar">
-    <span class="topbar-title">Exam History</span>
-  </div>
-  <div class="content">
-    <div class="summary-grid" id="summaryGrid">
-      <div class="summary-card"><div class="summary-val" id="sumTotal">—</div><div class="summary-label">Exams Taken</div></div>
-      <div class="summary-card"><div class="summary-val" id="sumAvg">—</div><div class="summary-label">Average Score</div></div>
-      <div class="summary-card"><div class="summary-val" id="sumBest">—</div><div class="summary-label">Best Score</div></div>
-      <div class="summary-card"><div class="summary-val" id="sumRank">—</div><div class="summary-label">Best Rank</div></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="hamburger" id="hamburger"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <span class="topbar-title">Exam History</span>
     </div>
-    <div id="historyList">
-      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    <button class="theme-toggle" onclick="toggleTheme()"></button>
+  </div>
+
+  <div class="panel active">
+    <div class="summary-grid">
+      <div class="sum-card"><div class="sum-val" id="sTotal">—</div><div class="sum-lbl">Exams Taken</div></div>
+      <div class="sum-card"><div class="sum-val" id="sAvg">—</div><div class="sum-lbl">Avg Score</div></div>
+      <div class="sum-card"><div class="sum-val" id="sBest">—</div><div class="sum-lbl">Best Score</div></div>
+      <div class="sum-card"><div class="sum-val" id="sRank">—</div><div class="sum-lbl">Best Rank</div></div>
+    </div>
+
+    <div class="hist-list" id="histList">
+      <div class="skeleton" style="height:90px"></div>
+      <div class="skeleton" style="height:90px;margin-top:12px"></div>
+      <div class="skeleton" style="height:90px;margin-top:12px"></div>
     </div>
   </div>
 </div>
 
+<div class="bottom-nav">
+  <div class="bottom-nav-items">
+    <button class="bottom-nav-item" onclick="window.location='dashboard.html'">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Home
+    </button>
+    <button class="bottom-nav-item active" onclick="window.location='exam-history.html'">
+      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>History
+    </button>
+    <button class="bottom-nav-item" onclick="toggleTheme()">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>Theme
+    </button>
+    <button class="bottom-nav-item" onclick="logout()">
+      <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>Sign Out
+    </button>
+  </div>
+</div>
+
+<script src="assets/main.js"></script>
 <script>
-const API = '/api';
-const token = localStorage.getItem('exalyte_token');
-const user = JSON.parse(localStorage.getItem('exalyte_user') || 'null');
-if (!token || !user) window.location.href = 'index.html';
-document.getElementById('userName').textContent = user?.name || '';
+if (!requireAuth()) throw '';
+const user = getUser();
+document.getElementById('userName').textContent  = user?.name || '';
 document.getElementById('userAvatar').textContent = (user?.name || '?')[0].toUpperCase();
 
-async function loadHistory() {
+async function load() {
   try {
-    const res = await fetch(`${API}/history`, { headers: { Authorization: `Bearer ${token}` } });
-    if (res.status === 401) { logout(); return; }
-    const history = await res.json();
+    const { ok, data } = await apiFetch('/history');
+    if (!ok) { logout(); return; }
 
     // Summary
-    document.getElementById('sumTotal').textContent = history.length;
-    if (history.length) {
-      const avg = history.reduce((s, h) => s + h.percentage, 0) / history.length;
-      document.getElementById('sumAvg').textContent = avg.toFixed(0) + '%';
-      const best = Math.max(...history.map(h => h.percentage));
-      document.getElementById('sumBest').textContent = best.toFixed(0) + '%';
-      const bestRank = Math.min(...history.map(h => h.rank || 999));
-      document.getElementById('sumRank').textContent = bestRank < 999 ? '#' + bestRank : '—';
+    document.getElementById('sTotal').textContent = data.length;
+    if (data.length) {
+      const avg  = data.reduce((s, h) => s + h.percentage, 0) / data.length;
+      const best = Math.max(...data.map(h => h.percentage));
+      const bestRank = Math.min(...data.filter(h => h.rank).map(h => h.rank));
+      document.getElementById('sAvg').textContent  = avg.toFixed(0) + '%';
+      document.getElementById('sBest').textContent = best.toFixed(0) + '%';
+      document.getElementById('sRank').textContent = bestRank < 9999 ? '#' + bestRank : '—';
     } else {
-      ['sumAvg','sumBest','sumRank'].forEach(id => document.getElementById(id).textContent = '—');
+      ['sAvg','sBest','sRank'].forEach(id => document.getElementById(id).textContent = '—');
     }
 
-    if (!history.length) {
-      document.getElementById('historyList').innerHTML = `
+    if (!data.length) {
+      document.getElementById('histList').innerHTML = `
         <div class="empty-state">
           <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
           <h3>No exams taken yet</h3>
-          <p>Head to the dashboard to find and take your first exam.</p>
-          <a href="dashboard.html" class="btn-primary">Go to Dashboard</a>
+          <p>Complete your first exam to see your history here.</p>
+          <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
         </div>`;
       return;
     }
 
-    document.getElementById('historyList').innerHTML = history.map(h => {
-      const perc = h.percentage || 0;
-      const grade = perc >= 80 ? 'var(--success)' : perc >= 60 ? 'var(--premium)' : perc >= 40 ? 'var(--warning)' : 'var(--error)';
-      const date = new Date(h.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    document.getElementById('histList').innerHTML = data.map(h => {
+      const perc  = h.percentage || 0;
+      const color = perc >= 80 ? 'var(--success)' : perc >= 60 ? 'var(--premium)' : perc >= 40 ? 'var(--warning)' : 'var(--error)';
       return `
-      <div class="history-item">
-        <div>
-          <div class="hist-top">
-            <span class="hist-name">${esc(h.exam_name)}</span>
-            ${h.batch_name ? `<span class="hist-batch">${esc(h.batch_name)}</span>` : ''}
-            <span class="hist-date"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${date}</span>
+      <div class="hist-item">
+        <div class="hist-top">
+          <div class="hist-left">
+            <div class="hist-name">${esc(h.exam_name)}</div>
+            <div class="hist-meta-row">
+              ${h.batch_name ? `<span class="hist-batch">${esc(h.batch_name)}</span>` : ''}
+              <span class="hist-date"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${formatDate(h.submitted_at)}</span>
+            </div>
           </div>
-          <div class="hist-meta">
-            <span class="hist-score" style="color:${grade}">${perc.toFixed(0)}%</span>
-            <span style="font-size:.8rem;color:var(--muted)">${h.score}/${h.total_questions} correct</span>
-            <div class="hist-perc-bar"><div class="hist-perc-fill" style="width:${perc}%;background:${grade}"></div></div>
-            ${h.rank ? `<div class="rank-pill"><span class="rank-num">#${h.rank}</span><span class="rank-of">of ${h.total_participants}</span></div>` : ''}
-            ${h.percentile ? `<span class="percentile-chip">Top ${h.percentile}%</span>` : ''}
+          <div class="hist-right">
+            <div class="hist-perc" style="color:${color}">${perc.toFixed(0)}%</div>
           </div>
         </div>
+        <div class="hist-stats-row">
+          <span class="hist-score">${h.score}/${h.total_questions} correct</span>
+          <div class="hist-pbar"><div class="hist-pfill" style="width:${perc}%;background:${color}"></div></div>
+          ${h.rank ? `<div class="rank-pill"><strong>#${h.rank}</strong><span style="color:var(--muted);font-size:.68rem">/ ${h.total_participants}</span></div>` : ''}
+          ${h.percentile ? `<span class="perc-chip">Top ${h.percentile}%</span>` : ''}
+        </div>
         <div class="hist-actions">
-          <a href="result.html?examId=${h.exam_id}&attemptId=${h.id}" class="btn-sm btn-view">
-            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            View Result
+          <a href="result.html?examId=${h.exam_id}&attemptId=${h.id}" class="btn-view">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View Result
           </a>
-          <a href="exam.html?id=${h.exam_id}&practice=1" class="btn-sm btn-practice">
-            <svg viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            Practice
+          <a href="exam.html?id=${h.exam_id}&practice=1" class="btn-prac">
+            <svg viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice
           </a>
         </div>
       </div>`;
     }).join('');
-  } catch(e) {
-    document.getElementById('historyList').innerHTML = '<p style="color:var(--error);text-align:center;padding:40px">Failed to load history.</p>';
+  } catch {
+    document.getElementById('histList').innerHTML = '<p style="color:var(--error);text-align:center;padding:40px">Failed to load history. Please refresh.</p>';
   }
 }
 
-function logout() {
-  localStorage.removeItem('exalyte_token');
-  localStorage.removeItem('exalyte_user');
-  window.location.href = 'index.html';
-}
-
-function esc(s) {
-  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-loadHistory();
+load();
 </script>
 </body>
 </html>
