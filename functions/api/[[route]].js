@@ -553,8 +553,19 @@ async function handleAdminGrantPremium(request, db, adminId) {
 }
 
 async function handleAdminRevokePremium(request, db) {
-  const { user_id, exam_id } = await request.json();
-  await db.prepare('DELETE FROM premium_access WHERE user_id=? AND exam_id=?').bind(user_id, exam_id).run();
+  const { user_id, exam_id, batch_id } = await request.json();
+  if (batch_id) {
+    // Revoke batch-level grant
+    await db.prepare('DELETE FROM premium_access WHERE user_id=? AND batch_id=? AND grant_scope=?')
+      .bind(user_id, batch_id, 'batch').run();
+  } else if (exam_id) {
+    // Revoke exam-level grant
+    await db.prepare('DELETE FROM premium_access WHERE user_id=? AND exam_id=? AND grant_scope=?')
+      .bind(user_id, exam_id, 'exam').run();
+  } else {
+    // Revoke all non-account grants for this user
+    await db.prepare('DELETE FROM premium_access WHERE user_id=?').bind(user_id).run();
+  }
   return json({ success: true });
 }
 
