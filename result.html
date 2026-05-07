@@ -3,384 +3,337 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Result — Exalyte</title>
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/main.css">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#05050a;--surface:#0a0a16;--surface2:#111122;--surface3:#16162a;
-  --border:#1e1e38;--accent:#6366f1;--accent2:#818cf8;--accent3:#4f46e5;
-  --text:#e9e9f0;--text-bright:#f5f5ff;--muted:#7c7c96;
-  --error:#ef4444;--success:#22c55e;--warning:#f59e0b;--premium:#a855f7;
-}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+body{min-height:100vh}
 
 /* Header */
-.result-header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10;backdrop-filter:blur(20px)}
-.back-btn{display:flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .2s}
-.back-btn:hover{color:var(--text)}
-.back-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
-.header-title{font-family:'Lexend',sans-serif;font-weight:700;font-size:1rem;color:var(--text-bright);flex:1;text-align:center}
+.result-header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:40;backdrop-filter:blur(20px)}
+.back-link{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.82rem;font-weight:500;transition:color .2s;border:none;background:none;cursor:pointer;font-family:'Inter',sans-serif}
+.back-link:hover{color:var(--text)}
+.back-link svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.rh-title{font-family:'Lexend',sans-serif;font-weight:700;font-size:.95rem;color:var(--text-bright);flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-.content{max-width:900px;margin:0 auto;padding:40px 24px}
+.content{max-width:860px;margin:0 auto;padding:32px 20px 60px}
 
 /* Score card */
-.score-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:48px;text-align:center;margin-bottom:32px;position:relative;overflow:hidden}
-.score-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 50% 30%,var(--glow-color,rgba(99,102,241,.08)),transparent 60%);pointer-events:none;transition:all 1s}
-.score-circle{width:140px;height:140px;margin:0 auto 24px;position:relative}
-.score-circle svg{transform:rotate(-90deg);width:140px;height:140px}
-.score-circle-bg{fill:none;stroke:var(--surface2);stroke-width:8}
-.score-circle-fill{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:377;stroke-dashoffset:377;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1)}
-.score-circle-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.score-perc{font-family:'Lexend',sans-serif;font-size:2rem;font-weight:900;color:var(--text-bright);letter-spacing:-.03em}
-.score-label{font-size:.7rem;color:var(--muted);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
-.score-title{font-family:'Lexend',sans-serif;font-size:1.5rem;font-weight:800;color:var(--text-bright);margin-bottom:8px;letter-spacing:-.02em}
-.score-subtitle{font-size:.875rem;color:var(--muted);margin-bottom:32px}
-.score-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:400px;margin:0 auto 32px}
-.score-stat{background:var(--surface2);border-radius:12px;padding:16px}
-.score-stat-val{font-family:'Lexend',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
-.score-stat-label{font-size:.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
-.correct-stat .score-stat-val{color:var(--success)}
-.wrong-stat .score-stat-val{color:var(--error)}
-.skipped-stat .score-stat-val{color:var(--muted)}
+.score-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:40px 28px;text-align:center;margin-bottom:24px;position:relative;overflow:hidden;transition:--glow-color .5s}
+.score-card::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle at 50% 35%,var(--glow,rgba(99,102,241,.08)),transparent 60%);pointer-events:none}
+.score-circle-wrap{width:128px;height:128px;margin:0 auto 20px;position:relative}
+.score-circle-wrap svg{transform:rotate(-90deg);width:128px;height:128px}
+.sc-bg{fill:none;stroke:var(--surface2);stroke-width:9}
+.sc-fill{fill:none;stroke-width:9;stroke-linecap:round;stroke-dasharray:352;stroke-dashoffset:352;transition:stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1)}
+.sc-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sc-perc{font-family:'Lexend',sans-serif;font-size:1.8rem;font-weight:900;color:var(--text-bright);letter-spacing:-.03em;line-height:1}
+.sc-label{font-size:.62rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-top:3px}
+.score-grade{font-family:'Lexend',sans-serif;font-size:1.3rem;font-weight:900;letter-spacing:-.02em;margin-bottom:4px}
+.score-exam{font-size:.82rem;color:var(--muted);margin-bottom:24px}
 
-/* Performance bar */
-.perf-bar{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;margin-bottom:8px;max-width:400px;margin-left:auto;margin-right:auto}
-.perf-fill{height:100%;border-radius:4px;width:0;transition:width 1.5s cubic-bezier(.4,0,.2,1)}
+.score-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:360px;margin:0 auto 22px}
+.sc-stat{background:var(--surface2);border-radius:12px;padding:14px 8px;text-align:center}
+.sc-stat-val{font-family:'Lexend',sans-serif;font-size:1.4rem;font-weight:900;letter-spacing:-.02em}
+.sc-stat-lbl{font-size:.62rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-top:2px}
+.correct-c .sc-stat-val{color:var(--success)}
+.wrong-c .sc-stat-val{color:var(--error)}
+.skip-c .sc-stat-val{color:var(--muted)}
 
-/* Actions */
+.perf-bar{height:7px;background:var(--surface2);border-radius:4px;max-width:360px;margin:0 auto 22px;overflow:hidden}
+.perf-fill{height:100%;border-radius:4px;width:0;transition:width 1.6s cubic-bezier(.4,0,.2,1)}
+
 .result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent3));color:white;border:none;padding:12px 24px;border-radius:12px;font-size:.875rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
-.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
-.btn-secondary{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:12px 24px;border-radius:12px;font-size:.875rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
-.btn-secondary:hover{border-color:var(--accent2);color:var(--accent2)}
-.btn-icon-only{width:44px;height:44px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
-.btn-icon-only:hover{border-color:var(--accent2)}
-.btn-icon-only svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2}
-.btn-icon-only:hover svg{stroke:var(--accent2)}
 
 /* Leaderboard card */
-.lb-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:32px;display:flex;align-items:center;gap:20px}
-.lb-rank-badge{width:72px;height:72px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
-.lb-rank-num{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:white}
-.lb-rank-label{font-size:.6rem;color:rgba(255,255,255,.7);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
-.lb-info{flex:1}
-.lb-title{font-family:'Lexend',sans-serif;font-weight:700;font-size:.95rem;color:var(--text-bright);margin-bottom:4px}
-.lb-meta{font-size:.8rem;color:var(--muted)}
-.lb-percentile{text-align:right}
-.lb-perc-val{font-family:'Lexend',sans-serif;font-size:1.8rem;font-weight:800;color:var(--accent2);letter-spacing:-.02em}
-.lb-perc-label{font-size:.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.lb-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:22px;margin-bottom:24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.lb-badge{width:68px;height:68px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.lb-rank-num{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:700;color:#fff}
+.lb-rank-lbl{font-size:.55rem;color:rgba(255,255,255,.7);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.lb-info{flex:1;min-width:160px}
+.lb-info-title{font-family:'Lexend',sans-serif;font-weight:700;font-size:.9rem;color:var(--text-bright);margin-bottom:3px}
+.lb-info-sub{font-size:.78rem;color:var(--muted)}
+.lb-perc-wrap{text-align:right}
+.lb-perc-val{font-family:'Lexend',sans-serif;font-size:1.7rem;font-weight:900;color:var(--accent2);letter-spacing:-.02em}
+.lb-perc-lbl{font-size:.62rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em}
 
-/* Question review */
-.review-section{margin-top:32px}
-.review-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:gap}
-.review-title{font-family:'Lexend',sans-serif;font-weight:800;font-size:1.2rem;color:var(--text-bright)}
-.filter-chips{display:flex;gap:8px;flex-wrap:wrap}
-.chip{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:8px;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
-.chip.active{background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.4);color:var(--accent2)}
+/* Review */
+.review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:5px 13px;border-radius:8px;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;border:none;font-family:'Inter',sans-serif}
+.chip.active{background:rgba(99,102,241,.14);color:var(--accent2);border:1px solid rgba(99,102,241,.35)}
 
-.review-list{display:flex;flex-direction:column;gap:12px}
-.review-card{background:var(--surface);border:2px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .2s}
-.review-card.correct{border-color:rgba(34,197,94,.4)}
-.review-card.wrong{border-color:rgba(239,68,68,.4)}
-.review-card.skipped{border-color:var(--border)}
-.review-card-header{display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;user-select:none}
-.review-status{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.status-correct{background:rgba(34,197,94,.15)}
-.status-correct svg{stroke:var(--success)}
-.status-wrong{background:rgba(239,68,68,.15)}
-.status-wrong svg{stroke:var(--error)}
-.status-skipped{background:var(--surface2)}
-.status-skipped svg{stroke:var(--muted)}
-.review-status svg{width:14px;height:14px;fill:none;stroke-width:2.5}
-.review-q-text{font-size:.875rem;color:var(--text);font-weight:500;flex:1;line-height:1.5}
-.review-toggle{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2;flex-shrink:0;transition:transform .2s}
-.review-card.expanded .review-toggle{transform:rotate(180deg)}
-.review-body{display:none;padding:0 20px 20px;border-top:1px solid var(--border)}
-.review-card.expanded .review-body{display:block}
-.review-opts{display:grid;gap:8px;margin-top:14px}
-.review-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);font-size:.85rem}
-.review-opt.correct-ans{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.4);color:var(--success)}
-.review-opt.wrong-ans{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.4);color:var(--error)}
-.review-opt .ol{width:22px;height:22px;border-radius:6px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;flex-shrink:0}
-.correct-ans .ol{background:rgba(34,197,94,.2);color:var(--success)}
-.wrong-ans .ol{background:rgba(239,68,68,.2);color:var(--error)}
-.your-ans-label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:14px;margin-bottom:6px}
+.review-list{display:flex;flex-direction:column;gap:11px}
+.rv-card{background:var(--surface);border:2px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .2s}
+.rv-card.rv-correct{border-color:rgba(34,197,94,.4)}
+.rv-card.rv-wrong{border-color:rgba(239,68,68,.35)}
+.rv-card.rv-skip{border-color:var(--border)}
+.rv-header{display:flex;align-items:center;gap:11px;padding:14px 18px;cursor:pointer;user-select:none}
+.rv-status{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rv-status svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5}
+.rv-correct .rv-status{background:rgba(34,197,94,.14);color:var(--success)}
+.rv-wrong .rv-status{background:rgba(239,68,68,.12);color:var(--error)}
+.rv-skip .rv-status{background:var(--surface2);color:var(--muted)}
+.rv-q{font-size:.855rem;color:var(--text);font-weight:500;flex:1;line-height:1.5}
+.rv-arrow{width:17px;height:17px;stroke:var(--muted);fill:none;stroke-width:2;flex-shrink:0;transition:transform .2s}
+.rv-card.open .rv-arrow{transform:rotate(180deg)}
+.rv-body{display:none;padding:0 18px 18px;border-top:1px solid var(--border)}
+.rv-card.open .rv-body{display:block}
+.rv-opts{display:flex;flex-direction:column;gap:7px;margin-top:13px}
+.rv-opt{display:flex;align-items:flex-start;gap:9px;padding:9px 12px;border-radius:9px;background:var(--surface2);border:1.5px solid var(--border);font-size:.83rem;color:var(--text);transition:all .2s}
+.rv-opt.rv-opt-correct{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.4);color:var(--success)}
+.rv-opt.rv-opt-wrong{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.35);color:var(--error)}
+.rv-ol{width:24px;height:24px;border-radius:7px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.74rem;font-weight:700;flex-shrink:0;color:var(--muted)}
+.rv-opt-correct .rv-ol{background:rgba(34,197,94,.2);color:var(--success)}
+.rv-opt-wrong .rv-ol{background:rgba(239,68,68,.15);color:var(--error)}
+.rv-ans-note{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:12px}
 
-/* Spinner */
-.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;margin:60px auto}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* Share toast */
+.share-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--success);color:var(--success);padding:10px 20px;border-radius:10px;font-size:.84rem;font-weight:600;transition:transform .3s;z-index:999;white-space:nowrap}
+.share-toast.show{transform:translateX(-50%) translateY(0)}
 
-/* Toast */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface);border:1px solid var(--success);color:var(--success);padding:12px 24px;border-radius:12px;font-size:.875rem;font-weight:600;transition:transform .3s;z-index:999}
-.toast.show{transform:translateX(-50%) translateY(0)}
+/* Spinner for loading state */
+.page-spinner{display:flex;align-items:center;justify-content:center;min-height:60vh;flex-direction:column;gap:14px;color:var(--muted)}
+.page-spinner .spinner{width:32px;height:32px;border-width:3px;border-color:var(--border);border-top-color:var(--accent)}
 
 @media(max-width:600px){
-  .score-card{padding:28px 20px}
-  .lb-card{flex-wrap:wrap}
-  .score-stats{grid-template-columns:1fr 1fr 1fr;gap:10px}
-  .content{padding:20px 16px}
+  .score-card{padding:28px 18px}
+  .lb-card{gap:14px}
+  .lb-perc-wrap{text-align:left}
+  .content{padding:20px 14px 80px}
+  .result-actions .btn{flex:1;justify-content:center}
 }
 </style>
 </head>
 <body>
+
 <div class="result-header">
-  <a href="dashboard.html" class="back-btn"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Dashboard</a>
-  <div class="header-title" id="headerTitle">Results</div>
-  <div style="width:80px"></div>
+  <button class="back-link" onclick="window.location.href='dashboard.html'">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Dashboard
+  </button>
+  <div class="rh-title" id="rhTitle">Result</div>
+  <button class="theme-toggle" onclick="toggleTheme()" style="flex-shrink:0"></button>
 </div>
 
 <div class="content">
-  <div id="loadingState"><div class="spinner"></div></div>
-  <div id="resultContent" style="display:none">
+  <div id="loadingState" class="page-spinner">
+    <div class="spinner"></div>
+    <span>Loading your result...</span>
+  </div>
+
+  <div id="resultWrap" style="display:none">
     <!-- Score Card -->
     <div class="score-card" id="scoreCard">
-      <div class="score-circle">
-        <svg viewBox="0 0 140 140">
-          <circle class="score-circle-bg" cx="70" cy="70" r="60"/>
-          <circle class="score-circle-fill" id="scoreRing" cx="70" cy="70" r="60"/>
+      <div class="score-circle-wrap">
+        <svg viewBox="0 0 128 128">
+          <circle class="sc-bg" cx="64" cy="64" r="56"/>
+          <circle class="sc-fill" id="scRing" cx="64" cy="64" r="56"/>
         </svg>
-        <div class="score-circle-text">
-          <span class="score-perc" id="scorePerc">0%</span>
-          <span class="score-label">Score</span>
+        <div class="sc-inner">
+          <div class="sc-perc" id="scPerc">0%</div>
+          <div class="sc-label">Score</div>
         </div>
       </div>
-      <div class="score-title" id="scoreTitle">Result</div>
-      <div class="score-subtitle" id="scoreExam"></div>
+      <div class="score-grade" id="scGrade"></div>
+      <div class="score-exam" id="scExam"></div>
       <div class="score-stats">
-        <div class="score-stat correct-stat"><div class="score-stat-val" id="correctCount">0</div><div class="score-stat-label">Correct</div></div>
-        <div class="score-stat wrong-stat"><div class="score-stat-val" id="wrongCount">0</div><div class="score-stat-label">Wrong</div></div>
-        <div class="score-stat skipped-stat"><div class="score-stat-val" id="skippedCount">0</div><div class="score-stat-label">Skipped</div></div>
+        <div class="sc-stat correct-c"><div class="sc-stat-val" id="scCorrect">0</div><div class="sc-stat-lbl">Correct</div></div>
+        <div class="sc-stat wrong-c"><div class="sc-stat-val" id="scWrong">0</div><div class="sc-stat-lbl">Wrong</div></div>
+        <div class="sc-stat skip-c"><div class="sc-stat-val" id="scSkip">0</div><div class="sc-stat-lbl">Skipped</div></div>
       </div>
-      <div class="perf-bar"><div class="perf-fill" id="perfFill"></div></div>
-      <div class="result-actions" id="resultActions" style="margin-top:24px"></div>
+      <div class="perf-bar"><div class="perf-fill" id="scBar"></div></div>
+      <div class="result-actions" id="resultActions"></div>
     </div>
 
     <!-- Leaderboard -->
     <div class="lb-card" id="lbCard" style="display:none">
-      <div class="lb-rank-badge">
+      <div class="lb-badge">
         <div class="lb-rank-num" id="lbRank">#—</div>
-        <div class="lb-rank-label">Rank</div>
+        <div class="lb-rank-lbl">Rank</div>
       </div>
       <div class="lb-info">
-        <div class="lb-title">Your Leaderboard Position</div>
-        <div class="lb-meta" id="lbMeta">Loading...</div>
+        <div class="lb-info-title">Your Leaderboard Position</div>
+        <div class="lb-info-sub" id="lbSub">Loading...</div>
       </div>
-      <div class="lb-percentile">
+      <div class="lb-perc-wrap">
         <div class="lb-perc-val" id="lbPerc">—%</div>
-        <div class="lb-perc-label">Percentile</div>
+        <div class="lb-perc-lbl">Percentile</div>
       </div>
     </div>
 
     <!-- Review -->
-    <div class="review-section">
-      <div class="review-header">
-        <div class="review-title">Question Review</div>
-        <div class="filter-chips">
-          <button class="chip active" data-f="all" onclick="setChip(this)">All</button>
-          <button class="chip" data-f="correct" onclick="setChip(this)">Correct</button>
-          <button class="chip" data-f="wrong" onclick="setChip(this)">Wrong</button>
-          <button class="chip" data-f="skipped" onclick="setChip(this)">Skipped</button>
-        </div>
+    <div class="review-head">
+      <span class="sect-title">Question Review</span>
+      <div class="chips">
+        <button class="chip active" data-f="all" onclick="setChip(this)">All</button>
+        <button class="chip" data-f="correct" onclick="setChip(this)">Correct</button>
+        <button class="chip" data-f="wrong" onclick="setChip(this)">Wrong</button>
+        <button class="chip" data-f="skipped" onclick="setChip(this)">Skipped</button>
       </div>
-      <div class="review-list" id="reviewList"></div>
     </div>
+    <div class="review-list" id="reviewList"></div>
   </div>
 </div>
 
-<div class="toast" id="toast">Copied to clipboard!</div>
+<div class="share-toast" id="shareToast">Copied to clipboard!</div>
 
+<script src="assets/main.js"></script>
 <script>
-const API = '/api';
-const token = localStorage.getItem('exalyte_token');
-if (!token) window.location.href = 'index.html';
+if (!requireAuth()) throw '';
 
-const params = new URLSearchParams(location.search);
-const examId = params.get('examId');
+const params    = new URLSearchParams(location.search);
+const examId    = params.get('examId');
 const attemptId = params.get('attemptId');
 
-let attempt, questions, exam, reviewFilter = 'all';
+let attempt, questions, exam, userAnswers = {}, reviewFilter = 'all';
 
-const colors = {
-  outstanding: { color: '#22c55e', glow: 'rgba(34,197,94,.15)', label: 'Outstanding' },
-  excellent: { color: '#22c55e', glow: 'rgba(34,197,94,.1)', label: 'Excellent' },
-  good: { color: '#a855f7', glow: 'rgba(168,85,247,.1)', label: 'Good' },
-  needs: { color: '#f59e0b', glow: 'rgba(245,158,11,.1)', label: 'Needs Work' },
-  keep: { color: '#ef4444', glow: 'rgba(239,68,68,.1)', label: 'Keep Trying' },
-};
-
-function getGrade(p) {
-  if (p >= 90) return colors.outstanding;
-  if (p >= 80) return colors.excellent;
-  if (p >= 60) return colors.good;
-  if (p >= 40) return colors.needs;
-  return colors.keep;
-}
-
-async function loadResult() {
+async function load() {
   try {
-    const res = await fetch(`${API}/exams/${examId}/result/${attemptId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (!res.ok) { window.location.href = 'dashboard.html'; return; }
-    const data = await res.json();
-    attempt = data.attempt;
+    const { ok, data } = await apiFetch(`/exams/${examId}/result/${attemptId}`);
+    if (!ok) { window.location.href = 'dashboard.html'; return; }
+    attempt   = data.attempt;
     questions = data.questions;
-    exam = data.exam;
-    const answers = JSON.parse(attempt.answers || '{}');
+    exam      = data.exam;
+    userAnswers = JSON.parse(attempt.answers || '{}');
 
-    // Calculate stats
+    // Compute stats
     let correct = 0, wrong = 0;
     questions.forEach(q => {
-      const a = answers[q.id];
+      const a = userAnswers[q.id];
       if (a === q.correct_answer) correct++;
       else if (a) wrong++;
     });
     const skipped = questions.length - correct - wrong;
+    const perc    = attempt.percentage || 0;
+    const grade   = gradeInfo(perc);
 
-    const perc = attempt.percentage;
-    const grade = getGrade(perc);
-
-    // Update header
-    document.getElementById('headerTitle').textContent = exam.name;
     document.title = `Result: ${exam.name} — Exalyte`;
+    document.getElementById('rhTitle').textContent = exam.name;
 
-    // Score circle
-    const ring = document.getElementById('scoreRing');
+    // Score ring animation
+    const ring = document.getElementById('scRing');
+    const circ = 2 * Math.PI * 56; // r=56
+    ring.style.strokeDasharray  = circ;
     ring.style.stroke = grade.color;
-    const circumference = 2 * Math.PI * 60;
-    ring.style.strokeDasharray = circumference;
-    setTimeout(() => {
-      ring.style.strokeDashoffset = circumference - (perc / 100) * circumference;
-    }, 100);
+    document.getElementById('scoreCard').style.setProperty('--glow', grade.glow);
+    setTimeout(() => { ring.style.strokeDashoffset = circ - (perc / 100) * circ; }, 80);
 
-    // Score card glow
-    document.getElementById('scoreCard').style.setProperty('--glow-color', grade.glow);
-
-    // Animate percentage
+    // Animate percentage counter
     let count = 0;
-    const target = perc;
-    const interval = setInterval(() => {
-      count = Math.min(count + 2, target);
-      document.getElementById('scorePerc').textContent = count.toFixed(0) + '%';
-      if (count >= target) clearInterval(interval);
-    }, 16);
+    const target = Math.round(perc * 10) / 10;
+    const step = target / 60;
+    const ticker = setInterval(() => {
+      count = Math.min(count + step, target);
+      document.getElementById('scPerc').textContent = count.toFixed(1) + '%';
+      if (count >= target) { clearInterval(ticker); document.getElementById('scPerc').textContent = target.toFixed(1) + '%'; }
+    }, 20);
 
-    document.getElementById('scoreTitle').textContent = grade.label;
-    document.getElementById('scoreTitle').style.color = grade.color;
-    document.getElementById('scoreExam').textContent = exam.name + (attempt.is_practice ? ' (Practice)' : '');
-    document.getElementById('correctCount').textContent = correct;
-    document.getElementById('wrongCount').textContent = wrong;
-    document.getElementById('skippedCount').textContent = skipped;
+    document.getElementById('scGrade').textContent  = grade.label;
+    document.getElementById('scGrade').style.color  = grade.color;
+    document.getElementById('scExam').textContent   = exam.name + (attempt.is_practice ? ' — Practice' : '');
+    document.getElementById('scCorrect').textContent = correct;
+    document.getElementById('scWrong').textContent   = wrong;
+    document.getElementById('scSkip').textContent    = skipped;
 
-    const fill = document.getElementById('perfFill');
-    fill.style.background = `linear-gradient(90deg, ${grade.color}, ${grade.color}88)`;
-    setTimeout(() => fill.style.width = perc + '%', 200);
+    const bar = document.getElementById('scBar');
+    bar.style.background = `linear-gradient(90deg, ${grade.color}, ${grade.color}88)`;
+    setTimeout(() => { bar.style.width = Math.max(perc, 2) + '%'; }, 120);
 
     // Actions
-    const actions = document.getElementById('resultActions');
-    let actHtml = `<a href="dashboard.html" class="btn-secondary">Dashboard</a>`;
+    let actHtml = `<a href="dashboard.html" class="btn btn-secondary"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>`;
     if (!attempt.is_practice && exam.allow_practice) {
-      actHtml += `<a href="exam.html?id=${examId}&practice=1" class="btn-primary">Practice Mode</a>`;
+      actHtml += `<a href="exam.html?id=${examId}&practice=1" class="btn btn-primary"><svg viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Mode</a>`;
     }
-    actHtml += `<button class="btn-icon-only" title="Share Result" onclick="shareResult(${perc.toFixed(0)})">
-      <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-    </button>`;
-    actions.innerHTML = actHtml;
+    actHtml += `<button class="btn btn-secondary" onclick="shareResult(${perc.toFixed(1)})" title="Share"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>`;
+    document.getElementById('resultActions').innerHTML = actHtml;
 
     // Leaderboard
     if (!attempt.is_practice) {
-      const lbRes = await fetch(`${API}/leaderboard/${examId}`, { headers: { Authorization: `Bearer ${token}` } });
-      const lb = await lbRes.json();
-      if (lb && lb.rank) {
+      const { ok: lok, data: lb } = await apiFetch(`/leaderboard/${examId}`);
+      if (lok && lb?.rank) {
         document.getElementById('lbCard').style.display = 'flex';
-        document.getElementById('lbRank').textContent = '#' + lb.rank;
-        document.getElementById('lbMeta').textContent = `Out of ${lb.total_participants} participants`;
-        document.getElementById('lbPerc').textContent = `Top ${lb.percentile}%`;
+        document.getElementById('lbRank').textContent   = '#' + lb.rank;
+        document.getElementById('lbSub').textContent    = `Out of ${lb.total_participants} participant${lb.total_participants !== 1 ? 's' : ''}`;
+        document.getElementById('lbPerc').textContent   = `Top ${lb.percentile}%`;
       }
     }
 
     // Review
-    renderReview(questions, answers);
+    renderReview();
 
     document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('resultContent').style.display = 'block';
+    document.getElementById('resultWrap').style.display  = 'block';
   } catch(e) {
-    document.getElementById('loadingState').innerHTML = '<p style="text-align:center;color:var(--error);padding:40px">Failed to load results.</p>';
+    document.getElementById('loadingState').innerHTML = '<p style="color:var(--error)">Failed to load result. <a href="dashboard.html" style="color:var(--accent2)">Go back</a></p>';
   }
 }
 
-function renderReview(qs, answers) {
-  const filtered = qs.filter(q => {
-    const a = answers[q.id];
+function renderReview() {
+  const filtered = questions.filter(q => {
+    const a = userAnswers[q.id];
     if (reviewFilter === 'correct') return a === q.correct_answer;
-    if (reviewFilter === 'wrong') return a && a !== q.correct_answer;
+    if (reviewFilter === 'wrong')   return a && a !== q.correct_answer;
     if (reviewFilter === 'skipped') return !a;
     return true;
   });
 
-  document.getElementById('reviewList').innerHTML = filtered.map((q, i) => {
-    const a = answers[q.id];
-    const status = a === q.correct_answer ? 'correct' : a ? 'wrong' : 'skipped';
-    const icons = {
-      correct: '<polyline points="20 6 9 17 4 12"/>',
-      wrong: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
-      skipped: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
-    };
-    return `
-    <div class="review-card ${status}" id="rc${q.id}">
-      <div class="review-card-header" onclick="toggleReview('${q.id}')">
-        <div class="review-status status-${status}"><svg viewBox="0 0 24 24">${icons[status]}</svg></div>
-        <div class="review-q-text">${esc(q.question_text)}</div>
-        <svg class="review-toggle" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+  const icons = {
+    correct: '<polyline points="20 6 9 17 4 12"/>',
+    wrong:   '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    skipped: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
+  };
+
+  document.getElementById('reviewList').innerHTML = filtered.map(q => {
+    const a   = userAnswers[q.id];
+    const st  = a === q.correct_answer ? 'correct' : a ? 'wrong' : 'skip';
+    const cls = { correct: 'rv-correct', wrong: 'rv-wrong', skip: 'rv-skip' }[st];
+
+    const opts = ['A','B','C','D'].map(l => {
+      const isCorrect = l === q.correct_answer;
+      const isYours   = l === a && !isCorrect;
+      const optCls    = isCorrect ? 'rv-opt-correct' : isYours ? 'rv-opt-wrong' : '';
+      return `<div class="rv-opt ${optCls}"><div class="rv-ol">${l}</div><div style="flex:1;line-height:1.45">${esc(q['option_'+l.toLowerCase()])}</div></div>`;
+    }).join('');
+
+    let note = '';
+    if (a && a !== q.correct_answer) note = `<div class="rv-ans-note">Your answer: ${a} — Correct: ${q.correct_answer}</div>`;
+    else if (!a) note = `<div class="rv-ans-note" style="color:var(--muted)">Not answered — Correct: ${q.correct_answer}</div>`;
+
+    return `<div class="rv-card ${cls}" id="rv${q.id}">
+      <div class="rv-header" onclick="toggleRv('${q.id}')">
+        <div class="rv-status"><svg viewBox="0 0 24 24">${icons[st]}</svg></div>
+        <div class="rv-q">${esc(q.question_text)}</div>
+        <svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
-      <div class="review-body">
-        ${q.image_url ? `<img src="${q.image_url}" style="max-width:100%;max-height:150px;border-radius:8px;margin-bottom:12px;border:1px solid var(--border)">` : ''}
-        <div class="review-opts">
-          ${['A','B','C','D'].map(l => {
-            const isCorrect = l === q.correct_answer;
-            const isYour = l === a;
-            const cls = isCorrect ? 'correct-ans' : (isYour && !isCorrect ? 'wrong-ans' : '');
-            return `<div class="review-opt ${cls}"><span class="ol">${l}</span>${esc(q['option_'+l.toLowerCase()])}</div>`;
-          }).join('')}
-        </div>
-        ${a && a !== q.correct_answer ? `<div class="your-ans-label">Your answer: ${a} — Correct: ${q.correct_answer}</div>` : ''}
-        ${!a ? `<div class="your-ans-label" style="color:var(--muted)">Not answered — Correct: ${q.correct_answer}</div>` : ''}
+      <div class="rv-body">
+        ${q.image_url ? `<img src="${esc(q.image_url)}" style="max-width:100%;max-height:160px;border-radius:9px;margin-bottom:12px;border:1px solid var(--border);object-fit:contain">` : ''}
+        <div class="rv-opts">${opts}</div>
+        ${note}
       </div>
     </div>`;
-  }).join('');
+  }).join('') || '<div style="text-align:center;padding:36px;color:var(--muted);font-size:.875rem">No questions in this filter.</div>';
 }
 
-function toggleReview(id) {
-  document.getElementById('rc'+id)?.classList.toggle('expanded');
-}
+function toggleRv(id) { document.getElementById('rv'+id)?.classList.toggle('open'); }
 
 function setChip(btn) {
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   btn.classList.add('active');
   reviewFilter = btn.dataset.f;
-  const answers = JSON.parse(attempt?.answers || '{}');
-  renderReview(questions, answers);
+  renderReview();
 }
 
 async function shareResult(perc) {
-  const text = `I scored ${perc}% on "${exam?.name}" on Exalyte!\n\nhttps://exalyte.com`;
+  const text = `I scored ${perc}% on "${exam?.name}" on Exalyte!\n\nhttps://exalyte.pages.dev`;
   try {
-    if (navigator.share) { await navigator.share({ text }); return; }
+    if (navigator.share) { await navigator.share({ title: 'My Exalyte Result', text }); return; }
   } catch {}
   try {
     await navigator.clipboard.writeText(text);
-    const toast = document.getElementById('toast');
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
+    const t = document.getElementById('shareToast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
   } catch {}
 }
 
-function esc(s) {
-  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-loadResult();
+load();
 </script>
 </body>
 </html>
