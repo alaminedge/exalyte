@@ -1,142 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Exalyte — Precision Examination Platform</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/main.css">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#05050a;--surface:#0a0a16;--surface2:#111122;--surface3:#16162a;
-  --border:#1e1e38;--accent:#6366f1;--accent2:#818cf8;--accent3:#4f46e5;
-  --text:#e9e9f0;--text-bright:#f5f5ff;--muted:#7c7c96;
-  --error:#ef4444;--success:#22c55e;--warning:#f59e0b;
-  --premium:#a855f7;--live:#ef4444;
-}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
-
-/* Noise texture overlay */
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:1000;opacity:.4}
-
-/* Grid background */
-.grid-bg{position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:60px 60px;opacity:.3;pointer-events:none}
-
-/* Gradient orbs */
-.orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;animation:orbFloat 8s ease-in-out infinite}
-.orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(99,102,241,.15),transparent 70%);top:-200px;left:-100px;animation-delay:0s}
-.orb2{width:500px;height:500px;background:radial-gradient(circle,rgba(168,85,247,.1),transparent 70%);bottom:-100px;right:-100px;animation-delay:3s}
-.orb3{width:400px;height:400px;background:radial-gradient(circle,rgba(99,102,241,.08),transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:6s}
-@keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-30px) scale(1.05)}}
-.orb3{animation:orbFloat2 10s ease-in-out infinite}
-@keyframes orbFloat2{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-55%) scale(1.1)}}
-
-/* Nav */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid transparent;transition:all .3s}
-nav.scrolled{background:rgba(5,5,10,.8);backdrop-filter:blur(20px);border-color:var(--border)}
-.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:8px;display:flex;align-items:center;justify-content:center}
-.logo-icon svg{width:18px;height:18px;fill:white}
-.logo-text{font-family:'Lexend',sans-serif;font-weight:700;font-size:1.2rem;color:var(--text-bright);letter-spacing:-.02em}
-.nav-links{display:flex;gap:8px;align-items:center}
-.nav-link{color:var(--muted);text-decoration:none;padding:8px 16px;border-radius:8px;font-size:.875rem;font-weight:500;transition:all .2s}
-.nav-link:hover{color:var(--text);background:var(--surface2)}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent3));color:white;border:none;padding:10px 24px;border-radius:10px;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;letter-spacing:-.01em}
-.btn-primary:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 8px 24px rgba(99,102,241,.3)}
-.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border);padding:10px 24px;border-radius:10px;font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
-.btn-ghost:hover{border-color:var(--accent2);color:var(--accent2)}
-
-/* Hero */
-.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;z-index:2}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);padding:6px 16px;border-radius:100px;font-size:.75rem;font-weight:600;color:var(--accent2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:32px;animation:fadeUp .8s ease both}
-.hero-badge .pulse{width:6px;height:6px;background:var(--accent2);border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
-.hero h1{font-family:'Lexend',sans-serif;font-size:clamp(3rem,8vw,6.5rem);font-weight:900;line-height:1;letter-spacing:-.04em;color:var(--text-bright);margin-bottom:24px;animation:fadeUp .8s .1s ease both}
+body{overflow-x:hidden}
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 20px 80px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);padding:6px 16px;border-radius:100px;font-size:.72rem;font-weight:700;color:var(--accent2);letter-spacing:.07em;text-transform:uppercase;margin-bottom:28px;animation:fadeUp .8s ease both}
+.hero h1{font-family:'Lexend',sans-serif;font-size:clamp(2.6rem,8vw,5.8rem);font-weight:900;line-height:1.02;letter-spacing:-.04em;color:var(--text-bright);margin-bottom:22px;animation:fadeUp .8s .1s ease both}
 .hero h1 .accent{background:linear-gradient(135deg,var(--accent2),var(--premium));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{font-size:clamp(1rem,2.5vw,1.25rem);color:var(--muted);max-width:600px;margin:0 auto 48px;line-height:1.7;font-weight:400;animation:fadeUp .8s .2s ease both}
-.hero-cta{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;animation:fadeUp .8s .3s ease both}
-.btn-lg{padding:16px 40px;font-size:1rem;border-radius:14px}
-.hero-stats{display:flex;gap:48px;justify-content:center;margin-top:80px;animation:fadeUp .8s .4s ease both}
-.stat{text-align:center}
-.stat-num{font-family:'Lexend',sans-serif;font-size:2rem;font-weight:800;color:var(--text-bright);letter-spacing:-.03em}
-.stat-label{font-size:.75rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.hero p{font-size:clamp(.9rem,2.5vw,1.1rem);color:var(--muted);max-width:520px;margin:0 auto 40px;line-height:1.75;animation:fadeUp .8s .2s ease both}
+.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeUp .8s .3s ease both}
+.hero-stats{display:flex;gap:48px;justify-content:center;margin-top:72px;animation:fadeUp .8s .4s ease both;flex-wrap:wrap;gap:28px}
+.h-stat-num{font-family:'Lexend',sans-serif;font-size:1.8rem;font-weight:900;color:var(--text-bright);letter-spacing:-.03em}
+.h-stat-lbl{font-size:.68rem;color:var(--muted);font-weight:600;letter-spacing:.09em;text-transform:uppercase;margin-top:2px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
 
-/* Features */
-.section{position:relative;z-index:2;padding:100px 40px}
-.section-label{font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent2);margin-bottom:16px;text-align:center}
-.section-title{font-family:'Lexend',sans-serif;font-size:clamp(2rem,4vw,3rem);font-weight:800;color:var(--text-bright);text-align:center;letter-spacing:-.03em;margin-bottom:16px}
-.section-sub{font-size:1rem;color:var(--muted);text-align:center;max-width:500px;margin:0 auto 64px;line-height:1.6}
-
-.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:1100px;margin:0 auto}
-.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;position:relative;overflow:hidden;transition:all .3s;cursor:default}
+.section{position:relative;z-index:1;padding:80px 20px;max-width:1080px;margin:0 auto}
+.section-head{text-align:center;margin-bottom:52px}
+.section-label{font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent2);margin-bottom:12px}
+.section-title{font-family:'Lexend',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;color:var(--text-bright);letter-spacing:-.03em}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:26px;transition:all .3s;cursor:default;position:relative;overflow:hidden}
 .feat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(99,102,241,.05),transparent);opacity:0;transition:opacity .3s}
-.feat-card:hover{border-color:rgba(99,102,241,.4);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.feat-card:hover{border-color:rgba(99,102,241,.4);transform:translateY(-3px);box-shadow:0 16px 48px var(--shadow)}
 .feat-card:hover::before{opacity:1}
-.feat-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
-.feat-icon svg{width:24px;height:24px;fill:white}
-.feat-card h3{font-family:'Lexend',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:10px;letter-spacing:-.02em}
-.feat-card p{font-size:.875rem;color:var(--muted);line-height:1.6}
-.feat-tag{display:inline-block;background:rgba(99,102,241,.15);color:var(--accent2);font-size:.65rem;font-weight:600;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.08em;margin-top:16px}
+.feat-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.feat-icon svg{width:22px;height:22px;fill:none;stroke:white;stroke-width:2}
+.feat-card h3{font-family:'Lexend',sans-serif;font-size:.95rem;font-weight:700;color:var(--text-bright);margin-bottom:7px}
+.feat-card p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.feat-chip{display:inline-block;background:rgba(99,102,241,.12);color:var(--accent2);font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.07em;margin-top:12px}
 
-/* CTA section */
-.cta-section{position:relative;z-index:2;padding:80px 40px;text-align:center}
-.cta-box{max-width:700px;margin:0 auto;background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:28px;padding:64px;position:relative;overflow:hidden}
-.cta-box::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at center,rgba(99,102,241,.1),transparent 60%);pointer-events:none}
-.cta-box h2{font-family:'Lexend',sans-serif;font-size:2.5rem;font-weight:800;letter-spacing:-.03em;color:var(--text-bright);margin-bottom:16px}
-.cta-box p{color:var(--muted);font-size:1rem;margin-bottom:32px;line-height:1.6}
+.cta-section{position:relative;z-index:1;padding:40px 20px 100px;text-align:center}
+.cta-box{max-width:620px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:28px;padding:52px 36px;position:relative;overflow:hidden}
+.cta-box::before{content:'';position:absolute;top:-60%;left:-60%;width:220%;height:220%;background:radial-gradient(circle at center,rgba(99,102,241,.08),transparent 60%);pointer-events:none}
+.cta-box h2{font-family:'Lexend',sans-serif;font-size:clamp(1.5rem,4vw,2.2rem);font-weight:900;letter-spacing:-.03em;color:var(--text-bright);margin-bottom:10px}
+.cta-box p{color:var(--muted);font-size:.9rem;margin-bottom:26px;line-height:1.65}
 
-/* Footer */
-footer{position:relative;z-index:2;border-top:1px solid var(--border);padding:40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap}
-.footer-links{display:flex;gap:24px;flex-wrap:wrap}
-.footer-links a{color:var(--muted);text-decoration:none;font-size:.875rem;transition:color .2s}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:26px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap}
+.footer-links a{color:var(--muted);font-size:.84rem;transition:color .2s}
 .footer-links a:hover{color:var(--text)}
-.footer-copy{color:var(--muted);font-size:.8rem}
 
-/* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .3s}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:24px;width:100%;max-width:440px;overflow:hidden;transform:translateY(20px) scale(.97);transition:transform .3s;position:relative}
-.modal-overlay.open .modal{transform:translateY(0) scale(1)}
-.modal-header{padding:32px 32px 0}
-.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--muted);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .2s}
-.modal-close:hover{background:var(--surface2);color:var(--text)}
-.modal-tabs{display:flex;gap:0;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:32px}
-.tab-btn{flex:1;padding:10px;border-radius:9px;background:none;border:none;color:var(--muted);font-weight:600;font-size:.875rem;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
-.tab-btn.active{background:var(--surface3);color:var(--text-bright);box-shadow:0 2px 8px rgba(0,0,0,.3)}
-.modal-body{padding:0 32px 32px}
-.form-group{margin-bottom:20px}
-label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-input[type=text],input[type=email],input[type=password]{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;color:var(--text-bright);font-size:.9rem;font-family:'Inter',sans-serif;transition:all .2s;outline:none}
-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.15)}
-.form-error{color:var(--error);font-size:.8rem;margin-top:8px;display:none}
-.form-error.show{display:block}
-.btn-full{width:100%;justify-content:center;display:flex;align-items:center;gap:8px}
-.modal-foot{text-align:center;padding-top:16px;border-top:1px solid var(--border);margin-top:24px}
-.modal-foot span{color:var(--muted);font-size:.875rem}
-.modal-foot a{color:var(--accent2);text-decoration:none;font-weight:600}
+.auth-tabs{display:flex;background:var(--surface2);border-radius:11px;padding:4px;margin-bottom:26px}
+.auth-tab{flex:1;padding:9px;border-radius:8px;background:none;border:none;color:var(--muted);font-weight:600;font-size:.84rem;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.auth-tab.active{background:var(--surface3);color:var(--text-bright);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.auth-form{display:none}
+.auth-form.active{display:block}
 
-/* Scroll indicator */
-.scroll-indicator{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;animation:bounce 2s infinite;z-index:2}
-@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
-.scroll-indicator svg{width:20px;height:20px;stroke:currentColor;fill:none}
-
-/* Loading spinner */
-.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading{display:none}
-button.loading-state .label{display:none}
-button.loading-state .loading{display:flex}
-
-/* Responsive */
-@media(max-width:768px){
-  nav{padding:16px 20px}
-  .nav-links .nav-link{display:none}
-  .section{padding:60px 20px}
-  .hero-stats{gap:24px}
-  .footer-links{gap:16px}
-  footer{flex-direction:column;gap:16px;text-align:center}
+@media(max-width:480px){
+  .hero-stats{gap:20px}
+  .cta-box{padding:32px 18px}
+  footer{flex-direction:column;text-align:center}
+  .footer-links{justify-content:center}
 }
 </style>
 </head>
@@ -144,262 +62,132 @@ button.loading-state .loading{display:flex}
 <div class="grid-bg"></div>
 <div class="orb orb1"></div>
 <div class="orb orb2"></div>
-<div class="orb orb3"></div>
 
-<nav id="navbar">
-  <a href="/" class="nav-logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-    </div>
+<nav class="land-nav" id="landNav">
+  <a href="/" class="logo-wrap">
+    <img src="images/exalyte.png" alt="Exalyte" class="logo-img">
     <span class="logo-text">Exalyte</span>
   </a>
-  <div class="nav-links">
-    <a href="pricing.html" class="nav-link">Pricing</a>
-    <a href="contact.html" class="nav-link">Contact</a>
-    <button class="btn-ghost" onclick="openModal('login')">Sign In</button>
-    <button class="btn-primary" onclick="openModal('signup')">Get Started</button>
+  <div class="land-nav-links">
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"></button>
+    <button class="btn btn-ghost btn-sm" onclick="openModal('authModal');switchTab('login')">Sign In</button>
+    <button class="btn btn-primary btn-sm" onclick="openModal('authModal');switchTab('signup')">Get Started</button>
   </div>
 </nav>
 
-<main>
-  <section class="hero">
-    <div>
-      <div class="hero-badge"><span class="pulse"></span>Now with Live Exam Mode</div>
-      <h1>Master Every<br><span class="accent">Examination</span><br>With Precision</h1>
-      <p>The professional exam platform built for competitive preparation. Timed assessments, instant analytics, and ranked leaderboards.</p>
-      <div class="hero-cta">
-        <button class="btn-primary btn-lg" onclick="openModal('signup')">Start For Free</button>
-        <button class="btn-ghost btn-lg" onclick="openModal('login')">Sign In</button>
-      </div>
-      <div class="hero-stats">
-        <div class="stat"><div class="stat-num">10K+</div><div class="stat-label">Questions</div></div>
-        <div class="stat"><div class="stat-num">99.9%</div><div class="stat-label">Uptime</div></div>
-        <div class="stat"><div class="stat-num">Real</div><div class="stat-label">Rankings</div></div>
-      </div>
+<section class="hero">
+  <div>
+    <div class="hero-badge"><span class="live-dot"></span>Live Exam Mode Available</div>
+    <h1>Master Every<br><span class="accent">Examination</span><br>With Precision</h1>
+    <p>The professional exam platform built for competitive preparation — timed assessments, instant analytics, and private leaderboards.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary btn-lg" onclick="openModal('authModal');switchTab('signup')">Start For Free</button>
+      <button class="btn btn-ghost btn-lg" onclick="openModal('authModal');switchTab('login')">Sign In</button>
     </div>
-    <div class="scroll-indicator">
-      <span>Scroll</span>
-      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    <div class="hero-stats">
+      <div><div class="h-stat-num">Live</div><div class="h-stat-lbl">Exam Mode</div></div>
+      <div><div class="h-stat-num">Real</div><div class="h-stat-lbl">Rankings</div></div>
+      <div><div class="h-stat-num">100%</div><div class="h-stat-lbl">Private</div></div>
+      <div><div class="h-stat-num">CSV</div><div class="h-stat-lbl">Upload</div></div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section class="section">
+<div class="section">
+  <div class="section-head">
     <div class="section-label">Platform Features</div>
-    <h2 class="section-title">Built for Serious Preparation</h2>
-    <p class="section-sub">Every feature is designed around how competitive examinations actually work.</p>
-    <div class="features-grid">
-      <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83"/></svg></div>
-        <h3>Live Exam Mode</h3>
-        <p>Time-limited exams with real-time countdown. Auto-submits when time expires. Tab-switch detection prevents cheating.</p>
-        <span class="feat-tag">Real-time</span>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="white" stroke-width="2" fill="none"/></svg></div>
-        <h3>Instant Analytics</h3>
-        <p>Score breakdowns, percentile rankings, and question-by-question review immediately after submission.</p>
-        <span class="feat-tag">Analytics</span>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke="white" stroke-width="2" fill="none"/></svg></div>
-        <h3>Privacy-First Rankings</h3>
-        <p>See your rank and percentile without exposing other participants' data. Fair and transparent leaderboards.</p>
-        <span class="feat-tag">Private</span>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" stroke="white" stroke-width="2" fill="none"/></svg></div>
-        <h3>Negative Marking</h3>
-        <p>Configurable negative marking (0.25, 0.5, 1.0) per exam. Mirrors actual competitive exam scoring patterns.</p>
-        <span class="feat-tag">Scoring</span>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke="white" stroke-width="2" fill="none"/></svg></div>
-        <h3>CSV Bulk Upload</h3>
-        <p>Upload hundreds of questions at once via CSV. Supports images, quoted fields, and batch validation.</p>
-        <span class="feat-tag">Bulk</span>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="white" stroke-width="2" fill="none"/></svg></div>
-        <h3>Practice Mode</h3>
-        <p>Unlock unlimited practice after completing the live exam. Perfect your weak areas without affecting rankings.</p>
-        <span class="feat-tag">Practice</span>
-      </div>
-    </div>
-  </section>
+    <div class="section-title">Built for Serious Preparation</div>
+  </div>
+  <div class="feat-grid">
+    <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h3>Live Exam Mode</h3><p>Time-limited exams with countdown. Auto-submits on timeout. Tab-switch detection prevents cheating.</p><span class="feat-chip">Real-time</span></div>
+    <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div><h3>Instant Analytics</h3><p>Score breakdowns, percentile rankings, and question-by-question review right after submission.</p><span class="feat-chip">Analytics</span></div>
+    <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><h3>Privacy-First Rankings</h3><p>See your rank and percentile only. Other participants' data is never exposed to anyone.</p><span class="feat-chip">Private</span></div>
+    <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><h3>Negative Marking</h3><p>Configurable negative marking per exam. Mirrors real competitive exam scoring patterns.</p><span class="feat-chip">Scoring</span></div>
+    <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg></div><h3>CSV Bulk Upload</h3><p>Upload hundreds of questions with images, quoted fields, and automatic validation.</p><span class="feat-chip">Bulk</span></div>
+    <div class="feat-card"><div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></div><h3>Practice Mode</h3><p>Unlimited practice after the live exam closes. Improve without affecting leaderboard position.</p><span class="feat-chip">Practice</span></div>
+  </div>
+</div>
 
-  <section class="cta-section">
-    <div class="cta-box">
-      <h2>Ready to Begin?</h2>
-      <p>Join students already preparing smarter with Exalyte. Create your free account in seconds.</p>
-      <button class="btn-primary btn-lg" onclick="openModal('signup')">Create Free Account</button>
-    </div>
-  </section>
-</main>
+<div class="cta-section">
+  <div class="cta-box">
+    <h2>Ready to Begin?</h2>
+    <p>Create your free account in seconds and start preparing smarter.</p>
+    <button class="btn btn-primary btn-lg" onclick="openModal('authModal');switchTab('signup')">Create Free Account</button>
+  </div>
+</div>
 
 <footer>
-  <a href="/" class="nav-logo" style="text-decoration:none">
-    <div class="logo-icon" style="width:24px;height:24px;border-radius:6px"><svg viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M9 12l2 2 4-4" stroke="white" stroke-width="2.5" fill="none"/></svg></div>
-    <span class="logo-text" style="font-size:1rem">Exalyte</span>
+  <a href="/" class="logo-wrap">
+    <img src="images/exalyte.png" alt="Exalyte" class="logo-img-sm">
+    <span class="logo-text-sm">Exalyte</span>
   </a>
   <div class="footer-links">
-    <a href="pricing.html">Pricing</a>
-    <a href="contact.html">Contact</a>
-    <a href="privacy.html">Privacy</a>
-    <a href="tos.html">Terms</a>
+    <a href="pricing.html">Pricing</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy</a><a href="tos.html">Terms</a>
   </div>
-  <div class="footer-copy">&copy; 2024 Exalyte</div>
+  <div style="color:var(--muted);font-size:.78rem">&copy; 2025 Exalyte</div>
 </footer>
 
 <!-- Auth Modal -->
 <div class="modal-overlay" id="authModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
+  <div class="modal" style="max-width:420px">
     <div class="modal-header">
-      <div class="modal-tabs">
-        <button class="tab-btn active" id="loginTab" onclick="switchTab('login')">Sign In</button>
-        <button class="tab-btn" id="signupTab" onclick="switchTab('signup')">Sign Up</button>
-      </div>
+      <span class="modal-title" id="authTitle">Welcome Back</span>
+      <button class="modal-close" onclick="closeModal('authModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
-      <!-- Login -->
-      <form id="loginForm" onsubmit="handleLogin(event)">
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="loginEmail" placeholder="you@example.com" required autocomplete="email">
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="loginPass" placeholder="Your password" required autocomplete="current-password">
-        </div>
-        <div class="form-error" id="loginError"></div>
-        <button type="submit" class="btn-primary btn-full" id="loginBtn">
-          <span class="label">Sign In</span>
-          <span class="loading"><div class="spinner"></div></span>
-        </button>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="loginTab" onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab" id="signupTab" onclick="switchTab('signup')">Sign Up</button>
+      </div>
+      <form class="auth-form active" id="loginForm" onsubmit="doLogin(event)">
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="loginEmail" placeholder="you@example.com" required autocomplete="email"></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="loginPass" placeholder="Your password" required autocomplete="current-password"></div>
+        <div class="form-error" id="loginErr"></div>
+        <button type="submit" class="btn btn-primary btn-full" id="loginBtn" style="margin-top:8px"><span class="btn-label">Sign In</span><div class="spinner"></div></button>
       </form>
-      <!-- Signup -->
-      <form id="signupForm" style="display:none" onsubmit="handleSignup(event)">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="signupName" placeholder="Your full name" required autocomplete="name">
-        </div>
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="signupEmail" placeholder="you@example.com" required autocomplete="email">
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="signupPass" placeholder="Min. 6 characters" required autocomplete="new-password" minlength="6">
-        </div>
-        <div class="form-error" id="signupError"></div>
-        <button type="submit" class="btn-primary btn-full" id="signupBtn">
-          <span class="label">Create Account</span>
-          <span class="loading"><div class="spinner"></div></span>
-        </button>
+      <form class="auth-form" id="signupForm" onsubmit="doSignup(event)">
+        <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" type="text" id="signupName" placeholder="Your full name" required autocomplete="name"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="signupEmail" placeholder="you@example.com" required autocomplete="email"></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="signupPass" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password"></div>
+        <div class="form-error" id="signupErr"></div>
+        <button type="submit" class="btn btn-primary btn-full" id="signupBtn" style="margin-top:8px"><span class="btn-label">Create Account</span><div class="spinner"></div></button>
       </form>
     </div>
   </div>
 </div>
 
+<script src="assets/main.js"></script>
 <script>
-const API = '/api';
-let currentTab = 'login';
-
-// Check auth
-const token = localStorage.getItem('exalyte_token');
-const userData = localStorage.getItem('exalyte_user');
-if (token && userData) {
-  const user = JSON.parse(userData);
-  window.location.href = user.is_admin ? 'admin.html' : 'dashboard.html';
+(function(){ const t=getToken(),u=getUser(); if(t&&u) window.location.href=u.is_admin?'admin.html':'dashboard.html'; })();
+window.addEventListener('scroll',()=>{ document.getElementById('landNav').classList.toggle('scrolled',scrollY>20); },{passive:true});
+function switchTab(tab){
+  ['login','signup'].forEach(t=>{
+    document.getElementById(t+'Tab').classList.toggle('active',t===tab);
+    document.getElementById(t+'Form').classList.toggle('active',t===tab);
+  });
+  document.getElementById('authTitle').textContent=tab==='login'?'Welcome Back':'Create Account';
 }
-
-window.addEventListener('scroll', () => {
-  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
-});
-
-function openModal(tab) {
-  document.getElementById('authModal').classList.add('open');
-  switchTab(tab || 'login');
-  document.body.style.overflow = 'hidden';
+function showErr(id,msg){const e=document.getElementById(id);e.textContent=msg;e.classList.add('show');}
+function hideErr(id){document.getElementById(id).classList.remove('show');}
+async function doLogin(e){
+  e.preventDefault();hideErr('loginErr');setLoading('loginBtn',true);
+  try{
+    const{ok,data}=await apiFetch('/auth/login',{method:'POST',body:JSON.stringify({email:document.getElementById('loginEmail').value,password:document.getElementById('loginPass').value})});
+    if(!ok){showErr('loginErr',data.error||'Login failed');return;}
+    localStorage.setItem('exalyte_token',data.token);localStorage.setItem('exalyte_user',JSON.stringify(data.user));
+    window.location.href=data.user.is_admin?'admin.html':'dashboard.html';
+  }catch{showErr('loginErr','Network error. Try again.');}
+  finally{setLoading('loginBtn',false);}
 }
-
-function closeModal() {
-  document.getElementById('authModal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-document.getElementById('authModal').addEventListener('click', e => {
-  if (e.target === document.getElementById('authModal')) closeModal();
-});
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
-});
-
-function switchTab(tab) {
-  currentTab = tab;
-  document.getElementById('loginTab').classList.toggle('active', tab === 'login');
-  document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
-  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
-  document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
-}
-
-function setLoading(btn, loading) {
-  btn.classList.toggle('loading-state', loading);
-  btn.disabled = loading;
-}
-
-function showError(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg;
-  el.classList.add('show');
-}
-function hideError(id) { document.getElementById(id).classList.remove('show'); }
-
-async function handleLogin(e) {
-  e.preventDefault();
-  hideError('loginError');
-  const btn = document.getElementById('loginBtn');
-  setLoading(btn, true);
-  try {
-    const res = await fetch(`${API}/auth/login`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPass').value })
-    });
-    const data = await res.json();
-    if (!res.ok) { showError('loginError', data.error); return; }
-    localStorage.setItem('exalyte_token', data.token);
-    localStorage.setItem('exalyte_user', JSON.stringify(data.user));
-    window.location.href = data.user.is_admin ? 'admin.html' : 'dashboard.html';
-  } catch { showError('loginError', 'Network error. Please try again.'); }
-  finally { setLoading(btn, false); }
-}
-
-async function handleSignup(e) {
-  e.preventDefault();
-  hideError('signupError');
-  const btn = document.getElementById('signupBtn');
-  setLoading(btn, true);
-  try {
-    const res = await fetch(`${API}/auth/signup`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        name: document.getElementById('signupName').value,
-        email: document.getElementById('signupEmail').value,
-        password: document.getElementById('signupPass').value
-      })
-    });
-    const data = await res.json();
-    if (!res.ok) { showError('signupError', data.error); return; }
-    localStorage.setItem('exalyte_token', data.token);
-    localStorage.setItem('exalyte_user', JSON.stringify(data.user));
-    window.location.href = 'dashboard.html';
-  } catch { showError('signupError', 'Network error. Please try again.'); }
-  finally { setLoading(btn, false); }
+async function doSignup(e){
+  e.preventDefault();hideErr('signupErr');setLoading('signupBtn',true);
+  try{
+    const{ok,data}=await apiFetch('/auth/signup',{method:'POST',body:JSON.stringify({name:document.getElementById('signupName').value,email:document.getElementById('signupEmail').value,password:document.getElementById('signupPass').value})});
+    if(!ok){showErr('signupErr',data.error||'Signup failed');return;}
+    localStorage.setItem('exalyte_token',data.token);localStorage.setItem('exalyte_user',JSON.stringify(data.user));
+    window.location.href='dashboard.html';
+  }catch{showErr('signupErr','Network error. Try again.');}
+  finally{setLoading('signupBtn',false);}
 }
 </script>
 </body>
