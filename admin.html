@@ -614,13 +614,13 @@ async function loadUsers(){
       let ph='';
       if(hasAcc) ph+=`<span class="prem-tag prem-account">Account<button class="revoke-btn" onclick="revokeAccount(${u.id})" title="Revoke account premium">&#x2715;</button></span>`;
       gs.forEach(g=>{
-        const cls=g.grant_scope==='batch'?'prem-batch':'prem-exam';
-        const nm=esc(g.exam_name||g.batch_name||g.grant_scope);
-        // Pass grant scope and the correct id (exam_id or batch_id)
-        const revokeCall = g.grant_scope==='batch'
-          ? \`revokeBatchGrant(\${u.id},\${g.batch_id})\`
-          : \`revokeGrant(\${u.id},\${g.exam_id})\`;
-        ph+=\`<span class="prem-tag \${cls}">\${nm}<button class="revoke-btn" onclick="\${revokeCall}" title="Revoke">&#x2715;</button></span>\`;
+        const cls = g.grant_scope==='batch' ? 'prem-batch' : 'prem-exam';
+        const nm  = esc(g.exam_name || g.batch_name || g.grant_scope);
+        const fn  = g.grant_scope==='batch'
+          ? 'revokeBatchGrant(' + u.id + ',' + g.batch_id + ')'
+          : 'revokeGrant(' + u.id + ',' + g.exam_id + ')';
+        ph += '<span class="prem-tag ' + cls + '">' + nm +
+              '<button class="revoke-btn" onclick="' + fn + '" title="Revoke">&#x2715;</button></span>';
       });
       return `<tr>
         <td class="td-name">${esc(u.name)}</td>
