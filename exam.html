@@ -138,14 +138,28 @@ body{display:flex;flex-direction:column}
 .btn-return{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;border:none;padding:14px 36px;border-radius:14px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:8px;transition:all .2s}
 .btn-return:hover{opacity:.9}
 
-/* Mobile exam footer */
-.exam-mobile-footer{display:none;background:var(--surface);border-top:1px solid var(--border);padding:10px 16px;gap:8px;align-items:center}
-.btn-mob-submit{flex:1;background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;border:none;padding:12px;border-radius:12px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+/* Mobile exam footer — fixed, outside examUI */
+.exam-mobile-footer{
+  display:none;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  padding:10px 14px;
+  gap:8px;align-items:center;
+  position:fixed;bottom:0;left:0;right:0;z-index:30;
+  box-shadow:0 -4px 20px rgba(0,0,0,.3);
+}
+.exam-mobile-footer.visible{display:flex}
+.btn-mob-submit{
+  flex:1;background:linear-gradient(135deg,var(--accent),var(--accent3));
+  color:#fff;border:none;padding:14px;border-radius:12px;
+  font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-mob-submit svg{width:16px;height:16px;stroke:white;fill:none;stroke-width:2.5}
 
 @media(max-width:768px){
   .nav-sidebar{display:none}
-  .exam-mobile-footer{display:flex}
-  .questions-area{padding:14px}
+  .questions-area{padding:14px;padding-bottom:90px}
   .q-card{padding:16px}
   html,body{overflow:hidden}
 }
@@ -229,9 +243,14 @@ body{display:flex;flex-direction:column}
       </button>
     </div>
   </div>
-  <div class="exam-mobile-footer">
-    <button class="btn-mob-submit" onclick="openSubmit()">Submit Exam</button>
-  </div>
+</div>
+
+<!-- Mobile Submit Footer — outside examUI so display:none on parent doesn't hide it -->
+<div class="exam-mobile-footer" id="mobileFooter">
+  <button class="btn-mob-submit" onclick="openSubmit()">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    Submit Exam
+  </button>
 </div>
 
 <!-- Submit Modal -->
@@ -355,6 +374,10 @@ async function startExam() {
   document.getElementById('agreementScreen').style.display = 'none';
   const ui = document.getElementById('examUI');
   ui.style.display = 'flex';
+  // Show mobile footer on mobile devices
+  if (window.innerWidth <= 768) {
+    document.getElementById('mobileFooter').classList.add('visible');
+  }
   document.getElementById('examTitle').textContent = exam.name + (isPrac ? ' (Practice)' : '');
   timeLeft = exam.time_limit * 60;
   buildUI();
