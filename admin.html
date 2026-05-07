@@ -385,25 +385,62 @@ function showPanel(name){
 
 // ── Dashboard ──
 async function loadDashboard(){
-  const [er,ur,rr,br]=await Promise.all([
-    apiFetch('/exams/'),apiFetch('/admin/users'),apiFetch('/admin/results'),apiFetch('/batches')
-  ]);
-  const ex=Array.isArray(er.data)?er.data:[], us=Array.isArray(ur.data)?ur.data:[], rs=Array.isArray(rr.data)?rr.data:[], bt=Array.isArray(br.data)?br.data:[];
-  document.getElementById('dExams').textContent=ex.length;
-  document.getElementById('dBatches').textContent=bt.length;
-  document.getElementById('dUsers').textContent=us.length;
-  document.getElementById('dSubs').textContent=rs.length;
-  document.getElementById('recentTb').innerHTML=rs.slice(0,10).map(r=>`
-    <tr><td class="td-name">${esc(r.user_name)}<br><small style="color:var(--muted);font-size:.72rem">${esc(r.email)}</small></td>
-    <td>${esc(r.exam_name)}</td>
-    <td class="td-mono">${r.score}/${r.total_questions}<div class="mini-bar" style="display:inline-block"><div class="mini-fill" style="width:${r.percentage}%"></div></div></td>
-    <td style="color:var(--muted);font-size:.8rem">${formatDate(r.submitted_at)}</td></tr>`).join('')
-    ||'<tr class="empty-row"><td colspan="4">No submissions yet</td></tr>';
+  try {
+    const [er,ur,rr,br] = await Promise.all([
+      apiFetch('/exams'),
+      apiFetch('/admin/users'),
+      apiFetch('/admin/results'),
+      apiFetch('/batches')
+    ]);
+
+    // Debug: log what we got
+    console.log('exams:', er.ok, er.status, er.data);
+    console.log('users:', ur.ok, ur.status, ur.data);
+    console.log('results:', rr.ok, rr.status, rr.data);
+    console.log('batches:', br.ok, br.status, br.data);
+
+    if (!er.ok || !ur.ok) {
+      notify('Session expired. Please log in again.', true);
+      setTimeout(logout, 2000);
+      return;
+    }
+
+    const ex = Array.isArray(er.data) ? er.data : [];
+    const us = Array.isArray(ur.data) ? ur.data : [];
+    const rs = Array.isArray(rr.data) ? rr.data : [];
+    const bt = Array.isArray(br.data) ? br.data : [];
+
+    allExams   = ex;
+    allBatches = bt;
+    allUsers   = us;
+
+    document.getElementById('dExams').textContent   = ex.length;
+    document.getElementById('dBatches').textContent = bt.length;
+    document.getElementById('dUsers').textContent   = us.length;
+    document.getElementById('dSubs').textContent    = rs.length;
+
+    document.getElementById('recentTb').innerHTML = rs.slice(0,10).map(r=>`
+      <tr>
+        <td class="td-name">${esc(r.user_name)}<br><small style="color:var(--muted);font-size:.72rem">${esc(r.email)}</small></td>
+        <td>${esc(r.exam_name)}</td>
+        <td class="td-mono">${r.score}/${r.total_questions}
+          <div class="mini-bar" style="display:inline-block"><div class="mini-fill" style="width:${r.percentage||0}%"></div></div>
+        </td>
+        <td style="color:var(--muted);font-size:.8rem">${formatDate(r.submitted_at)}</td>
+      </tr>`).join('') || '<tr class="empty-row"><td colspan="4">No submissions yet</td></tr>';
+
+  } catch(e) {
+    console.error('Dashboard load error:', e);
+    notify('Failed to load dashboard: ' + e.message, true);
+  }
 }
 
 // ── Batches ──
 async function loadBatches(){
-  const{data}=await apiFetch('/batches'); allBatches=Array.isArray(data)?data:[];
+  try{
+  const{ok,data,status}=await apiFetch('/batches');
+  console.log('batches:', ok, status, data);
+  allBatches=Array.isArray(data)?data:[];
   document.getElementById('batchesTb').innerHTML=allBatches.length
     ?allBatches.map(b=>`<tr>
       <td class="td-name">${esc(b.name)}</td><td style="color:var(--muted)">${esc(b.description)||'—'}</td>
@@ -412,6 +449,7 @@ async function loadBatches(){
       <td><div class="td-actions"><button class="btn btn-danger btn-sm" onclick="deleteBatch(${b.id},'${esc(b.name)}')">Delete</button></div></td>
     </tr>`).join('')
     :'<tr class="empty-row"><td colspan="5">No batches yet</td></tr>';
+  }catch(e){console.error('loadBatches error:',e);notify('Failed to load batches: '+e.message,true);}
 }
 async function saveBatch(){
   const name=document.getElementById('batchName').value.trim(); if(!name)return;
@@ -428,7 +466,7 @@ async function deleteBatch(id,name){
 
 // ── Exams ──
 async function loadExams(){
-  const{data}=await apiFetch('/exams/'); allExams=Array.isArray(data)?data:[];
+  const{data}=await apiFetch('/exams'); allExams=Array.isArray(data)?data:[];
   document.getElementById('examsTb').innerHTML=allExams.length
     ?allExams.map(e=>{
       const tb=e.is_live?'<span class="badge badge-live">Live</span>':e.is_premium?'<span class="badge badge-premium">Premium</span>':'<span class="badge badge-free">Free</span>';
@@ -493,7 +531,7 @@ async function deleteExam(id,name){
 
 // ── Questions ──
 async function initQPanel(){
-  if(!allExams.length){const{data}=await apiFetch('/exams/');allExams=Array.isArray(data)?data:[];}
+  if(!allExams.length){const{data}=await apiFetch('/exams');allExams=Array.isArray(data)?data:[];}
   const sel=document.getElementById('qExamSel');
   const prev=sel.value;
   sel.innerHTML='<option value="">— Select an exam —</option>'+allExams.map(e=>`<option value="${e.id}">${esc(e.name)} (${e.question_count} Qs)</option>`).join('');
@@ -545,7 +583,7 @@ async function doUpload(){
     document.getElementById('fileInput').value='';
     document.getElementById('fileChosen').style.display='none';
     await refreshQList(eid);
-    const{data:ed}=await apiFetch('/exams/');allExams=Array.isArray(ed)?ed:[];
+    const{data:ed}=await apiFetch('/exams');allExams=Array.isArray(ed)?ed:[];
   }else{
     document.getElementById('banErrMsg').textContent=data.error||'Upload failed. Check CSV format.';
     document.getElementById('banErr').classList.add('show');
@@ -565,7 +603,7 @@ async function deleteAllQs(){
 // ── Users ──
 async function loadUsers(){
   // Make sure we have exams and batches loaded for the grant modal
-  if(!allExams.length){const{data}=await apiFetch('/exams/');allExams=Array.isArray(data)?data:[];}
+  if(!allExams.length){const{data}=await apiFetch('/exams');allExams=Array.isArray(data)?data:[];}
   if(!allBatches.length){const{data}=await apiFetch('/batches');allBatches=Array.isArray(data)?data:[];}
   const{data}=await apiFetch('/admin/users');allUsers=Array.isArray(data)?data:[];
   const now=new Date().toISOString();
@@ -646,7 +684,7 @@ async function revokeAccount(uid){
 
 // ── Results ──
 async function loadResultFilter(){
-  if(!allExams.length){const{data}=await apiFetch('/exams/');allExams=Array.isArray(data)?data:[];}
+  if(!allExams.length){const{data}=await apiFetch('/exams');allExams=Array.isArray(data)?data:[];}
   document.getElementById('resultFilter').innerHTML='<option value="">All Exams</option>'+allExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');
 }
 async function loadResults(){
