@@ -28,13 +28,24 @@ async function signJWT(payload) {
 
 async function verifyJWT(token) {
   try {
-    const [h, b, s] = token.split('.');
+    if (!token || typeof token !== 'string') return null;
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const [h, b, s] = parts;
     const expected = await hmacSha256(JWT_SECRET, `${h}.${b}`);
     if (s !== expected) return null;
-    const payload = JSON.parse(atob(b.replace(/-/g, '+').replace(/_/g, '/')));
+    // Add padding for base64 decoding
+    const padded = b.replace(/-/g, '+').replace(/_/g, '/');
+    const pad = padded.length % 4;
+    const padded2 = pad ? padded + '===='.slice(pad) : padded;
+    const payload = JSON.parse(atob(padded2));
+    if (!payload || !payload.exp) return null;
     if (payload.exp < Math.floor(Date.now() / 1000)) return null;
     return payload;
-  } catch { return null; }
+  } catch(e) {
+    console.error('JWT verify error:', e);
+    return null;
+  }
 }
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
@@ -605,6 +616,9 @@ async function handleAdminPremiumGrants(db) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN ROUTER
 // ═══════════════════════════════════════════════════════════════════════════════
+// Track if DB has been initialized this worker instance
+let dbInitialized = false;
+
 export async function onRequest(context) {
   const { request, env } = context;
   const db = env.DB;
@@ -613,11 +627,23 @@ export async function onRequest(context) {
     return new Response(null, { status: 204, headers: CORS });
   }
 
-  try { await initDB(db); } catch (e) { console.error('DB init error:', e); }
+  // Only init DB once per worker instance
+  if (!dbInitialized) {
+    try {
+      await initDB(db);
+      dbInitialized = true;
+    } catch (e) {
+      console.error('DB init error:', e);
+      // Try to continue anyway - tables might already exist
+    }
+  }
 
   const url = new URL(request.url);
   let path = url.pathname.replace(/^\/api/, '').replace(/\/$/, '') || '/';
   const method = request.method;
+
+  // ── Health check ──
+  if (path === '/ping') return json({ ok: true, ts: Date.now() });
 
   // ── Auth ──
   if (path === '/auth/signup' && method === 'POST') return handleSignup(request, db);
