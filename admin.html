@@ -7,18 +7,14 @@
 <style>
 body{min-height:100vh}
 .admin-badge{font-size:.58rem;font-weight:700;background:var(--accent);color:#fff;padding:2px 6px;border-radius:4px;letter-spacing:.06em;text-transform:uppercase;margin-left:5px;vertical-align:middle}
-
-/* Panels */
 .panel{display:none;padding:26px;flex:1}
 .panel.active{display:block}
-
-/* Upload panel */
 .up-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:26px;margin-bottom:20px}
 .up-title{font-family:'Lexend',sans-serif;font-weight:800;font-size:.95rem;color:var(--text-bright);margin-bottom:4px}
 .up-sub{font-size:.81rem;color:var(--muted);margin-bottom:20px;line-height:1.55}
 .fmt-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px 16px;font-family:'JetBrains Mono',monospace;font-size:.74rem;line-height:1.85;overflow-x:auto;white-space:pre;margin-bottom:18px}
-.fmt-head{color:var(--accent2)}
-.fmt-row{color:var(--text)}
+.fmt-key{color:var(--accent2)}
+.fmt-str{color:var(--success)}
 .drop-zone{border:2px dashed var(--border);border-radius:14px;padding:30px 16px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-bottom:12px}
 .drop-zone:hover,.drop-zone.over{border-color:var(--accent);background:rgba(99,102,241,.04)}
 .drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
@@ -30,9 +26,9 @@ body{min-height:100vh}
 .file-chosen{font-size:.78rem;color:var(--success);font-weight:600;margin-top:7px;display:none}
 .or-row{display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--muted);font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em}
 .or-row::before,.or-row::after{content:'';flex:1;height:1px;background:var(--border)}
-.csv-area{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:12px 14px;color:var(--text-bright);font-size:.77rem;font-family:'JetBrains Mono',monospace;outline:none;transition:border-color .2s;resize:vertical;min-height:140px;line-height:1.65}
-.csv-area:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.11)}
-.csv-area::placeholder{color:var(--muted)}
+.json-area{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:12px 14px;color:var(--text-bright);font-size:.77rem;font-family:'JetBrains Mono',monospace;outline:none;transition:border-color .2s;resize:vertical;min-height:200px;line-height:1.65;tab-size:2}
+.json-area:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.11)}
+.json-area::placeholder{color:var(--muted)}
 .check-row{display:flex;align-items:center;gap:9px;margin:14px 0}
 .check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
 .check-row label{font-size:.855rem;color:var(--text);font-weight:500;cursor:pointer}
@@ -41,42 +37,24 @@ body{min-height:100vh}
 .banner svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;flex-shrink:0}
 .banner-ok{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);color:var(--success)}
 .banner-err{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:var(--error)}
-
-/* Q list */
 .q-list{display:flex;flex-direction:column;gap:7px;max-height:380px;overflow-y:auto;margin-top:13px}
 .q-list::-webkit-scrollbar{width:4px}
 .q-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .q-item{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px 13px;display:flex;align-items:flex-start;gap:9px}
 .q-num{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;color:var(--muted);background:var(--surface3);padding:2px 6px;border-radius:4px;flex-shrink:0;margin-top:1px}
-.q-text{font-size:.8rem;color:var(--text);flex:1;line-height:1.5}
+.q-text{font-size:.8rem;color:var(--text);flex:1;line-height:1.5;word-break:break-word}
 .q-ans{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;color:var(--success);background:rgba(34,197,94,.1);padding:2px 7px;border-radius:4px;flex-shrink:0}
 .q-del{background:none;border:none;cursor:pointer;color:var(--muted);padding:2px;border-radius:4px;transition:color .15s;flex-shrink:0;display:flex}
 .q-del:hover{color:var(--error)}
 .q-del svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
-
-/* Bottom nav for mobile */
+.q-expl{font-size:.7rem;color:var(--premium);margin-top:3px;line-height:1.4;word-break:break-word}
 .bottom-nav-items{display:flex}
 .bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;color:var(--muted);font-size:.55rem;font-weight:600;border:none;background:none;cursor:pointer;transition:color .2s;font-family:'Inter',sans-serif}
 .bottom-nav-item.active{color:var(--accent2)}
 .bottom-nav-item svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8}
-
-/* Revoke button inside premium tags */
-.revoke-btn{
-  background:none;border:none;cursor:pointer;
-  font-size:.75rem;font-weight:900;line-height:1;
-  color:currentColor;opacity:.6;
-  padding:1px 3px;margin-left:3px;
-  border-radius:3px;transition:opacity .15s, background .15s;
-  font-family:'Inter',sans-serif;
-  display:inline-flex;align-items:center;justify-content:center;
-  vertical-align:middle;
-}
-.revoke-btn:hover{opacity:1;background:rgba(0,0,0,.2);}
-
-@media(max-width:768px){
-  .panel{padding:14px}
-  .up-card{padding:18px}
-}
+.revoke-btn{background:none;border:none;cursor:pointer;font-size:.75rem;font-weight:900;line-height:1;color:currentColor;opacity:.6;padding:1px 3px;margin-left:3px;border-radius:3px;transition:opacity .15s,background .15s;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
+.revoke-btn:hover{opacity:1;background:rgba(0,0,0,.2)}
+@media(max-width:768px){.panel{padding:14px}.up-card{padding:18px}}
 </style>
 </head>
 <body class="app-layout">
@@ -186,35 +164,62 @@ body{min-height:100vh}
 
   <!-- Upload Questions -->
   <div class="panel" id="panel-questions">
-    <div class="sect-header"><span class="sect-title">Upload Questions via CSV</span></div>
+    <div class="sect-header"><span class="sect-title">Upload Questions via JSON</span></div>
     <div class="up-card">
       <div class="up-title">Step 1 — Select Exam</div>
-      <div class="up-sub">Pick which exam to upload questions to. Create the exam first if it's missing.</div>
+      <div class="up-sub">Pick which exam to upload questions to. Create the exam first if missing.</div>
       <div class="form-group" style="margin-bottom:0">
         <label class="form-label">Target Exam</label>
         <select class="form-select" id="qExamSel" onchange="onExamPick()"><option value="">— Select an exam —</option></select>
       </div>
     </div>
-
     <div class="up-card" id="uploadSteps" style="display:none">
-      <div class="up-title">Step 2 — CSV Format</div>
-      <div class="up-sub">Follow the exact format. Header row optional. <code style="background:var(--surface3);padding:1px 5px;border-radius:3px;font-size:.78rem">correct_answer</code> must be A/B/C/D. Leave <code style="background:var(--surface3);padding:1px 5px;border-radius:3px;font-size:.78rem">image_url</code> blank if not needed.</div>
-      <div class="fmt-box"><span class="fmt-head">question,option_a,option_b,option_c,option_d,correct_answer,image_url</span>
-<span class="fmt-row">"What is 2+2?",3,4,5,6,B,</span>
-<span class="fmt-row">"Capital of France?",Berlin,Paris,Rome,Madrid,B,</span>
-<span class="fmt-row">"Speed of light?","3e8 m/s","3e6 m/s","3e10 m/s","3e4 m/s",A,https://ex.com/img.png</span></div>
-
+      <div class="up-title">Step 2 — JSON Format</div>
+      <div class="up-sub">Upload an array of question objects. <code style="background:var(--surface3);padding:1px 5px;border-radius:3px;font-size:.78rem">answer</code> must be A/B/C/D. Fields <code style="background:var(--surface3);padding:1px 5px;border-radius:3px;font-size:.78rem">image_url</code> and <code style="background:var(--surface3);padding:1px 5px;border-radius:3px;font-size:.78rem">explanation</code> are optional.</div>
+      <div class="fmt-box"><span class="fmt-key">[</span>
+  <span class="fmt-key">{</span>
+    <span class="fmt-key">"question"</span>: <span class="fmt-str">"What is the chemical formula of water?"</span>,
+    <span class="fmt-key">"option_a"</span>: <span class="fmt-str">"H₂O"</span>,
+    <span class="fmt-key">"option_b"</span>: <span class="fmt-str">"CO₂"</span>,
+    <span class="fmt-key">"option_c"</span>: <span class="fmt-str">"NaCl"</span>,
+    <span class="fmt-key">"option_d"</span>: <span class="fmt-str">"O₂"</span>,
+    <span class="fmt-key">"answer"</span>: <span class="fmt-str">"A"</span>,
+    <span class="fmt-key">"image_url"</span>: <span class="fmt-str">""</span>,
+    <span class="fmt-key">"explanation"</span>: <span class="fmt-str">"Water is H₂O — two hydrogen atoms bonded to one oxygen atom."</span>
+  <span class="fmt-key">}</span>,
+  <span class="fmt-key">{</span>
+    <span class="fmt-key">"question"</span>: <span class="fmt-str">"Solve: ∫₀¹ x² dx = ?"</span>,
+    <span class="fmt-key">"option_a"</span>: <span class="fmt-str">"1/3"</span>,
+    <span class="fmt-key">"option_b"</span>: <span class="fmt-str">"1/2"</span>,
+    <span class="fmt-key">"option_c"</span>: <span class="fmt-str">"1"</span>,
+    <span class="fmt-key">"option_d"</span>: <span class="fmt-str">"2/3"</span>,
+    <span class="fmt-key">"answer"</span>: <span class="fmt-str">"A"</span>,
+    <span class="fmt-key">"image_url"</span>: <span class="fmt-str">"https://example.com/integral.png"</span>,
+    <span class="fmt-key">"explanation"</span>: <span class="fmt-str">"∫x² dx = x³/3. Evaluate from 0 to 1: (1/3 - 0) = 1/3"</span>
+  <span class="fmt-key">}</span>
+<span class="fmt-key">]</span></div>
       <div class="drop-zone" id="dropZone">
-        <input type="file" id="fileInput" accept=".csv,.txt" onchange="onFilePick(this)">
+        <input type="file" id="fileInput" accept=".json,.txt" onchange="onFilePick(this)">
         <div class="drop-icon"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg></div>
         <p><strong>Click to upload</strong> or drag & drop</p>
-        <small>.csv or .txt files</small>
+        <small>.json or .txt files</small>
         <div class="file-chosen" id="fileChosen"></div>
       </div>
       <div class="or-row">or paste directly</div>
       <div class="form-group">
-        <label class="form-label">CSV Content</label>
-        <textarea class="csv-area" id="csvPaste" placeholder="question,option_a,option_b,option_c,option_d,correct_answer,image_url&#10;&quot;What is 2+2?&quot;,3,4,5,6,B,"></textarea>
+        <label class="form-label">JSON Content</label>
+        <textarea class="json-area" id="jsonPaste" placeholder='[
+  {
+    "question": "What is 2+2?",
+    "option_a": "3",
+    "option_b": "4",
+    "option_c": "5",
+    "option_d": "6",
+    "answer": "B",
+    "image_url": "",
+    "explanation": "Basic addition: 2 + 2 = 4"
+  }
+]'></textarea>
       </div>
       <div class="check-row">
         <input type="checkbox" id="replaceAll" checked>
@@ -227,7 +232,6 @@ body{min-height:100vh}
       <div class="banner banner-ok" id="banOk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="banOkMsg"></span></div>
       <div class="banner banner-err" id="banErr"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="banErrMsg"></span></div>
     </div>
-
     <div class="up-card" id="qCurrentCard" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px">
         <div><div class="up-title">Current Questions <span id="qCountLbl" style="font-size:.82rem;font-weight:400;color:var(--muted)"></span></div></div>
@@ -293,7 +297,7 @@ body{min-height:100vh}
     <div class="modal-header"><span class="modal-title" id="examModalTitle">New Exam</span><button class="modal-close" onclick="closeModal('examModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="modal-body">
       <div class="form-group"><label class="form-label">Exam Name</label><input class="form-input" type="text" id="examName" placeholder="e.g. Physics Mock Test 1"></div>
-      <div class="form-group"><label class="form-label">Description (shown to students before exam)</label><textarea class="form-textarea" id="examDesc" placeholder="Describe this exam — topics covered, instructions, etc." rows="3"></textarea></div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="examDesc" placeholder="Describe this exam..." rows="3"></textarea></div>
       <div class="grid-2">
         <div class="form-group"><label class="form-label">Time Limit (min)</label><input class="form-input" type="number" id="examTime" value="30" min="1"></div>
         <div class="form-group"><label class="form-label">Batch</label><select class="form-select" id="examBatch"><option value="">— No Batch —</option></select></div>
@@ -302,7 +306,7 @@ body{min-height:100vh}
         <div class="form-group"><label class="form-label">Negative Marking</label><input class="form-input" type="number" id="examNeg" value="0" min="0" step="0.25"></div>
         <div class="form-group"><label class="form-label">Live Deadline (hours, 0=none)</label><input class="form-input" type="number" id="examLive" value="0" min="0"></div>
       </div>
-      <div class="form-group"><div class="toggle-row"><span class="toggle-label">Premium (paid) exam</span><button class="toggle" id="examPremToggle" onclick="this.classList.toggle('on')"></button></div></div>
+      <div class="form-group"><div class="toggle-row"><span class="toggle-label">Premium exam</span><button class="toggle" id="examPremToggle" onclick="this.classList.toggle('on')"></button></div></div>
       <div class="form-group"><div class="toggle-row"><span class="toggle-label">Allow practice mode</span><button class="toggle on" id="examPractToggle" onclick="this.classList.toggle('on')"></button></div></div>
     </div>
     <div class="modal-footer">
@@ -312,38 +316,24 @@ body{min-height:100vh}
   </div>
 </div>
 
-<!-- Grant Premium Modal — FIXED: batch populate -->
+<!-- Grant Premium Modal -->
 <div class="modal-overlay" id="grantModal">
   <div class="modal">
     <div class="modal-header"><span class="modal-title">Grant Premium Access</span><button class="modal-close" onclick="closeModal('grantModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="modal-body">
       <div class="form-group"><label class="form-label">User</label><div id="grantUserDisplay" style="padding:10px 14px;background:var(--surface2);border-radius:10px;font-weight:600;color:var(--text-bright);font-size:.875rem"></div></div>
-      <div class="form-group">
-        <label class="form-label">Access Scope</label>
+      <div class="form-group"><label class="form-label">Access Scope</label>
         <select class="form-select" id="grantScope" onchange="onScopeChange()">
           <option value="exam">Single Exam</option>
           <option value="batch">Entire Batch</option>
-          <option value="account">Account-Wide (All Exams)</option>
+          <option value="account">Account-Wide</option>
         </select>
       </div>
-      <!-- Exam picker -->
-      <div class="form-group" id="grantExamRow">
-        <label class="form-label">Select Exam</label>
-        <select class="form-select" id="grantExamSel"></select>
-      </div>
-      <!-- Batch picker — was missing, now fixed -->
-      <div class="form-group" id="grantBatchRow" style="display:none">
-        <label class="form-label">Select Batch</label>
-        <select class="form-select" id="grantBatchSel"></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Duration</label>
+      <div class="form-group" id="grantExamRow"><label class="form-label">Select Exam</label><select class="form-select" id="grantExamSel"></select></div>
+      <div class="form-group" id="grantBatchRow" style="display:none"><label class="form-label">Select Batch</label><select class="form-select" id="grantBatchSel"></select></div>
+      <div class="form-group"><label class="form-label">Duration</label>
         <select class="form-select" id="grantDur">
-          <option value="">Permanent</option>
-          <option value="24">24 hours</option>
-          <option value="72">72 hours</option>
-          <option value="168">7 days</option>
-          <option value="720">30 days</option>
+          <option value="">Permanent</option><option value="24">24 hours</option><option value="72">72 hours</option><option value="168">7 days</option><option value="720">30 days</option>
         </select>
       </div>
     </div>
@@ -358,138 +348,80 @@ body{min-height:100vh}
 <script>
 if (!requireAdmin()) throw '';
 const user = getUser();
-document.getElementById('userName').textContent  = user?.name || 'Admin';
+document.getElementById('userName').textContent = user?.name || 'Admin';
 document.getElementById('userAvatar').textContent = (user?.name||'A')[0].toUpperCase();
 
 let allExams=[], allBatches=[], allUsers=[], editingExamId=null, grantUserId=null;
 
-// ── Panels ──
 const ptitles={dashboard:'Dashboard',batches:'Batches',exams:'Exams',questions:'Upload Questions',users:'Users',results:'Results'};
+
 function showPanel(name){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.querySelectorAll('.bottom-nav-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>{ if(n.getAttribute('onclick')?.includes("'"+name+"'")) n.classList.add('active'); });
-  const mBtn = document.getElementById('mNav-'+name);
-  if(mBtn) mBtn.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')?.includes("'"+name+"'"))n.classList.add('active')});
+  const mBtn=document.getElementById('mNav-'+name);if(mBtn)mBtn.classList.add('active');
   document.getElementById('topbarTitle').textContent=ptitles[name]||name;
-  if(window.innerWidth<=768){ document.getElementById('sidebar')?.classList.remove('open'); document.getElementById('sidebarOverlay')?.classList.remove('open'); document.body.style.overflow=''; }
-  if(name==='dashboard')   loadDashboard();
-  if(name==='batches')     loadBatches();
-  if(name==='exams')       loadExams();
-  if(name==='questions')   initQPanel();
-  if(name==='users')       loadUsers();
-  if(name==='results')     { loadResultFilter(); loadResults(); }
+  if(window.innerWidth<=768){document.getElementById('sidebar')?.classList.remove('open');document.getElementById('sidebarOverlay')?.classList.remove('open');document.body.style.overflow=''}
+  if(name==='dashboard')loadDashboard();
+  if(name==='batches')loadBatches();
+  if(name==='exams')loadExams();
+  if(name==='questions')initQPanel();
+  if(name==='users')loadUsers();
+  if(name==='results'){loadResultFilter();loadResults();}
 }
 
-// ── Dashboard ──
 async function loadDashboard(){
-  try {
-    const [er,ur,rr,br] = await Promise.all([
-      apiFetch('/exams'),
-      apiFetch('/admin/users'),
-      apiFetch('/admin/results'),
-      apiFetch('/batches')
-    ]);
-
-    // Debug: log what we got
-    console.log('exams:', er.ok, er.status, er.data);
-    console.log('users:', ur.ok, ur.status, ur.data);
-    console.log('results:', rr.ok, rr.status, rr.data);
-    console.log('batches:', br.ok, br.status, br.data);
-
-    if (!er.ok || !ur.ok) {
-      notify('Session expired. Please log in again.', true);
-      setTimeout(logout, 2000);
-      return;
-    }
-
-    const ex = Array.isArray(er.data) ? er.data : [];
-    const us = Array.isArray(ur.data) ? ur.data : [];
-    const rs = Array.isArray(rr.data) ? rr.data : [];
-    const bt = Array.isArray(br.data) ? br.data : [];
-
-    allExams   = ex;
-    allBatches = bt;
-    allUsers   = us;
-
-    document.getElementById('dExams').textContent   = ex.length;
-    document.getElementById('dBatches').textContent = bt.length;
-    document.getElementById('dUsers').textContent   = us.length;
-    document.getElementById('dSubs').textContent    = rs.length;
-
-    document.getElementById('recentTb').innerHTML = rs.slice(0,10).map(r=>`
-      <tr>
-        <td class="td-name">${esc(r.user_name)}<br><small style="color:var(--muted);font-size:.72rem">${esc(r.email)}</small></td>
-        <td>${esc(r.exam_name)}</td>
-        <td class="td-mono">${r.score}/${r.total_questions}
-          <div class="mini-bar" style="display:inline-block"><div class="mini-fill" style="width:${r.percentage||0}%"></div></div>
-        </td>
-        <td style="color:var(--muted);font-size:.8rem">${formatDate(r.submitted_at)}</td>
-      </tr>`).join('') || '<tr class="empty-row"><td colspan="4">No submissions yet</td></tr>';
-
-  } catch(e) {
-    console.error('Dashboard load error:', e);
-    notify('Failed to load dashboard: ' + e.message, true);
-  }
+  try{
+    const[er,ur,rr,br]=await Promise.all([apiFetch('/exams'),apiFetch('/admin/users'),apiFetch('/admin/results'),apiFetch('/batches')]);
+    if(!er.ok||!ur.ok){notify('Session expired. Please log in again.',true);setTimeout(logout,2000);return}
+    const ex=Array.isArray(er.data)?er.data:[],us=Array.isArray(ur.data)?ur.data:[],rs=Array.isArray(rr.data)?rr.data:[],bt=Array.isArray(br.data)?br.data:[];
+    allExams=ex;allBatches=bt;allUsers=us;
+    document.getElementById('dExams').textContent=ex.length;
+    document.getElementById('dBatches').textContent=bt.length;
+    document.getElementById('dUsers').textContent=us.length;
+    document.getElementById('dSubs').textContent=rs.length;
+    document.getElementById('recentTb').innerHTML=rs.slice(0,10).map(r=>`<tr><td class="td-name">${esc(r.user_name)}<br><small style="color:var(--muted);font-size:.72rem">${esc(r.email)}</small></td><td>${esc(r.exam_name)}</td><td class="td-mono">${r.score}/${r.total_questions}<div class="mini-bar" style="display:inline-block"><div class="mini-fill" style="width:${r.percentage||0}%"></div></div></td><td style="color:var(--muted);font-size:.8rem">${formatDate(r.submitted_at)}</td></tr>`).join('')||'<tr class="empty-row"><td colspan="4">No submissions yet</td></tr>';
+  }catch(e){notify('Failed to load dashboard: '+e.message,true)}
 }
 
-// ── Batches ──
 async function loadBatches(){
   try{
-  const{ok,data,status}=await apiFetch('/batches');
-  console.log('batches:', ok, status, data);
-  allBatches=Array.isArray(data)?data:[];
-  document.getElementById('batchesTb').innerHTML=allBatches.length
-    ?allBatches.map(b=>`<tr>
-      <td class="td-name">${esc(b.name)}</td><td style="color:var(--muted)">${esc(b.description)||'—'}</td>
-      <td><span class="badge badge-student">${b.exam_count}</span></td>
-      <td style="color:var(--muted);font-size:.8rem">${formatDate(b.created_at)}</td>
-      <td><div class="td-actions"><button class="btn btn-danger btn-sm" onclick="deleteBatch(${b.id},'${esc(b.name)}')">Delete</button></div></td>
-    </tr>`).join('')
-    :'<tr class="empty-row"><td colspan="5">No batches yet</td></tr>';
-  }catch(e){console.error('loadBatches error:',e);notify('Failed to load batches: '+e.message,true);}
+    const{ok,data}=await apiFetch('/batches');
+    allBatches=Array.isArray(data)?data:[];
+    document.getElementById('batchesTb').innerHTML=allBatches.length?allBatches.map(b=>`<tr><td class="td-name">${esc(b.name)}</td><td style="color:var(--muted)">${esc(b.description)||'—'}</td><td><span class="badge badge-student">${b.exam_count}</span></td><td style="color:var(--muted);font-size:.8rem">${formatDate(b.created_at)}</td><td><div class="td-actions"><button class="btn btn-danger btn-sm" onclick="deleteBatch(${b.id},'${esc(b.name)}')">Delete</button></div></td></tr>`).join(''):'<tr class="empty-row"><td colspan="5">No batches yet</td></tr>';
+  }catch(e){notify('Failed to load batches: '+e.message,true)}
 }
+
 async function saveBatch(){
-  const name=document.getElementById('batchName').value.trim(); if(!name)return;
+  const name=document.getElementById('batchName').value.trim();if(!name)return;
   setLoading('saveBatchBtn',true);
   const{ok,data}=await apiFetch('/admin/batches',{method:'POST',body:JSON.stringify({name,description:document.getElementById('batchDesc').value})});
   setLoading('saveBatchBtn',false);
-  if(ok){closeModal('batchModal');loadBatches();notify('Batch created!');}else notify(data.error,true);
+  if(ok){closeModal('batchModal');loadBatches();notify('Batch created!')}else notify(data.error,true)
 }
+
 async function deleteBatch(id,name){
   if(!confirm(`Delete batch "${name}"?`))return;
   await apiFetch('/admin/batches/'+id,{method:'DELETE'});
-  loadBatches();notify('Batch deleted');
+  loadBatches();notify('Batch deleted')
 }
 
-// ── Exams ──
 async function loadExams(){
-  const{data}=await apiFetch('/exams'); allExams=Array.isArray(data)?data:[];
-  document.getElementById('examsTb').innerHTML=allExams.length
-    ?allExams.map(e=>{
-      const tb=e.is_live?'<span class="badge badge-live">Live</span>':e.is_premium?'<span class="badge badge-premium">Premium</span>':'<span class="badge badge-free">Free</span>';
-      return `<tr>
-        <td class="td-name">${esc(e.name)}</td><td style="color:var(--muted)">${esc(e.batch_name)||'—'}</td>
-        <td>${tb}</td><td class="td-mono">${e.question_count}</td><td class="td-mono">${e.time_limit}m</td>
-        <td><div class="td-actions">
-          <button class="btn btn-secondary btn-sm" onclick="jumpToQUpload(${e.id})"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Qs</button>
-          <button class="btn btn-secondary btn-sm" onclick="openExamModal(${e.id})">Edit</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id},'${esc(e.name)}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
-        </div></td>
-      </tr>`;
-    }).join('')
-    :'<tr class="empty-row"><td colspan="6">No exams yet. Create one first.</td></tr>';
+  const{data}=await apiFetch('/exams');allExams=Array.isArray(data)?data:[];
+  document.getElementById('examsTb').innerHTML=allExams.length?allExams.map(e=>{
+    const tb=e.is_live?'<span class="badge badge-live">Live</span>':e.is_premium?'<span class="badge badge-premium">Premium</span>':'<span class="badge badge-free">Free</span>';
+    return `<tr><td class="td-name">${esc(e.name)}</td><td style="color:var(--muted)">${esc(e.batch_name)||'—'}</td><td>${tb}</td><td class="td-mono">${e.question_count}</td><td class="td-mono">${e.time_limit}m</td><td><div class="td-actions"><button class="btn btn-secondary btn-sm" onclick="jumpToQUpload(${e.id})"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Qs</button><button class="btn btn-secondary btn-sm" onclick="openExamModal(${e.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id},'${esc(e.name)}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div></td></tr>`
+  }).join(''):'<tr class="empty-row"><td colspan="6">No exams yet. Create one first.</td></tr>'
 }
-function jumpToQUpload(eid){
-  showPanel('questions');
-  setTimeout(()=>{ const s=document.getElementById('qExamSel'); if(s){s.value=eid;onExamPick();} },120);
-}
+
+function jumpToQUpload(eid){showPanel('questions');setTimeout(()=>{const s=document.getElementById('qExamSel');if(s){s.value=eid;onExamPick()}},120)}
+
 async function openExamModal(eid){
   editingExamId=eid||null;
   document.getElementById('examModalTitle').textContent=eid?'Edit Exam':'New Exam';
-  if(!allBatches.length){const{data}=await apiFetch('/batches');allBatches=Array.isArray(data)?data:[];}
+  if(!allBatches.length){const{data}=await apiFetch('/batches');allBatches=Array.isArray(data)?data:[]}
   const bs=document.getElementById('examBatch');
   bs.innerHTML='<option value="">— No Batch —</option>'+allBatches.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
   if(eid){
@@ -501,211 +433,200 @@ async function openExamModal(eid){
     document.getElementById('examLive').value=e.live_deadline_hours||0;
     document.getElementById('examPremToggle').classList.toggle('on',!!e.is_premium);
     document.getElementById('examPractToggle').classList.toggle('on',e.allow_practice!==0);
-    bs.value=e.batch_id||'';
+    bs.value=e.batch_id||''
   }else{
-    document.getElementById('examName').value='';
-    document.getElementById('examDesc').value='';
-    document.getElementById('examTime').value=30;
-    document.getElementById('examNeg').value=0;
+    document.getElementById('examName').value='';document.getElementById('examDesc').value='';
+    document.getElementById('examTime').value=30;document.getElementById('examNeg').value=0;
     document.getElementById('examLive').value=0;
     document.getElementById('examPremToggle').classList.remove('on');
-    document.getElementById('examPractToggle').classList.add('on');
-    bs.value='';
+    document.getElementById('examPractToggle').classList.add('on');bs.value=''
   }
-  openModal('examModal');
+  openModal('examModal')
 }
+
 async function saveExam(){
-  const name=document.getElementById('examName').value.trim(); if(!name)return;
+  const name=document.getElementById('examName').value.trim();if(!name)return;
   setLoading('saveExamBtn',true);
   const body={name,description:document.getElementById('examDesc').value,time_limit:parseInt(document.getElementById('examTime').value)||30,negative_marking:parseFloat(document.getElementById('examNeg').value)||0,live_deadline_hours:parseInt(document.getElementById('examLive').value)||0,is_premium:document.getElementById('examPremToggle').classList.contains('on')?1:0,allow_practice:document.getElementById('examPractToggle').classList.contains('on')?1:0,batch_id:document.getElementById('examBatch').value||null};
   const url=editingExamId?'/admin/exams/'+editingExamId:'/admin/exams';
   const{ok,data}=await apiFetch(url,{method:editingExamId?'PUT':'POST',body:JSON.stringify(body)});
   setLoading('saveExamBtn',false);
-  if(ok){closeModal('examModal');loadExams();notify(editingExamId?'Exam updated!':'Exam created!');}else notify(data.error,true);
-}
-async function deleteExam(id,name){
-  if(!confirm(`Delete "${name}" and all its data?`))return;
-  await apiFetch('/admin/exams/'+id,{method:'DELETE'});
-  loadExams();notify('Exam deleted');
+  if(ok){closeModal('examModal');loadExams();notify(editingExamId?'Exam updated!':'Exam created!')}else notify(data.error,true)
 }
 
-// ── Questions ──
+async function deleteExam(id,name){
+  if(!confirm(`Delete "${name}" and all its data?`))return;
+  await apiFetch('/admin/exams/'+id,{method:'DELETE'});loadExams();notify('Exam deleted')
+}
+
 async function initQPanel(){
-  if(!allExams.length){const{data}=await apiFetch('/exams');allExams=Array.isArray(data)?data:[];}
+  if(!allExams.length){const{data}=await apiFetch('/exams');allExams=Array.isArray(data)?data:[]}
   const sel=document.getElementById('qExamSel');
   const prev=sel.value;
   sel.innerHTML='<option value="">— Select an exam —</option>'+allExams.map(e=>`<option value="${e.id}">${esc(e.name)} (${e.question_count} Qs)</option>`).join('');
   if(prev)sel.value=prev;
   document.getElementById('banOk').classList.remove('show');
   document.getElementById('banErr').classList.remove('show');
-  if(sel.value)onExamPick();
+  if(sel.value)onExamPick()
 }
+
 async function onExamPick(){
   const id=document.getElementById('qExamSel').value;
   document.getElementById('uploadSteps').style.display=id?'block':'none';
   document.getElementById('qCurrentCard').style.display=id?'block':'none';
-  if(id)await refreshQList(id);
+  if(id)await refreshQList(id)
 }
+
 async function refreshQList(eid){
   const{data}=await apiFetch('/admin/questions/'+eid);
   const qs=Array.isArray(data)?data:[];
   document.getElementById('qCountLbl').textContent=`— ${qs.length} question${qs.length!==1?'s':''}`;
-  document.getElementById('qListEl').innerHTML=qs.length
-    ?qs.map((q,i)=>`<div class="q-item"><span class="q-num">${i+1}</span><span class="q-text">${esc(q.question_text)}</span><span class="q-ans">${q.correct_answer}</span><button class="q-del" onclick="delQ(${q.id})" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div>`).join('')
-    :'<div style="text-align:center;padding:26px;color:var(--muted);font-size:.84rem">No questions yet.</div>';
+  document.getElementById('qListEl').innerHTML=qs.length?qs.map((q,i)=>`<div class="q-item"><span class="q-num">${i+1}</span><span class="q-text">${esc(q.question_text)}${q.explanation?`<div class="q-expl">💡 ${esc(q.explanation)}</div>`:''}</span><span class="q-ans">${q.correct_answer}</span><button class="q-del" onclick="delQ(${q.id})" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div>`).join(''):'<div style="text-align:center;padding:26px;color:var(--muted);font-size:.84rem">No questions yet.</div>';
   const opt=document.getElementById('qExamSel').querySelector(`option[value="${eid}"]`);
   const ex=allExams.find(e=>e.id==eid);
-  if(opt&&ex)opt.textContent=`${ex.name} (${qs.length} Qs)`;
+  if(opt&&ex)opt.textContent=`${ex.name} (${qs.length} Qs)`
 }
-// Drag & drop
+
 const dz=document.getElementById('dropZone');
-dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over')});
 dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
-dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');const f=e.dataTransfer.files[0];if(f)readCSV(f);});
-function onFilePick(inp){const f=inp.files[0];if(f)readCSV(f);}
-function readCSV(f){
-  document.getElementById('fileChosen').textContent=`Selected: ${f.name}`;document.getElementById('fileChosen').style.display='block';
-  const r=new FileReader();r.onload=e=>document.getElementById('csvPaste').value=e.target.result;r.readAsText(f);
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');const f=e.dataTransfer.files[0];if(f)readJSON(f)});
+
+function onFilePick(inp){const f=inp.files[0];if(f)readJSON(f)}
+
+function readJSON(f){
+  document.getElementById('fileChosen').textContent=`Selected: ${f.name}`;
+  document.getElementById('fileChosen').style.display='block';
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const parsed=JSON.parse(e.target.result);
+      document.getElementById('jsonPaste').value=JSON.stringify(parsed,null,2)
+    }catch(ex){
+      document.getElementById('jsonPaste').value=e.target.result
+    }
+  };
+  r.readAsText(f)
 }
+
 async function doUpload(){
-  const eid=document.getElementById('qExamSel').value, csv=document.getElementById('csvPaste').value.trim();
-  document.getElementById('banOk').classList.remove('show');document.getElementById('banErr').classList.remove('show');
-  if(!eid){notify('Select an exam first',true);return;}
-  if(!csv){notify('Paste CSV or upload a file',true);return;}
+  const eid=document.getElementById('qExamSel').value;
+  const raw=document.getElementById('jsonPaste').value.trim();
+  document.getElementById('banOk').classList.remove('show');
+  document.getElementById('banErr').classList.remove('show');
+  if(!eid){notify('Select an exam first',true);return}
+  if(!raw){notify('Paste JSON or upload a file',true);return}
+  let questions;
+  try{questions=JSON.parse(raw)}catch(e){document.getElementById('banErrMsg').textContent='Invalid JSON. Check syntax.';document.getElementById('banErr').classList.add('show');return}
+  if(!Array.isArray(questions)){document.getElementById('banErrMsg').textContent='JSON must be an array of question objects.';document.getElementById('banErr').classList.add('show');return}
   setLoading('uploadBtn',true);
-  if(document.getElementById('replaceAll').checked) await apiFetch('/admin/questions/'+eid,{method:'DELETE'});
-  const{ok,data}=await apiFetch('/admin/questions/bulk',{method:'POST',body:JSON.stringify({exam_id:parseInt(eid),csv})});
+  if(document.getElementById('replaceAll').checked)await apiFetch('/admin/questions/'+eid,{method:'DELETE'});
+  const{ok,data}=await apiFetch('/admin/questions/bulk',{method:'POST',body:JSON.stringify({exam_id:parseInt(eid),questions})});
   setLoading('uploadBtn',false);
   if(ok){
     document.getElementById('banOkMsg').textContent=`${data.inserted} question${data.inserted!==1?'s':''} uploaded successfully!`;
     document.getElementById('banOk').classList.add('show');
-    document.getElementById('csvPaste').value='';
-    document.getElementById('fileInput').value='';
+    document.getElementById('jsonPaste').value='';document.getElementById('fileInput').value='';
     document.getElementById('fileChosen').style.display='none';
     await refreshQList(eid);
-    const{data:ed}=await apiFetch('/exams');allExams=Array.isArray(ed)?ed:[];
+    const{data:ed}=await apiFetch('/exams');allExams=Array.isArray(ed)?ed:[]
   }else{
-    document.getElementById('banErrMsg').textContent=data.error||'Upload failed. Check CSV format.';
-    document.getElementById('banErr').classList.add('show');
+    document.getElementById('banErrMsg').textContent=data.error||'Upload failed.';
+    document.getElementById('banErr').classList.add('show')
   }
 }
+
 async function delQ(id){
   if(!confirm('Delete this question?'))return;
   await apiFetch('/admin/questions/single/'+id,{method:'DELETE'});
   const eid=document.getElementById('qExamSel').value;if(eid)refreshQList(eid);
-  notify('Question deleted');
+  notify('Question deleted')
 }
+
 async function deleteAllQs(){
   const eid=document.getElementById('qExamSel').value;if(!eid||!confirm('Delete ALL questions?'))return;
-  await apiFetch('/admin/questions/'+eid,{method:'DELETE'});refreshQList(eid);notify('All questions deleted');
+  await apiFetch('/admin/questions/'+eid,{method:'DELETE'});refreshQList(eid);notify('All questions deleted')
 }
 
-// ── Users ──
 async function loadUsers(){
-  // Make sure we have exams and batches loaded for the grant modal
-  if(!allExams.length){const{data}=await apiFetch('/exams');allExams=Array.isArray(data)?data:[];}
-  if(!allBatches.length){const{data}=await apiFetch('/batches');allBatches=Array.isArray(data)?data:[];}
+  if(!allExams.length){const{data}=await apiFetch('/exams');allExams=Array.isArray(data)?data:[]}
+  if(!allBatches.length){const{data}=await apiFetch('/batches');allBatches=Array.isArray(data)?data:[]}
   const{data}=await apiFetch('/admin/users');allUsers=Array.isArray(data)?data:[];
   const now=new Date().toISOString();
-  document.getElementById('usersTb').innerHTML=allUsers.length
-    ?allUsers.map(u=>{
-      const gs=(u.premium_grants||[]).filter(g=>!g.expires_at||g.expires_at>now);
-      const hasAcc=u.premium_until&&u.premium_until>now;
-      let ph='';
-      if(hasAcc) ph+=`<span class="prem-tag prem-account">Account<button class="revoke-btn" onclick="revokeAccount(${u.id})" title="Revoke account premium">&#x2715;</button></span>`;
-      gs.forEach(g=>{
-        const cls = g.grant_scope==='batch' ? 'prem-batch' : 'prem-exam';
-        const nm  = esc(g.exam_name || g.batch_name || g.grant_scope);
-        const fn  = g.grant_scope==='batch'
-          ? 'revokeBatchGrant(' + u.id + ',' + g.batch_id + ')'
-          : 'revokeGrant(' + u.id + ',' + g.exam_id + ')';
-        ph += '<span class="prem-tag ' + cls + '">' + nm +
-              '<button class="revoke-btn" onclick="' + fn + '" title="Revoke">&#x2715;</button></span>';
-      });
-      return `<tr>
-        <td class="td-name">${esc(u.name)}</td>
-        <td style="color:var(--muted);font-size:.8rem">${esc(u.email)}</td>
-        <td>${u.is_admin?'<span class="badge badge-admin">Admin</span>':'<span class="badge badge-student">Student</span>'}</td>
-        <td style="max-width:200px">${ph||'<span style="color:var(--muted);font-size:.8rem">None</span>'}</td>
-        <td><div class="td-actions"><button class="btn btn-primary btn-sm" onclick="openGrantModal(${u.id},'${esc(u.name)}')">Grant Premium</button></div></td>
-      </tr>`;
-    }).join('')
-    :'<tr class="empty-row"><td colspan="5">No users</td></tr>';
+  document.getElementById('usersTb').innerHTML=allUsers.length?allUsers.map(u=>{
+    const gs=(u.premium_grants||[]).filter(g=>!g.expires_at||g.expires_at>now);
+    const hasAcc=u.premium_until&&u.premium_until>now;
+    let ph='';
+    if(hasAcc)ph+=`<span class="prem-tag prem-account">Account<button class="revoke-btn" onclick="revokeAccount(${u.id})" title="Revoke">&#x2715;</button></span>`;
+    gs.forEach(g=>{
+      const cls=g.grant_scope==='batch'?'prem-batch':'prem-exam';
+      const nm=esc(g.exam_name||g.batch_name||g.grant_scope);
+      const fn=g.grant_scope==='batch'?'revokeBatchGrant('+u.id+','+g.batch_id+')':'revokeGrant('+u.id+','+g.exam_id+')';
+      ph+='<span class="prem-tag '+cls+'">'+nm+'<button class="revoke-btn" onclick="'+fn+'" title="Revoke">&#x2715;</button></span>'
+    });
+    return `<tr><td class="td-name">${esc(u.name)}</td><td style="color:var(--muted);font-size:.8rem">${esc(u.email)}</td><td>${u.is_admin?'<span class="badge badge-admin">Admin</span>':'<span class="badge badge-student">Student</span>'}</td><td style="max-width:200px">${ph||'<span style="color:var(--muted);font-size:.8rem">None</span>'}</td><td><div class="td-actions"><button class="btn btn-primary btn-sm" onclick="openGrantModal(${u.id},'${esc(u.name)}')">Grant Premium</button></div></td></tr>`
+  }).join(''):'<tr class="empty-row"><td colspan="5">No users</td></tr>'
 }
 
-// ── Grant Modal (FIXED: batch select populates correctly) ──
-function openGrantModal(uid, uname){
+function openGrantModal(uid,uname){
   grantUserId=uid;
   document.getElementById('grantUserDisplay').textContent=uname;
-  // Populate exam select
-  document.getElementById('grantExamSel').innerHTML=allExams.length
-    ?allExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('')
-    :'<option value="">No exams available</option>';
-  // Populate batch select
-  document.getElementById('grantBatchSel').innerHTML=allBatches.length
-    ?allBatches.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')
-    :'<option value="">No batches available</option>';
-  document.getElementById('grantScope').value='exam';
-  onScopeChange();
-  openModal('grantModal');
+  document.getElementById('grantExamSel').innerHTML=allExams.length?allExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join(''):'<option value="">No exams available</option>';
+  document.getElementById('grantBatchSel').innerHTML=allBatches.length?allBatches.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join(''):'<option value="">No batches available</option>';
+  document.getElementById('grantScope').value='exam';onScopeChange();openModal('grantModal')
 }
+
 function onScopeChange(){
   const s=document.getElementById('grantScope').value;
-  document.getElementById('grantExamRow').style.display=s==='exam'?'flex':'none';
-  document.getElementById('grantBatchRow').style.display=s==='batch'?'flex':'none';
+  document.getElementById('grantExamRow').style.display=s==='exam'?'block':'none';
+  document.getElementById('grantBatchRow').style.display=s==='batch'?'block':'none'
 }
+
 async function doGrant(){
   const scope=document.getElementById('grantScope').value;
   const dur=document.getElementById('grantDur').value;
   const body={user_id:grantUserId,grant_scope:scope,duration_hours:dur?parseInt(dur):null};
-  if(scope==='exam') body.exam_id=parseInt(document.getElementById('grantExamSel').value);
-  if(scope==='batch') body.batch_id=parseInt(document.getElementById('grantBatchSel').value);
+  if(scope==='exam')body.exam_id=parseInt(document.getElementById('grantExamSel').value);
+  if(scope==='batch')body.batch_id=parseInt(document.getElementById('grantBatchSel').value);
   setLoading('grantBtn',true);
   const{ok,data}=await apiFetch('/admin/grant-premium',{method:'POST',body:JSON.stringify(body)});
   setLoading('grantBtn',false);
-  if(ok){closeModal('grantModal');loadUsers();notify('Premium access granted!');}else notify(data.error,true);
+  if(ok){closeModal('grantModal');loadUsers();notify('Premium access granted!')}else notify(data.error,true)
 }
+
 async function revokeGrant(uid,eid){
   if(!eid||!confirm('Revoke this exam grant?'))return;
   const{ok,data}=await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:uid,exam_id:eid})});
-  if(ok){loadUsers();notify('Exam grant revoked');}else notify(data.error||'Failed',true);
+  if(ok){loadUsers();notify('Exam grant revoked')}else notify(data.error||'Failed',true)
 }
+
 async function revokeBatchGrant(uid,bid){
   if(!bid||!confirm('Revoke this batch grant?'))return;
-  // Delete all premium_access rows for this user+batch
   const{ok,data}=await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:uid,batch_id:bid})});
-  if(ok){loadUsers();notify('Batch grant revoked');}else notify(data.error||'Failed',true);
+  if(ok){loadUsers();notify('Batch grant revoked')}else notify(data.error||'Failed',true)
 }
+
 async function revokeAccount(uid){
   if(!confirm('Revoke account-wide premium for this user?'))return;
   const{ok,data}=await apiFetch('/admin/revoke-account-premium',{method:'DELETE',body:JSON.stringify({user_id:uid})});
-  if(ok){loadUsers();notify('Account premium revoked');}else notify(data.error||'Failed',true);
+  if(ok){loadUsers();notify('Account premium revoked')}else notify(data.error||'Failed',true)
 }
 
-// ── Results ──
 async function loadResultFilter(){
-  if(!allExams.length){const{data}=await apiFetch('/exams');allExams=Array.isArray(data)?data:[];}
-  document.getElementById('resultFilter').innerHTML='<option value="">All Exams</option>'+allExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');
+  if(!allExams.length){const{data}=await apiFetch('/exams');allExams=Array.isArray(data)?data:[]}
+  document.getElementById('resultFilter').innerHTML='<option value="">All Exams</option>'+allExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('')
 }
+
 async function loadResults(){
   const eid=document.getElementById('resultFilter')?.value;
   const{data}=await apiFetch(eid?'/admin/results/'+eid:'/admin/results');
   const rs=Array.isArray(data)?data:[];
-  document.getElementById('resultsTb').innerHTML=rs.length
-    ?rs.map(r=>`<tr>
-      <td class="td-name">${esc(r.user_name)}<br><small style="color:var(--muted);font-size:.72rem">${esc(r.email)}</small></td>
-      <td style="font-size:.8rem">${esc(r.exam_name)}</td>
-      <td class="td-mono">${r.score}/${r.total_questions}</td>
-      <td><span style="font-weight:700;color:${r.percentage>=80?'var(--success)':r.percentage>=60?'var(--premium)':r.percentage>=40?'var(--warning)':'var(--error)'}">${(r.percentage||0).toFixed(0)}%</span><div class="mini-bar" style="display:inline-block"><div class="mini-fill" style="width:${r.percentage||0}%"></div></div></td>
-      <td style="color:var(--muted);font-size:.8rem">${formatDate(r.submitted_at)}</td>
-      <td><div class="td-actions"><button class="btn btn-danger btn-sm" onclick="deleteResult(${r.id})">Delete</button></div></td>
-    </tr>`).join('')
-    :'<tr class="empty-row"><td colspan="6">No results</td></tr>';
+  document.getElementById('resultsTb').innerHTML=rs.length?rs.map(r=>`<tr><td class="td-name">${esc(r.user_name)}<br><small style="color:var(--muted);font-size:.72rem">${esc(r.email)}</small></td><td style="font-size:.8rem">${esc(r.exam_name)}</td><td class="td-mono">${r.score}/${r.total_questions}</td><td><span style="font-weight:700;color:${r.percentage>=80?'var(--success)':r.percentage>=60?'var(--premium)':r.percentage>=40?'var(--warning)':'var(--error)'}">${(r.percentage||0).toFixed(0)}%</span><div class="mini-bar" style="display:inline-block"><div class="mini-fill" style="width:${r.percentage||0}%"></div></div></td><td style="color:var(--muted);font-size:.8rem">${formatDate(r.submitted_at)}</td><td><div class="td-actions"><button class="btn btn-danger btn-sm" onclick="deleteResult(${r.id})">Delete</button></div></td></tr>`).join(''):'<tr class="empty-row"><td colspan="6">No results</td></tr>'
 }
+
 async function deleteResult(id){
   if(!confirm('Delete this result?'))return;
-  await apiFetch('/admin/results/'+id,{method:'DELETE'});
-  loadResults();notify('Result deleted');
+  await apiFetch('/admin/results/'+id,{method:'DELETE'});loadResults();notify('Result deleted')
 }
 
 loadDashboard();
