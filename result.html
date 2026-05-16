@@ -6,17 +6,12 @@
 <link rel="stylesheet" href="assets/main.css">
 <style>
 body{min-height:100vh}
-
-/* Header */
 .result-header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:40;backdrop-filter:blur(20px)}
 .back-link{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.82rem;font-weight:500;transition:color .2s;border:none;background:none;cursor:pointer;font-family:'Inter',sans-serif}
 .back-link:hover{color:var(--text)}
 .back-link svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
 .rh-title{font-family:'Lexend',sans-serif;font-weight:700;font-size:.95rem;color:var(--text-bright);flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
 .content{max-width:860px;margin:0 auto;padding:32px 20px 60px}
-
-/* Score card */
 .score-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:40px 28px;text-align:center;margin-bottom:24px;position:relative;overflow:hidden;transition:--glow-color .5s}
 .score-card::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle at 50% 35%,var(--glow,rgba(99,102,241,.08)),transparent 60%);pointer-events:none}
 .score-circle-wrap{width:128px;height:128px;margin:0 auto 20px;position:relative}
@@ -28,7 +23,6 @@ body{min-height:100vh}
 .sc-label{font-size:.62rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-top:3px}
 .score-grade{font-family:'Lexend',sans-serif;font-size:1.3rem;font-weight:900;letter-spacing:-.02em;margin-bottom:4px}
 .score-exam{font-size:.82rem;color:var(--muted);margin-bottom:24px}
-
 .score-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:360px;margin:0 auto 22px}
 .sc-stat{background:var(--surface2);border-radius:12px;padding:14px 8px;text-align:center}
 .sc-stat-val{font-family:'Lexend',sans-serif;font-size:1.4rem;font-weight:900;letter-spacing:-.02em}
@@ -36,13 +30,9 @@ body{min-height:100vh}
 .correct-c .sc-stat-val{color:var(--success)}
 .wrong-c .sc-stat-val{color:var(--error)}
 .skip-c .sc-stat-val{color:var(--muted)}
-
 .perf-bar{height:7px;background:var(--surface2);border-radius:4px;max-width:360px;margin:0 auto 22px;overflow:hidden}
 .perf-fill{height:100%;border-radius:4px;width:0;transition:width 1.6s cubic-bezier(.4,0,.2,1)}
-
 .result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-
-/* Leaderboard card */
 .lb-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:22px;margin-bottom:24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
 .lb-badge{width:68px;height:68px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
 .lb-rank-num{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:700;color:#fff}
@@ -53,13 +43,10 @@ body{min-height:100vh}
 .lb-perc-wrap{text-align:right}
 .lb-perc-val{font-family:'Lexend',sans-serif;font-size:1.7rem;font-weight:900;color:var(--accent2);letter-spacing:-.02em}
 .lb-perc-lbl{font-size:.62rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em}
-
-/* Review */
 .review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
 .chips{display:flex;gap:7px;flex-wrap:wrap}
 .chip{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:5px 13px;border-radius:8px;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;border:none;font-family:'Inter',sans-serif}
 .chip.active{background:rgba(99,102,241,.14);color:var(--accent2);border:1px solid rgba(99,102,241,.35)}
-
 .review-list{display:flex;flex-direction:column;gap:11px}
 .rv-card{background:var(--surface);border:2px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .2s}
 .rv-card.rv-correct{border-color:rgba(34,197,94,.4)}
@@ -71,28 +58,25 @@ body{min-height:100vh}
 .rv-correct .rv-status{background:rgba(34,197,94,.14);color:var(--success)}
 .rv-wrong .rv-status{background:rgba(239,68,68,.12);color:var(--error)}
 .rv-skip .rv-status{background:var(--surface2);color:var(--muted)}
-.rv-q{font-size:.855rem;color:var(--text);font-weight:500;flex:1;line-height:1.5}
+.rv-q{font-size:.855rem;color:var(--text);font-weight:500;flex:1;line-height:1.5;white-space:pre-wrap}
 .rv-arrow{width:17px;height:17px;stroke:var(--muted);fill:none;stroke-width:2;flex-shrink:0;transition:transform .2s}
 .rv-card.open .rv-arrow{transform:rotate(180deg)}
 .rv-body{display:none;padding:0 18px 18px;border-top:1px solid var(--border)}
 .rv-card.open .rv-body{display:block}
 .rv-opts{display:flex;flex-direction:column;gap:7px;margin-top:13px}
-.rv-opt{display:flex;align-items:flex-start;gap:9px;padding:9px 12px;border-radius:9px;background:var(--surface2);border:1.5px solid var(--border);font-size:.83rem;color:var(--text);transition:all .2s}
+.rv-opt{display:flex;align-items:flex-start;gap:9px;padding:9px 12px;border-radius:9px;background:var(--surface2);border:1.5px solid var(--border);font-size:.83rem;color:var(--text);transition:all .2s;white-space:pre-wrap}
 .rv-opt.rv-opt-correct{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.4);color:var(--success)}
 .rv-opt.rv-opt-wrong{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.35);color:var(--error)}
 .rv-ol{width:24px;height:24px;border-radius:7px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.74rem;font-weight:700;flex-shrink:0;color:var(--muted)}
 .rv-opt-correct .rv-ol{background:rgba(34,197,94,.2);color:var(--success)}
 .rv-opt-wrong .rv-ol{background:rgba(239,68,68,.15);color:var(--error)}
 .rv-ans-note{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:12px}
-
-/* Share toast */
+.rv-explanation{margin-top:12px;padding:12px 14px;background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.2);border-radius:10px;font-size:.8rem;color:var(--accent2);line-height:1.6;white-space:pre-wrap}
+.rv-explanation strong{color:var(--text-bright);display:block;margin-bottom:4px;font-size:.68rem;text-transform:uppercase;letter-spacing:.07em}
 .share-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--success);color:var(--success);padding:10px 20px;border-radius:10px;font-size:.84rem;font-weight:600;transition:transform .3s;z-index:999;white-space:nowrap}
 .share-toast.show{transform:translateX(-50%) translateY(0)}
-
-/* Spinner for loading state */
 .page-spinner{display:flex;align-items:center;justify-content:center;min-height:60vh;flex-direction:column;gap:14px;color:var(--muted)}
 .page-spinner .spinner{width:32px;height:32px;border-width:3px;border-color:var(--border);border-top-color:var(--accent)}
-
 @media(max-width:600px){
   .score-card{padding:28px 18px}
   .lb-card{gap:14px}
@@ -119,7 +103,6 @@ body{min-height:100vh}
   </div>
 
   <div id="resultWrap" style="display:none">
-    <!-- Score Card -->
     <div class="score-card" id="scoreCard">
       <div class="score-circle-wrap">
         <svg viewBox="0 0 128 128">
@@ -142,7 +125,6 @@ body{min-height:100vh}
       <div class="result-actions" id="resultActions"></div>
     </div>
 
-    <!-- Leaderboard -->
     <div class="lb-card" id="lbCard" style="display:none">
       <div class="lb-badge">
         <div class="lb-rank-num" id="lbRank">#—</div>
@@ -158,7 +140,6 @@ body{min-height:100vh}
       </div>
     </div>
 
-    <!-- Review -->
     <div class="review-head">
       <span class="sect-title">Question Review</span>
       <div class="chips">
@@ -193,7 +174,6 @@ async function load() {
     exam      = data.exam;
     userAnswers = JSON.parse(attempt.answers || '{}');
 
-    // Compute stats
     let correct = 0, wrong = 0;
     questions.forEach(q => {
       const a = userAnswers[q.id];
@@ -207,15 +187,13 @@ async function load() {
     document.title = `Result: ${exam.name} — Exalyte`;
     document.getElementById('rhTitle').textContent = exam.name;
 
-    // Score ring animation
     const ring = document.getElementById('scRing');
-    const circ = 2 * Math.PI * 56; // r=56
+    const circ = 2 * Math.PI * 56;
     ring.style.strokeDasharray  = circ;
     ring.style.stroke = grade.color;
     document.getElementById('scoreCard').style.setProperty('--glow', grade.glow);
     setTimeout(() => { ring.style.strokeDashoffset = circ - (perc / 100) * circ; }, 80);
 
-    // Animate percentage counter
     let count = 0;
     const target = Math.round(perc * 10) / 10;
     const step = target / 60;
@@ -236,7 +214,6 @@ async function load() {
     bar.style.background = `linear-gradient(90deg, ${grade.color}, ${grade.color}88)`;
     setTimeout(() => { bar.style.width = Math.max(perc, 2) + '%'; }, 120);
 
-    // Actions
     let actHtml = `<a href="dashboard.html" class="btn btn-secondary"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>`;
     if (!attempt.is_practice && exam.allow_practice) {
       actHtml += `<a href="exam.html?id=${examId}&practice=1" class="btn btn-primary"><svg viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Mode</a>`;
@@ -244,7 +221,6 @@ async function load() {
     actHtml += `<button class="btn btn-secondary" onclick="shareResult(${perc.toFixed(1)})" title="Share"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>`;
     document.getElementById('resultActions').innerHTML = actHtml;
 
-    // Leaderboard
     if (!attempt.is_practice) {
       const { ok: lok, data: lb } = await apiFetch(`/leaderboard/${examId}`);
       if (lok && lb?.rank) {
@@ -255,7 +231,6 @@ async function load() {
       }
     }
 
-    // Review
     renderReview();
 
     document.getElementById('loadingState').style.display = 'none';
@@ -296,6 +271,11 @@ function renderReview() {
     if (a && a !== q.correct_answer) note = `<div class="rv-ans-note">Your answer: ${a} — Correct: ${q.correct_answer}</div>`;
     else if (!a) note = `<div class="rv-ans-note" style="color:var(--muted)">Not answered — Correct: ${q.correct_answer}</div>`;
 
+    let explanationHtml = '';
+    if (q.explanation && q.explanation.trim()) {
+      explanationHtml = `<div class="rv-explanation"><strong>💡 Explanation</strong>${esc(q.explanation)}</div>`;
+    }
+
     return `<div class="rv-card ${cls}" id="rv${q.id}">
       <div class="rv-header" onclick="toggleRv('${q.id}')">
         <div class="rv-status"><svg viewBox="0 0 24 24">${icons[st]}</svg></div>
@@ -306,6 +286,7 @@ function renderReview() {
         ${q.image_url ? `<img src="${esc(q.image_url)}" style="max-width:100%;max-height:160px;border-radius:9px;margin-bottom:12px;border:1px solid var(--border);object-fit:contain">` : ''}
         <div class="rv-opts">${opts}</div>
         ${note}
+        ${explanationHtml}
       </div>
     </div>`;
   }).join('') || '<div style="text-align:center;padding:36px;color:var(--muted);font-size:.875rem">No questions in this filter.</div>';
