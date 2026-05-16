@@ -148,13 +148,28 @@ async function initDB(db) {
       email TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
+    `CREATE TABLE IF NOT EXISTS notifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      body TEXT DEFAULT '',
+      image_url TEXT,
+      link_url TEXT,
+      created_by INTEGER NOT NULL REFERENCES users(id),
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS notification_reads (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      notification_id INTEGER NOT NULL REFERENCES notifications(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id),
+      read_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(notification_id, user_id)
+    )`,
   ];
 
   for (const sql of statements) {
     await db.prepare(sql).run();
   }
 
-  // Seed default admin account
   const adminHash = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind('admin@exalyte.com').first();
   if (!existing) {
@@ -410,6 +425,42 @@ async function handleHistory(request, db) {
   return json(result);
 }
 
+// ─── Notifications ────────────────────────────────────────────────────────────
+async function handleListNotifications(request, db) {
+  const user = await requireAuth(request);
+  if (!user) return err('Unauthorized', 401);
+
+  const notifications = await db.prepare(`
+    SELECT n.*, u.name as creator_name,
+      CASE WHEN nr.id IS NOT NULL THEN 1 ELSE 0 END as is_read
+    FROM notifications n
+    JOIN users u ON n.created_by = u.id
+    LEFT JOIN notification_reads nr ON n.id = nr.notification_id AND nr.user_id = ?
+    ORDER BY n.created_at DESC
+  `).bind(user.id).all();
+
+  const unreadCount = await db.prepare(`
+    SELECT COUNT(*) as count FROM notifications n
+    WHERE n.id NOT IN (SELECT notification_id FROM notification_reads WHERE user_id = ?)
+  `).bind(user.id).first();
+
+  return json({
+    notifications: notifications.results,
+    unread_count: unreadCount.count
+  });
+}
+
+async function handleMarkNotificationRead(notifId, request, db) {
+  const user = await requireAuth(request);
+  if (!user) return err('Unauthorized', 401);
+
+  await db.prepare(
+    'INSERT OR IGNORE INTO notification_reads (notification_id, user_id) VALUES (?, ?)'
+  ).bind(notifId, user.id).run();
+
+  return json({ success: true });
+}
+
 // ─── Batches ──────────────────────────────────────────────────────────────────
 async function handleListBatches(db) {
   const rows = await db.prepare(`
@@ -594,6 +645,33 @@ async function handleAdminPremiumGrants(db) {
   return json(rows.results);
 }
 
+async function handleAdminCreateNotification(request, db, adminId) {
+  const { title, body, image_url, link_url } = await request.json();
+  if (!title) return err('Title required');
+  const r = await db.prepare(
+    'INSERT INTO notifications (title,body,image_url,link_url,created_by) VALUES (?,?,?,?,?) RETURNING *'
+  ).bind(title, body || '', image_url || null, link_url || null, adminId).first();
+  return json(r, 201);
+}
+
+async function handleAdminDeleteNotification(notifId, db) {
+  await db.prepare('DELETE FROM notification_reads WHERE notification_id=?').bind(notifId).run();
+  await db.prepare('DELETE FROM notifications WHERE id=?').bind(notifId).run();
+  return json({ success: true });
+}
+
+async function handleAdminListNotifications(db) {
+  const rows = await db.prepare(`
+    SELECT n.*, u.name as creator_name,
+      (SELECT COUNT(*) FROM notification_reads nr WHERE nr.notification_id = n.id) as read_count,
+      (SELECT COUNT(*) FROM users) as total_users
+    FROM notifications n
+    JOIN users u ON n.created_by = u.id
+    ORDER BY n.created_at DESC
+  `).all();
+  return json(rows.results);
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN ROUTER
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -624,6 +702,11 @@ export async function onRequest(context) {
   // ── Leaderboard ──
   const lbMatch = path.match(/^\/leaderboard\/(\d+)$/);
   if (lbMatch && method === 'GET') return handleLeaderboard(lbMatch[1], request, db);
+
+  // ── Notifications ──
+  if (path === '/notifications' && method === 'GET') return handleListNotifications(request, db);
+  const notifRead = path.match(/^\/notifications\/(\d+)\/read$/);
+  if (notifRead && method === 'POST') return handleMarkNotificationRead(notifRead[1], request, db);
 
   // ── Exams ──
   if (path === '/exams' && method === 'GET') return handleListExams(request, db);
@@ -723,6 +806,20 @@ export async function onRequest(context) {
   if (path === '/admin/premium-grants' && method === 'GET') {
     if (!admin) return err('Admin required', 403);
     return handleAdminPremiumGrants(db);
+  }
+
+  if (path === '/admin/notifications' && method === 'POST') {
+    if (!admin) return err('Admin required', 403);
+    return handleAdminCreateNotification(request, db, admin.id);
+  }
+  if (path === '/admin/notifications' && method === 'GET') {
+    if (!admin) return err('Admin required', 403);
+    return handleAdminListNotifications(db);
+  }
+  const adminNotifDel = path.match(/^\/admin\/notifications\/(\d+)$/);
+  if (adminNotifDel && method === 'DELETE') {
+    if (!admin) return err('Admin required', 403);
+    return handleAdminDeleteNotification(adminNotifDel[1], db);
   }
 
   return err('Not found', 404);
