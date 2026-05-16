@@ -48,6 +48,21 @@ body{min-height:100vh}
 .q-del:hover{color:var(--error)}
 .q-del svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
 .q-expl{font-size:.7rem;color:var(--premium);margin-top:3px;line-height:1.4;word-break:break-word}
+
+/* Notification cards */
+.notif-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px;transition:all .2s}
+.notif-card:hover{border-color:rgba(99,102,241,.3)}
+.notif-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.notif-title{font-family:'Lexend',sans-serif;font-weight:700;font-size:.9rem;color:var(--text-bright);flex:1}
+.notif-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.notif-meta-item{font-size:.72rem;color:var(--muted);display:flex;align-items:center;gap:4px}
+.notif-meta-item svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+.notif-body{font-size:.82rem;color:var(--text);line-height:1.6;margin-bottom:8px;white-space:pre-wrap}
+.notif-link{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;color:var(--accent2);font-weight:600}
+.notif-link svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+.notif-img{max-width:100%;max-height:160px;border-radius:9px;margin-bottom:8px;border:1px solid var(--border);object-fit:contain}
+.notif-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:4px}
+
 .bottom-nav-items{display:flex}
 .bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;color:var(--muted);font-size:.55rem;font-weight:600;border:none;background:none;cursor:pointer;transition:color .2s;font-family:'Inter',sans-serif}
 .bottom-nav-item.active{color:var(--accent2)}
@@ -85,6 +100,12 @@ body{min-height:100vh}
       </button>
       <button class="nav-item" onclick="showPanel('questions')">
         <svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Upload Questions
+      </button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Communication</div>
+      <button class="nav-item" onclick="showPanel('notifications')">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications
       </button>
     </div>
     <div class="nav-section">
@@ -241,6 +262,15 @@ body{min-height:100vh}
     </div>
   </div>
 
+  <!-- Notifications -->
+  <div class="panel" id="panel-notifications">
+    <div class="sect-header">
+      <span class="sect-title">Send Notifications</span>
+      <button class="btn btn-primary btn-sm" onclick="openModal('notifModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Notice</button>
+    </div>
+    <div id="notifList"></div>
+  </div>
+
   <!-- Users -->
   <div class="panel" id="panel-users">
     <div class="sect-header"><span class="sect-title">Users</span></div>
@@ -344,6 +374,23 @@ body{min-height:100vh}
   </div>
 </div>
 
+<!-- Notification Modal -->
+<div class="modal-overlay" id="notifModal">
+  <div class="modal modal-lg">
+    <div class="modal-header"><span class="modal-title">Send Notice</span><button class="modal-close" onclick="closeModal('notifModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Title *</label><input class="form-input" type="text" id="notifTitle" placeholder="e.g. New Exam Added"></div>
+      <div class="form-group"><label class="form-label">Body</label><textarea class="form-textarea" id="notifBody" placeholder="Write your notice..." rows="4" style="font-family:'Inter',sans-serif;font-size:.85rem"></textarea></div>
+      <div class="form-group"><label class="form-label">Image URL (optional)</label><input class="form-input" type="url" id="notifImage" placeholder="https://example.com/image.jpg"></div>
+      <div class="form-group"><label class="form-label">Link URL (optional)</label><input class="form-input" type="url" id="notifLink" placeholder="https://example.com/page"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('notifModal')">Cancel</button>
+      <button class="btn btn-primary" id="saveNotifBtn" onclick="saveNotification()"><span class="btn-label">Send Notice</span><div class="spinner"></div></button>
+    </div>
+  </div>
+</div>
+
 <script src="assets/main.js"></script>
 <script>
 if (!requireAdmin()) throw '';
@@ -353,7 +400,7 @@ document.getElementById('userAvatar').textContent = (user?.name||'A')[0].toUpper
 
 let allExams=[], allBatches=[], allUsers=[], editingExamId=null, grantUserId=null;
 
-const ptitles={dashboard:'Dashboard',batches:'Batches',exams:'Exams',questions:'Upload Questions',users:'Users',results:'Results'};
+const ptitles={dashboard:'Dashboard',batches:'Batches',exams:'Exams',questions:'Upload Questions',notifications:'Notifications',users:'Users',results:'Results'};
 
 function showPanel(name){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -368,6 +415,7 @@ function showPanel(name){
   if(name==='batches')loadBatches();
   if(name==='exams')loadExams();
   if(name==='questions')initQPanel();
+  if(name==='notifications')loadNotifications();
   if(name==='users')loadUsers();
   if(name==='results'){loadResultFilter();loadResults();}
 }
@@ -546,6 +594,57 @@ async function delQ(id){
 async function deleteAllQs(){
   const eid=document.getElementById('qExamSel').value;if(!eid||!confirm('Delete ALL questions?'))return;
   await apiFetch('/admin/questions/'+eid,{method:'DELETE'});refreshQList(eid);notify('All questions deleted')
+}
+
+// ── Notifications ──
+async function loadNotifications(){
+  try{
+    const{ok,data}=await apiFetch('/admin/notifications');
+    if(!ok){notify('Failed to load notifications',true);return}
+    const notifs=Array.isArray(data)?data:[];
+    document.getElementById('notifList').innerHTML=notifs.length?notifs.map(n=>`
+      <div class="notif-card">
+        <div class="notif-header">
+          <div class="notif-title">${esc(n.title)}</div>
+          <div class="notif-actions">
+            <button class="btn btn-danger btn-sm" onclick="deleteNotification(${n.id})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
+          </div>
+        </div>
+        <div class="notif-meta">
+          <span class="notif-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatDate(n.created_at)}</span>
+          <span class="notif-meta-item"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${n.read_count||0}/${n.total_users||0} read</span>
+          <span class="notif-meta-item" style="color:var(--muted)">by ${esc(n.creator_name)}</span>
+        </div>
+        ${n.body?`<div class="notif-body">${esc(n.body)}</div>`:''}
+        ${n.image_url?`<img src="${esc(n.image_url)}" class="notif-img" alt="" onerror="this.style.display='none'">`:''}
+        ${n.link_url?`<a href="${esc(n.link_url)}" target="_blank" class="notif-link"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open Link</a>`:''}
+      </div>
+    `).join(''):'<div style="text-align:center;padding:40px;color:var(--muted);font-size:.875rem">No notices sent yet.</div>';
+  }catch(e){notify('Failed to load notifications',true)}
+}
+
+async function saveNotification(){
+  const title=document.getElementById('notifTitle').value.trim();
+  if(!title){notify('Title is required',true);return}
+  setLoading('saveNotifBtn',true);
+  const body={title,body:document.getElementById('notifBody').value,image_url:document.getElementById('notifImage').value||null,link_url:document.getElementById('notifLink').value||null};
+  const{ok,data}=await apiFetch('/admin/notifications',{method:'POST',body:JSON.stringify(body)});
+  setLoading('saveNotifBtn',false);
+  if(ok){
+    closeModal('notifModal');
+    document.getElementById('notifTitle').value='';
+    document.getElementById('notifBody').value='';
+    document.getElementById('notifImage').value='';
+    document.getElementById('notifLink').value='';
+    loadNotifications();
+    notify('Notice sent to all students!')
+  }else notify(data.error,true)
+}
+
+async function deleteNotification(id){
+  if(!confirm('Delete this notice?'))return;
+  await apiFetch('/admin/notifications/'+id,{method:'DELETE'});
+  loadNotifications();notify('Notice deleted')
 }
 
 async function loadUsers(){
