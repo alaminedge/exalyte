@@ -8,7 +8,6 @@
 <title>Exalyte — Modern Exam Platform</title>
 <link rel="stylesheet" href="assets/main.css">
 <style>
-/* ── Hero ── */
 .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:120px 20px 80px;text-align:center}
 .hero-content{position:relative;z-index:1;max-width:720px}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);padding:6px 16px;border-radius:100px;font-size:.78rem;font-weight:600;color:var(--accent2);margin-bottom:28px;letter-spacing:.04em}
@@ -21,13 +20,11 @@
 .hero-actions .btn-primary{box-shadow:0 8px 32px rgba(99,102,241,.35)}
 .hero-actions .btn-ghost{border-color:rgba(255,255,255,.15);color:var(--text)}
 
-/* ── Stats strip ── */
 .stats-strip{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;padding:60px 20px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface)}
 .strip-item{text-align:center}
 .strip-val{font-family:'Lexend',sans-serif;font-size:2.4rem;font-weight:900;color:var(--text-bright);letter-spacing:-.03em}
 .strip-lbl{font-size:.78rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
 
-/* ── Features ── */
 .features{padding:100px 20px;max-width:1100px;margin:0 auto}
 .feat-header{text-align:center;margin-bottom:60px}
 .feat-tag{font-size:.7rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px}
@@ -43,14 +40,27 @@
 .feat-card h3{font-family:'Lexend',sans-serif;font-size:.95rem;font-weight:700;color:var(--text-bright);margin-bottom:8px}
 .feat-card p{font-size:.82rem;color:var(--muted);line-height:1.65}
 
-/* ── CTA ── */
+/* Auth modals on landing */
+.auth-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.auth-modal-overlay.open{opacity:1;pointer-events:all}
+.auth-modal{background:var(--surface);border:1px solid var(--border);border-radius:24px;width:100%;max-width:420px;max-height:92vh;overflow-y:auto;padding:36px 28px;transform:translateY(18px) scale(.97);transition:transform .25s}
+.auth-modal-overlay.open .auth-modal{transform:none}
+.auth-modal h2{font-family:'Lexend',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text-bright);margin-bottom:6px;text-align:center;letter-spacing:-.02em}
+.auth-modal .auth-sub{font-size:.82rem;color:var(--muted);text-align:center;margin-bottom:24px;line-height:1.5}
+.auth-modal .form-group{margin-bottom:16px}
+.auth-modal .btn{width:100%;justify-content:center;padding:13px;font-size:.9rem;border-radius:12px;margin-top:8px}
+.auth-switch{text-align:center;margin-top:18px;font-size:.8rem;color:var(--muted)}
+.auth-switch button{background:none;border:none;color:var(--accent2);font-weight:700;cursor:pointer;font-size:.8rem;font-family:'Inter',sans-serif}
+.auth-switch button:hover{text-decoration:underline}
+.auth-error{color:var(--error);font-size:.78rem;text-align:center;margin-top:10px;display:none}
+.auth-error.show{display:block}
+
 .cta{padding:80px 20px;text-align:center;position:relative;overflow:hidden}
 .cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(99,102,241,.08),transparent 70%);pointer-events:none}
 .cta-title{font-family:'Lexend',sans-serif;font-size:2rem;font-weight:900;color:var(--text-bright);letter-spacing:-.02em;margin-bottom:14px}
 .cta-desc{font-size:.95rem;color:var(--muted);max-width:440px;margin:0 auto 32px;line-height:1.65}
 .cta .btn{padding:15px 36px;font-size:.95rem;border-radius:14px;box-shadow:0 8px 32px rgba(99,102,241,.35)}
 
-/* ── Footer ── */
 .footer{background:var(--surface);border-top:1px solid var(--border);padding:60px 20px 30px}
 .footer-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px}
 .footer-col h4{font-family:'Lexend',sans-serif;font-size:.78rem;font-weight:700;color:var(--text-bright);text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px}
@@ -68,7 +78,6 @@
 .footer-bottom p{font-size:.75rem;color:var(--muted)}
 .footer-bottom span{color:var(--accent2)}
 
-/* ── Responsive ── */
 @media(max-width:768px){
   .hero{padding:100px 16px 60px}
   .stats-strip{gap:24px;padding:40px 16px}
@@ -76,6 +85,7 @@
   .feat-title{font-size:1.6rem}
   .footer-grid{grid-template-columns:1fr 1fr;gap:30px}
   .cta-title{font-size:1.5rem}
+  .auth-modal{padding:28px 18px}
 }
 @media(max-width:480px){
   .footer-grid{grid-template-columns:1fr}
@@ -85,37 +95,34 @@
 </head>
 <body>
 
-<!-- Grid background -->
 <div class="grid-bg"></div>
 <div class="orb orb1"></div>
 <div class="orb orb2"></div>
 
-<!-- Nav -->
 <nav class="land-nav" id="landNav">
   <a href="/" class="logo-wrap">
     <img src="images/exalyte.png" alt="Exalyte" class="logo-img">
     <span class="logo-text">Exalyte</span>
   </a>
-  <div class="land-nav-links">
+  <div class="land-nav-links" id="landNavLinks">
     <a href="#features" class="land-nav-link">Features</a>
-    <a href="dashboard.html" class="btn btn-primary btn-sm">Dashboard</a>
+    <button class="land-nav-link" onclick="openAuth('login')">Sign In</button>
+    <button class="btn btn-primary btn-sm" onclick="openAuth('signup')">Sign Up</button>
   </div>
 </nav>
 
-<!-- Hero -->
 <section class="hero">
   <div class="hero-content">
     <div class="hero-badge"><span class="live-dot"></span>Trusted by students across Bangladesh</div>
     <h1 class="hero-title">Exams made <span>brilliantly simple</span></h1>
     <p class="hero-desc">A modern exam platform built for students and educators. Take live exams, track progress, and master every subject with powerful analytics.</p>
     <div class="hero-actions">
-      <a href="dashboard.html" class="btn btn-primary"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Go to Dashboard</a>
-      <a href="#features" class="btn btn-ghost">Learn More</a>
+      <button class="btn btn-primary" onclick="openAuth('signup')"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2a4 4 0 014 4h4a4 4 0 004 4v2"/><circle cx="8" cy="7" r="4"/></svg>Create Free Account</button>
+      <button class="btn btn-ghost" onclick="openAuth('login')">Sign In</button>
     </div>
   </div>
 </section>
 
-<!-- Stats -->
 <div class="stats-strip">
   <div class="strip-item"><div class="strip-val">10K+</div><div class="strip-lbl">Questions</div></div>
   <div class="strip-item"><div class="strip-val">500+</div><div class="strip-lbl">Students</div></div>
@@ -123,7 +130,6 @@
   <div class="strip-item"><div class="strip-val">24/7</div><div class="strip-lbl">Available</div></div>
 </div>
 
-<!-- Features -->
 <section class="features" id="features">
   <div class="feat-header">
     <div class="feat-tag">Why Exalyte</div>
@@ -164,14 +170,12 @@
   </div>
 </section>
 
-<!-- CTA -->
 <section class="cta">
   <h2 class="cta-title">Ready to ace your exams?</h2>
   <p class="cta-desc">Join hundreds of students already using Exalyte to prepare smarter, track progress, and achieve higher scores.</p>
-  <a href="dashboard.html" class="btn btn-primary"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>Get Started Now</a>
+  <button class="btn btn-primary" onclick="openAuth('signup')"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2a4 4 0 014 4h4a4 4 0 004 4v2"/><circle cx="8" cy="7" r="4"/></svg>Create Free Account</button>
 </section>
 
-<!-- Footer -->
 <footer class="footer">
   <div class="footer-grid">
     <div class="footer-col">
@@ -212,14 +216,54 @@
   </div>
 </footer>
 
+<!-- Auth Modals -->
+<div class="auth-modal-overlay" id="authModalOverlay" onclick="closeAuth(event)">
+  <div class="auth-modal" id="authModal">
+    <div id="authLogin">
+      <h2>Welcome Back</h2>
+      <p class="auth-sub">Sign in to access your exams and results.</p>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="loginEmail" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="loginPass" placeholder="Enter your password">
+      </div>
+      <div class="auth-error" id="loginError"></div>
+      <button class="btn btn-primary" id="loginBtn" onclick="doLogin()"><span class="btn-label">Sign In</span><div class="spinner"></div></button>
+      <p class="auth-switch">Don't have an account? <button onclick="switchAuth('signup')">Create one</button></p>
+    </div>
+    <div id="authSignup" style="display:none">
+      <h2>Create Account</h2>
+      <p class="auth-sub">Start your journey with Exalyte today.</p>
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" type="text" id="signupName" placeholder="Your full name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="signupEmail" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="signupPass" placeholder="Min 6 characters">
+      </div>
+      <div class="auth-error" id="signupError"></div>
+      <button class="btn btn-primary" id="signupBtn" onclick="doSignup()"><span class="btn-label">Create Account</span><div class="spinner"></div></button>
+      <p class="auth-switch">Already have an account? <button onclick="switchAuth('login')">Sign in</button></p>
+    </div>
+  </div>
+</div>
+
 <script src="assets/main.js"></script>
 <script>
-// Nav scroll effect
+// ── Nav scroll ──
 window.addEventListener('scroll', () => {
   document.getElementById('landNav').classList.toggle('scrolled', window.scrollY > 40);
 });
 
-// Smooth scroll for anchor links
+// ── Smooth scroll ──
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
     e.preventDefault();
@@ -228,10 +272,79 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 });
 
-// Redirect to dashboard if already logged in
+// ── Auth modals ──
+function openAuth(mode) {
+  document.getElementById('authModalOverlay').classList.add('open');
+  switchAuth(mode);
+}
+
+function closeAuth(e) {
+  if (e.target === document.getElementById('authModalOverlay')) {
+    document.getElementById('authModalOverlay').classList.remove('open');
+  }
+}
+
+function switchAuth(mode) {
+  document.getElementById('authLogin').style.display = mode === 'login' ? 'block' : 'none';
+  document.getElementById('authSignup').style.display = mode === 'signup' ? 'block' : 'none';
+  document.getElementById('loginError').classList.remove('show');
+  document.getElementById('signupError').classList.remove('show');
+}
+
+// ── Login ──
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  errEl.classList.remove('show');
+  if (!email || !pass) { errEl.textContent = 'Email and password are required.'; errEl.classList.add('show'); return; }
+  setLoading('loginBtn', true);
+  const { ok, data } = await apiFetch('/auth/login', { method: 'POST', body: JSON.stringify({ email, password: pass }) });
+  setLoading('loginBtn', false);
+  if (ok) {
+    localStorage.setItem('exalyte_token', data.token);
+    localStorage.setItem('exalyte_user', JSON.stringify(data.user));
+    window.location.href = data.user.is_admin ? 'admin.html' : 'dashboard.html';
+  } else {
+    errEl.textContent = data.error || 'Login failed.';
+    errEl.classList.add('show');
+  }
+}
+
+// ── Signup ──
+async function doSignup() {
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pass = document.getElementById('signupPass').value;
+  const errEl = document.getElementById('signupError');
+  errEl.classList.remove('show');
+  if (!name || !email || !pass) { errEl.textContent = 'All fields are required.'; errEl.classList.add('show'); return; }
+  if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.classList.add('show'); return; }
+  setLoading('signupBtn', true);
+  const { ok, data } = await apiFetch('/auth/signup', { method: 'POST', body: JSON.stringify({ name, email, password: pass }) });
+  setLoading('signupBtn', false);
+  if (ok) {
+    localStorage.setItem('exalyte_token', data.token);
+    localStorage.setItem('exalyte_user', JSON.stringify(data.user));
+    window.location.href = 'dashboard.html';
+  } else {
+    errEl.textContent = data.error || 'Signup failed.';
+    errEl.classList.add('show');
+  }
+}
+
+// ── Keyboard ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('authModalOverlay').classList.remove('open');
+  if (e.key === 'Enter' && document.getElementById('authModalOverlay').classList.contains('open')) {
+    if (document.getElementById('authSignup').style.display !== 'none') doSignup();
+    else doLogin();
+  }
+});
+
+// ── Auto-redirect if logged in ──
 if (getUser() && getToken()) {
-  const nav = document.querySelector('.land-nav-links');
-  if (nav) nav.innerHTML = '<a href="dashboard.html" class="btn btn-primary btn-sm">Go to Dashboard</a>';
+  document.getElementById('landNavLinks').innerHTML = '<a href="dashboard.html" class="btn btn-primary btn-sm">Go to Dashboard</a>';
 }
 </script>
 </body>
