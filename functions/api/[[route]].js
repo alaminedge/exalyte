@@ -68,7 +68,6 @@ async function requireAdmin(request, db) {
 
 // ─── DB init ──────────────────────────────────────────────────────────────────
 async function initDB(db) {
-  // D1 requires each statement run separately — never use db.exec with multiple statements
   const statements = [
     `CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -107,7 +106,8 @@ async function initDB(db) {
       option_c TEXT NOT NULL,
       option_d TEXT NOT NULL,
       correct_answer TEXT NOT NULL,
-      image_url TEXT
+      image_url TEXT,
+      explanation TEXT DEFAULT ''
     )`,
     `CREATE TABLE IF NOT EXISTS exam_attempts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -181,20 +181,6 @@ async function checkPremiumAccess(db, userId, examId, isAdmin) {
     if (batchGrant) return true;
   }
   return false;
-}
-
-// ─── CSV Parser ───────────────────────────────────────────────────────────────
-function parseCSVLine(line) {
-  const fields = [];
-  let cur = '', inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (c === '"') { inQ = !inQ; continue; }
-    if (c === ',' && !inQ) { fields.push(cur.trim()); cur = ''; continue; }
-    cur += c;
-  }
-  fields.push(cur.trim());
-  return fields;
 }
 
 // ─── Live status helper ───────────────────────────────────────────────────────
@@ -304,7 +290,7 @@ async function handleGetQuestions(examId, request, db) {
     if (!ok) return err('Premium access required', 403);
   }
   const qs = await db.prepare(
-    'SELECT id,exam_id,question_text,option_a,option_b,option_c,option_d,image_url FROM questions WHERE exam_id=?'
+    'SELECT id,exam_id,question_text,option_a,option_b,option_c,option_d,image_url,explanation FROM questions WHERE exam_id=?'
   ).bind(examId).all();
   return json(qs.results);
 }
@@ -495,19 +481,28 @@ async function handleAdminDeleteQuestion(qId, db) {
 }
 
 async function handleAdminBulkQuestions(request, db) {
-  const { exam_id, csv } = await request.json();
-  if (!exam_id || !csv) return err('exam_id and csv required');
-  const lines = csv.split('\n').map(l => l.trim()).filter(l => l);
-  const start = lines[0].toLowerCase().includes('question') ? 1 : 0;
+  const { exam_id, questions } = await request.json();
+  if (!exam_id) return err('exam_id required');
+  if (!questions || !Array.isArray(questions) || questions.length === 0) return err('questions array required');
+
   let count = 0;
-  for (let i = start; i < lines.length; i++) {
-    const f = parseCSVLine(lines[i]);
-    if (f.length < 6) continue;
-    const [qt, oa, ob, oc, od, ca, img] = f;
-    if (!['A', 'B', 'C', 'D'].includes(ca.toUpperCase())) continue;
+  for (const q of questions) {
+    const question_text = q.question || q.question_text || '';
+    const option_a = q.option_a || q.a || '';
+    const option_b = q.option_b || q.b || '';
+    const option_c = q.option_c || q.c || '';
+    const option_d = q.option_d || q.d || '';
+    const correct_answer = (q.answer || q.correct_answer || '').toUpperCase();
+    const image_url = q.image_url || q.image || null;
+    const explanation = q.explanation || '';
+
+    if (!question_text) continue;
+    if (!['A', 'B', 'C', 'D'].includes(correct_answer)) continue;
+    if (!option_a || !option_b || !option_c || !option_d) continue;
+
     await db.prepare(
-      'INSERT INTO questions (exam_id,question_text,option_a,option_b,option_c,option_d,correct_answer,image_url) VALUES (?,?,?,?,?,?,?,?)'
-    ).bind(exam_id, qt, oa, ob, oc, od, ca.toUpperCase(), img || null).run();
+      'INSERT INTO questions (exam_id,question_text,option_a,option_b,option_c,option_d,correct_answer,image_url,explanation) VALUES (?,?,?,?,?,?,?,?,?)'
+    ).bind(exam_id, question_text, option_a, option_b, option_c, option_d, correct_answer, image_url || null, explanation).run();
     count++;
   }
   return json({ inserted: count });
@@ -555,15 +550,12 @@ async function handleAdminGrantPremium(request, db, adminId) {
 async function handleAdminRevokePremium(request, db) {
   const { user_id, exam_id, batch_id } = await request.json();
   if (batch_id) {
-    // Revoke batch-level grant
     await db.prepare('DELETE FROM premium_access WHERE user_id=? AND batch_id=? AND grant_scope=?')
       .bind(user_id, batch_id, 'batch').run();
   } else if (exam_id) {
-    // Revoke exam-level grant
     await db.prepare('DELETE FROM premium_access WHERE user_id=? AND exam_id=? AND grant_scope=?')
       .bind(user_id, exam_id, 'exam').run();
   } else {
-    // Revoke all non-account grants for this user
     await db.prepare('DELETE FROM premium_access WHERE user_id=?').bind(user_id).run();
   }
   return json({ success: true });
