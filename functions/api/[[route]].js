@@ -95,6 +95,9 @@ async function initDB(db) {
       allow_practice INTEGER DEFAULT 1,
       batch_id INTEGER REFERENCES batches(id) ON DELETE SET NULL,
       live_deadline_hours INTEGER DEFAULT 0,
+      results_published INTEGER DEFAULT 0,
+      publish_after_hours INTEGER DEFAULT 0,
+      leaderboard_enabled INTEGER DEFAULT 1,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE TABLE IF NOT EXISTS questions (
@@ -201,13 +204,31 @@ async function checkPremiumAccess(db, userId, examId, isAdmin) {
 // ─── Live status helper ───────────────────────────────────────────────────────
 function getLiveStatus(exam) {
   if (!exam.live_deadline_hours || exam.live_deadline_hours === 0) {
-    return { is_live: false, live_ends_at: null, live_seconds_remaining: 0 };
+    return { is_live: false, live_ends_at: null, live_seconds_remaining: 0, live_ended: false };
   }
   const created = new Date(exam.created_at).getTime();
   const liveEnds = created + exam.live_deadline_hours * 3600000;
   const now = Date.now();
   const remaining = Math.max(0, Math.floor((liveEnds - now) / 1000));
-  return { is_live: now < liveEnds, live_ends_at: new Date(liveEnds).toISOString(), live_seconds_remaining: remaining };
+  return {
+    is_live: now < liveEnds,
+    live_ends_at: new Date(liveEnds).toISOString(),
+    live_seconds_remaining: remaining,
+    live_ended: now >= liveEnds
+  };
+}
+
+// ─── Results published helper ─────────────────────────────────────────────────
+function isResultsPublished(exam) {
+  // Admin manually published
+  if (exam.results_published) return true;
+  // Auto-publish after set hours from creation
+  if (exam.publish_after_hours > 0) {
+    const created = new Date(exam.created_at).getTime();
+    const publishTime = created + exam.publish_after_hours * 3600000;
+    if (Date.now() >= publishTime) return true;
+  }
+  return false;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -260,7 +281,7 @@ async function handleListExams(request, db) {
   const result = [];
   for (const exam of exams.results) {
     const live = getLiveStatus(exam);
-    let stored_attempt = null, accessible = !exam.is_premium, can_practice = false;
+    let stored_attempt = null, accessible = !exam.is_premium, can_practice = false, results_visible = false;
 
     if (userId) {
       const sa = await db.prepare(
@@ -268,10 +289,21 @@ async function handleListExams(request, db) {
       ).bind(userId, exam.id).first();
       stored_attempt = sa || null;
       if (exam.is_premium) accessible = await checkPremiumAccess(db, userId, exam.id, user.is_admin);
-      if (exam.allow_practice && !live.is_live && stored_attempt) can_practice = true;
+      // Practice available only after live deadline expires and exam allows practice
+      if (exam.allow_practice && live.live_ended && stored_attempt) can_practice = true;
+      // For non-live exams, practice is available after first attempt
+      if (exam.allow_practice && !exam.live_deadline_hours && stored_attempt) can_practice = true;
+      // Results visible if published
+      if (stored_attempt) {
+        if (isResultsPublished(exam)) {
+          results_visible = true;
+        } else if (!exam.live_deadline_hours || exam.live_deadline_hours === 0) {
+          results_visible = true; // Non-live exams always show results
+        }
+      }
     }
 
-    result.push({ ...exam, ...live, stored_attempt, accessible, can_practice });
+    result.push({ ...exam, ...live, stored_attempt, accessible, can_practice, results_visible });
   }
   return json(result);
 }
@@ -289,10 +321,11 @@ async function handleExamStatus(examId, request, db) {
     ).bind(user.id, examId).first();
     has_completed_live = !!liveAttempt;
     can_attempt_live = live.is_live && !has_completed_live;
-    can_practice = exam.allow_practice && !live.is_live && has_completed_live;
+    can_practice = exam.allow_practice && live.live_ended && has_completed_live;
+    if (exam.allow_practice && !exam.live_deadline_hours && has_completed_live) can_practice = true;
   }
 
-  return json({ ...live, can_attempt_live, can_practice, has_completed_live });
+  return json({ ...live, can_attempt_live, can_practice, has_completed_live, results_published: isResultsPublished(exam) });
 }
 
 async function handleGetQuestions(examId, request, db) {
@@ -325,7 +358,11 @@ async function handleSubmit(examId, request, db) {
   const live = getLiveStatus(exam);
 
   if (!is_practice) {
-    if (live.is_live && live.live_seconds_remaining === 0) return err('Live exam has ended');
+    if (!exam.live_deadline_hours || exam.live_deadline_hours === 0) {
+      // Non-live exam — allow anytime
+    } else if (live.is_live && live.live_seconds_remaining === 0) {
+      return err('Live exam has ended');
+    }
     const existing = await db.prepare(
       `SELECT id FROM exam_results_stored WHERE user_id=? AND exam_id=? AND is_practice=0 LIMIT 1`
     ).bind(user.id, examId).first();
@@ -361,25 +398,48 @@ async function handleSubmit(examId, request, db) {
     `INSERT INTO exam_attempts (user_id,exam_id,score,total_questions,percentage,answers) VALUES (?,?,?,?,?,?)`
   ).bind(user.id, examId, score, total, percentage, answersJson).run();
 
-  return json({ attemptId: r1.id, score, total, percentage, answers });
+  return json({ attemptId: r1.id, score, total, percentage, answers, results_published: isResultsPublished(exam) });
 }
 
 async function handleGetResult(examId, attemptId, request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
+  const exam = await db.prepare('SELECT * FROM exams WHERE id=?').bind(examId).first();
+  if (!exam) return err('Exam not found', 404);
+
+  // Check if results are published
+  if (!isResultsPublished(exam)) {
+    return json({
+      pending: true,
+      message: 'Results will be available after the exam window closes and results are published.',
+      exam_name: exam.name
+    });
+  }
+
   const attempt = await db.prepare(
     'SELECT * FROM exam_results_stored WHERE id=? AND user_id=? AND exam_id=?'
   ).bind(attemptId, user.id, examId).first();
   if (!attempt) return err('Result not found', 404);
   const questions = await db.prepare('SELECT * FROM questions WHERE exam_id=?').bind(examId).all();
-  const exam = await db.prepare('SELECT * FROM exams WHERE id=?').bind(examId).first();
-  return json({ attempt, questions: questions.results, exam });
+  return json({ attempt, questions: questions.results, exam, results_published: true });
 }
 
 // ─── Leaderboard ──────────────────────────────────────────────────────────────
 async function handleLeaderboard(examId, request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
+
+  const exam = await db.prepare('SELECT * FROM exams WHERE id=?').bind(examId).first();
+  if (!exam) return err('Exam not found', 404);
+
+  // Leaderboard only if enabled AND (non-live OR results published)
+  if (!exam.leaderboard_enabled) {
+    return json({ rank: null, total_participants: 0, percentile: null, score: null, percentage: null, disabled: true });
+  }
+  if (exam.live_deadline_hours > 0 && !isResultsPublished(exam)) {
+    return json({ rank: null, total_participants: 0, percentile: null, score: null, percentage: null, disabled: true, pending: true });
+  }
+
   const row = await db.prepare(`
     SELECT rank, total_participants, percentage, score FROM (
       SELECT user_id, score, percentage,
@@ -393,7 +453,7 @@ async function handleLeaderboard(examId, request, db) {
   const percentile = row.total_participants > 1
     ? Math.round((1 - (row.rank - 1) / row.total_participants) * 100)
     : 100;
-  return json({ ...row, percentile });
+  return json({ ...row, percentile, disabled: false });
 }
 
 // ─── History ──────────────────────────────────────────────────────────────────
@@ -401,7 +461,9 @@ async function handleHistory(request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
   const rows = await db.prepare(`
-    SELECT ers.*, e.name as exam_name, b.name as batch_name
+    SELECT ers.*, e.name as exam_name, b.name as batch_name,
+      e.results_published, e.publish_after_hours, e.live_deadline_hours,
+      e.leaderboard_enabled, e.created_at as exam_created_at
     FROM exam_results_stored ers
     JOIN exams e ON ers.exam_id = e.id
     LEFT JOIN batches b ON e.batch_id = b.id
@@ -411,16 +473,29 @@ async function handleHistory(request, db) {
 
   const result = [];
   for (const r of rows.results) {
-    const lb = await db.prepare(`
-      SELECT rank, total_participants FROM (
-        SELECT user_id, ROW_NUMBER() OVER (ORDER BY percentage DESC, submitted_at ASC) as rank,
-          COUNT(*) OVER () as total_participants
-        FROM exam_results_stored WHERE exam_id=? AND is_first_attempt=1 AND is_practice=0
-      ) WHERE user_id=?
-    `).bind(r.exam_id, user.id).first();
+    const published = r.results_published || (r.publish_after_hours > 0 && 
+      (new Date(r.exam_created_at).getTime() + r.publish_after_hours * 3600000) <= Date.now()) ||
+      (!r.live_deadline_hours || r.live_deadline_hours === 0);
+
+    let lb = null;
+    if (r.leaderboard_enabled && published) {
+      lb = await db.prepare(`
+        SELECT rank, total_participants FROM (
+          SELECT user_id, ROW_NUMBER() OVER (ORDER BY percentage DESC, submitted_at ASC) as rank,
+            COUNT(*) OVER () as total_participants
+          FROM exam_results_stored WHERE exam_id=? AND is_first_attempt=1 AND is_practice=0
+        ) WHERE user_id=?
+      `).bind(r.exam_id, user.id).first();
+    }
     const percentile = lb && lb.total_participants > 1
-      ? Math.round((1 - (lb.rank - 1) / lb.total_participants) * 100) : 100;
-    result.push({ ...r, rank: lb?.rank || 1, total_participants: lb?.total_participants || 1, percentile });
+      ? Math.round((1 - (lb.rank - 1) / lb.total_participants) * 100) : null;
+    result.push({
+      ...r,
+      rank: lb?.rank || null,
+      total_participants: lb?.total_participants || null,
+      percentile,
+      results_visible: published
+    });
   }
   return json(result);
 }
@@ -487,22 +562,24 @@ async function handleAdminDeleteBatch(batchId, db) {
 }
 
 async function handleAdminCreateExam(request, db) {
-  const { name, description, time_limit, is_premium, negative_marking, allow_practice, batch_id, live_deadline_hours } = await request.json();
+  const { name, description, time_limit, is_premium, negative_marking, allow_practice, batch_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled } = await request.json();
   if (!name) return err('Name required');
   const r = await db.prepare(
-    `INSERT INTO exams (name,description,time_limit,is_premium,negative_marking,allow_practice,batch_id,live_deadline_hours)
-     VALUES (?,?,?,?,?,?,?,?) RETURNING *`
+    `INSERT INTO exams (name,description,time_limit,is_premium,negative_marking,allow_practice,batch_id,live_deadline_hours,results_published,publish_after_hours,leaderboard_enabled)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?) RETURNING *`
   ).bind(name, description || '', time_limit || 30, is_premium ? 1 : 0, negative_marking || 0,
-    allow_practice !== false ? 1 : 0, batch_id || null, live_deadline_hours || 0).first();
+    allow_practice !== false ? 1 : 0, batch_id || null, live_deadline_hours || 0,
+    results_published ? 1 : 0, publish_after_hours || 0, leaderboard_enabled !== false ? 1 : 0).first();
   return json(r, 201);
 }
 
 async function handleAdminUpdateExam(examId, request, db) {
-  const { name, description, time_limit, is_premium, negative_marking, allow_practice, batch_id, live_deadline_hours } = await request.json();
+  const { name, description, time_limit, is_premium, negative_marking, allow_practice, batch_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled } = await request.json();
   await db.prepare(
-    `UPDATE exams SET name=?,description=?,time_limit=?,is_premium=?,negative_marking=?,allow_practice=?,batch_id=?,live_deadline_hours=? WHERE id=?`
+    `UPDATE exams SET name=?,description=?,time_limit=?,is_premium=?,negative_marking=?,allow_practice=?,batch_id=?,live_deadline_hours=?,results_published=?,publish_after_hours=?,leaderboard_enabled=? WHERE id=?`
   ).bind(name, description || '', time_limit || 30, is_premium ? 1 : 0, negative_marking || 0,
-    allow_practice !== false ? 1 : 0, batch_id || null, live_deadline_hours || 0, examId).run();
+    allow_practice !== false ? 1 : 0, batch_id || null, live_deadline_hours || 0,
+    results_published ? 1 : 0, publish_after_hours || 0, leaderboard_enabled !== false ? 1 : 0, examId).run();
   const r = await db.prepare('SELECT * FROM exams WHERE id=?').bind(examId).first();
   return json(r);
 }
@@ -672,6 +749,16 @@ async function handleAdminListNotifications(db) {
   return json(rows.results);
 }
 
+async function handleAdminPublishResults(examId, db) {
+  await db.prepare('UPDATE exams SET results_published=1 WHERE id=?').bind(examId).run();
+  return json({ success: true });
+}
+
+async function handleAdminUnpublishResults(examId, db) {
+  await db.prepare('UPDATE exams SET results_published=0 WHERE id=?').bind(examId).run();
+  return json({ success: true });
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN ROUTER
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -748,6 +835,17 @@ export async function onRequest(context) {
   if (adminExam && method === 'DELETE') {
     if (!admin) return err('Admin required', 403);
     return handleAdminDeleteExam(adminExam[1], db);
+  }
+
+  const adminPublish = path.match(/^\/admin\/exams\/(\d+)\/publish$/);
+  if (adminPublish && method === 'POST') {
+    if (!admin) return err('Admin required', 403);
+    return handleAdminPublishResults(adminPublish[1], db);
+  }
+  const adminUnpublish = path.match(/^\/admin\/exams\/(\d+)\/unpublish$/);
+  if (adminUnpublish && method === 'POST') {
+    if (!admin) return err('Admin required', 403);
+    return handleAdminUnpublishResults(adminUnpublish[1], db);
   }
 
   const adminQs = path.match(/^\/admin\/questions\/(\d+)$/);
