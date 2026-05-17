@@ -48,8 +48,6 @@ body{min-height:100vh}
 .q-del:hover{color:var(--error)}
 .q-del svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
 .q-expl{font-size:.7rem;color:var(--premium);margin-top:3px;line-height:1.4;word-break:break-word}
-
-/* Notification cards */
 .notif-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px;transition:all .2s}
 .notif-card:hover{border-color:rgba(99,102,241,.3)}
 .notif-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
@@ -62,13 +60,15 @@ body{min-height:100vh}
 .notif-link svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
 .notif-img{max-width:100%;max-height:160px;border-radius:9px;margin-bottom:8px;border:1px solid var(--border);object-fit:contain}
 .notif-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:4px}
-
 .bottom-nav-items{display:flex}
 .bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;color:var(--muted);font-size:.55rem;font-weight:600;border:none;background:none;cursor:pointer;transition:color .2s;font-family:'Inter',sans-serif}
 .bottom-nav-item.active{color:var(--accent2)}
 .bottom-nav-item svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8}
 .revoke-btn{background:none;border:none;cursor:pointer;font-size:.75rem;font-weight:900;line-height:1;color:currentColor;opacity:.6;padding:1px 3px;margin-left:3px;border-radius:3px;transition:opacity .15s,background .15s;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
 .revoke-btn:hover{opacity:1;background:rgba(0,0,0,.2)}
+.publish-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.publish-yes{background:rgba(34,197,94,.12);color:var(--success)}
+.publish-no{background:rgba(245,158,11,.12);color:var(--warning)}
 @media(max-width:768px){.panel{padding:14px}.up-card{padding:18px}}
 </style>
 </head>
@@ -178,7 +178,7 @@ body{min-height:100vh}
       <button class="btn btn-primary btn-sm" onclick="openExamModal(null)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Exam</button>
     </div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Qs</th><th>Time</th><th style="text-align:right">Actions</th></tr></thead>
+      <thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Qs</th><th>Published</th><th style="text-align:right">Actions</th></tr></thead>
       <tbody id="examsTb"></tbody>
     </table></div>
   </div>
@@ -336,8 +336,15 @@ body{min-height:100vh}
         <div class="form-group"><label class="form-label">Negative Marking</label><input class="form-input" type="number" id="examNeg" value="0" min="0" step="0.25"></div>
         <div class="form-group"><label class="form-label">Live Deadline (hours, 0=none)</label><input class="form-input" type="number" id="examLive" value="0" min="0"></div>
       </div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Auto-Publish Results After (hours, 0=manual)</label><input class="form-input" type="number" id="examPublishAfter" value="0" min="0"></div>
+        <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:4px">
+          <button class="btn btn-secondary btn-sm" id="examPublishBtn" onclick="togglePublishNow()" style="width:100%">Publish Now</button>
+        </div>
+      </div>
       <div class="form-group"><div class="toggle-row"><span class="toggle-label">Premium exam</span><button class="toggle" id="examPremToggle" onclick="this.classList.toggle('on')"></button></div></div>
       <div class="form-group"><div class="toggle-row"><span class="toggle-label">Allow practice mode</span><button class="toggle on" id="examPractToggle" onclick="this.classList.toggle('on')"></button></div></div>
+      <div class="form-group"><div class="toggle-row"><span class="toggle-label">Enable leaderboard</span><button class="toggle on" id="examLeaderboardToggle" onclick="this.classList.toggle('on')"></button></div></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('examModal')">Cancel</button>
@@ -398,7 +405,7 @@ const user = getUser();
 document.getElementById('userName').textContent = user?.name || 'Admin';
 document.getElementById('userAvatar').textContent = (user?.name||'A')[0].toUpperCase();
 
-let allExams=[], allBatches=[], allUsers=[], editingExamId=null, grantUserId=null;
+let allExams=[], allBatches=[], allUsers=[], editingExamId=null, grantUserId=null, publishNowClicked=false;
 
 const ptitles={dashboard:'Dashboard',batches:'Batches',exams:'Exams',questions:'Upload Questions',notifications:'Notifications',users:'Users',results:'Results'};
 
@@ -460,14 +467,48 @@ async function loadExams(){
   const{data}=await apiFetch('/exams');allExams=Array.isArray(data)?data:[];
   document.getElementById('examsTb').innerHTML=allExams.length?allExams.map(e=>{
     const tb=e.is_live?'<span class="badge badge-live">Live</span>':e.is_premium?'<span class="badge badge-premium">Premium</span>':'<span class="badge badge-free">Free</span>';
-    return `<tr><td class="td-name">${esc(e.name)}</td><td style="color:var(--muted)">${esc(e.batch_name)||'—'}</td><td>${tb}</td><td class="td-mono">${e.question_count}</td><td class="td-mono">${e.time_limit}m</td><td><div class="td-actions"><button class="btn btn-secondary btn-sm" onclick="jumpToQUpload(${e.id})"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Qs</button><button class="btn btn-secondary btn-sm" onclick="openExamModal(${e.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id},'${esc(e.name)}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div></td></tr>`
+    const pubBadge=e.results_published
+      ?'<span class="publish-badge publish-yes">Published</span>'
+      :'<span class="publish-badge publish-no">Not Published</span>';
+    return `<tr><td class="td-name">${esc(e.name)}</td><td style="color:var(--muted)">${esc(e.batch_name)||'—'}</td><td>${tb}</td><td class="td-mono">${e.question_count}</td><td>${pubBadge}</td><td><div class="td-actions"><button class="btn btn-secondary btn-sm" onclick="jumpToQUpload(${e.id})"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Qs</button><button class="btn btn-secondary btn-sm" onclick="openExamModal(${e.id})">Edit</button>${e.results_published?`<button class="btn btn-secondary btn-sm" onclick="unpublishExam(${e.id})" style="color:var(--warning)">Unpublish</button>`:`<button class="btn btn-secondary btn-sm" onclick="publishExam(${e.id})" style="color:var(--success)">Publish</button>`}<button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id},'${esc(e.name)}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div></td></tr>`
   }).join(''):'<tr class="empty-row"><td colspan="6">No exams yet. Create one first.</td></tr>'
+}
+
+async function publishExam(id){
+  const{ok}=await apiFetch(`/admin/exams/${id}/publish`,{method:'POST'});
+  if(ok){loadExams();notify('Results published!')}
+}
+
+async function unpublishExam(id){
+  const{ok}=await apiFetch(`/admin/exams/${id}/unpublish`,{method:'POST'});
+  if(ok){loadExams();notify('Results unpublished')}
 }
 
 function jumpToQUpload(eid){showPanel('questions');setTimeout(()=>{const s=document.getElementById('qExamSel');if(s){s.value=eid;onExamPick()}},120)}
 
+function togglePublishNow(){
+  publishNowClicked=!publishNowClicked;
+  const btn=document.getElementById('examPublishBtn');
+  if(publishNowClicked){
+    btn.textContent='Will Publish on Save';
+    btn.style.background='rgba(34,197,94,.15)';
+    btn.style.borderColor='rgba(34,197,94,.4)';
+    btn.style.color='var(--success)';
+  }else{
+    btn.textContent='Publish Now';
+    btn.style.background='';
+    btn.style.borderColor='';
+    btn.style.color='';
+  }
+}
+
 async function openExamModal(eid){
   editingExamId=eid||null;
+  publishNowClicked=false;
+  document.getElementById('examPublishBtn').textContent='Publish Now';
+  document.getElementById('examPublishBtn').style.background='';
+  document.getElementById('examPublishBtn').style.borderColor='';
+  document.getElementById('examPublishBtn').style.color='';
   document.getElementById('examModalTitle').textContent=eid?'Edit Exam':'New Exam';
   if(!allBatches.length){const{data}=await apiFetch('/batches');allBatches=Array.isArray(data)?data:[]}
   const bs=document.getElementById('examBatch');
@@ -479,15 +520,19 @@ async function openExamModal(eid){
     document.getElementById('examTime').value=e.time_limit||30;
     document.getElementById('examNeg').value=e.negative_marking||0;
     document.getElementById('examLive').value=e.live_deadline_hours||0;
+    document.getElementById('examPublishAfter').value=e.publish_after_hours||0;
     document.getElementById('examPremToggle').classList.toggle('on',!!e.is_premium);
     document.getElementById('examPractToggle').classList.toggle('on',e.allow_practice!==0);
+    document.getElementById('examLeaderboardToggle').classList.toggle('on',e.leaderboard_enabled!==0);
     bs.value=e.batch_id||''
   }else{
     document.getElementById('examName').value='';document.getElementById('examDesc').value='';
     document.getElementById('examTime').value=30;document.getElementById('examNeg').value=0;
-    document.getElementById('examLive').value=0;
+    document.getElementById('examLive').value=0;document.getElementById('examPublishAfter').value=0;
     document.getElementById('examPremToggle').classList.remove('on');
-    document.getElementById('examPractToggle').classList.add('on');bs.value=''
+    document.getElementById('examPractToggle').classList.add('on');
+    document.getElementById('examLeaderboardToggle').classList.add('on');
+    bs.value=''
   }
   openModal('examModal')
 }
@@ -495,7 +540,19 @@ async function openExamModal(eid){
 async function saveExam(){
   const name=document.getElementById('examName').value.trim();if(!name)return;
   setLoading('saveExamBtn',true);
-  const body={name,description:document.getElementById('examDesc').value,time_limit:parseInt(document.getElementById('examTime').value)||30,negative_marking:parseFloat(document.getElementById('examNeg').value)||0,live_deadline_hours:parseInt(document.getElementById('examLive').value)||0,is_premium:document.getElementById('examPremToggle').classList.contains('on')?1:0,allow_practice:document.getElementById('examPractToggle').classList.contains('on')?1:0,batch_id:document.getElementById('examBatch').value||null};
+  const body={
+    name,
+    description:document.getElementById('examDesc').value,
+    time_limit:parseInt(document.getElementById('examTime').value)||30,
+    negative_marking:parseFloat(document.getElementById('examNeg').value)||0,
+    live_deadline_hours:parseInt(document.getElementById('examLive').value)||0,
+    publish_after_hours:parseInt(document.getElementById('examPublishAfter').value)||0,
+    is_premium:document.getElementById('examPremToggle').classList.contains('on')?1:0,
+    allow_practice:document.getElementById('examPractToggle').classList.contains('on')?1:0,
+    leaderboard_enabled:document.getElementById('examLeaderboardToggle').classList.contains('on')?1:0,
+    batch_id:document.getElementById('examBatch').value||null,
+    results_published:publishNowClicked?1:0
+  };
   const url=editingExamId?'/admin/exams/'+editingExamId:'/admin/exams';
   const{ok,data}=await apiFetch(url,{method:editingExamId?'PUT':'POST',body:JSON.stringify(body)});
   setLoading('saveExamBtn',false);
@@ -596,7 +653,6 @@ async function deleteAllQs(){
   await apiFetch('/admin/questions/'+eid,{method:'DELETE'});refreshQList(eid);notify('All questions deleted')
 }
 
-// ── Notifications ──
 async function loadNotifications(){
   try{
     const{ok,data}=await apiFetch('/admin/notifications');
