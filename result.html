@@ -77,12 +77,18 @@ body{min-height:100vh}
 .share-toast.show{transform:translateX(-50%) translateY(0)}
 .page-spinner{display:flex;align-items:center;justify-content:center;min-height:60vh;flex-direction:column;gap:14px;color:var(--muted)}
 .page-spinner .spinner{width:32px;height:32px;border-width:3px;border-color:var(--border);border-top-color:var(--accent)}
+.pending-icon{font-size:4rem;margin-bottom:16px;display:block}
+.pending-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:60px 28px;text-align:center;margin-bottom:24px}
+.pending-card .score-grade{color:var(--warning)}
+.pending-card .score-exam{color:var(--muted);margin-bottom:16px}
+.pending-card p{color:var(--muted);font-size:.9rem;line-height:1.6;max-width:400px;margin:0 auto 24px}
 @media(max-width:600px){
   .score-card{padding:28px 18px}
   .lb-card{gap:14px}
   .lb-perc-wrap{text-align:left}
   .content{padding:20px 14px 80px}
   .result-actions .btn{flex:1;justify-content:center}
+  .pending-card{padding:40px 18px}
 }
 </style>
 </head>
@@ -102,55 +108,7 @@ body{min-height:100vh}
     <span>Loading your result...</span>
   </div>
 
-  <div id="resultWrap" style="display:none">
-    <div class="score-card" id="scoreCard">
-      <div class="score-circle-wrap">
-        <svg viewBox="0 0 128 128">
-          <circle class="sc-bg" cx="64" cy="64" r="56"/>
-          <circle class="sc-fill" id="scRing" cx="64" cy="64" r="56"/>
-        </svg>
-        <div class="sc-inner">
-          <div class="sc-perc" id="scPerc">0%</div>
-          <div class="sc-label">Score</div>
-        </div>
-      </div>
-      <div class="score-grade" id="scGrade"></div>
-      <div class="score-exam" id="scExam"></div>
-      <div class="score-stats">
-        <div class="sc-stat correct-c"><div class="sc-stat-val" id="scCorrect">0</div><div class="sc-stat-lbl">Correct</div></div>
-        <div class="sc-stat wrong-c"><div class="sc-stat-val" id="scWrong">0</div><div class="sc-stat-lbl">Wrong</div></div>
-        <div class="sc-stat skip-c"><div class="sc-stat-val" id="scSkip">0</div><div class="sc-stat-lbl">Skipped</div></div>
-      </div>
-      <div class="perf-bar"><div class="perf-fill" id="scBar"></div></div>
-      <div class="result-actions" id="resultActions"></div>
-    </div>
-
-    <div class="lb-card" id="lbCard" style="display:none">
-      <div class="lb-badge">
-        <div class="lb-rank-num" id="lbRank">#—</div>
-        <div class="lb-rank-lbl">Rank</div>
-      </div>
-      <div class="lb-info">
-        <div class="lb-info-title">Your Leaderboard Position</div>
-        <div class="lb-info-sub" id="lbSub">Loading...</div>
-      </div>
-      <div class="lb-perc-wrap">
-        <div class="lb-perc-val" id="lbPerc">—%</div>
-        <div class="lb-perc-lbl">Percentile</div>
-      </div>
-    </div>
-
-    <div class="review-head">
-      <span class="sect-title">Question Review</span>
-      <div class="chips">
-        <button class="chip active" data-f="all" onclick="setChip(this)">All</button>
-        <button class="chip" data-f="correct" onclick="setChip(this)">Correct</button>
-        <button class="chip" data-f="wrong" onclick="setChip(this)">Wrong</button>
-        <button class="chip" data-f="skipped" onclick="setChip(this)">Skipped</button>
-      </div>
-    </div>
-    <div class="review-list" id="reviewList"></div>
-  </div>
+  <div id="resultWrap" style="display:none"></div>
 </div>
 
 <div class="share-toast" id="shareToast">Copied to clipboard!</div>
@@ -169,6 +127,24 @@ async function load() {
   try {
     const { ok, data } = await apiFetch(`/exams/${examId}/result/${attemptId}`);
     if (!ok) { window.location.href = 'dashboard.html'; return; }
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('resultWrap').style.display = 'block';
+
+    // Handle pending results
+    if (data.pending) {
+      document.getElementById('resultWrap').innerHTML = `
+        <div class="pending-card">
+          <span class="pending-icon">⏳</span>
+          <div class="score-grade">Results Pending</div>
+          <div class="score-exam">${esc(data.exam_name || 'Exam')}</div>
+          <p>${esc(data.message || 'Results will be available after the exam window closes and results are published.')}</p>
+          <a href="dashboard.html" class="btn btn-primary"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Back to Dashboard</a>
+        </div>`;
+      document.getElementById('rhTitle').textContent = 'Result — Pending';
+      return;
+    }
+
     attempt   = data.attempt;
     questions = data.questions;
     exam      = data.exam;
@@ -187,6 +163,48 @@ async function load() {
     document.title = `Result: ${exam.name} — Exalyte`;
     document.getElementById('rhTitle').textContent = exam.name;
 
+    // Build full result HTML
+    let html = `
+    <div class="score-card" id="scoreCard">
+      <div class="score-circle-wrap">
+        <svg viewBox="0 0 128 128">
+          <circle class="sc-bg" cx="64" cy="64" r="56"/>
+          <circle class="sc-fill" id="scRing" cx="64" cy="64" r="56"/>
+        </svg>
+        <div class="sc-inner">
+          <div class="sc-perc" id="scPerc">0%</div>
+          <div class="sc-label">Score</div>
+        </div>
+      </div>
+      <div class="score-grade" id="scGrade"></div>
+      <div class="score-exam" id="scExam"></div>
+      <div class="score-stats">
+        <div class="sc-stat correct-c"><div class="sc-stat-val" id="scCorrect">${correct}</div><div class="sc-stat-lbl">Correct</div></div>
+        <div class="sc-stat wrong-c"><div class="sc-stat-val" id="scWrong">${wrong}</div><div class="sc-stat-lbl">Wrong</div></div>
+        <div class="sc-stat skip-c"><div class="sc-stat-val" id="scSkip">${skipped}</div><div class="sc-stat-lbl">Skipped</div></div>
+      </div>
+      <div class="perf-bar"><div class="perf-fill" id="scBar"></div></div>
+      <div class="result-actions" id="resultActions"></div>
+    </div>
+    <div class="lb-card" id="lbCard" style="display:none">
+      <div class="lb-badge"><div class="lb-rank-num" id="lbRank">#—</div><div class="lb-rank-lbl">Rank</div></div>
+      <div class="lb-info"><div class="lb-info-title">Your Leaderboard Position</div><div class="lb-info-sub" id="lbSub">Loading...</div></div>
+      <div class="lb-perc-wrap"><div class="lb-perc-val" id="lbPerc">—%</div><div class="lb-perc-lbl">Percentile</div></div>
+    </div>
+    <div class="review-head">
+      <span class="sect-title">Question Review</span>
+      <div class="chips">
+        <button class="chip active" data-f="all" onclick="setChip(this)">All</button>
+        <button class="chip" data-f="correct" onclick="setChip(this)">Correct</button>
+        <button class="chip" data-f="wrong" onclick="setChip(this)">Wrong</button>
+        <button class="chip" data-f="skipped" onclick="setChip(this)">Skipped</button>
+      </div>
+    </div>
+    <div class="review-list" id="reviewList"></div>`;
+
+    document.getElementById('resultWrap').innerHTML = html;
+
+    // Animate score ring
     const ring = document.getElementById('scRing');
     const circ = 2 * Math.PI * 56;
     ring.style.strokeDasharray  = circ;
@@ -194,6 +212,7 @@ async function load() {
     document.getElementById('scoreCard').style.setProperty('--glow', grade.glow);
     setTimeout(() => { ring.style.strokeDashoffset = circ - (perc / 100) * circ; }, 80);
 
+    // Animate counter
     let count = 0;
     const target = Math.round(perc * 10) / 10;
     const step = target / 60;
@@ -206,9 +225,6 @@ async function load() {
     document.getElementById('scGrade').textContent  = grade.label;
     document.getElementById('scGrade').style.color  = grade.color;
     document.getElementById('scExam').textContent   = exam.name + (attempt.is_practice ? ' — Practice' : '');
-    document.getElementById('scCorrect').textContent = correct;
-    document.getElementById('scWrong').textContent   = wrong;
-    document.getElementById('scSkip').textContent    = skipped;
 
     const bar = document.getElementById('scBar');
     bar.style.background = `linear-gradient(90deg, ${grade.color}, ${grade.color}88)`;
@@ -221,9 +237,10 @@ async function load() {
     actHtml += `<button class="btn btn-secondary" onclick="shareResult(${perc.toFixed(1)})" title="Share"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>`;
     document.getElementById('resultActions').innerHTML = actHtml;
 
+    // Leaderboard
     if (!attempt.is_practice) {
       const { ok: lok, data: lb } = await apiFetch(`/leaderboard/${examId}`);
-      if (lok && lb?.rank) {
+      if (lok && lb?.rank && !lb.disabled) {
         document.getElementById('lbCard').style.display = 'flex';
         document.getElementById('lbRank').textContent   = '#' + lb.rank;
         document.getElementById('lbSub').textContent    = `Out of ${lb.total_participants} participant${lb.total_participants !== 1 ? 's' : ''}`;
@@ -232,9 +249,6 @@ async function load() {
     }
 
     renderReview();
-
-    document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('resultWrap').style.display  = 'block';
   } catch(e) {
     document.getElementById('loadingState').innerHTML = '<p style="color:var(--error)">Failed to load result. <a href="dashboard.html" style="color:var(--accent2)">Go back</a></p>';
   }
