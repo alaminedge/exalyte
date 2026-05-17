@@ -42,11 +42,14 @@
 .exam-meta-item.neg{color:var(--error)}
 .exam-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0}
 .score-pill{display:flex;align-items:center;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);padding:5px 10px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;color:var(--success)}
+.score-pill.pending{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);color:var(--warning)}
 .btn-take{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;border:none;padding:8px 16px;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;white-space:nowrap}
 .btn-take:hover{opacity:.9;transform:translateY(-1px)}
 .btn-take:disabled{background:var(--surface2);color:var(--muted);transform:none;cursor:not-allowed;opacity:1}
 .btn-practice{background:rgba(99,102,241,.12);color:var(--accent2);border:1px solid rgba(99,102,241,.3);padding:7px 14px;border-radius:9px;font-size:.74rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;white-space:nowrap}
 .btn-practice:hover{background:rgba(99,102,241,.22)}
+.btn-pending{background:rgba(245,158,11,.1);color:var(--warning);border:1px solid rgba(245,158,11,.25);padding:8px 14px;border-radius:10px;font-size:.76rem;font-weight:600;cursor:default;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.btn-pending svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
 .search-input{flex:1;min-width:180px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--text);font-size:.855rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
 .search-input:focus{border-color:var(--accent)}
@@ -59,15 +62,11 @@
 .empty-state svg{width:44px;height:44px;stroke:var(--muted);fill:none;stroke-width:1.5;margin:0 auto 14px;display:block;opacity:.35}
 .empty-state h3{font-family:'Lexend',sans-serif;font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:6px}
 .empty-state p{font-size:.8rem;line-height:1.6}
-
-/* Bell icon */
 .bell-btn{position:relative;width:34px;height:34px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all .2s;flex-shrink:0}
 .bell-btn:hover{color:var(--accent2);border-color:var(--accent2)}
 .bell-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2}
 .bell-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;background:var(--error);color:#fff;border-radius:9px;font-size:.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px;line-height:1;display:none}
 .bell-badge.show{display:flex}
-
-/* Notification dropdown */
 .notif-dropdown{position:absolute;top:44px;right:0;width:360px;max-height:420px;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 12px 40px var(--shadow);z-index:100;display:none}
 .notif-dropdown.open{display:block}
 .notif-dd-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
@@ -82,20 +81,16 @@
 .notif-dd-item-img{width:100%;max-height:120px;object-fit:cover;border-radius:8px;margin-top:6px}
 .notif-dd-item-link{display:inline-flex;align-items:center;gap:3px;font-size:.7rem;color:var(--accent2);font-weight:600;margin-top:4px}
 .notif-dd-empty{text-align:center;padding:30px;color:var(--muted);font-size:.82rem}
-
+.notif-overlay{position:fixed;inset:0;z-index:99;display:none}
+.notif-overlay.open{display:block}
 .bottom-nav-items{display:flex}
 .bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;color:var(--muted);font-size:.62rem;font-weight:600;border:none;background:none;cursor:pointer;transition:color .2s;font-family:'Inter',sans-serif}
 .bottom-nav-item.active{color:var(--accent2)}
 .bottom-nav-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8}
-
-/* Notification overlay */
-.notif-overlay{position:fixed;inset:0;z-index:99;display:none}
-.notif-overlay.open{display:block}
-
 @media(max-width:600px){
   .exam-card-inner{flex-direction:column;gap:10px}
   .exam-actions{flex-direction:row;align-items:center;width:100%}
-  .exam-actions .btn-take,.exam-actions .btn-practice{flex:1;justify-content:center;text-align:center}
+  .exam-actions .btn-take,.exam-actions .btn-practice,.exam-actions .btn-pending{flex:1;justify-content:center;text-align:center}
   .live-exam-item{flex-wrap:wrap;gap:8px}
   .notif-dropdown{width:calc(100vw - 32px);right:-140px;max-height:360px}
 }
@@ -104,7 +99,6 @@
 <body class="app-layout">
 
 <div class="notif-overlay" id="notifOverlay" onclick="closeNotifs()"></div>
-
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <aside class="sidebar" id="sidebar">
@@ -317,7 +311,7 @@ function updateStats() {
   document.getElementById('sTotal').textContent = allExams.length;
   const done = allExams.filter(e=>e.stored_attempt).length;
   document.getElementById('sDone').textContent = done;
-  const best = done ? Math.max(...allExams.filter(e=>e.stored_attempt).map(e=>e.stored_attempt.percentage)).toFixed(0)+'%' : '—';
+  const best = done ? Math.max(...allExams.filter(e=>e.stored_attempt && e.results_visible).map(e=>e.stored_attempt.percentage)).toFixed(0)+'%' : '—';
   document.getElementById('sBest').textContent = best;
   document.getElementById('sPractice').textContent = allExams.filter(e=>e.can_practice).length || '—';
 }
@@ -340,7 +334,7 @@ function renderLiveStrip() {
 }
 
 async function renderRankings() {
-  const done = allExams.filter(e=>e.stored_attempt).slice(0,4);
+  const done = allExams.filter(e=>e.stored_attempt && e.results_visible).slice(0,4);
   if (!done.length) return;
   document.getElementById('rankSection').style.display = 'block';
   const rows = await Promise.all(done.map(async e=>{
@@ -400,19 +394,35 @@ function examCard(e) {
     ? '<span class="badge badge-live"><span class="live-dot"></span>Live</span>'
     : e.is_premium ? '<span class="badge badge-premium">Premium</span>' : '<span class="badge badge-free">Free</span>';
 
-  const scorePill = e.stored_attempt
-    ? `<div class="score-pill">${e.stored_attempt.percentage.toFixed(0)}%</div>` : '';
+  let scorePill = '';
+  if (e.stored_attempt) {
+    if (e.results_visible) {
+      scorePill = `<div class="score-pill">${e.stored_attempt.percentage.toFixed(0)}%</div>`;
+    } else {
+      scorePill = `<div class="score-pill pending">Pending</div>`;
+    }
+  }
 
   let action = '';
-  if (e.is_live && !e.stored_attempt) {
-    action = `<button class="btn-take" onclick="goExam(${e.id},false)">Take Live</button>`;
-  } else if (!e.live_deadline_hours && !e.stored_attempt) {
-    action = `<button class="btn-take" onclick="goExam(${e.id},false)">Start Exam</button>`;
-  } else if (e.stored_attempt) {
-    action = `<button class="btn-take" onclick="window.location='result.html?examId=${e.id}&attemptId=${e.stored_attempt.id}'">View Result</button>`;
-    if (e.can_practice) action += `<button class="btn-practice" onclick="goExam(${e.id},true)">Practice</button>`;
-  } else if (e.live_deadline_hours && !e.is_live) {
-    action = `<button class="btn-take" disabled>Ended</button>`;
+  if (!e.stored_attempt) {
+    // Not attempted yet
+    if (e.is_live) {
+      action = `<button class="btn-take" onclick="goExam(${e.id},false)">Take Live</button>`;
+    } else if (!e.live_deadline_hours) {
+      action = `<button class="btn-take" onclick="goExam(${e.id},false)">Start Exam</button>`;
+    } else if (e.live_ended) {
+      action = `<button class="btn-take" disabled>Ended</button>`;
+    }
+  } else {
+    // Attempted
+    if (e.results_visible) {
+      action = `<button class="btn-take" onclick="window.location='result.html?examId=${e.id}&attemptId=${e.stored_attempt.id}'">View Result</button>`;
+      if (e.can_practice) {
+        action += `<button class="btn-practice" onclick="goExam(${e.id},true)">Practice</button>`;
+      }
+    } else {
+      action = `<button class="btn-pending"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Awaiting Results</button>`;
+    }
   }
 
   return `<div class="exam-card">
