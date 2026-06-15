@@ -1,458 +1,1411 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Dashboard — Exalyte</title>
-<link rel="stylesheet" href="assets/main.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
 <style>
-.live-strip{background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(239,68,68,.05));border:1px solid rgba(239,68,68,.3);border-radius:16px;padding:18px;margin-bottom:24px;display:none}
-.live-strip.visible{display:block}
-.live-strip-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.live-badge{display:inline-flex;align-items:center;gap:6px;background:var(--live);color:#fff;font-size:.68rem;font-weight:700;padding:4px 10px;border-radius:6px;letter-spacing:.06em;text-transform:uppercase}
-.live-exam-item{background:rgba(0,0,0,.25);border:1px solid rgba(239,68,68,.2);border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
-[data-theme="light"] .live-exam-item{background:rgba(239,68,68,.05)}
-.live-exam-name{font-weight:600;font-size:.875rem;color:var(--text-bright)}
-.live-countdown{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--live)}
-.btn-live{background:var(--live);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;transition:opacity .2s;white-space:nowrap;font-family:'Inter',sans-serif}
-.btn-live:hover{opacity:.85}
-.rank-item{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:all .2s;margin-bottom:10px}
-.rank-item:hover{border-color:rgba(99,102,241,.3)}
-.rank-badge{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.85rem;flex-shrink:0}
-.rb1{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
-.rb2{background:linear-gradient(135deg,#94a3b8,#64748b);color:#fff}
-.rb3{background:linear-gradient(135deg,#cd7c3f,#a85d28);color:#fff}
-.rbn{background:var(--surface2);color:var(--muted)}
-.batch-group{margin-bottom:20px}
-.batch-header{display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;user-select:none}
-.batch-name{font-family:'Lexend',sans-serif;font-size:.9rem;font-weight:700;color:var(--text-bright)}
-.batch-count{font-size:.72rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:5px}
-.batch-arrow{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2;transition:transform .2s;flex-shrink:0}
-.batch-group.collapsed .batch-arrow{transform:rotate(-90deg)}
-.batch-group.collapsed .exams-list{display:none}
-.exams-list{display:flex;flex-direction:column;gap:10px}
-.exam-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px;transition:all .2s}
-.exam-card:hover{border-color:rgba(99,102,241,.3);transform:translateY(-1px);box-shadow:0 6px 20px var(--shadow)}
-.exam-card-inner{display:flex;align-items:flex-start;gap:14px}
-.exam-body{flex:1;min-width:0}
-.exam-name{font-family:'Lexend',sans-serif;font-weight:700;font-size:.92rem;color:var(--text-bright);margin-bottom:4px;letter-spacing:-.01em}
-.exam-desc{font-size:.78rem;color:var(--muted);margin-bottom:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.exam-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.exam-meta-item{display:flex;align-items:center;gap:3px;font-size:.72rem;color:var(--muted)}
-.exam-meta-item svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
-.exam-meta-item.neg{color:var(--error)}
-.exam-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0}
-.score-pill{display:flex;align-items:center;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);padding:5px 10px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;color:var(--success)}
-.score-pill.pending{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);color:var(--warning)}
-.btn-take{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;border:none;padding:8px 16px;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;white-space:nowrap}
-.btn-take:hover{opacity:.9;transform:translateY(-1px)}
-.btn-take:disabled{background:var(--surface2);color:var(--muted);transform:none;cursor:not-allowed;opacity:1}
-.btn-practice{background:rgba(99,102,241,.12);color:var(--accent2);border:1px solid rgba(99,102,241,.3);padding:7px 14px;border-radius:9px;font-size:.74rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;white-space:nowrap}
-.btn-practice:hover{background:rgba(99,102,241,.22)}
-.btn-pending{background:rgba(245,158,11,.1);color:var(--warning);border:1px solid rgba(245,158,11,.25);padding:8px 14px;border-radius:10px;font-size:.76rem;font-weight:600;cursor:default;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;white-space:nowrap}
-.btn-pending svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
-.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
-.search-input{flex:1;min-width:180px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--text);font-size:.855rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
-.search-input:focus{border-color:var(--accent)}
-.search-input::placeholder{color:var(--muted)}
-.filter-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;white-space:nowrap}
-.filter-btn.active,.filter-btn:hover{background:rgba(99,102,241,.14);border-color:rgba(99,102,241,.4);color:var(--accent2)}
-.sect-link{font-size:.78rem;color:var(--accent2);font-weight:600;display:flex;align-items:center;gap:4px;cursor:pointer;border:none;background:none;font-family:'Inter',sans-serif}
-.sect-link svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5}
-.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
-.empty-state svg{width:44px;height:44px;stroke:var(--muted);fill:none;stroke-width:1.5;margin:0 auto 14px;display:block;opacity:.35}
-.empty-state h3{font-family:'Lexend',sans-serif;font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:6px}
-.empty-state p{font-size:.8rem;line-height:1.6}
-.bell-btn{position:relative;width:34px;height:34px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all .2s;flex-shrink:0}
-.bell-btn:hover{color:var(--accent2);border-color:var(--accent2)}
-.bell-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2}
-.bell-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;background:var(--error);color:#fff;border-radius:9px;font-size:.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px;line-height:1;display:none}
-.bell-badge.show{display:flex}
-.notif-dropdown{position:absolute;top:44px;right:0;width:360px;max-height:420px;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 12px 40px var(--shadow);z-index:100;display:none}
-.notif-dropdown.open{display:block}
-.notif-dd-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
-.notif-dd-title{font-family:'Lexend',sans-serif;font-weight:700;font-size:.85rem;color:var(--text-bright)}
-.notif-dd-item{padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
-.notif-dd-item:last-child{border-bottom:none}
-.notif-dd-item:hover{background:var(--surface2)}
-.notif-dd-item.unread{background:rgba(99,102,241,.05);border-left:2px solid var(--accent)}
-.notif-dd-item-title{font-weight:600;font-size:.82rem;color:var(--text-bright);margin-bottom:3px}
-.notif-dd-item-body{font-size:.76rem;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.notif-dd-item-time{font-size:.68rem;color:var(--muted);margin-top:4px}
-.notif-dd-item-img{width:100%;max-height:120px;object-fit:cover;border-radius:8px;margin-top:6px}
-.notif-dd-item-link{display:inline-flex;align-items:center;gap:3px;font-size:.7rem;color:var(--accent2);font-weight:600;margin-top:4px}
-.notif-dd-empty{text-align:center;padding:30px;color:var(--muted);font-size:.82rem}
-.notif-overlay{position:fixed;inset:0;z-index:99;display:none}
-.notif-overlay.open{display:block}
-.bottom-nav-items{display:flex}
-.bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;color:var(--muted);font-size:.62rem;font-weight:600;border:none;background:none;cursor:pointer;transition:color .2s;font-family:'Inter',sans-serif}
-.bottom-nav-item.active{color:var(--accent2)}
-.bottom-nav-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8}
-@media(max-width:600px){
-  .exam-card-inner{flex-direction:column;gap:10px}
-  .exam-actions{flex-direction:row;align-items:center;width:100%}
-  .exam-actions .btn-take,.exam-actions .btn-practice,.exam-actions .btn-pending{flex:1;justify-content:center;text-align:center}
-  .live-exam-item{flex-wrap:wrap;gap:8px}
-  .notif-dropdown{width:calc(100vw - 32px);right:-140px;max-height:360px}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #080810;
+  --surface: #0e0e1c;
+  --surface2: #13132a;
+  --surface3: #1a1a36;
+  --border: #1f1f3a;
+  --border2: #2a2a4a;
+  --accent: #5b5bd6;
+  --accent-h: #6e6ee8;
+  --accent-d: #4747b8;
+  --muted: #8b8bae;
+  --text: #c8c8e8;
+  --bright: #f0f0ff;
+  --success: #22c55e;
+  --error: #ef4444;
+  --warning: #f59e0b;
+  --premium: #a855f7;
+}
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ===== HEADER ===== */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  height: 64px;
+  background: rgba(8, 8, 16, 0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.logo-text {
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  background: linear-gradient(135deg, #ffffff 0%, #a0a0ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 4px;
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.header-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 7px 18px;
+  border-radius: 30px;
+  transition: all 0.2s;
+}
+
+.header-nav a:hover {
+  color: var(--bright);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-h));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+}
+
+.user-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--bright);
+}
+
+.btn-logout {
+  padding: 7px 18px;
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  padding: 8px;
+}
+
+/* Mobile Drawer */
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: min(300px, 85vw);
+  height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  z-index: 400;
+  transition: left 0.3s;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-drawer.open { left: 0; }
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 399;
+  display: none;
+}
+
+.drawer-overlay.open { display: block; }
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.drawer-close {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.drawer-link {
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding: 12px 14px;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+.drawer-link:hover {
+  background: var(--surface2);
+}
+
+.drawer-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 12px 0;
+}
+
+.drawer-actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 24px;
+}
+
+.drawer-actions .btn {
+  width: 100%;
+  justify-content: center;
+  padding: 12px;
+}
+
+/* Main Content */
+.main-content {
+  min-height: calc(100vh - 64px);
+  padding: 32px 40px;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+  transition: all 0.2s;
+}
+
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(91, 91, 214, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.stat-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--accent-h);
+}
+
+.stat-val {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--bright);
+}
+
+.stat-lbl {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* Live Strip */
+.live-strip {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.02));
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 28px;
+  display: none;
+}
+
+.live-strip.visible { display: block; }
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 30px;
+  margin-bottom: 12px;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.live-exam-item {
+  background: var(--surface2);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.live-exam-name {
+  font-weight: 600;
+  color: var(--bright);
+}
+
+.live-countdown {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.btn-live {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 40px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-live:hover {
+  background: #dc2626;
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  padding: 10px 18px;
+  color: var(--text);
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+}
+
+.filter-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 8px 18px;
+  border-radius: 40px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+  background: rgba(91, 91, 214, 0.12);
+  border-color: var(--accent);
+  color: var(--accent-h);
+}
+
+/* Batch Groups */
+.batch-group {
+  margin-bottom: 28px;
+}
+
+.batch-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  cursor: pointer;
+}
+
+.batch-name {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--bright);
+}
+
+.batch-count {
+  font-size: 0.7rem;
+  color: var(--muted);
+  background: var(--surface2);
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.batch-arrow {
+  width: 18px;
+  height: 18px;
+  stroke: var(--muted);
+  transition: transform 0.2s;
+}
+
+.batch-group.collapsed .batch-arrow {
+  transform: rotate(-90deg);
+}
+
+.batch-group.collapsed .exams-list {
+  display: none;
+}
+
+.exams-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Exam Card */
+.exam-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+  transition: all 0.2s;
+}
+
+.exam-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.exam-card-inner {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.exam-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.exam-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 30px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.badge-free {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.badge-premium {
+  background: rgba(168, 85, 247, 0.1);
+  color: var(--premium);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.badge-live {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.exam-name {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--bright);
+  margin-bottom: 6px;
+}
+
+.exam-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.exam-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.meta-item svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+}
+
+/* Resources Section */
+.resource-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.resource-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.resource-header svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--accent-h);
+}
+
+.resource-header span {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent-h);
+  letter-spacing: 0.06em;
+}
+
+.resource-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.resource-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.resource-link:hover {
+  border-color: var(--accent);
+  color: var(--accent-h);
+  transform: translateY(-2px);
+}
+
+.resource-link svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+}
+
+/* Exam Actions */
+.exam-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.score-pill {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  padding: 5px 12px;
+  border-radius: 30px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--success);
+}
+
+.score-pill.pending {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.2);
+  color: var(--warning);
+}
+
+.btn-take {
+  background: linear-gradient(135deg, var(--accent), var(--accent-h));
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 40px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-take:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(91, 91, 214, 0.3);
+}
+
+.btn-take:disabled {
+  background: var(--surface2);
+  color: var(--muted);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-practice {
+  background: rgba(91, 91, 214, 0.12);
+  color: var(--accent-h);
+  border: 1px solid rgba(91, 91, 214, 0.25);
+  padding: 7px 18px;
+  border-radius: 40px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-practice:hover {
+  background: rgba(91, 91, 214, 0.22);
+}
+
+/* Rank Section */
+.rank-section {
+  margin-bottom: 32px;
+}
+
+.sect-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.sect-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--bright);
+}
+
+.rank-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rank-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rank-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.rank-1 {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+}
+
+.rank-2 {
+  background: linear-gradient(135deg, #94a3b8, #64748b);
+  color: #fff;
+}
+
+.rank-3 {
+  background: linear-gradient(135deg, #cd7c3f, #a85d28);
+  color: #fff;
+}
+
+.rank-n {
+  background: var(--surface2);
+  color: var(--muted);
+}
+
+.rank-info {
+  flex: 1;
+}
+
+.rank-exam-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--bright);
+}
+
+.rank-stats {
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.rank-percentage {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--accent-h);
+}
+
+/* Notifications */
+.notif-btn {
+  position: relative;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all 0.2s;
+}
+
+.notif-btn:hover {
+  color: var(--accent-h);
+  border-color: var(--accent-h);
+}
+
+.notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  background: var(--error);
+  color: #fff;
+  border-radius: 20px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  display: none;
+}
+
+.notif-badge.show {
+  display: flex;
+}
+
+.notif-dropdown {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  width: 360px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  display: none;
+}
+
+.notif-dropdown.open {
+  display: block;
+}
+
+.notif-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notif-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--bright);
+}
+
+.notif-item {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.notif-item:hover {
+  background: var(--surface2);
+}
+
+.notif-item.unread {
+  background: rgba(91, 91, 214, 0.05);
+  border-left: 2px solid var(--accent);
+}
+
+.notif-item-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+.notif-item-body {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.notif-item-time {
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* Skeleton */
+.skeleton {
+  background: linear-gradient(90deg, var(--surface2) 25%, var(--surface3) 50%, var(--surface2) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 12px;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+
+.empty-state svg {
+  width: 48px;
+  height: 48px;
+  stroke: currentColor;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 48px 40px 32px;
+  margin-top: 60px;
+}
+
+.footer-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+}
+
+.footer-brand p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 12px;
+  line-height: 1.6;
+}
+
+.footer-col h4 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--bright);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+.footer-col a {
+  display: block;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+  transition: color 0.2s;
+}
+
+.footer-col a:hover {
+  color: var(--accent-h);
+}
+
+.footer-bottom {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding-top: 32px;
+  margin-top: 48px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-copy {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .main-content {
+    padding: 24px 20px;
+  }
+  .header-nav {
+    display: none;
+  }
+  .hamburger {
+    display: block;
+  }
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
+  }
+  .footer-brand {
+    grid-column: span 2;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .exam-card-inner {
+    flex-direction: column;
+  }
+  .exam-actions {
+    flex-direction: row;
+    width: 100%;
+  }
+  .exam-actions .btn-take,
+  .exam-actions .btn-practice {
+    flex: 1;
+    text-align: center;
+  }
+  .notif-dropdown {
+    width: calc(100vw - 32px);
+    right: -100px;
+  }
+  .resource-grid {
+    flex-direction: column;
+  }
+  .resource-link {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 540px) {
+  .main-content {
+    padding: 20px 16px;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .filters {
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    flex: 1;
+    text-align: center;
+  }
+  .live-exam-item {
+    flex-direction: column;
+    text-align: center;
+  }
+  .footer-inner {
+    grid-template-columns: 1fr;
+  }
+  .footer-brand {
+    grid-column: span 1;
+  }
+  .footer {
+    padding: 40px 20px 28px;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 </style>
 </head>
-<body class="app-layout">
+<body>
 
-<div class="notif-overlay" id="notifOverlay" onclick="closeNotifs()"></div>
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-logo">
-    <a href="/" class="logo-wrap">
-      <img src="images/exalyte.png" alt="Exalyte" class="logo-img">
+<header>
+  <div style="display: flex; align-items: center; gap: 16px;">
+    <button class="hamburger" id="hamburger">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8">
+        <line x1="3" y1="7" x2="19" y2="7"/>
+        <line x1="3" y1="11" x2="19" y2="11"/>
+        <line x1="3" y1="15" x2="19" y2="15"/>
+      </svg>
+    </button>
+    <a href="/" class="logo">
+      <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
       <span class="logo-text">Exalyte</span>
     </a>
   </div>
-  <nav class="sidebar-nav">
-    <div class="nav-section">
-      <div class="nav-section-label">Main</div>
-      <a href="dashboard.html" class="nav-item active">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard
-      </a>
-      <a href="exam-history.html" class="nav-item">
-        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Exam History
-      </a>
-    </div>
-    <div class="nav-section">
-      <div class="nav-section-label">Account</div>
-      <button class="nav-item" onclick="logout()">
-        <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>Sign Out
-      </button>
-    </div>
-  </nav>
-  <div class="sidebar-footer">
-    <div class="user-card">
-      <div class="user-avatar" id="userAvatar">?</div>
-      <div class="user-info">
-        <div class="user-name" id="userName">Loading...</div>
-        <div class="user-role">Student</div>
-      </div>
-    </div>
+  <div class="header-nav">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="exam-history.html">History</a>
   </div>
-</aside>
-
-<div class="app-main">
-  <div class="topbar">
-    <div style="display:flex;align-items:center;gap:12px">
-      <button class="hamburger" id="hamburger"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-      <span class="topbar-title">Dashboard</span>
-    </div>
-    <div class="topbar-actions" style="position:relative">
-      <button class="bell-btn" id="bellBtn" onclick="toggleNotifs()" title="Notifications">
-        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        <span class="bell-badge" id="bellBadge">0</span>
+  <div class="header-actions">
+    <div style="position: relative;">
+      <button class="notif-btn" id="notifBtn" onclick="toggleNotifications()">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="notif-badge" id="notifBadge">0</span>
       </button>
       <div class="notif-dropdown" id="notifDropdown">
-        <div class="notif-dd-header">
-          <span class="notif-dd-title">Notifications</span>
-          <button class="btn btn-ghost btn-sm" onclick="markAllRead()" style="font-size:.68rem;padding:4px 10px">Mark all read</button>
-        </div>
-        <div id="notifDDList"></div>
+        <div class="notif-header"><span class="notif-title">Notifications</span><button onclick="markAllRead()" style="background:none;border:none;color:var(--accent-h);cursor:pointer;font-size:0.7rem">Mark all read</button></div>
+        <div id="notifList"></div>
       </div>
-      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"></button>
-      <a href="exam-history.html" style="display:flex;align-items:center;width:34px;height:34px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;justify-content:center;color:var(--muted);transition:all .2s" title="Exam History">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+    </div>
+    <div class="user-menu" id="userMenu">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <span class="user-name" id="userName"></span>
+      <button class="btn-logout" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Drawer -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="drawer-header">
+    <a href="/" class="logo">
+      <img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:6px">
+      <span class="logo-text" style="font-size:1rem">Exalyte</span>
+    </a>
+    <button class="drawer-close" id="drawerClose">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+        <line x1="3" y1="3" x2="13" y2="13"/>
+        <line x1="13" y1="3" x2="3" y2="13"/>
+      </svg>
+    </button>
+  </div>
+  <a href="dashboard.html" class="drawer-link">Dashboard</a>
+  <a href="exam-history.html" class="drawer-link">Exam History</a>
+  <hr class="drawer-divider">
+  <a href="privacy.html" class="drawer-link" style="color:var(--muted)">Privacy Policy</a>
+  <a href="tos.html" class="drawer-link" style="color:var(--muted)">Terms of Service</a>
+  <a href="contact.html" class="drawer-link" style="color:var(--muted)">Contact</a>
+  <div class="drawer-actions">
+    <button class="btn-logout" onclick="logout()" style="padding:12px;width:100%">Sign out</button>
+  </div>
+</div>
+
+<main class="main-content">
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg></div><div class="stat-val" id="statTotal">—</div><div class="stat-lbl">Available Exams</div></div>
+    <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="stat-val" id="statCompleted">—</div><div class="stat-lbl">Completed</div></div>
+    <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div><div class="stat-val" id="statBest">—</div><div class="stat-lbl">Best Score</div></div>
+  </div>
+
+  <!-- Live Strip -->
+  <div class="live-strip" id="liveStrip"><div class="live-badge"><span class="live-dot"></span>Live Now</div><div id="liveList"></div></div>
+
+  <!-- Rankings -->
+  <div id="rankSection" class="rank-section" style="display:none"><div class="sect-header"><span class="sect-title">My Rankings</span></div><div class="rank-grid" id="rankGrid"></div></div>
+
+  <!-- Filters -->
+  <div class="sect-header"><span class="sect-title">All Examinations</span></div>
+  <div class="filters">
+    <input type="text" class="search-input" id="searchInput" placeholder="Search exams..." oninput="renderExams()">
+    <button class="filter-btn active" data-filter="all" onclick="setFilter(this)">All</button>
+    <button class="filter-btn" data-filter="free" onclick="setFilter(this)">Free</button>
+    <button class="filter-btn" data-filter="premium" onclick="setFilter(this)">Premium</button>
+    <button class="filter-btn" data-filter="live" onclick="setFilter(this)">Live</button>
+    <button class="filter-btn" data-filter="completed" onclick="setFilter(this)">Completed</button>
+  </div>
+
+  <!-- Exams Container -->
+  <div id="examsContainer">
+    <div class="skeleton" style="height:120px; margin-bottom:16px"></div>
+    <div class="skeleton" style="height:120px; margin-bottom:16px"></div>
+    <div class="skeleton" style="height:120px"></div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="/" class="logo">
+        <img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:6px">
+        <span class="logo-text">Exalyte</span>
       </a>
+      <p>A precision examination platform built for students who want to perform, not just prepare.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Platform</h4>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="exam-history.html">Exam History</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="tos.html">Terms of Service</a>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <a href="contact.html">Contact Us</a>
     </div>
   </div>
-
-  <div class="panel active">
-    <div class="stats-grid" style="margin-bottom:24px">
-      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div><div class="stat-val" id="sTotal">—</div><div class="stat-lbl">Exams Available</div></div>
-      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="stat-val" id="sDone">—</div><div class="stat-lbl">Completed</div></div>
-      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div><div class="stat-val" id="sBest">—</div><div class="stat-lbl">Best Score</div></div>
-      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></div><div class="stat-val" id="sPractice">—</div><div class="stat-lbl">Practice Ready</div></div>
-    </div>
-
-    <div class="live-strip" id="liveStrip">
-      <div class="live-strip-head">
-        <span class="live-badge"><span class="live-dot"></span>Live</span>
-        <span style="font-family:'Lexend',sans-serif;font-weight:700;font-size:.9rem;color:var(--text-bright)">Happening Now</span>
-      </div>
-      <div id="liveList"></div>
-    </div>
-
-    <div id="rankSection" style="display:none;margin-bottom:24px">
-      <div class="sect-header">
-        <span class="sect-title">My Rankings</span>
-        <a href="exam-history.html" class="sect-link">View All <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></a>
-      </div>
-      <div id="rankGrid"></div>
-    </div>
-
-    <div class="sect-header"><span class="sect-title">All Exams</span></div>
-    <div class="filters">
-      <input type="text" class="search-input" id="searchInput" placeholder="Search exams..." oninput="renderExams()">
-      <button class="filter-btn active" data-f="all" onclick="setFilter(this)">All</button>
-      <button class="filter-btn" data-f="free" onclick="setFilter(this)">Free</button>
-      <button class="filter-btn" data-f="premium" onclick="setFilter(this)">Premium</button>
-      <button class="filter-btn" data-f="live" onclick="setFilter(this)">Live</button>
-      <button class="filter-btn" data-f="done" onclick="setFilter(this)">Completed</button>
-    </div>
-
-    <div id="examsWrap">
-      <div class="skeleton" style="height:78px;margin-bottom:10px"></div>
-      <div class="skeleton" style="height:78px;margin-bottom:10px"></div>
-      <div class="skeleton" style="height:78px"></div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 Exalyte. All rights reserved.</div>
+    <div style="display:flex;gap:20px">
+      <a href="privacy.html" style="color:var(--muted);text-decoration:none;font-size:0.7rem">Privacy</a>
+      <a href="tos.html" style="color:var(--muted);text-decoration:none;font-size:0.7rem">Terms</a>
     </div>
   </div>
-</div>
+</footer>
 
-<div class="bottom-nav">
-  <div class="bottom-nav-items">
-    <button class="bottom-nav-item active" onclick="window.location='dashboard.html'">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Home
-    </button>
-    <button class="bottom-nav-item" onclick="window.location='exam-history.html'">
-      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>History
-    </button>
-    <button class="bottom-nav-item" onclick="toggleTheme()">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>Theme
-    </button>
-    <button class="bottom-nav-item" onclick="logout()">
-      <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>Sign Out
-    </button>
-  </div>
-</div>
-
-<script src="assets/main.js"></script>
 <script>
-if (!requireAuth()) throw '';
-const user = getUser();
-if (user?.is_admin) window.location.href = 'admin.html';
-document.getElementById('userName').textContent = user?.name || '';
-document.getElementById('userAvatar').textContent = (user?.name||'?')[0].toUpperCase();
+const API = '/api';
 
-let allExams = [], activeFilter = 'all', countdownTimers = {};
+function getToken() { return localStorage.getItem('exalyte_token'); }
+function getUser() { return JSON.parse(localStorage.getItem('exalyte_user') || 'null'); }
+function logout() { localStorage.clear(); window.location.href = '/'; }
+function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function formatDate(iso) { return iso ? new Date(iso).toLocaleDateString() : '—'; }
+function formatTime(sec) { if (sec <= 0) return 'Ended'; const m = Math.floor(sec / 60); return `${m}m`; }
 
-async function load() {
-  try {
-    const { ok, data } = await apiFetch('/exams/');
-    if (!ok) { logout(); return; }
-    allExams = (data || []).filter(e => e.accessible);
-    updateStats();
-    renderLiveStrip();
-    renderRankings();
-    renderExams();
-    loadNotifs();
-  } catch { document.getElementById('examsWrap').innerHTML = '<div class="empty-state"><p>Failed to load. Please refresh.</p></div>'; }
+async function apiFetch(path, opts = {}) {
+  const token = getToken();
+  const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+  const res = await fetch(API + path, { ...opts, headers });
+  return { ok: res.ok, data: await res.json().catch(() => ({})) };
 }
 
-async function loadNotifs() {
-  try {
-    const { ok, data } = await apiFetch('/notifications');
-    if (!ok) return;
-    const notifs = data.notifications || [];
-    const unread = data.unread_count || 0;
-    const badge = document.getElementById('bellBadge');
-    if (unread > 0) {
-      badge.textContent = unread;
-      badge.classList.add('show');
-    } else {
-      badge.classList.remove('show');
-    }
-    renderNotifDropdown(notifs);
-  } catch {}
+let allExams = [], currentFilter = 'all', countdowns = {};
+
+async function loadDashboard() {
+  if (!getToken()) { window.location.href = '/'; return; }
+  const user = getUser();
+  if (user?.is_admin) { window.location.href = 'admin.html'; return; }
+  document.getElementById('userName').textContent = user?.name || 'Student';
+  document.getElementById('userAvatar').textContent = (user?.name || 'S')[0].toUpperCase();
+  showSkeleton();
+  const { ok, data } = await apiFetch('/exams/');
+  if (!ok) { logout(); return; }
+  allExams = (data || []).filter(e => e.accessible !== false);
+  updateStats();
+  renderLiveStrip();
+  renderRankings();
+  renderExams();
+  loadNotifications();
 }
 
-function renderNotifDropdown(notifs) {
-  const list = document.getElementById('notifDDList');
-  if (!notifs.length) {
-    list.innerHTML = '<div class="notif-dd-empty">No notifications yet.</div>';
-    return;
-  }
-  list.innerHTML = notifs.map(n => `
-    <div class="notif-dd-item ${n.is_read ? '' : 'unread'}" onclick="readNotif(${n.id})">
-      <div class="notif-dd-item-title">${esc(n.title)}</div>
-      ${n.body ? `<div class="notif-dd-item-body">${esc(n.body)}</div>` : ''}
-      ${n.image_url ? `<img src="${esc(n.image_url)}" class="notif-dd-item-img" alt="" onerror="this.style.display='none'">` : ''}
-      ${n.link_url ? `<a href="${esc(n.link_url)}" target="_blank" class="notif-dd-item-link" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" width="10" height="10"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open Link</a>` : ''}
-      <div class="notif-dd-item-time">${formatDate(n.created_at)} · by ${esc(n.creator_name)}</div>
-    </div>
-  `).join('');
-}
-
-async function readNotif(id) {
-  await apiFetch(`/notifications/${id}/read`, { method: 'POST' });
-  loadNotifs();
-}
-
-async function markAllRead() {
-  try {
-    const { ok, data } = await apiFetch('/notifications');
-    if (!ok) return;
-    const notifs = (data.notifications || []).filter(n => !n.is_read);
-    for (const n of notifs) {
-      await apiFetch(`/notifications/${n.id}/read`, { method: 'POST' });
-    }
-    loadNotifs();
-  } catch {}
-}
-
-function toggleNotifs() {
-  const dd = document.getElementById('notifDropdown');
-  const ov = document.getElementById('notifOverlay');
-  const isOpen = dd.classList.contains('open');
-  if (isOpen) { dd.classList.remove('open'); ov.classList.remove('open'); }
-  else { dd.classList.add('open'); ov.classList.add('open'); loadNotifs(); }
-}
-
-function closeNotifs() {
-  document.getElementById('notifDropdown').classList.remove('open');
-  document.getElementById('notifOverlay').classList.remove('open');
+function showSkeleton() {
+  document.getElementById('examsContainer').innerHTML = '<div class="skeleton" style="height:120px; margin-bottom:16px"></div><div class="skeleton" style="height:120px; margin-bottom:16px"></div><div class="skeleton" style="height:120px"></div>';
 }
 
 function updateStats() {
-  document.getElementById('sTotal').textContent = allExams.length;
-  const done = allExams.filter(e=>e.stored_attempt).length;
-  document.getElementById('sDone').textContent = done;
-  const best = done ? Math.max(...allExams.filter(e=>e.stored_attempt && e.results_visible).map(e=>e.stored_attempt.percentage)).toFixed(0)+'%' : '—';
-  document.getElementById('sBest').textContent = best;
-  document.getElementById('sPractice').textContent = allExams.filter(e=>e.can_practice).length || '—';
+  const completed = allExams.filter(e => e.stored_attempt).length;
+  const best = allExams.filter(e => e.stored_attempt && e.results_visible).length
+    ? Math.max(...allExams.filter(e => e.stored_attempt && e.results_visible).map(e => e.stored_attempt.percentage)).toFixed(0) + '%'
+    : '—';
+  document.getElementById('statTotal').textContent = allExams.length;
+  document.getElementById('statCompleted').textContent = completed;
+  document.getElementById('statBest').textContent = best;
 }
 
 function renderLiveStrip() {
-  const lives = allExams.filter(e=>e.is_live && !e.stored_attempt && e.accessible);
+  const live = allExams.filter(e => e.is_live && !e.stored_attempt);
   const strip = document.getElementById('liveStrip');
-  if (!lives.length) { strip.classList.remove('visible'); return; }
+  if (!live.length) { strip.classList.remove('visible'); return; }
   strip.classList.add('visible');
-  document.getElementById('liveList').innerHTML = lives.map(e=>`
+  document.getElementById('liveList').innerHTML = live.map(e => `
     <div class="live-exam-item">
       <div><div class="live-exam-name">${esc(e.name)}</div><div class="live-countdown" id="cd_${e.id}">${formatTime(e.live_seconds_remaining)}</div></div>
-      <button class="btn-live" onclick="goExam(${e.id},false)">Take Live Exam</button>
-    </div>`).join('');
-  lives.forEach(e => {
-    let s = e.live_seconds_remaining;
-    if (countdownTimers[e.id]) clearInterval(countdownTimers[e.id]);
-    countdownTimers[e.id] = setInterval(()=>{ s--; const el=document.getElementById('cd_'+e.id); if(el)el.textContent=formatTime(s); if(s<=0){clearInterval(countdownTimers[e.id]);load();} },1000);
+      <button class="btn-live" onclick="startExam(${e.id}, false)">Take Live Exam</button>
+    </div>
+  `).join('');
+  live.forEach(e => {
+    let remaining = e.live_seconds_remaining;
+    if (countdowns[e.id]) clearInterval(countdowns[e.id]);
+    countdowns[e.id] = setInterval(() => {
+      remaining--;
+      const el = document.getElementById(`cd_${e.id}`);
+      if (el) el.textContent = formatTime(remaining);
+      if (remaining <= 0) { clearInterval(countdowns[e.id]); loadDashboard(); }
+    }, 1000);
   });
 }
 
 async function renderRankings() {
-  const done = allExams.filter(e=>e.stored_attempt && e.results_visible).slice(0,4);
-  if (!done.length) return;
+  const completed = allExams.filter(e => e.stored_attempt && e.results_visible).slice(0, 3);
+  if (!completed.length) { document.getElementById('rankSection').style.display = 'none'; return; }
   document.getElementById('rankSection').style.display = 'block';
-  const rows = await Promise.all(done.map(async e=>{
-    try{ const{data}=await apiFetch('/leaderboard/'+e.id); return{exam:e,lb:data}; }catch{return{exam:e,lb:null};}
+  const ranks = await Promise.all(completed.map(async e => {
+    const { data } = await apiFetch(`/leaderboard/${e.id}`);
+    return { exam: e, lb: data };
   }));
-  document.getElementById('rankGrid').innerHTML = rows.map(({exam,lb},i)=>{
-    const bc = ['rb1','rb2','rb3','rbn'][Math.min(i,3)];
+  document.getElementById('rankGrid').innerHTML = ranks.map(({ exam, lb }, idx) => {
+    const rankClass = lb?.rank === 1 ? 'rank-1' : lb?.rank === 2 ? 'rank-2' : lb?.rank === 3 ? 'rank-3' : 'rank-n';
     return `<div class="rank-item">
-      <div class="rank-badge ${bc}">#${lb?.rank||'—'}</div>
-      <div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.85rem;color:var(--text-bright);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(exam.name)}</div><div style="font-size:.74rem;color:var(--muted);margin-top:2px">${lb?lb.total_participants+' participants · Top '+lb.percentile+'%':'—'}</div></div>
-      <div style="font-family:'Lexend',sans-serif;font-weight:800;color:var(--accent2);font-size:.9rem">${exam.stored_attempt?.percentage?.toFixed(0)||0}%</div>
+      <div class="rank-badge ${rankClass}">#${lb?.rank || '—'}</div>
+      <div class="rank-info"><div class="rank-exam-name">${esc(exam.name)}</div><div class="rank-stats">${lb?.total_participants || 0} participants</div></div>
+      <div class="rank-percentage">${exam.stored_attempt?.percentage?.toFixed(0) || 0}%</div>
     </div>`;
   }).join('');
 }
 
 function renderExams() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  let list = allExams.filter(e=>{
-    const mq = !q || e.name.toLowerCase().includes(q) || (e.description||'').toLowerCase().includes(q);
-    if (!mq) return false;
-    if (activeFilter==='free') return !e.is_premium;
-    if (activeFilter==='premium') return e.is_premium;
-    if (activeFilter==='live') return e.is_live;
-    if (activeFilter==='done') return !!e.stored_attempt;
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  let filtered = allExams.filter(e => {
+    if (searchTerm && !e.name.toLowerCase().includes(searchTerm) && !(e.description || '').toLowerCase().includes(searchTerm)) return false;
+    if (currentFilter === 'free') return !e.is_premium;
+    if (currentFilter === 'premium') return e.is_premium;
+    if (currentFilter === 'live') return e.is_live;
+    if (currentFilter === 'completed') return !!e.stored_attempt;
     return true;
   });
-
-  if (!list.length) {
-    document.getElementById('examsWrap').innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><h3>No exams found</h3><p>Try different filters or search terms.</p></div>`;
+  if (!filtered.length) {
+    document.getElementById('examsContainer').innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><h3>No exams found</h3><p>Try different filters or search terms.</p></div>`;
     return;
   }
-
-  const groups = {};
-  list.forEach(e=>{
-    const k = e.batch_id ? (e.batch_name||'Batch') : '__none__';
-    if(!groups[k]) groups[k]=[];
-    groups[k].push(e);
-  });
-
+  const grouped = {};
+  filtered.forEach(e => { const key = e.batch_id ? (e.batch_name || 'Batch') : '__other__'; if (!grouped[key]) grouped[key] = []; grouped[key].push(e); });
   let html = '';
-  Object.entries(groups).forEach(([k,exams])=>{
-    const label = k==='__none__' ? 'Other Exams' : k;
+  Object.entries(grouped).forEach(([batchName, exams]) => {
+    const displayName = batchName === '__other__' ? 'Other Exams' : batchName;
     html += `<div class="batch-group">
       <div class="batch-header" onclick="this.closest('.batch-group').classList.toggle('collapsed')">
         <svg class="batch-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-        <span class="batch-name">${esc(label)}</span>
+        <span class="batch-name">${esc(displayName)}</span>
         <span class="batch-count">${exams.length}</span>
       </div>
-      <div class="exams-list">${exams.map(examCard).join('')}</div>
+      <div class="exams-list">${exams.map(examCardHtml).join('')}</div>
     </div>`;
   });
-  document.getElementById('examsWrap').innerHTML = html;
+  document.getElementById('examsContainer').innerHTML = html;
 }
 
-function examCard(e) {
-  const typeBadge = e.is_live
-    ? '<span class="badge badge-live"><span class="live-dot"></span>Live</span>'
-    : e.is_premium ? '<span class="badge badge-premium">Premium</span>' : '<span class="badge badge-free">Free</span>';
-
-  let scorePill = '';
+function examCardHtml(e) {
+  const badgeClass = e.is_live ? 'badge-live' : (e.is_premium ? 'badge-premium' : 'badge-free');
+  const badgeText = e.is_live ? 'Live' : (e.is_premium ? 'Premium' : 'Free');
+  let scoreHtml = '', actionHtml = '';
   if (e.stored_attempt) {
     if (e.results_visible) {
-      scorePill = `<div class="score-pill">${e.stored_attempt.percentage.toFixed(0)}%</div>`;
+      scoreHtml = `<div class="score-pill">${e.stored_attempt.percentage?.toFixed(0) || 0}%</div>`;
+      actionHtml = `<button class="btn-take" onclick="window.location='result.html?examId=${e.id}&attemptId=${e.stored_attempt.id}'">View Result</button>`;
+      if (e.can_practice) actionHtml += `<button class="btn-practice" onclick="startExam(${e.id}, true)">Practice Mode</button>`;
     } else {
-      scorePill = `<div class="score-pill pending">Pending</div>`;
-    }
-  }
-
-  let action = '';
-  if (!e.stored_attempt) {
-    // Not attempted yet
-    if (e.is_live) {
-      action = `<button class="btn-take" onclick="goExam(${e.id},false)">Take Live</button>`;
-    } else if (!e.live_deadline_hours) {
-      action = `<button class="btn-take" onclick="goExam(${e.id},false)">Start Exam</button>`;
-    } else if (e.live_ended) {
-      action = `<button class="btn-take" disabled>Ended</button>`;
+      scoreHtml = `<div class="score-pill pending">Pending</div>`;
+      actionHtml = `<button class="btn-take" disabled>Awaiting Results</button>`;
     }
   } else {
-    // Attempted
-    if (e.results_visible) {
-      action = `<button class="btn-take" onclick="window.location='result.html?examId=${e.id}&attemptId=${e.stored_attempt.id}'">View Result</button>`;
-      if (e.can_practice) {
-        action += `<button class="btn-practice" onclick="goExam(${e.id},true)">Practice</button>`;
-      }
-    } else {
-      action = `<button class="btn-pending"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Awaiting Results</button>`;
-    }
+    if (e.is_live) actionHtml = `<button class="btn-take" onclick="startExam(${e.id}, false)">Take Live Exam</button>`;
+    else if (!e.live_deadline_hours) actionHtml = `<button class="btn-take" onclick="startExam(${e.id}, false)">Start Exam</button>`;
+    else if (e.live_ended) actionHtml = `<button class="btn-take" disabled>Exam Ended</button>`;
+    else actionHtml = `<button class="btn-take" onclick="startExam(${e.id}, false)">Start Exam</button>`;
   }
-
+  let resourcesHtml = '';
+  if (e.resources && e.resources.length) {
+    resourcesHtml = `<div class="resource-section">
+      <div class="resource-header"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Study Materials</span></div>
+      <div class="resource-grid">${e.resources.map(r => `<a href="${esc(r.link)}" target="_blank" class="resource-link" rel="noopener noreferrer"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>${esc(r.title)}</a>`).join('')}</div>
+    </div>`;
+  }
   return `<div class="exam-card">
     <div class="exam-card-inner">
       <div class="exam-body">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">${typeBadge}<span class="exam-name">${esc(e.name)}</span></div>
-        ${e.description?`<div class="exam-desc">${esc(e.description)}</div>`:''}
+        <span class="exam-badge ${badgeClass}">${badgeText}</span>
+        <div class="exam-name">${esc(e.name)}</div>
+        ${e.description ? `<div class="exam-desc">${esc(e.description)}</div>` : ''}
         <div class="exam-meta">
-          <span class="exam-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${e.time_limit}min</span>
-          <span class="exam-meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>${e.question_count} Qs</span>
-          ${e.negative_marking>0?`<span class="exam-meta-item neg"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>-${e.negative_marking} NM</span>`:''}
+          <span class="meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${e.time_limit} min</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>${e.question_count || 0} questions</span>
+          ${e.negative_marking > 0 ? `<span class="meta-item" style="color:var(--error)"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>-${e.negative_marking} negative</span>` : ''}
         </div>
+        ${resourcesHtml}
       </div>
-      <div class="exam-actions">${scorePill}${action}</div>
+      <div class="exam-actions">${scoreHtml}${actionHtml}</div>
     </div>
   </div>`;
 }
 
 function setFilter(btn) {
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  activeFilter = btn.dataset.f;
+  currentFilter = btn.dataset.filter;
   renderExams();
 }
 
-function goExam(id, practice) {
-  window.location.href = `exam.html?id=${id}&practice=${practice?1:0}`;
+function startExam(id, isPractice) {
+  window.location.href = `exam.html?id=${id}&practice=${isPractice ? 1 : 0}`;
 }
 
-load();
+// Mobile drawer
+function closeDrawer() {
+  document.getElementById('mobileDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+}
+document.getElementById('hamburger').addEventListener('click', () => {
+  document.getElementById('mobileDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+});
+document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+
+// Notifications
+async function loadNotifications() {
+  try {
+    const { ok, data } = await apiFetch('/notifications');
+    if (!ok) return;
+    const unread = data.unread_count || 0;
+    const badge = document.getElementById('notifBadge');
+    if (unread > 0) { badge.textContent = unread; badge.classList.add('show'); }
+    else { badge.classList.remove('show'); }
+    const notifs = data.notifications || [];
+    const list = document.getElementById('notifList');
+    if (!notifs.length) { list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">No notifications</div>'; return; }
+    list.innerHTML = notifs.map(n => `<div class="notif-item ${n.is_read ? '' : 'unread'}" onclick="markNotificationRead(${n.id})"><div class="notif-item-title">${esc(n.title)}</div>${n.body ? `<div class="notif-item-body">${esc(n.body)}</div>` : ''}<div class="notif-item-time">${formatDate(n.created_at)} · by ${esc(n.creator_name)}</div></div>`).join('');
+  } catch(e) {}
+}
+async function markNotificationRead(id) { await apiFetch(`/notifications/${id}/read`, { method: 'POST' }); loadNotifications(); }
+async function markAllRead() {
+  const { data } = await apiFetch('/notifications');
+  const notifs = data.notifications || [];
+  for (const n of notifs) { if (!n.is_read) await apiFetch(`/notifications/${n.id}/read`, { method: 'POST' }); }
+  loadNotifications();
+}
+function toggleNotifications() {
+  const dd = document.getElementById('notifDropdown');
+  dd.classList.toggle('open');
+  if (dd.classList.contains('open')) loadNotifications();
+}
+document.addEventListener('click', (e) => {
+  const dd = document.getElementById('notifDropdown');
+  const btn = document.getElementById('notifBtn');
+  if (dd && !dd.contains(e.target) && !btn?.contains(e.target)) dd.classList.remove('open');
+});
+
+loadDashboard();
 </script>
 </body>
 </html>
