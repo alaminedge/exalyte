@@ -40,7 +40,7 @@ body {
   min-height: 100vh;
 }
 
-/* ===== HEADER ===== */
+/* Header */
 header {
   position: sticky;
   top: 0;
@@ -233,12 +233,6 @@ header {
   padding-top: 24px;
 }
 
-.drawer-actions .btn {
-  width: 100%;
-  justify-content: center;
-  padding: 12px;
-}
-
 /* Main Content */
 .main-content {
   min-height: calc(100vh - 64px);
@@ -258,7 +252,6 @@ header {
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 20px;
-  transition: all 0.2s;
 }
 
 .stat-icon {
@@ -534,7 +527,7 @@ header {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
 
 .meta-item {
@@ -546,66 +539,6 @@ header {
 }
 
 .meta-item svg {
-  width: 14px;
-  height: 14px;
-  stroke: currentColor;
-}
-
-/* Resources Section */
-.resource-section {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-
-.resource-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.resource-header svg {
-  width: 16px;
-  height: 16px;
-  stroke: var(--accent-h);
-}
-
-.resource-header span {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--accent-h);
-  letter-spacing: 0.06em;
-}
-
-.resource-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.resource-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 40px;
-  color: var(--text);
-  text-decoration: none;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-}
-
-.resource-link:hover {
-  border-color: var(--accent);
-  color: var(--accent-h);
-  transform: translateY(-2px);
-}
-
-.resource-link svg {
   width: 14px;
   height: 14px;
   stroke: currentColor;
@@ -678,6 +611,157 @@ header {
   background: rgba(91, 91, 214, 0.22);
 }
 
+/* ===== RESOURCES SECTION ===== */
+.resources-section {
+  margin: 40px 0 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.resources-header {
+  padding: 20px 24px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.resources-header svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--accent-h);
+}
+
+.resources-header h2 {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--bright);
+}
+
+.resources-header span {
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+.resource-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.resource-filter select {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  padding: 6px 14px;
+  color: var(--text);
+  font-size: 0.75rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.resource-filter select:focus {
+  border-color: var(--accent);
+}
+
+.resources-grid {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.resource-group {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
+}
+
+.resource-group:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.resource-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.resource-group-title svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--accent-h);
+}
+
+.resource-group-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--bright);
+}
+
+.resource-group-type {
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.type-exam {
+  background: rgba(91, 91, 214, 0.15);
+  color: var(--accent-h);
+}
+
+.type-batch {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
+}
+
+.resource-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.resource-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.resource-item:hover {
+  border-color: var(--accent);
+  color: var(--accent-h);
+  transform: translateY(-2px);
+}
+
+.resource-item svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+}
+
+.resource-empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 /* Rank Section */
 .rank-section {
   margin-bottom: 32px;
@@ -688,6 +772,8 @@ header {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .sect-title {
@@ -910,7 +996,11 @@ header {
   margin-bottom: 6px;
 }
 
-/* ===== FOOTER ===== */
+.empty-state p {
+  font-size: 0.8rem;
+}
+
+/* Footer */
 .footer {
   background: var(--surface);
   border-top: 1px solid var(--border);
@@ -1009,11 +1099,22 @@ header {
     width: calc(100vw - 32px);
     right: -100px;
   }
-  .resource-grid {
+  .resources-grid {
+    padding: 16px;
+  }
+  .resource-list {
     flex-direction: column;
   }
-  .resource-link {
+  .resource-item {
     justify-content: center;
+  }
+  .resource-filter {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 10px;
+  }
+  .resource-filter select {
+    width: 100%;
   }
 }
 
@@ -1047,6 +1148,13 @@ header {
   .footer-bottom {
     flex-direction: column;
     text-align: center;
+  }
+  .resources-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .resources-header span {
+    margin-left: 0;
   }
 }
 </style>
@@ -1147,6 +1255,11 @@ header {
     <div class="skeleton" style="height:120px; margin-bottom:16px"></div>
     <div class="skeleton" style="height:120px"></div>
   </div>
+
+  <!-- Resources Section -->
+  <div id="resourcesContainer">
+    <div class="skeleton" style="height:200px; margin-top:20px"></div>
+  </div>
 </main>
 
 <!-- Footer -->
@@ -1155,7 +1268,7 @@ header {
     <div class="footer-brand">
       <a href="/" class="logo">
         <img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:6px">
-        <span class="logo-text">Exalyte</span>
+        <span class="logo-text" style="font-size:1rem">Exalyte</span>
       </a>
       <p>A precision examination platform built for students who want to perform, not just prepare.</p>
     </div>
@@ -1177,8 +1290,8 @@ header {
   <div class="footer-bottom">
     <div class="footer-copy">© 2025 Exalyte. All rights reserved.</div>
     <div style="display:flex;gap:20px">
-      <a href="privacy.html" style="color:var(--muted);text-decoration:none;font-size:0.7rem">Privacy</a>
-      <a href="tos.html" style="color:var(--muted);text-decoration:none;font-size:0.7rem">Terms</a>
+      <a href="privacy.html" style="color:var(--muted);text-decoration:none;font-size:0.75rem">Privacy</a>
+      <a href="tos.html" style="color:var(--muted);text-decoration:none;font-size:0.75rem">Terms</a>
     </div>
   </div>
 </footer>
@@ -1201,6 +1314,7 @@ async function apiFetch(path, opts = {}) {
 }
 
 let allExams = [], currentFilter = 'all', countdowns = {};
+let currentResourceFilter = 'all';
 
 async function loadDashboard() {
   if (!getToken()) { window.location.href = '/'; return; }
@@ -1216,11 +1330,13 @@ async function loadDashboard() {
   renderLiveStrip();
   renderRankings();
   renderExams();
+  renderResourcesSection();
   loadNotifications();
 }
 
 function showSkeleton() {
   document.getElementById('examsContainer').innerHTML = '<div class="skeleton" style="height:120px; margin-bottom:16px"></div><div class="skeleton" style="height:120px; margin-bottom:16px"></div><div class="skeleton" style="height:120px"></div>';
+  document.getElementById('resourcesContainer').innerHTML = '<div class="skeleton" style="height:200px; margin-top:20px"></div>';
 }
 
 function updateStats() {
@@ -1309,6 +1425,7 @@ function examCardHtml(e) {
   const badgeClass = e.is_live ? 'badge-live' : (e.is_premium ? 'badge-premium' : 'badge-free');
   const badgeText = e.is_live ? 'Live' : (e.is_premium ? 'Premium' : 'Free');
   let scoreHtml = '', actionHtml = '';
+  
   if (e.stored_attempt) {
     if (e.results_visible) {
       scoreHtml = `<div class="score-pill">${e.stored_attempt.percentage?.toFixed(0) || 0}%</div>`;
@@ -1324,13 +1441,7 @@ function examCardHtml(e) {
     else if (e.live_ended) actionHtml = `<button class="btn-take" disabled>Exam Ended</button>`;
     else actionHtml = `<button class="btn-take" onclick="startExam(${e.id}, false)">Start Exam</button>`;
   }
-  let resourcesHtml = '';
-  if (e.resources && e.resources.length) {
-    resourcesHtml = `<div class="resource-section">
-      <div class="resource-header"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Study Materials</span></div>
-      <div class="resource-grid">${e.resources.map(r => `<a href="${esc(r.link)}" target="_blank" class="resource-link" rel="noopener noreferrer"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>${esc(r.title)}</a>`).join('')}</div>
-    </div>`;
-  }
+  
   return `<div class="exam-card">
     <div class="exam-card-inner">
       <div class="exam-body">
@@ -1342,11 +1453,95 @@ function examCardHtml(e) {
           <span class="meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>${e.question_count || 0} questions</span>
           ${e.negative_marking > 0 ? `<span class="meta-item" style="color:var(--error)"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>-${e.negative_marking} negative</span>` : ''}
         </div>
-        ${resourcesHtml}
       </div>
       <div class="exam-actions">${scoreHtml}${actionHtml}</div>
     </div>
   </div>`;
+}
+
+function renderResourcesSection() {
+  // ONLY show resources for exams the user has ACCESS to
+  const accessibleExams = allExams.filter(e => e.accessible === true);
+  
+  // Build resource groups from accessible exams
+  let resourceGroups = [];
+  accessibleExams.forEach(exam => {
+    if (exam.resources && exam.resources.length) {
+      resourceGroups.push({
+        id: exam.id,
+        name: exam.name,
+        type: 'exam',
+        typeLabel: 'Exam',
+        typeClass: 'type-exam',
+        resources: exam.resources
+      });
+    }
+  });
+  
+  // Apply filter if not 'all'
+  if (currentResourceFilter !== 'all') {
+    resourceGroups = resourceGroups.filter(g => g.id == currentResourceFilter);
+  }
+  
+  if (resourceGroups.length === 0) {
+    let message = 'No study materials available for your accessible exams.';
+    if (currentResourceFilter !== 'all') {
+      message = 'No resources found for the selected exam.';
+    }
+    document.getElementById('resourcesContainer').innerHTML = `<div class="resources-section">
+      <div class="resources-header">
+        <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <h2>Study Materials</h2>
+        <div class="resource-filter">
+          <select id="resourceFilterSelect" onchange="filterResources(this.value)">
+            <option value="all">All Accessible Exams</option>
+            ${accessibleExams.filter(e => e.resources && e.resources.length).map(e => `<option value="${e.id}" ${currentResourceFilter == e.id ? 'selected' : ''}>${esc(e.name)}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="resources-grid">
+        <div class="resource-empty">${message}</div>
+      </div>
+    </div>`;
+    return;
+  }
+  
+  const totalResources = resourceGroups.reduce((sum, g) => sum + g.resources.length, 0);
+  
+  let html = `<div class="resources-section">
+    <div class="resources-header">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <h2>Study Materials</h2>
+      <div class="resource-filter">
+        <select id="resourceFilterSelect" onchange="filterResources(this.value)">
+          <option value="all" ${currentResourceFilter === 'all' ? 'selected' : ''}>All Accessible Exams</option>
+          ${accessibleExams.filter(e => e.resources && e.resources.length).map(e => `<option value="${e.id}" ${currentResourceFilter == e.id ? 'selected' : ''}>${esc(e.name)}</option>`).join('')}
+        </select>
+      </div>
+      <span>${totalResources} resource${totalResources !== 1 ? 's' : ''}</span>
+    </div>
+    <div class="resources-grid">`;
+  
+  resourceGroups.forEach(group => {
+    html += `<div class="resource-group">
+      <div class="resource-group-title">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>
+        <span class="resource-group-name">${esc(group.name)}</span>
+        <span class="resource-group-type ${group.typeClass}">${group.typeLabel}</span>
+      </div>
+      <div class="resource-list">
+        ${group.resources.map(r => `<a href="${esc(r.link)}" target="_blank" class="resource-item" rel="noopener noreferrer"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>${esc(r.title)}</a>`).join('')}
+      </div>
+    </div>`;
+  });
+  
+  html += `</div></div>`;
+  document.getElementById('resourcesContainer').innerHTML = html;
+}
+
+function filterResources(value) {
+  currentResourceFilter = value;
+  renderResourcesSection();
 }
 
 function setFilter(btn) {
@@ -1360,7 +1555,7 @@ function startExam(id, isPractice) {
   window.location.href = `exam.html?id=${id}&practice=${isPractice ? 1 : 0}`;
 }
 
-// Mobile drawer
+// Sidebar
 function closeDrawer() {
   document.getElementById('mobileDrawer').classList.remove('open');
   document.getElementById('drawerOverlay').classList.remove('open');
