@@ -210,23 +210,19 @@ async function initDB(db) {
 async function checkPremiumAccess(db, userId, examId, isAdmin) {
   if (isAdmin) return true;
   
-  // Check if exam is premium
   const exam = await db.prepare('SELECT is_premium, batch_id FROM exams WHERE id = ?').bind(examId).first();
   if (!exam || !exam.is_premium) return true;
   
   const now = new Date().toISOString();
   
-  // Check account-wide premium
   const user = await db.prepare('SELECT premium_until FROM users WHERE id = ?').bind(userId).first();
   if (user && user.premium_until && user.premium_until > now) return true;
   
-  // Check exam-specific grant
   const examGrant = await db.prepare(
     `SELECT id FROM premium_access WHERE user_id = ? AND exam_id = ? AND (expires_at IS NULL OR expires_at > ?)`
   ).bind(userId, examId, now).first();
   if (examGrant) return true;
   
-  // Check batch grant
   if (exam.batch_id) {
     const batchGrant = await db.prepare(
       `SELECT id FROM premium_access WHERE user_id = ? AND batch_id = ? AND (expires_at IS NULL OR expires_at > ?)`
@@ -385,13 +381,14 @@ async function handleDeleteExamResource(resourceId, db) {
 }
 
 // ============================================================
-// EXAMS ROUTES
+// EXAMS ROUTES (FIXED - batch resources not duplicated)
 // ============================================================
 
 async function handleListExams(request, db) {
   const user = await requireAuth(request);
   const userId = user ? user.id : null;
 
+  // Get all exams with their data
   const exams = await db.prepare(`
     SELECT e.*, b.name as batch_name,
       (SELECT COUNT(*) FROM questions q WHERE q.exam_id = e.id) as question_count
@@ -400,12 +397,39 @@ async function handleListExams(request, db) {
     ORDER BY e.created_at DESC
   `).all();
 
+  // Get all batch resources ONCE (not per exam)
+  const allBatchResources = [];
+  const batchesWithResources = await db.prepare(`
+    SELECT b.id, b.name, br.id as resource_id, br.title, br.link
+    FROM batches b
+    JOIN batch_resources br ON br.batch_id = b.id
+    ORDER BY b.id, br.created_at DESC
+  `).all();
+  
+  // Group batch resources by batch
+  const batchResourcesMap = new Map();
+  for (const item of batchesWithResources.results) {
+    if (!batchResourcesMap.has(item.id)) {
+      batchResourcesMap.set(item.id, {
+        id: item.id,
+        name: item.name,
+        type: 'batch',
+        resources: []
+      });
+    }
+    batchResourcesMap.get(item.id).resources.push({
+      id: item.resource_id,
+      title: item.title,
+      link: item.link
+    });
+  }
+  const batchResourcesList = Array.from(batchResourcesMap.values());
+
   const result = [];
   for (const exam of exams.results) {
     const live = getLiveStatus(exam);
     let stored_attempt = null, accessible = false, can_practice = false, results_visible = false;
     let examResources = [];
-    let batchResources = [];
     
     if (userId) {
       const sa = await db.prepare(
@@ -420,25 +444,23 @@ async function handleListExams(request, db) {
       results_visible = isResultsPublished(exam);
     }
     
-    // Get exam resources
+    // Get exam-specific resources only (NOT batch resources)
     const examRes = await db.prepare('SELECT id, title, link FROM exam_resources WHERE exam_id = ? ORDER BY created_at DESC').bind(exam.id).all();
     examResources = examRes.results;
     
-    // Get batch resources if exam belongs to a batch
-    if (exam.batch_id) {
-      const batchRes = await db.prepare('SELECT id, title, link FROM batch_resources WHERE batch_id = ? ORDER BY created_at DESC').bind(exam.batch_id).all();
-      batchResources = batchRes.results;
-    }
-    
-    // Combine resources (exam resources first, then batch resources)
-    const allResources = [...examResources, ...batchResources];
-    
     result.push({ 
       ...exam, ...live, stored_attempt, accessible, can_practice, results_visible,
-      resources: allResources
+      exam_resources: examResources,
+      batch_id: exam.batch_id,
+      batch_name: exam.batch_name
     });
   }
-  return json(result);
+  
+  // Return both exams and batch resources separately
+  return json({ 
+    exams: result, 
+    batch_resources: batchResourcesList 
+  });
 }
 
 async function handleGetExamQuestions(examId, request, db) {
@@ -458,7 +480,7 @@ async function handleGetExamQuestions(examId, request, db) {
   // Get exam resources
   const examRes = await db.prepare('SELECT id, title, link FROM exam_resources WHERE exam_id = ? ORDER BY created_at DESC').bind(examId).all();
   
-  // Get batch resources
+  // Get batch resources (for batch the exam belongs to)
   let batchRes = { results: [] };
   if (exam.batch_id) {
     batchRes = await db.prepare('SELECT id, title, link FROM batch_resources WHERE batch_id = ? ORDER BY created_at DESC').bind(exam.batch_id).all();
