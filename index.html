@@ -6,7 +6,7 @@
 <title>Exalyte — Precision Examination Platform</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -67,89 +67,95 @@ body::before {
   bottom: 10%; right: -100px;
 }
 
+/* Header that hides on scroll down, shows on scroll up */
 header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 200;
-  height: 64px;
-  background: rgba(8, 8, 16, 0.85);
+  height: 68px;
+  background: rgba(8, 8, 16, 0.92);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 40px;
-  gap: 40px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(0);
+}
+header.hidden {
+  transform: translateY(-100%);
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   text-decoration: none;
-  color: var(--bright);
-  font-family: 'Sora', sans-serif;
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: -0.02em;
   flex-shrink: 0;
 }
 
-.logo-mark {
-  width: 30px;
-  height: 30px;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
+.logo-img {
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  object-fit: cover;
+}
+
+.logo-text {
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--bright) 0%, var(--accent-h) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 nav {
   display: flex;
   align-items: center;
-  gap: 2px;
-  flex: 1;
+  gap: 4px;
 }
 
 nav a {
   color: var(--muted);
   text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 400;
-  padding: 6px 14px;
-  border-radius: 7px;
-  transition: color 0.15s, background 0.15s;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.15s;
 }
-nav a:hover { color: var(--text); background: var(--surface2); }
+nav a:hover { color: var(--bright); background: var(--surface2); }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
 }
 
 .btn-ghost-sm {
-  padding: 7px 18px;
+  padding: 8px 20px;
   border-radius: 8px;
   border: 1px solid var(--border2);
   background: transparent;
   color: var(--text);
   font-family: 'DM Sans', sans-serif;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
+  transition: all 0.15s;
 }
-.btn-ghost-sm:hover { border-color: var(--accent); color: var(--bright); }
+.btn-ghost-sm:hover { border-color: var(--accent); color: var(--bright); background: rgba(91,91,214,0.05); }
 
 .btn-primary-sm {
-  padding: 7px 18px;
+  padding: 8px 20px;
   border-radius: 8px;
   border: none;
   background: var(--accent);
@@ -158,12 +164,9 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  display: inline-flex;
-  align-items: center;
+  transition: all 0.15s;
 }
-.btn-primary-sm:hover { background: var(--accent-h); }
-.btn-primary-sm:active { transform: scale(0.98); }
+.btn-primary-sm:hover { background: var(--accent-h); transform: translateY(-1px); }
 
 .hamburger {
   display: none;
@@ -171,14 +174,13 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   border: none;
   cursor: pointer;
   color: var(--text);
-  padding: 4px;
-  margin-left: auto;
+  padding: 8px;
 }
 
 .hero {
   position: relative;
   z-index: 1;
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 68px);
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
@@ -186,6 +188,7 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   max-width: 1160px;
   margin: 0 auto;
   padding: 80px 40px;
+  padding-top: 100px;
 }
 
 .hero-eyebrow {
@@ -256,14 +259,13 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
-  text-decoration: none;
+  transition: all 0.15s;
 }
 .btn-primary:hover {
   background: var(--accent-h);
-  box-shadow: 0 4px 24px rgba(91,91,214,0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(91,91,214,0.35);
 }
-.btn-primary:active { transform: scale(0.98); }
 
 .btn-ghost {
   display: inline-flex;
@@ -278,8 +280,7 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   font-size: 0.92rem;
   font-weight: 500;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
-  text-decoration: none;
+  transition: all 0.15s;
 }
 .btn-ghost:hover { border-color: var(--accent); color: var(--bright); background: rgba(91,91,214,0.05); }
 
@@ -323,7 +324,7 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   border: 1px solid var(--border);
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(91,91,214,0.08);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5);
   position: relative;
 }
 
@@ -391,7 +392,6 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   color: var(--bright);
   line-height: 1.55;
   margin-bottom: 20px;
-  min-height: 48px;
 }
 
 .options-list {
@@ -409,9 +409,7 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   border-radius: 10px;
   border: 1px solid var(--border);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
-  position: relative;
-  overflow: hidden;
+  transition: all 0.15s;
 }
 .option:hover { border-color: var(--accent); background: rgba(91,91,214,0.05); }
 .option.selected { border-color: var(--accent); background: rgba(91,91,214,0.12); }
@@ -427,7 +425,6 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   font-weight: 700;
   color: var(--muted);
   flex-shrink: 0;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 .option.selected .option-key { border-color: var(--accent); color: var(--accent-h); background: rgba(91,91,214,0.15); }
 
@@ -436,7 +433,6 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   color: var(--text);
   line-height: 1.4;
 }
-.option.selected .option-text { color: var(--bright); }
 
 .exam-card-footer {
   padding: 14px 20px;
@@ -455,7 +451,6 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   width: 7px; height: 7px;
   border-radius: 50%;
   background: var(--border2);
-  transition: background 0.2s;
 }
 .q-dot.active { background: var(--accent); }
 .q-dot.answered { background: var(--success); }
@@ -469,13 +464,10 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   border: none;
   background: var(--accent);
   color: #fff;
-  font-family: 'DM Sans', sans-serif;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
 }
-.next-btn:hover { background: var(--accent-h); }
 
 .float-stat {
   position: absolute;
@@ -487,14 +479,8 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   box-shadow: 0 8px 32px rgba(0,0,0,0.4);
   animation: float 4s ease-in-out infinite;
 }
-.float-stat-1 {
-  bottom: -20px; left: -30px;
-  animation-delay: 0s;
-}
-.float-stat-2 {
-  top: 30px; right: -24px;
-  animation-delay: 2s;
-}
+.float-stat-1 { bottom: -20px; left: -30px; }
+.float-stat-2 { top: 30px; right: -24px; animation-delay: 2s; }
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-8px); }
@@ -506,12 +492,10 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   font-weight: 800;
   color: var(--bright);
   line-height: 1;
-  margin-bottom: 2px;
 }
 .stat-lbl {
   font-size: 0.7rem;
   color: var(--muted);
-  font-weight: 400;
 }
 
 .metrics-strip {
@@ -533,9 +517,6 @@ nav a:hover { color: var(--text); background: var(--surface2); }
 .metric-item {
   padding: 40px 20px;
   border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 .metric-item:last-child { border-right: none; }
 
@@ -544,12 +525,10 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   font-size: 2.2rem;
   font-weight: 800;
   color: var(--bright);
-  letter-spacing: -0.04em;
 }
 .metric-lbl {
   font-size: 0.8rem;
   color: var(--muted);
-  font-weight: 400;
 }
 
 .section-features {
@@ -574,7 +553,6 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   font-size: clamp(1.6rem, 3vw, 2.4rem);
   font-weight: 800;
   color: var(--bright);
-  letter-spacing: -0.03em;
   margin-bottom: 12px;
 }
 
@@ -582,7 +560,6 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   font-size: 1rem;
   color: var(--muted);
   max-width: 480px;
-  line-height: 1.6;
   margin-bottom: 64px;
 }
 
@@ -599,13 +576,9 @@ nav a:hover { color: var(--text); background: var(--surface2); }
 .feat-cell {
   background: var(--surface);
   padding: 36px 32px;
-  transition: background 0.2s;
 }
 .feat-cell:hover { background: var(--surface2); }
-
-.feat-cell.wide {
-  grid-column: span 2;
-}
+.feat-cell.wide { grid-column: span 2; }
 
 .feat-icon-wrap {
   width: 40px; height: 40px;
@@ -617,14 +590,7 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   justify-content: center;
   margin-bottom: 20px;
 }
-.feat-icon-wrap svg {
-  width: 18px; height: 18px;
-  stroke: var(--accent-h);
-  stroke-width: 1.8;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
+.feat-icon-wrap svg { width: 18px; height: 18px; stroke: var(--accent-h); }
 
 .feat-title {
   font-family: 'Sora', sans-serif;
@@ -632,7 +598,6 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   font-weight: 700;
   color: var(--bright);
   margin-bottom: 8px;
-  letter-spacing: -0.02em;
 }
 
 .feat-desc {
@@ -641,43 +606,12 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   line-height: 1.6;
 }
 
-.feat-visual {
-  margin-top: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.prog-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.prog-label {
-  font-size: 0.72rem;
-  color: var(--muted);
-  width: 80px;
-  flex-shrink: 0;
-}
-.prog-track {
-  flex: 1;
-  height: 4px;
-  background: var(--surface3);
-  border-radius: 4px;
-  overflow: hidden;
-}
-.prog-fill {
-  height: 100%;
-  border-radius: 4px;
-  background: var(--accent);
-  transition: width 1s ease;
-}
-.prog-pct {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text);
-  width: 32px;
-  text-align: right;
-}
+.feat-visual { margin-top: 24px; display: flex; flex-direction: column; gap: 8px; }
+.prog-row { display: flex; align-items: center; gap: 12px; }
+.prog-label { font-size: 0.72rem; color: var(--muted); width: 80px; }
+.prog-track { flex: 1; height: 4px; background: var(--surface3); border-radius: 4px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 4px; background: var(--accent); width: 0%; transition: width 1s ease; }
+.prog-pct { font-size: 0.72rem; font-weight: 600; color: var(--text); width: 32px; text-align: right; }
 
 .section-steps {
   position: relative;
@@ -697,27 +631,9 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   align-items: center;
 }
 
-.steps-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.step-item {
-  display: flex;
-  gap: 20px;
-  position: relative;
-  padding-bottom: 36px;
-}
+.steps-list { display: flex; flex-direction: column; gap: 0; }
+.step-item { display: flex; gap: 20px; padding-bottom: 36px; }
 .step-item:last-child { padding-bottom: 0; }
-
-.step-line-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-shrink: 0;
-}
-
 .step-num {
   width: 36px; height: 36px;
   border-radius: 10px;
@@ -727,116 +643,31 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   align-items: center;
   justify-content: center;
   font-family: 'Sora', sans-serif;
-  font-size: 0.78rem;
   font-weight: 700;
   color: var(--accent-h);
-  flex-shrink: 0;
 }
-
-.step-connector {
-  width: 1px;
-  flex: 1;
-  background: var(--border);
-  margin-top: 8px;
-  min-height: 30px;
-}
+.step-connector { width: 1px; flex: 1; background: var(--border); margin-top: 8px; min-height: 30px; }
 .step-item:last-child .step-connector { display: none; }
-
-.step-content { padding-top: 6px; }
-
-.step-title {
-  font-family: 'Sora', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--bright);
-  margin-bottom: 6px;
-  letter-spacing: -0.02em;
-}
-
-.step-desc {
-  font-size: 0.83rem;
-  color: var(--muted);
-  line-height: 1.6;
-}
+.step-title { font-family: 'Sora', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--bright); margin-bottom: 6px; }
+.step-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
 
 .score-visual {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 28px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
 }
-
-.score-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 28px;
-}
-
-.score-exam-name {
-  font-family: 'Sora', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--bright);
-}
-.score-date {
-  font-size: 0.72rem;
-  color: var(--muted);
-}
-
-.score-big {
-  text-align: center;
-  padding: 24px 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 24px;
-}
-
-.score-number {
-  font-family: 'Sora', sans-serif;
-  font-size: 4rem;
-  font-weight: 800;
-  color: var(--bright);
-  line-height: 1;
-  letter-spacing: -0.06em;
-}
-.score-total {
-  font-size: 1.5rem;
-  color: var(--muted);
-  font-weight: 400;
-}
-.score-pct {
-  font-size: 0.8rem;
-  color: var(--success);
-  font-weight: 600;
-  margin-top: 6px;
-}
-
-.score-breakdown {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.breakdown-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px;
-  text-align: center;
-}
-.breakdown-val {
-  font-family: 'Sora', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--bright);
-  margin-bottom: 2px;
-}
-.breakdown-lbl {
-  font-size: 0.68rem;
-  color: var(--muted);
-}
+.score-header { display: flex; justify-content: space-between; margin-bottom: 28px; }
+.score-exam-name { font-weight: 700; color: var(--bright); }
+.score-date { font-size: 0.72rem; color: var(--muted); }
+.score-big { text-align: center; padding: 24px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.score-number { font-size: 4rem; font-weight: 800; color: var(--bright); }
+.score-total { font-size: 1.5rem; color: var(--muted); }
+.score-pct { font-size: 0.8rem; color: var(--success); margin-top: 6px; }
+.score-breakdown { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.breakdown-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
+.breakdown-val { font-weight: 700; font-size: 1.1rem; color: var(--bright); }
+.breakdown-lbl { font-size: 0.68rem; color: var(--muted); }
 
 .section-cta {
   position: relative;
@@ -855,7 +686,6 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   position: relative;
   overflow: hidden;
 }
-
 .cta-inner::before {
   content: '';
   position: absolute;
@@ -865,33 +695,10 @@ nav a:hover { color: var(--text); background: var(--surface2); }
   width: 500px;
   height: 300px;
   background: radial-gradient(ellipse, rgba(91,91,214,0.12) 0%, transparent 70%);
-  pointer-events: none;
 }
-
-.cta-title {
-  font-family: 'Sora', sans-serif;
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
-  font-weight: 800;
-  color: var(--bright);
-  letter-spacing: -0.04em;
-  margin-bottom: 14px;
-}
-
-.cta-sub {
-  font-size: 1rem;
-  color: var(--muted);
-  margin-bottom: 36px;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.cta-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
+.cta-title { font-family: 'Sora', sans-serif; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800; color: var(--bright); margin-bottom: 14px; }
+.cta-sub { font-size: 1rem; color: var(--muted); margin-bottom: 36px; }
+.cta-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
 footer {
   position: relative;
@@ -900,7 +707,6 @@ footer {
   border-top: 1px solid var(--border);
   padding: 60px 40px 32px;
 }
-
 .footer-inner {
   max-width: 1160px;
   margin: 0 auto;
@@ -909,58 +715,27 @@ footer {
   gap: 60px;
   margin-bottom: 48px;
 }
-
-.footer-brand p {
-  font-size: 0.85rem;
-  color: var(--muted);
-  line-height: 1.6;
-  margin-top: 12px;
-  max-width: 260px;
-}
-
-.footer-col h4 {
-  font-family: 'Sora', sans-serif;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--bright);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-}
-
-.footer-col a {
-  display: block;
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 0.85rem;
-  margin-bottom: 10px;
-  transition: color 0.15s;
-}
+.footer-brand p { font-size: 0.85rem; color: var(--muted); margin-top: 12px; }
+.footer-col h4 { font-size: 0.78rem; font-weight: 700; color: var(--bright); text-transform: uppercase; margin-bottom: 16px; }
+.footer-col a { display: block; color: var(--muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 10px; }
 .footer-col a:hover { color: var(--text); }
-
 .footer-bottom {
   max-width: 1160px;
   margin: 0 auto;
   padding-top: 32px;
   border-top: 1px solid var(--border);
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 20px;
   flex-wrap: wrap;
+  gap: 20px;
 }
-
-.footer-copy {
-  font-size: 0.78rem;
-  color: var(--muted);
-}
+.footer-copy { font-size: 0.78rem; color: var(--muted); }
 
 .modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.75);
   backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   z-index: 500;
   display: flex;
   align-items: center;
@@ -970,11 +745,7 @@ footer {
   pointer-events: none;
   transition: opacity 0.2s;
 }
-.modal-overlay.open {
-  opacity: 1;
-  pointer-events: all;
-}
-
+.modal-overlay.open { opacity: 1; pointer-events: all; }
 .modal {
   background: var(--surface);
   border: 1px solid var(--border2);
@@ -983,13 +754,7 @@ footer {
   max-width: 400px;
   padding: 36px 32px;
   position: relative;
-  transform: translateY(12px);
-  transition: transform 0.25s;
 }
-.modal-overlay.open .modal {
-  transform: translateY(0);
-}
-
 .modal-close {
   position: absolute;
   top: 16px; right: 16px;
@@ -1002,39 +767,12 @@ footer {
   justify-content: center;
   cursor: pointer;
   color: var(--muted);
-  transition: color 0.15s, background 0.15s;
 }
 .modal-close:hover { color: var(--bright); background: var(--surface3); }
-
-.modal h2 {
-  font-family: 'Sora', sans-serif;
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--bright);
-  letter-spacing: -0.03em;
-  margin-bottom: 4px;
-}
-
-.modal-sub {
-  font-size: 0.83rem;
-  color: var(--muted);
-  margin-bottom: 28px;
-}
-
-.form-field {
-  margin-bottom: 14px;
-}
-
-.form-label {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--muted);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-bottom: 7px;
-}
-
+.modal h2 { font-family: 'Sora', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--bright); margin-bottom: 4px; }
+.modal-sub { font-size: 0.83rem; color: var(--muted); margin-bottom: 28px; }
+.form-field { margin-bottom: 14px; }
+.form-label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; margin-bottom: 7px; }
 .form-input {
   width: 100%;
   padding: 11px 14px;
@@ -1042,22 +780,12 @@ footer {
   border: 1px solid var(--border);
   border-radius: 10px;
   color: var(--bright);
-  font-family: 'DM Sans', sans-serif;
   font-size: 0.88rem;
   outline: none;
-  transition: border-color 0.15s;
 }
-.form-input::placeholder { color: var(--muted); }
 .form-input:focus { border-color: var(--accent); }
-
-.form-error {
-  font-size: 0.78rem;
-  color: var(--error);
-  margin-bottom: 14px;
-  display: none;
-}
+.form-error { font-size: 0.78rem; color: var(--error); margin-bottom: 14px; display: none; }
 .form-error.show { display: block; }
-
 .btn-form {
   width: 100%;
   padding: 12px;
@@ -1065,37 +793,15 @@ footer {
   border: none;
   background: var(--accent);
   color: #fff;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
   margin-top: 4px;
 }
 .btn-form:hover { background: var(--accent-h); }
+.auth-switch { text-align: center; margin-top: 18px; font-size: 0.82rem; color: var(--muted); }
+.auth-switch button { background: none; border: none; color: var(--accent-h); cursor: pointer; }
 
-.auth-switch {
-  text-align: center;
-  margin-top: 18px;
-  font-size: 0.82rem;
-  color: var(--muted);
-}
-.auth-switch button {
-  background: none;
-  border: none;
-  color: var(--accent-h);
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 500;
-}
-.auth-switch button:hover { text-decoration: underline; }
-
-.user-menu {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+.user-menu { display: flex; align-items: center; gap: 10px; }
 .user-avatar {
   width: 32px; height: 32px;
   border-radius: 8px;
@@ -1103,16 +809,10 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Sora', sans-serif;
-  font-size: 0.75rem;
   font-weight: 700;
   color: #fff;
 }
-.user-name {
-  font-size: 0.85rem;
-  color: var(--text);
-  font-weight: 500;
-}
+.user-name { font-size: 0.85rem; color: var(--text); }
 
 .mobile-drawer {
   position: fixed;
@@ -1122,14 +822,12 @@ footer {
   background: var(--surface);
   border-right: 1px solid var(--border);
   z-index: 400;
-  transition: left 0.3s cubic-bezier(0.4,0,0.2,1);
-  padding: 24px 24px;
+  transition: left 0.3s;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 .mobile-drawer.open { left: 0; }
-
 .drawer-overlay {
   position: fixed;
   inset: 0;
@@ -1138,14 +836,7 @@ footer {
   display: none;
 }
 .drawer-overlay.open { display: block; }
-
-.drawer-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 28px;
-}
-
+.drawer-header { display: flex; justify-content: space-between; margin-bottom: 28px; }
 .drawer-close {
   background: var(--surface2);
   border: 1px solid var(--border);
@@ -1155,56 +846,39 @@ footer {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: var(--muted);
 }
-
 .drawer-link {
   display: block;
   color: var(--text);
   text-decoration: none;
   font-size: 0.95rem;
-  padding: 11px 14px;
+  padding: 12px 14px;
   border-radius: 10px;
-  font-weight: 500;
-  transition: background 0.15s, color 0.15s;
 }
-.drawer-link:hover { background: var(--surface2); color: var(--bright); }
-
-.drawer-divider {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 8px 0;
-}
+.drawer-link:hover { background: var(--surface2); }
+.drawer-divider { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+.drawer-actions { margin-top: auto; display: flex; flex-direction: column; gap: 12px; padding-top: 24px; }
 
 @media (max-width: 900px) {
-  .hero {
-    grid-template-columns: 1fr;
-    padding: 60px 24px 80px;
-    gap: 56px;
-    text-align: center;
-    min-height: auto;
-  }
+  .hero { grid-template-columns: 1fr; padding: 60px 24px; text-align: center; }
   .hero-desc { margin-left: auto; margin-right: auto; }
   .hero-actions { justify-content: center; }
   .hero-trust { justify-content: center; }
-  .float-stat-1 { display: none; }
-  .float-stat-2 { display: none; }
+  .float-stat-1, .float-stat-2 { display: none; }
   .features-grid { grid-template-columns: 1fr; }
   .feat-cell.wide { grid-column: span 1; }
   .steps-inner { grid-template-columns: 1fr; gap: 48px; }
   .footer-inner { grid-template-columns: 1fr 1fr; }
   .footer-brand { grid-column: span 2; }
-  header { padding: 0 20px; gap: 0; }
+  header { padding: 0 20px; }
   nav { display: none; }
-  .hamburger { display: flex; }
-  .header-actions { gap: 8px; }
-  .header-actions .btn-ghost-sm { display: none; }
+  .hamburger { display: block; }
+  .header-actions { display: none; }
   .metrics-inner { grid-template-columns: repeat(2, 1fr); }
   .metric-item:nth-child(2) { border-right: none; }
-  .metric-item:nth-child(3) { border-right: 1px solid var(--border); border-top: 1px solid var(--border); }
-  .metric-item:nth-child(4) { border-right: none; border-top: 1px solid var(--border); }
+  .metric-item:nth-child(3) { border-top: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .metric-item:nth-child(4) { border-top: 1px solid var(--border); }
 }
-
 @media (max-width: 540px) {
   .hero-title { font-size: 2rem; }
   .section-features, .section-cta { padding: 60px 20px; }
@@ -1213,13 +887,8 @@ footer {
   .footer-inner { grid-template-columns: 1fr; }
   .footer-brand { grid-column: span 1; }
   .footer { padding: 48px 20px 28px; }
-  .section-features { padding: 60px 20px; }
   .metrics-inner { padding: 0 20px; }
   .modal { padding: 28px 20px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 </style>
 </head>
@@ -1228,16 +897,18 @@ footer {
 <div class="glow-orb glow-orb-1"></div>
 <div class="glow-orb glow-orb-2"></div>
 
-<header>
+<header id="mainHeader">
   <a href="/" class="logo">
-    <div class="logo-mark">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M5 10L8 3L11 10" stroke="#6e6ee8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        <line x1="6.2" y1="8" x2="9.8" y2="8" stroke="#6e6ee8" stroke-width="1.3" stroke-linecap="round"/>
-        <circle cx="8" cy="12.5" r="1" fill="#818cf8"/>
+    <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+    <div class="logo-fallback" style="display:none">
+      <svg width="16" height="16" viewBox="0 0 28 28" fill="none">
+        <rect x="1.5" y="1.5" width="25" height="25" rx="7" fill="#0c0c16" stroke="#1e1e32" stroke-width="1.2"/>
+        <path d="M9 18l5-11 5 11" stroke="#6366f1" stroke-width="2.2"/>
+        <line x1="11" y1="14" x2="17" y2="14" stroke="#6366f1" stroke-width="1.5"/>
+        <circle cx="14" cy="21" r="1.3" fill="#818cf8"/>
       </svg>
     </div>
-    Exalyte
+    <span class="logo-text">Exalyte</span>
   </a>
   <nav>
     <a href="#features">Features</a>
@@ -1253,8 +924,8 @@ footer {
     <span class="user-name" id="headerName"></span>
     <button class="btn-ghost-sm" onclick="logout()">Sign out</button>
   </div>
-  <button class="hamburger" id="hamburger" aria-label="Open menu">
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+  <button class="hamburger" id="hamburger">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8">
       <line x1="3" y1="7" x2="19" y2="7"/>
       <line x1="3" y1="11" x2="19" y2="11"/>
       <line x1="3" y1="15" x2="19" y2="15"/>
@@ -1265,18 +936,12 @@ footer {
 <div class="drawer-overlay" id="drawerOverlay"></div>
 <div class="mobile-drawer" id="mobileDrawer">
   <div class="drawer-header">
-    <a href="/" class="logo" style="font-size:1rem">
-      <div class="logo-mark">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M5 10L8 3L11 10" stroke="#6e6ee8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="6.2" y1="8" x2="9.8" y2="8" stroke="#6e6ee8" stroke-width="1.3" stroke-linecap="round"/>
-          <circle cx="8" cy="12.5" r="1" fill="#818cf8"/>
-        </svg>
-      </div>
-      Exalyte
+    <a href="/" class="logo">
+      <img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:6px">
+      <span class="logo-text" style="font-size:1rem">Exalyte</span>
     </a>
     <button class="drawer-close" id="drawerClose">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
         <line x1="3" y1="3" x2="13" y2="13"/>
         <line x1="13" y1="3" x2="3" y2="13"/>
       </svg>
@@ -1286,424 +951,108 @@ footer {
   <a href="#how-it-works" class="drawer-link" onclick="closeDrawer()">How it works</a>
   <a href="contact.html" class="drawer-link">Support</a>
   <hr class="drawer-divider">
-  <a href="privacy.html" class="drawer-link" style="color:var(--muted);font-size:0.875rem">Privacy Policy</a>
-  <a href="tos.html" class="drawer-link" style="color:var(--muted);font-size:0.875rem">Terms of Service</a>
-  <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:24px">
-    <button class="btn-ghost" style="justify-content:center;font-size:0.9rem" onclick="openAuth('login');closeDrawer()">Sign in</button>
-    <button class="btn-primary" style="justify-content:center;font-size:0.9rem" onclick="openAuth('signup');closeDrawer()">Get started</button>
+  <a href="privacy.html" class="drawer-link" style="color:var(--muted)">Privacy Policy</a>
+  <a href="tos.html" class="drawer-link" style="color:var(--muted)">Terms of Service</a>
+  <div class="drawer-actions">
+    <button class="btn-ghost" onclick="openAuth('login');closeDrawer()">Sign in</button>
+    <button class="btn-primary" onclick="openAuth('signup');closeDrawer()">Get started</button>
   </div>
 </div>
 
 <section class="hero">
   <div class="hero-left">
-    <div class="hero-eyebrow">
-      <span class="eyebrow-dot"></span>
-      Trusted by 500+ students
-    </div>
-    <h1 class="hero-title">
-      The exam platform<br>
-      built for <span class="line-accent">serious</span><br>
-      performance
-    </h1>
-    <p class="hero-desc">
-      Live timed exams, instant analytics, and deep practice — all in one focused environment designed to help you reach your peak score.
-    </p>
+    <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Trusted by 500+ students</div>
+    <h1 class="hero-title">The exam platform<br>built for <span class="line-accent">serious</span><br>performance</h1>
+    <p class="hero-desc">Live timed exams, instant analytics, and deep practice — all in one focused environment designed to help you reach your peak score.</p>
     <div class="hero-actions">
-      <button class="btn-primary" onclick="openAuth('signup')">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-          <path d="M8 2v12M2 8h12"/>
-        </svg>
-        Create free account
-      </button>
+      <button class="btn-primary" onclick="openAuth('signup')">Create free account</button>
       <button class="btn-ghost" onclick="openAuth('login')">Sign in</button>
     </div>
     <div class="hero-trust">
-      <div class="trust-avatars">
-        <span>AK</span><span>MR</span><span>JP</span><span>SL</span><span>+</span>
-      </div>
+      <div class="trust-avatars"><span>AK</span><span>MR</span><span>JP</span><span>SL</span><span>+</span></div>
       <div class="trust-text"><strong>500+ students</strong><br>preparing with Exalyte</div>
     </div>
   </div>
-
   <div class="exam-preview">
     <div class="exam-card">
       <div class="exam-card-header">
         <div class="exam-card-title">Mathematics — Paper 1</div>
-        <div class="exam-card-meta">
-          <span class="exam-badge">Live</span>
-          <div class="exam-timer">
-            <svg class="timer-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
-            </svg>
-            <span id="timerDisplay">47:23</span>
-          </div>
-        </div>
+        <div class="exam-card-meta"><span class="exam-badge">Live</span><div class="exam-timer"><svg class="timer-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="timerDisplay">47:23</span></div></div>
       </div>
       <div class="exam-card-body">
-        <div class="question-number">Question <span id="qNum">3</span> of 30</div>
-        <p class="question-text" id="questionText">
-          A geometric sequence has first term 4 and common ratio 3. What is the sum of the first 5 terms?
-        </p>
-        <div class="options-list" id="optionsList">
-          <div class="option" onclick="selectOption(this, 0)">
-            <span class="option-key">A</span>
-            <span class="option-text">364</span>
-          </div>
-          <div class="option selected" onclick="selectOption(this, 1)">
-            <span class="option-key">B</span>
-            <span class="option-text">484</span>
-          </div>
-          <div class="option" onclick="selectOption(this, 2)">
-            <span class="option-key">C</span>
-            <span class="option-text">242</span>
-          </div>
-          <div class="option" onclick="selectOption(this, 3)">
-            <span class="option-key">D</span>
-            <span class="option-text">121</span>
-          </div>
+        <div class="question-number">Question 3 of 30</div>
+        <p class="question-text">A geometric sequence has first term 4 and common ratio 3. What is the sum of the first 5 terms?</p>
+        <div class="options-list">
+          <div class="option" onclick="selectOption(this)"><span class="option-key">A</span><span class="option-text">364</span></div>
+          <div class="option selected" onclick="selectOption(this)"><span class="option-key">B</span><span class="option-text">484</span></div>
+          <div class="option" onclick="selectOption(this)"><span class="option-key">C</span><span class="option-text">242</span></div>
+          <div class="option" onclick="selectOption(this)"><span class="option-key">D</span><span class="option-text">121</span></div>
         </div>
       </div>
       <div class="exam-card-footer">
-        <div class="question-nav">
-          <div class="q-dot answered"></div>
-          <div class="q-dot answered"></div>
-          <div class="q-dot active"></div>
-          <div class="q-dot"></div>
-          <div class="q-dot"></div>
-          <div class="q-dot"></div>
-          <div class="q-dot"></div>
-        </div>
-        <button class="next-btn">
-          Next
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <path d="M3 7h8M8 4l3 3-3 3"/>
-          </svg>
-        </button>
+        <div class="question-nav"><div class="q-dot answered"></div><div class="q-dot answered"></div><div class="q-dot active"></div><div class="q-dot"></div><div class="q-dot"></div><div class="q-dot"></div><div class="q-dot"></div></div>
+        <button class="next-btn">Next <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor"><path d="M3 7h8M8 4l3 3-3 3"/></svg></button>
       </div>
     </div>
-
-    <div class="float-stat float-stat-1">
-      <div class="stat-val">94<span style="font-size:1rem;color:var(--muted)">%</span></div>
-      <div class="stat-lbl">Accuracy this session</div>
-    </div>
-
-    <div class="float-stat float-stat-2">
-      <div class="stat-val" style="font-size:1rem;margin-bottom:2px;color:var(--success)">Top 8%</div>
-      <div class="stat-lbl">Among all students</div>
-    </div>
+    <div class="float-stat float-stat-1"><div class="stat-val">94%</div><div class="stat-lbl">Accuracy this session</div></div>
+    <div class="float-stat float-stat-2"><div class="stat-val" style="font-size:1rem">Top 8%</div><div class="stat-lbl">Among all students</div></div>
   </div>
 </section>
 
-<div class="metrics-strip">
-  <div class="metrics-inner">
-    <div class="metric-item">
-      <div class="metric-val">10K+</div>
-      <div class="metric-lbl">Practice questions</div>
-    </div>
-    <div class="metric-item">
-      <div class="metric-val">500+</div>
-      <div class="metric-lbl">Active students</div>
-    </div>
-    <div class="metric-item">
-      <div class="metric-val">50+</div>
-      <div class="metric-lbl">Exam papers</div>
-    </div>
-    <div class="metric-item">
-      <div class="metric-val">24/7</div>
-      <div class="metric-lbl">Platform access</div>
-    </div>
-  </div>
-</div>
+<div class="metrics-strip"><div class="metrics-inner"><div class="metric-item"><div class="metric-val">10K+</div><div class="metric-lbl">Practice questions</div></div><div class="metric-item"><div class="metric-val">500+</div><div class="metric-lbl">Active students</div></div><div class="metric-item"><div class="metric-val">50+</div><div class="metric-lbl">Exam papers</div></div><div class="metric-item"><div class="metric-val">24/7</div><div class="metric-lbl">Platform access</div></div></div></div>
 
 <section class="section-features" id="features">
   <div class="section-eyebrow">Platform features</div>
   <h2 class="section-title">Everything you need to perform</h2>
   <p class="section-sub">From timed live exams to granular analytics — built to mirror real exam conditions without compromise.</p>
-
   <div class="features-grid">
-    <div class="feat-cell">
-      <div class="feat-icon-wrap">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      </div>
-      <div class="feat-title">Live Timed Exams</div>
-      <p class="feat-desc">Real exam conditions with a precision countdown timer, question auto-lock, and enforced submission at time-up.</p>
-    </div>
-
-    <div class="feat-cell">
-      <div class="feat-icon-wrap">
-        <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      </div>
-      <div class="feat-title">Practice Mode</div>
-      <p class="feat-desc">Retry any question set without time pressure. Review detailed explanations and identify knowledge gaps at your own pace.</p>
-    </div>
-
-    <div class="feat-cell">
-      <div class="feat-icon-wrap">
-        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      </div>
-      <div class="feat-title">Secure Environment</div>
-      <p class="feat-desc">Token-authenticated sessions, attempt logging, and anti-tab-switch detection to preserve exam integrity.</p>
-    </div>
-
-    <div class="feat-cell wide">
-      <div class="feat-icon-wrap">
-        <svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m0 0a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2v12z"/></svg>
-      </div>
-      <div class="feat-title">Performance Analytics</div>
-      <p class="feat-desc">Understand exactly where marks are lost. Track percentile rank across every exam, subject, and topic.</p>
-      <div class="feat-visual" id="progressBars">
-        <div class="prog-row">
-          <span class="prog-label">Algebra</span>
-          <div class="prog-track"><div class="prog-fill" style="width:0%" data-target="88"></div></div>
-          <span class="prog-pct">88%</span>
-        </div>
-        <div class="prog-row">
-          <span class="prog-label">Statistics</span>
-          <div class="prog-track"><div class="prog-fill" style="width:0%" data-target="72"></div></div>
-          <span class="prog-pct">72%</span>
-        </div>
-        <div class="prog-row">
-          <span class="prog-label">Geometry</span>
-          <div class="prog-track"><div class="prog-fill" style="width:0%" data-target="61"></div></div>
-          <span class="prog-pct">61%</span>
-        </div>
-        <div class="prog-row">
-          <span class="prog-label">Calculus</span>
-          <div class="prog-track"><div class="prog-fill" style="width:0%" data-target="94"></div></div>
-          <span class="prog-pct">94%</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="feat-cell">
-      <div class="feat-icon-wrap">
-        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-      </div>
-      <div class="feat-title">Instant Results</div>
-      <p class="feat-desc">Scores, rankings, and topic breakdowns are generated the moment you submit — no waiting for grading.</p>
-    </div>
+    <div class="feat-cell"><div class="feat-icon-wrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="feat-title">Live Timed Exams</div><p class="feat-desc">Real exam conditions with a precision countdown timer, question auto-lock, and enforced submission at time-up.</p></div>
+    <div class="feat-cell"><div class="feat-icon-wrap"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="feat-title">Practice Mode</div><p class="feat-desc">Retry any question set without time pressure. Review detailed explanations and identify knowledge gaps at your own pace.</p></div>
+    <div class="feat-cell"><div class="feat-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="feat-title">Secure Environment</div><p class="feat-desc">Token-authenticated sessions, attempt logging, and anti-tab-switch detection to preserve exam integrity.</p></div>
+    <div class="feat-cell wide"><div class="feat-icon-wrap"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg></div><div class="feat-title">Performance Analytics</div><p class="feat-desc">Understand exactly where marks are lost. Track percentile rank across every exam.</p><div class="feat-visual" id="progressBars"><div class="prog-row"><span class="prog-label">Algebra</span><div class="prog-track"><div class="prog-fill" data-target="88"></div></div><span class="prog-pct">88%</span></div><div class="prog-row"><span class="prog-label">Statistics</span><div class="prog-track"><div class="prog-fill" data-target="72"></div></div><span class="prog-pct">72%</span></div><div class="prog-row"><span class="prog-label">Geometry</span><div class="prog-track"><div class="prog-fill" data-target="61"></div></div><span class="prog-pct">61%</span></div><div class="prog-row"><span class="prog-label">Calculus</span><div class="prog-track"><div class="prog-fill" data-target="94"></div></div><span class="prog-pct">94%</span></div></div></div>
+    <div class="feat-cell"><div class="feat-icon-wrap"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div class="feat-title">Instant Results</div><p class="feat-desc">Scores, rankings, and topic breakdowns are generated the moment you submit.</p></div>
   </div>
 </section>
 
 <section class="section-steps" id="how-it-works">
   <div class="steps-inner">
-    <div>
-      <div class="section-eyebrow">How it works</div>
-      <h2 class="section-title" style="margin-bottom:12px">From signup to<br>top percentile</h2>
-      <p class="section-sub" style="margin-bottom:48px">A clear path that keeps you focused on study, not on figuring out software.</p>
-
-      <div class="steps-list">
-        <div class="step-item">
-          <div class="step-line-wrap">
-            <div class="step-num">01</div>
-            <div class="step-connector"></div>
-          </div>
-          <div class="step-content">
-            <div class="step-title">Create your account</div>
-            <p class="step-desc">Sign up in under 30 seconds. No credit card, no friction — just your name and email to get started.</p>
-          </div>
-        </div>
-        <div class="step-item">
-          <div class="step-line-wrap">
-            <div class="step-num">02</div>
-            <div class="step-connector"></div>
-          </div>
-          <div class="step-content">
-            <div class="step-title">Choose an exam</div>
-            <p class="step-desc">Browse available papers, filter by subject, and sit live exams or practice at your own speed.</p>
-          </div>
-        </div>
-        <div class="step-item">
-          <div class="step-line-wrap">
-            <div class="step-num">03</div>
-            <div class="step-connector"></div>
-          </div>
-          <div class="step-content">
-            <div class="step-title">Review your results</div>
-            <p class="step-desc">Detailed score reports identify exactly which topics need attention and where your strengths lie.</p>
-          </div>
-        </div>
-        <div class="step-item">
-          <div class="step-line-wrap">
-            <div class="step-num">04</div>
-            <div class="step-connector"></div>
-          </div>
-          <div class="step-content">
-            <div class="step-title">Track your progress</div>
-            <p class="step-desc">Your dashboard records every attempt, shows percentile trends, and surfaces the areas with the most improvement potential.</p>
-          </div>
-        </div>
-      </div>
+    <div><div class="section-eyebrow">How it works</div><h2 class="section-title">From signup to<br>top percentile</h2><p class="section-sub">A clear path that keeps you focused on study, not on figuring out software.</p>
+      <div class="steps-list"><div class="step-item"><div class="step-line-wrap"><div class="step-num">01</div><div class="step-connector"></div></div><div class="step-content"><div class="step-title">Create your account</div><p class="step-desc">Sign up in under 30 seconds. No credit card needed.</p></div></div><div class="step-item"><div class="step-line-wrap"><div class="step-num">02</div><div class="step-connector"></div></div><div class="step-content"><div class="step-title">Choose an exam</div><p class="step-desc">Browse available papers and sit live exams or practice.</p></div></div><div class="step-item"><div class="step-line-wrap"><div class="step-num">03</div><div class="step-connector"></div></div><div class="step-content"><div class="step-title">Review your results</div><p class="step-desc">Detailed score reports identify exactly where you need to improve.</p></div></div><div class="step-item"><div class="step-line-wrap"><div class="step-num">04</div><div class="step-connector"></div></div><div class="step-content"><div class="step-title">Track your progress</div><p class="step-desc">Your dashboard records every attempt and shows percentile trends.</p></div></div></div>
     </div>
-
-    <div class="score-visual">
-      <div class="score-header">
-        <div>
-          <div class="score-exam-name">Mathematics — Paper 1</div>
-          <div class="score-date" style="margin-top:3px">Completed June 12, 2025</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:5px 10px">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round">
-            <polyline points="2 6 4.5 8.5 10 3.5"/>
-          </svg>
-          <span style="font-size:0.72rem;font-weight:600;color:#22c55e">Passed</span>
-        </div>
-      </div>
-      <div class="score-big">
-        <div class="score-number">84<span class="score-total">/100</span></div>
-        <div class="score-pct">Top 12% nationally</div>
-      </div>
-      <div class="score-breakdown">
-        <div class="breakdown-item">
-          <div class="breakdown-val" style="color:var(--success)">27</div>
-          <div class="breakdown-lbl">Correct</div>
-        </div>
-        <div class="breakdown-item">
-          <div class="breakdown-val" style="color:var(--error)">3</div>
-          <div class="breakdown-lbl">Incorrect</div>
-        </div>
-        <div class="breakdown-item">
-          <div class="breakdown-val">47:12</div>
-          <div class="breakdown-lbl">Time used</div>
-        </div>
-      </div>
-    </div>
+    <div class="score-visual"><div class="score-header"><div><div class="score-exam-name">Mathematics — Paper 1</div><div class="score-date">Completed June 12, 2025</div></div><div style="display:flex;align-items:center;gap:6px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:5px 10px"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#22c55e"><polyline points="2 6 4.5 8.5 10 3.5"/></svg><span style="font-size:0.72rem;font-weight:600;color:#22c55e">Passed</span></div></div><div class="score-big"><div class="score-number">84<span class="score-total">/100</span></div><div class="score-pct">Top 12% nationally</div></div><div class="score-breakdown"><div class="breakdown-item"><div class="breakdown-val" style="color:var(--success)">27</div><div class="breakdown-lbl">Correct</div></div><div class="breakdown-item"><div class="breakdown-val" style="color:var(--error)">3</div><div class="breakdown-lbl">Incorrect</div></div><div class="breakdown-item"><div class="breakdown-val">47:12</div><div class="breakdown-lbl">Time used</div></div></div></div>
   </div>
 </section>
 
-<section class="section-cta">
-  <div class="cta-inner">
-    <h2 class="cta-title">Start preparing today</h2>
-    <p class="cta-sub">Create a free account and sit your first practice exam in under two minutes.</p>
-    <div class="cta-actions">
-      <button class="btn-primary" onclick="openAuth('signup')" style="padding:13px 32px;font-size:0.95rem">
-        Create free account
-      </button>
-      <button class="btn-ghost" onclick="openAuth('login')" style="padding:13px 32px;font-size:0.95rem">
-        Sign in
-      </button>
-    </div>
-  </div>
-</section>
+<section class="section-cta"><div class="cta-inner"><h2 class="cta-title">Start preparing today</h2><p class="cta-sub">Create a free account and sit your first practice exam in under two minutes.</p><div class="cta-actions"><button class="btn-primary" onclick="openAuth('signup')">Create free account</button><button class="btn-ghost" onclick="openAuth('login')">Sign in</button></div></div></section>
 
-<footer>
-  <div class="footer-inner">
-    <div class="footer-brand">
-      <a href="/" class="logo" style="font-size:1rem">
-        <div class="logo-mark">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M5 10L8 3L11 10" stroke="#6e6ee8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            <line x1="6.2" y1="8" x2="9.8" y2="8" stroke="#6e6ee8" stroke-width="1.3" stroke-linecap="round"/>
-            <circle cx="8" cy="12.5" r="1" fill="#818cf8"/>
-          </svg>
-        </div>
-        Exalyte
-      </a>
-      <p>A precision examination platform built for students who want to perform, not just prepare.</p>
-    </div>
-    <div class="footer-col">
-      <h4>Platform</h4>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="#features">Features</a>
-      <a href="#how-it-works">How it works</a>
-    </div>
-    <div class="footer-col">
-      <h4>Legal</h4>
-      <a href="privacy.html">Privacy Policy</a>
-      <a href="tos.html">Terms of Service</a>
-      <a href="contact.html">Contact</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <div class="footer-copy">© 2025 Exalyte. All rights reserved.</div>
-    <div style="display:flex;gap:20px">
-      <a href="privacy.html" style="color:var(--muted);text-decoration:none;font-size:0.78rem">Privacy</a>
-      <a href="tos.html" style="color:var(--muted);text-decoration:none;font-size:0.78rem">Terms</a>
-    </div>
-  </div>
-</footer>
+<footer><div class="footer-inner"><div class="footer-brand"><a href="/" class="logo"><img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:6px"><span class="logo-text" style="font-size:1rem">Exalyte</span></a><p>A precision examination platform built for students who want to perform, not just prepare.</p></div><div class="footer-col"><h4>Platform</h4><a href="dashboard.html">Dashboard</a><a href="#features">Features</a><a href="#how-it-works">How it works</a></div><div class="footer-col"><h4>Legal</h4><a href="privacy.html">Privacy Policy</a><a href="tos.html">Terms of Service</a><a href="contact.html">Contact</a></div></div><div class="footer-bottom"><div class="footer-copy">© 2025 Exalyte. All rights reserved.</div><div style="display:flex;gap:20px"><a href="privacy.html" style="color:var(--muted);text-decoration:none;font-size:0.78rem">Privacy</a><a href="tos.html" style="color:var(--muted);text-decoration:none;font-size:0.78rem">Terms</a></div></div></footer>
 
-<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
-  <div class="modal">
-    <button class="modal-close" onclick="closeAuth()">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-        <line x1="2" y1="2" x2="12" y2="12"/>
-        <line x1="12" y1="2" x2="2" y2="12"/>
-      </svg>
-    </button>
-
-    <div id="authLogin">
-      <h2>Welcome back</h2>
-      <p class="modal-sub">Sign in to access your exams and results</p>
-      <div class="form-field">
-        <label class="form-label">Email address</label>
-        <input class="form-input" type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
-      </div>
-      <div class="form-field">
-        <label class="form-label">Password</label>
-        <input class="form-input" type="password" id="loginPass" placeholder="Your password" autocomplete="current-password">
-      </div>
-      <div class="form-error" id="loginError"></div>
-      <button class="btn-form" onclick="doLogin()">Sign in</button>
-      <p class="auth-switch">No account? <button onclick="switchAuth('signup')">Create one free</button></p>
-    </div>
-
-    <div id="authSignup" style="display:none">
-      <h2>Create account</h2>
-      <p class="modal-sub">Free forever — no credit card needed</p>
-      <div class="form-field">
-        <label class="form-label">Full name</label>
-        <input class="form-input" type="text" id="signupName" placeholder="Your name" autocomplete="name">
-      </div>
-      <div class="form-field">
-        <label class="form-label">Email address</label>
-        <input class="form-input" type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email">
-      </div>
-      <div class="form-field">
-        <label class="form-label">Password</label>
-        <input class="form-input" type="password" id="signupPass" placeholder="Minimum 6 characters" autocomplete="new-password">
-      </div>
-      <div class="form-error" id="signupError"></div>
-      <button class="btn-form" onclick="doSignup()">Create account</button>
-      <p class="auth-switch">Already have an account? <button onclick="switchAuth('login')">Sign in</button></p>
-    </div>
-  </div>
-</div>
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)"><div class="modal"><button class="modal-close" onclick="closeAuth()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></button>
+  <div id="authLogin"><h2>Welcome back</h2><p class="modal-sub">Sign in to access your exams</p><div class="form-field"><label class="form-label">Email</label><input class="form-input" type="email" id="loginEmail" placeholder="you@example.com"></div><div class="form-field"><label class="form-label">Password</label><input class="form-input" type="password" id="loginPass" placeholder="Your password"></div><div class="form-error" id="loginError"></div><button class="btn-form" onclick="doLogin()">Sign in</button><p class="auth-switch">No account? <button onclick="switchAuth('signup')">Create one free</button></p></div>
+  <div id="authSignup" style="display:none"><h2>Create account</h2><p class="modal-sub">Free forever — no credit card needed</p><div class="form-field"><label class="form-label">Full name</label><input class="form-input" type="text" id="signupName" placeholder="Your name"></div><div class="form-field"><label class="form-label">Email</label><input class="form-input" type="email" id="signupEmail" placeholder="you@example.com"></div><div class="form-field"><label class="form-label">Password</label><input class="form-input" type="password" id="signupPass" placeholder="Minimum 6 characters"></div><div class="form-error" id="signupError"></div><button class="btn-form" onclick="doSignup()">Create account</button><p class="auth-switch">Already have an account? <button onclick="switchAuth('login')">Sign in</button></p></div>
+</div></div>
 
 <script>
 const API = '/api';
-
 function getToken() { return localStorage.getItem('exalyte_token'); }
-function getUser()  { return JSON.parse(localStorage.getItem('exalyte_user') || 'null'); }
-function logout()   { localStorage.clear(); window.location.href = '/'; }
-
+function getUser() { return JSON.parse(localStorage.getItem('exalyte_user') || 'null'); }
+function logout() { localStorage.clear(); window.location.href = '/'; }
 async function apiFetch(path, opts = {}) {
   const token = getToken();
   const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
   const res = await fetch(API + path, { ...opts, headers });
-  const data = await res.json().catch(() => ({}));
-  return { ok: res.ok, data };
+  return { ok: res.ok, data: await res.json().catch(() => ({})) };
 }
-
-function openAuth(mode) {
-  document.getElementById('modalOverlay').classList.add('open');
-  switchAuth(mode);
-}
-function closeAuth() {
-  document.getElementById('modalOverlay').classList.remove('open');
-}
-function handleOverlayClick(e) {
-  if (e.target === document.getElementById('modalOverlay')) closeAuth();
-}
+function openAuth(mode) { document.getElementById('modalOverlay').classList.add('open'); switchAuth(mode); }
+function closeAuth() { document.getElementById('modalOverlay').classList.remove('open'); }
+function handleOverlayClick(e) { if (e.target === document.getElementById('modalOverlay')) closeAuth(); }
 function switchAuth(mode) {
-  document.getElementById('authLogin').style.display   = mode === 'login'  ? 'block' : 'none';
-  document.getElementById('authSignup').style.display  = mode === 'signup' ? 'block' : 'none';
+  document.getElementById('authLogin').style.display = mode === 'login' ? 'block' : 'none';
+  document.getElementById('authSignup').style.display = mode === 'signup' ? 'block' : 'none';
 }
-
 async function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
-  const pass  = document.getElementById('loginPass').value;
+  const pass = document.getElementById('loginPass').value;
   const errEl = document.getElementById('loginError');
   errEl.classList.remove('show');
   if (!email || !pass) { errEl.textContent = 'Please fill in all fields.'; errEl.classList.add('show'); return; }
@@ -1715,16 +1064,12 @@ async function doLogin() {
     localStorage.setItem('exalyte_token', data.token);
     localStorage.setItem('exalyte_user', JSON.stringify(data.user));
     window.location.href = data.user.is_admin ? 'admin.html' : 'dashboard.html';
-  } else {
-    errEl.textContent = data.error || 'Incorrect email or password.';
-    errEl.classList.add('show');
-  }
+  } else { errEl.textContent = data.error || 'Login failed'; errEl.classList.add('show'); }
 }
-
 async function doSignup() {
-  const name  = document.getElementById('signupName').value.trim();
+  const name = document.getElementById('signupName').value.trim();
   const email = document.getElementById('signupEmail').value.trim();
-  const pass  = document.getElementById('signupPass').value;
+  const pass = document.getElementById('signupPass').value;
   const errEl = document.getElementById('signupError');
   errEl.classList.remove('show');
   if (!name || !email || !pass) { errEl.textContent = 'Please fill in all fields.'; errEl.classList.add('show'); return; }
@@ -1737,24 +1082,34 @@ async function doSignup() {
     localStorage.setItem('exalyte_token', data.token);
     localStorage.setItem('exalyte_user', JSON.stringify(data.user));
     window.location.href = 'dashboard.html';
-  } else {
-    errEl.textContent = data.error || 'Could not create account. Please try again.';
-    errEl.classList.add('show');
-  }
+  } else { errEl.textContent = data.error || 'Signup failed'; errEl.classList.add('show'); }
 }
-
 function updateAuthUI() {
   const user = getUser();
-  const actionsEl     = document.getElementById('headerActions');
-  const userMenuEl    = document.getElementById('userMenuHeader');
+  const actions = document.getElementById('headerActions');
+  const userMenu = document.getElementById('userMenuHeader');
   if (user) {
-    actionsEl.style.display  = 'none';
-    userMenuEl.style.display = 'flex';
-    document.getElementById('headerName').textContent   = user.name || 'Student';
+    actions.style.display = 'none';
+    userMenu.style.display = 'flex';
+    document.getElementById('headerName').textContent = user.name || 'Student';
     document.getElementById('headerAvatar').textContent = (user.name || 'S')[0].toUpperCase();
   }
 }
 
+// Scroll to hide/show header
+let lastScroll = 0;
+const header = document.getElementById('mainHeader');
+window.addEventListener('scroll', () => {
+  const currentScroll = window.pageYOffset;
+  if (currentScroll > lastScroll && currentScroll > 100) {
+    header.classList.add('hidden');
+  } else {
+    header.classList.remove('hidden');
+  }
+  lastScroll = currentScroll;
+});
+
+// Mobile drawer
 document.getElementById('hamburger').addEventListener('click', () => {
   document.getElementById('mobileDrawer').classList.add('open');
   document.getElementById('drawerOverlay').classList.add('open');
@@ -1766,43 +1121,25 @@ function closeDrawer() {
 document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
 document.getElementById('drawerClose').addEventListener('click', closeDrawer);
 
-let totalSeconds = 47 * 60 + 23;
-function updateTimer() {
-  if (totalSeconds <= 0) return;
-  totalSeconds--;
-  const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-  const s = (totalSeconds % 60).toString().padStart(2, '0');
-  const el = document.getElementById('timerDisplay');
-  if (el) el.textContent = m + ':' + s;
-}
-setInterval(updateTimer, 1000);
+// Timer
+let seconds = 47 * 60 + 23;
+setInterval(() => { if (seconds > 0) { seconds--; const m = Math.floor(seconds / 60); const s = seconds % 60; document.getElementById('timerDisplay').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; } }, 1000);
+function selectOption(el) { document.querySelectorAll('.option').forEach(o => o.classList.remove('selected')); el.classList.add('selected'); }
 
-function selectOption(el, idx) {
-  document.querySelectorAll('#optionsList .option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-}
-
+// Progress bars
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      entry.target.querySelectorAll('.prog-fill').forEach(bar => {
-        const target = bar.getAttribute('data-target');
-        bar.style.width = target + '%';
-      });
+      entry.target.querySelectorAll('.prog-fill').forEach(bar => { bar.style.width = bar.dataset.target + '%'; });
       observer.unobserve(entry.target);
     }
   });
 }, { threshold: 0.3 });
-const progressSection = document.getElementById('progressBars');
-if (progressSection) observer.observe(progressSection);
+const progSection = document.getElementById('progressBars');
+if (progSection) observer.observe(progSection);
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeAuth();
-});
-
-if (getUser() && getToken()) {
-  window.location.href = getUser().is_admin ? 'admin.html' : 'dashboard.html';
-}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuth(); });
+if (getUser() && getToken()) { window.location.href = getUser().is_admin ? 'admin.html' : 'dashboard.html'; }
 updateAuthUI();
 </script>
 </body>
