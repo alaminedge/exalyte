@@ -21,12 +21,10 @@
   --accent-h: #6e6ee8;
   --accent-d: #4747b8;
   --muted:    #8b8bae;
-  --muted2:   #6363868c;
   --text:     #c8c8e8;
   --bright:   #f0f0ff;
   --success:  #22c55e;
   --error:    #ef4444;
-  --card-bg:  rgba(14,14,28,0.8);
 }
 
 html { scroll-behavior: smooth; }
@@ -67,25 +65,25 @@ body::before {
   bottom: 10%; right: -100px;
 }
 
-/* Header that hides on scroll down, shows on scroll up */
+/* ===== PERFECT HEADER ===== */
 header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 200;
-  height: 52px;
+  height: 64px;
   background: rgba(8, 8, 16, 0.92);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 40px;
+  padding: 0 32px;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translateY(0);
 }
+
 header.hidden {
   transform: translateY(-100%);
 }
@@ -108,9 +106,9 @@ header.hidden {
 .logo-text {
   font-family: 'Sora', sans-serif;
   font-weight: 800;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, var(--bright) 0%, var(--accent-h) 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #a0a0ff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -119,19 +117,27 @@ header.hidden {
 nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 4px;
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 nav a {
   color: var(--muted);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 8px;
-  transition: all 0.15s;
+  padding: 7px 18px;
+  border-radius: 30px;
+  transition: all 0.2s ease;
 }
-nav a:hover { color: var(--bright); background: var(--surface2); }
+
+nav a:hover {
+  color: var(--bright);
+  background: rgba(255, 255, 255, 0.08);
+}
 
 .header-actions {
   display: flex;
@@ -142,21 +148,26 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
 
 .btn-ghost-sm {
   padding: 8px 20px;
-  border-radius: 8px;
-  border: 1px solid var(--border2);
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   background: transparent;
   color: var(--text);
   font-family: 'DM Sans', sans-serif;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s ease;
 }
-.btn-ghost-sm:hover { border-color: var(--accent); color: var(--bright); background: rgba(91,91,214,0.05); }
+
+.btn-ghost-sm:hover {
+  border-color: var(--accent);
+  color: var(--bright);
+  background: rgba(91, 91, 214, 0.08);
+}
 
 .btn-primary-sm {
   padding: 8px 20px;
-  border-radius: 8px;
+  border-radius: 40px;
   border: none;
   background: var(--accent);
   color: #fff;
@@ -164,9 +175,13 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s ease;
 }
-.btn-primary-sm:hover { background: var(--accent-h); transform: translateY(-1px); }
+
+.btn-primary-sm:hover {
+  background: var(--accent-h);
+  transform: translateY(-1px);
+}
 
 .hamburger {
   display: none;
@@ -175,12 +190,18 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
   cursor: pointer;
   color: var(--text);
   padding: 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.hamburger:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .hero {
   position: relative;
   z-index: 1;
-  min-height: calc(100vh - 68px);
+  min-height: calc(100vh - 64px);
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
@@ -188,7 +209,7 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
   max-width: 1160px;
   margin: 0 auto;
   padding: 80px 40px;
-  padding-top: 100px;
+  margin-top: 64px;
 }
 
 .hero-eyebrow {
@@ -251,7 +272,7 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
   align-items: center;
   gap: 8px;
   padding: 12px 28px;
-  border-radius: 10px;
+  border-radius: 40px;
   border: none;
   background: var(--accent);
   color: #fff;
@@ -259,11 +280,11 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
   font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s ease;
 }
 .btn-primary:hover {
   background: var(--accent-h);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(91,91,214,0.35);
 }
 
@@ -272,15 +293,15 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
   align-items: center;
   gap: 8px;
   padding: 12px 28px;
-  border-radius: 10px;
-  border: 1px solid var(--border2);
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   background: transparent;
   color: var(--text);
   font-family: 'DM Sans', sans-serif;
   font-size: 0.92rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s ease;
 }
 .btn-ghost:hover { border-color: var(--accent); color: var(--bright); background: rgba(91,91,214,0.05); }
 
@@ -322,10 +343,9 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
 .exam-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 32px 80px rgba(0,0,0,0.5);
-  position: relative;
 }
 
 .exam-card-header {
@@ -406,7 +426,7 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
   align-items: center;
   gap: 12px;
   padding: 11px 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   cursor: pointer;
   transition: all 0.15s;
@@ -460,7 +480,7 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
   align-items: center;
   gap: 6px;
   padding: 7px 16px;
-  border-radius: 8px;
+  border-radius: 40px;
   border: none;
   background: var(--accent);
   color: #fff;
@@ -473,7 +493,7 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
   position: absolute;
   background: var(--surface2);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 12px 16px;
   backdrop-filter: blur(10px);
   box-shadow: 0 8px 32px rgba(0,0,0,0.4);
@@ -569,20 +589,21 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
   gap: 1px;
   background: var(--border);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 24px;
   overflow: hidden;
 }
 
 .feat-cell {
   background: var(--surface);
   padding: 36px 32px;
+  transition: background 0.2s;
 }
 .feat-cell:hover { background: var(--surface2); }
 .feat-cell.wide { grid-column: span 2; }
 
 .feat-icon-wrap {
   width: 40px; height: 40px;
-  border-radius: 10px;
+  border-radius: 12px;
   background: rgba(91,91,214,0.1);
   border: 1px solid rgba(91,91,214,0.15);
   display: flex;
@@ -636,7 +657,7 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
 .step-item:last-child { padding-bottom: 0; }
 .step-num {
   width: 36px; height: 36px;
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--surface3);
   border: 1px solid var(--border2);
   display: flex;
@@ -654,7 +675,7 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
 .score-visual {
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: 24px;
   padding: 28px;
 }
 .score-header { display: flex; justify-content: space-between; margin-bottom: 28px; }
@@ -665,7 +686,7 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
 .score-total { font-size: 1.5rem; color: var(--muted); }
 .score-pct { font-size: 0.8rem; color: var(--success); margin-top: 6px; }
 .score-breakdown { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.breakdown-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
+.breakdown-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; }
 .breakdown-val { font-weight: 700; font-size: 1.1rem; color: var(--bright); }
 .breakdown-lbl { font-size: 0.68rem; color: var(--muted); }
 
@@ -681,7 +702,7 @@ nav a:hover { color: var(--bright); background: var(--surface2); }
 .cta-inner {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 24px;
+  border-radius: 32px;
   padding: 72px 40px;
   position: relative;
   overflow: hidden;
@@ -749,7 +770,7 @@ footer {
 .modal {
   background: var(--surface);
   border: 1px solid var(--border2);
-  border-radius: 24px;
+  border-radius: 32px;
   width: 100%;
   max-width: 400px;
   padding: 36px 32px;
@@ -778,7 +799,7 @@ footer {
   padding: 11px 14px;
   background: var(--surface2);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   color: var(--bright);
   font-size: 0.88rem;
   outline: none;
@@ -789,7 +810,7 @@ footer {
 .btn-form {
   width: 100%;
   padding: 12px;
-  border-radius: 10px;
+  border-radius: 40px;
   border: none;
   background: var(--accent);
   color: #fff;
@@ -853,13 +874,16 @@ footer {
   text-decoration: none;
   font-size: 0.95rem;
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 .drawer-link:hover { background: var(--surface2); }
 .drawer-divider { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
 .drawer-actions { margin-top: auto; display: flex; flex-direction: column; gap: 12px; padding-top: 24px; }
 
 @media (max-width: 900px) {
+  header { padding: 0 20px; }
+  nav, .header-actions { display: none; }
+  .hamburger { display: block; }
   .hero { grid-template-columns: 1fr; padding: 60px 24px; text-align: center; }
   .hero-desc { margin-left: auto; margin-right: auto; }
   .hero-actions { justify-content: center; }
@@ -870,10 +894,6 @@ footer {
   .steps-inner { grid-template-columns: 1fr; gap: 48px; }
   .footer-inner { grid-template-columns: 1fr 1fr; }
   .footer-brand { grid-column: span 2; }
-  header { padding: 0 20px; }
-  nav { display: none; }
-  .hamburger { display: block; }
-  .header-actions { display: none; }
   .metrics-inner { grid-template-columns: repeat(2, 1fr); }
   .metric-item:nth-child(2) { border-right: none; }
   .metric-item:nth-child(3) { border-top: 1px solid var(--border); border-right: 1px solid var(--border); }
@@ -899,15 +919,7 @@ footer {
 
 <header id="mainHeader">
   <a href="/" class="logo">
-    <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-    <div class="logo-fallback" style="display:none">
-      <svg width="16" height="16" viewBox="0 0 28 28" fill="none">
-        <rect x="1.5" y="1.5" width="25" height="25" rx="7" fill="#0c0c16" stroke="#1e1e32" stroke-width="1.2"/>
-        <path d="M9 18l5-11 5 11" stroke="#6366f1" stroke-width="2.2"/>
-        <line x1="11" y1="14" x2="17" y2="14" stroke="#6366f1" stroke-width="1.5"/>
-        <circle cx="14" cy="21" r="1.3" fill="#818cf8"/>
-      </svg>
-    </div>
+    <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
     <span class="logo-text">Exalyte</span>
   </a>
   <nav>
@@ -1007,10 +1019,11 @@ footer {
   <p class="section-sub">From timed live exams to granular analytics — built to mirror real exam conditions without compromise.</p>
   <div class="features-grid">
     <div class="feat-cell"><div class="feat-icon-wrap"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="feat-title">Live Timed Exams</div><p class="feat-desc">Real exam conditions with a precision countdown timer, question auto-lock, and enforced submission at time-up.</p></div>
-    <div class="feat-cell"><div class="feat-icon-wrap"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="feat-title">Practice Mode</div><p class="feat-desc">Retry any question set without time pressure. Review detailed explanations and identify knowledge gaps at your own pace.</p></div>
-    <div class="feat-cell"><div class="feat-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="feat-title">Secure Environment</div><p class="feat-desc">Token-authenticated sessions, attempt logging, and anti-tab-switch detection to preserve exam integrity.</p></div>
-    <div class="feat-cell wide"><div class="feat-icon-wrap"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg></div><div class="feat-title">Performance Analytics</div><p class="feat-desc">Understand exactly where marks are lost. Track percentile rank across every exam.</p><div class="feat-visual" id="progressBars"><div class="prog-row"><span class="prog-label">Algebra</span><div class="prog-track"><div class="prog-fill" data-target="88"></div></div><span class="prog-pct">88%</span></div><div class="prog-row"><span class="prog-label">Statistics</span><div class="prog-track"><div class="prog-fill" data-target="72"></div></div><span class="prog-pct">72%</span></div><div class="prog-row"><span class="prog-label">Geometry</span><div class="prog-track"><div class="prog-fill" data-target="61"></div></div><span class="prog-pct">61%</span></div><div class="prog-row"><span class="prog-label">Calculus</span><div class="prog-track"><div class="prog-fill" data-target="94"></div></div><span class="prog-pct">94%</span></div></div></div>
-    <div class="feat-cell"><div class="feat-icon-wrap"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div class="feat-title">Instant Results</div><p class="feat-desc">Scores, rankings, and topic breakdowns are generated the moment you submit.</p></div>
+    <div class="feat-cell"><div class="feat-icon-wrap"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="feat-title">Practice Mode</div><p class="feat-desc">Retry any question set without time pressure. Review detailed explanations and identify knowledge gaps.</p></div>
+    <div class="feat-cell"><div class="feat-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="feat-title">Secure Environment</div><p class="feat-desc">Token-authenticated sessions, attempt logging, and anti-tab-switch detection.</p></div>
+    <div class="feat-cell wide"><div class="feat-icon-wrap"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg></div><div class="feat-title">Performance Analytics</div><p class="feat-desc">Track percentile rank across every exam, subject, and topic.</p>
+      <div class="feat-visual" id="progressBars"><div class="prog-row"><span class="prog-label">Algebra</span><div class="prog-track"><div class="prog-fill" data-target="88"></div></div><span class="prog-pct">88%</span></div><div class="prog-row"><span class="prog-label">Statistics</span><div class="prog-track"><div class="prog-fill" data-target="72"></div></div><span class="prog-pct">72%</span></div><div class="prog-row"><span class="prog-label">Geometry</span><div class="prog-track"><div class="prog-fill" data-target="61"></div></div><span class="prog-pct">61%</span></div><div class="prog-row"><span class="prog-label">Calculus</span><div class="prog-track"><div class="prog-fill" data-target="94"></div></div><span class="prog-pct">94%</span></div></div></div>
+    <div class="feat-cell"><div class="feat-icon-wrap"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div class="feat-title">Instant Results</div><p class="feat-desc">Scores, rankings, and topic breakdowns generated the moment you submit.</p></div>
   </div>
 </section>
 
@@ -1096,7 +1109,6 @@ function updateAuthUI() {
   }
 }
 
-// Scroll to hide/show header
 let lastScroll = 0;
 const header = document.getElementById('mainHeader');
 window.addEventListener('scroll', () => {
@@ -1109,7 +1121,6 @@ window.addEventListener('scroll', () => {
   lastScroll = currentScroll;
 });
 
-// Mobile drawer
 document.getElementById('hamburger').addEventListener('click', () => {
   document.getElementById('mobileDrawer').classList.add('open');
   document.getElementById('drawerOverlay').classList.add('open');
@@ -1121,12 +1132,10 @@ function closeDrawer() {
 document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
 document.getElementById('drawerClose').addEventListener('click', closeDrawer);
 
-// Timer
 let seconds = 47 * 60 + 23;
 setInterval(() => { if (seconds > 0) { seconds--; const m = Math.floor(seconds / 60); const s = seconds % 60; document.getElementById('timerDisplay').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; } }, 1000);
 function selectOption(el) { document.querySelectorAll('.option').forEach(o => o.classList.remove('selected')); el.classList.add('selected'); }
 
-// Progress bars
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
