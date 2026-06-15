@@ -262,11 +262,6 @@ header {
   overflow-y: auto;
 }
 
-.sidebar-logo {
-  padding: 24px 20px;
-  border-bottom: 1px solid var(--border);
-}
-
 .sidebar-nav {
   padding: 20px 12px;
 }
@@ -568,6 +563,16 @@ tr:last-child td {
   color: var(--accent-h);
 }
 
+.badge-exam {
+  background: rgba(91, 91, 214, 0.1);
+  color: var(--accent-h);
+}
+
+.badge-batch {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning);
+}
+
 /* Resource Management */
 .resource-list {
   margin-bottom: 20px;
@@ -621,47 +626,72 @@ tr:last-child td {
   font-size: 0.85rem;
 }
 
-/* JSON Format Box */
-.json-format {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-  font-family: monospace;
+/* Premium Tags in Users Table */
+.premium-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
   font-size: 0.7rem;
-  line-height: 1.8;
-  overflow-x: auto;
+  font-weight: 600;
+  margin: 2px 4px 2px 0;
+}
+
+.premium-tag-exam {
+  background: rgba(91, 91, 214, 0.15);
+  color: var(--accent-h);
+  border: 1px solid rgba(91, 91, 214, 0.3);
+}
+
+.premium-tag-batch {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.premium-tag-account {
+  background: rgba(168, 85, 247, 0.15);
+  color: var(--premium);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.revoke-premium {
+  background: none;
+  border: none;
+  color: currentColor;
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 0 4px;
+  opacity: 0.7;
+}
+
+.revoke-premium:hover {
+  opacity: 1;
+}
+
+/* Resource Type Selector */
+.resource-type-selector {
+  display: flex;
+  gap: 12px;
   margin-bottom: 16px;
 }
 
-.json-key {
+.resource-type-btn {
+  padding: 8px 20px;
+  border-radius: 40px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.resource-type-btn.active {
+  background: rgba(91, 91, 214, 0.15);
+  border-color: var(--accent);
   color: var(--accent-h);
-}
-
-.json-string {
-  color: var(--success);
-}
-
-/* Alert */
-.alert {
-  padding: 12px 16px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  display: none;
-}
-
-.alert-success {
-  display: block;
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid rgba(34, 197, 94, 0.2);
-  color: var(--success);
-}
-
-.alert-error {
-  display: block;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: var(--error);
 }
 
 /* Modal */
@@ -883,6 +913,7 @@ tr:last-child td {
   </div>
   <div class="drawer-link active" data-section="dashboard" onclick="switchSection('dashboard')">Dashboard</div>
   <div class="drawer-link" data-section="exams" onclick="switchSection('exams')">Exams</div>
+  <div class="drawer-link" data-section="batches" onclick="switchSection('batches')">Batches</div>
   <div class="drawer-link" data-section="questions" onclick="switchSection('questions')">Questions</div>
   <div class="drawer-link" data-section="resources" onclick="switchSection('resources')">Resources</div>
   <div class="drawer-link" data-section="users" onclick="switchSection('users')">Users</div>
@@ -903,6 +934,7 @@ tr:last-child td {
       <div class="nav-section">
         <div class="nav-section-label">Content</div>
         <button class="nav-item" onclick="switchSection('exams')"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Exams</button>
+        <button class="nav-item" onclick="switchSection('batches')"><svg viewBox="0 0 24 24"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg>Batches</button>
         <button class="nav-item" onclick="switchSection('questions')"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Questions</button>
         <button class="nav-item" onclick="switchSection('resources')"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Resources</button>
       </div>
@@ -919,9 +951,9 @@ tr:last-child td {
     <div class="admin-section active" id="section-dashboard">
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg></div><div class="stat-value" id="statExams">—</div><div class="stat-label">Total Exams</div></div>
+        <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg></div><div class="stat-value" id="statBatches">—</div><div class="stat-label">Batches</div></div>
         <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="stat-value" id="statUsers">—</div><div class="stat-label">Total Users</div></div>
         <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg></div><div class="stat-value" id="statSubmissions">—</div><div class="stat-label">Submissions</div></div>
-        <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="stat-value" id="statResources">—</div><div class="stat-label">Resources</div></div>
       </div>
       <div class="card"><div class="card-header"><span class="card-title">Recent Submissions</span></div><div class="card-body"><div class="table-container" id="recentTable"><div class="skeleton" style="height:50px"></div></div></div></div>
     </div>
@@ -931,12 +963,16 @@ tr:last-child td {
       <div class="card"><div class="card-header"><span class="card-title">All Examinations</span><button class="btn btn-primary btn-sm" onclick="openExamModal()">+ New Exam</button></div><div class="card-body"><div class="table-container" id="examsTable"><div class="skeleton" style="height:50px"></div></div></div></div>
     </div>
 
+    <!-- Batches Section -->
+    <div class="admin-section" id="section-batches">
+      <div class="card"><div class="card-header"><span class="card-title">Batches / Courses</span><button class="btn btn-primary btn-sm" onclick="openBatchModal()">+ New Batch</button></div><div class="card-body"><div class="table-container" id="batchesTable"><div class="skeleton" style="height:50px"></div></div></div></div>
+    </div>
+
     <!-- Questions Section -->
     <div class="admin-section" id="section-questions">
       <div class="card"><div class="card-header"><span class="card-title">Upload Questions (JSON)</span></div><div class="card-body">
         <div class="form-group"><label class="form-label">Select Exam</label><select class="form-select" id="questionExamSelect" onchange="loadQuestionsForExam()"></select></div>
-        <div class="json-format"><span class="json-key">[</span><br>  <span class="json-key">{</span><br>    <span class="json-key">"question"</span>: <span class="json-string">"What is 2+2?"</span>,<br>    <span class="json-key">"option_a"</span>: <span class="json-string">"3"</span>,<br>    <span class="json-key">"option_b"</span>: <span class="json-string">"4"</span>,<br>    <span class="json-key">"option_c"</span>: <span class="json-string">"5"</span>,<br>    <span class="json-key">"option_d"</span>: <span class="json-string">"6"</span>,<br>    <span class="json-key">"answer"</span>: <span class="json-string">"B"</span>,<br>    <span class="json-key">"image_url"</span>: <span class="json-string">""</span>,<br>    <span class="json-key">"explanation"</span>: <span class="json-string">"Basic addition"</span><br>  <span class="json-key">}</span><br><span class="json-key">]</span></div>
-        <div class="form-group"><label class="form-label">JSON Content</label><textarea class="form-textarea" id="questionsJson" rows="10" placeholder='[{"question":"What is 2+2?","option_a":"3","option_b":"4","option_c":"5","option_d":"6","answer":"B","image_url":"","explanation":"Basic addition"}]'></textarea></div>
+        <div class="form-group"><label class="form-label">JSON Format</label><textarea class="form-textarea" id="questionsJson" rows="10" placeholder='[{"question":"What is 2+2?","option_a":"3","option_b":"4","option_c":"5","option_d":"6","answer":"B","image_url":"","explanation":"Basic addition"}]'></textarea></div>
         <div class="form-group"><label class="toggle-label" style="display:flex;align-items:center;gap:10px"><input type="checkbox" id="replaceQuestions"> Replace existing questions</label></div>
         <button class="btn btn-primary" onclick="uploadQuestions()">Upload Questions</button>
         <div id="questionUploadResult" style="margin-top:16px"></div>
@@ -946,8 +982,17 @@ tr:last-child td {
 
     <!-- Resources Section -->
     <div class="admin-section" id="section-resources">
-      <div class="card"><div class="card-header"><span class="card-title">Manage Exam Resources</span></div><div class="card-body">
-        <div class="form-group"><label class="form-label">Select Exam</label><select class="form-select" id="resourceExamSelect" onchange="loadResourcesForExam()"></select></div>
+      <div class="card"><div class="card-header"><span class="card-title">Manage Resources</span></div><div class="card-body">
+        <div class="resource-type-selector">
+          <button class="resource-type-btn active" data-type="exam" onclick="setResourceType('exam')">Exam Resources</button>
+          <button class="resource-type-btn" data-type="batch" onclick="setResourceType('batch')">Batch Resources</button>
+        </div>
+        <div id="resourceExamGroup">
+          <div class="form-group"><label class="form-label">Select Exam</label><select class="form-select" id="resourceExamSelect" onchange="loadResourcesForTarget()"></select></div>
+        </div>
+        <div id="resourceBatchGroup" style="display:none">
+          <div class="form-group"><label class="form-label">Select Batch</label><select class="form-select" id="resourceBatchSelect" onchange="loadResourcesForTarget()"></select></div>
+        </div>
         <div id="resourcesList"></div>
         <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border)">
           <h3 style="font-size:0.85rem; margin-bottom: 16px">Add New Resource</h3>
@@ -991,19 +1036,39 @@ tr:last-child td {
   <div class="form-grid">
     <div class="form-group"><label class="form-label">Time Limit (min)</label><input class="form-input" type="number" id="examTime" value="30"></div>
     <div class="form-group"><label class="form-label">Negative Marking</label><input class="form-input" type="number" id="examNeg" value="0" step="0.25"></div>
-    <div class="form-group"><label class="form-label">Batch (optional)</label><input class="form-input" id="examBatch" placeholder="Batch name"></div>
+    <div class="form-group"><label class="form-label">Batch</label><select class="form-select" id="examBatchSelect"></select></div>
     <div class="form-group"><label class="form-label">Live Deadline (hours, 0=none)</label><input class="form-input" type="number" id="examLive" value="0"></div>
   </div>
   <div class="form-group"><label class="toggle-label" style="display:flex;align-items:center;gap:10px"><input type="checkbox" id="examPremium"> Premium Exam</label></div>
   <div class="form-group"><label class="toggle-label" style="display:flex;align-items:center;gap:10px"><input type="checkbox" id="examPractice" checked> Allow Practice Mode</label></div>
 </div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('examModal')">Cancel</button><button class="btn btn-primary" onclick="saveExam()">Save Exam</button></div></div></div>
 
+<!-- Batch Modal -->
+<div class="modal-overlay" id="batchModal"><div class="modal"><div class="modal-header"><span class="modal-title">New Batch / Course</span><button class="modal-close" onclick="closeModal('batchModal')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg></button></div><div class="modal-body">
+  <div class="form-group"><label class="form-label">Batch Name</label><input class="form-input" id="batchName" placeholder="e.g., JEE Advanced 2026"></div>
+  <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="batchDesc" rows="2" placeholder="Batch description"></textarea></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('batchModal')">Cancel</button><button class="btn btn-primary" onclick="saveBatch()">Save Batch</button></div></div></div>
+
 <!-- Grant Premium Modal -->
 <div class="modal-overlay" id="grantModal"><div class="modal"><div class="modal-header"><span class="modal-title">Grant Premium Access</span><button class="modal-close" onclick="closeModal('grantModal')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg></button></div><div class="modal-body">
   <div class="form-group"><label class="form-label">User</label><div id="grantUserDisplay" style="padding:10px 14px;background:var(--surface2);border-radius:12px"></div></div>
-  <div class="form-group"><label class="form-label">Scope</label><select class="form-select" id="grantScope" onchange="toggleGrantScope()"><option value="exam">Single Exam</option><option value="account">Account-Wide</option></select></div>
-  <div class="form-group" id="grantExamGroup"><label class="form-label">Exam</label><select class="form-select" id="grantExam"></select></div>
-  <div class="form-group"><label class="form-label">Duration</label><select class="form-select" id="grantDuration"><option value="">Permanent</option><option value="24">24 Hours</option><option value="168">7 Days</option><option value="720">30 Days</option></select></div>
+  <div class="form-group"><label class="form-label">Scope</label>
+    <select class="form-select" id="grantScope" onchange="toggleGrantScope()">
+      <option value="exam">Single Exam</option>
+      <option value="batch">Whole Batch</option>
+      <option value="account">Account-Wide</option>
+    </select>
+  </div>
+  <div class="form-group" id="grantExamGroup"><label class="form-label">Select Exam</label><select class="form-select" id="grantExam"></select></div>
+  <div class="form-group" id="grantBatchGroup" style="display:none"><label class="form-label">Select Batch</label><select class="form-select" id="grantBatch"></select></div>
+  <div class="form-group"><label class="form-label">Duration</label>
+    <select class="form-select" id="grantDuration">
+      <option value="">Permanent</option>
+      <option value="24">24 Hours</option>
+      <option value="168">7 Days</option>
+      <option value="720">30 Days</option>
+    </select>
+  </div>
 </div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('grantModal')">Cancel</button><button class="btn btn-primary" onclick="submitGrant()">Grant Access</button></div></div></div>
 
 <script>
@@ -1023,7 +1088,8 @@ async function apiFetch(path, opts = {}) {
   return { ok: res.ok, data: await res.json().catch(() => ({})) };
 }
 
-let allExams = [], allUsers = [], editingExamId = null, grantUserId = null;
+let allExams = [], allBatches = [], allUsers = [], editingExamId = null, editingBatchId = null, grantUserId = null;
+let currentResourceType = 'exam';
 
 async function loadDashboard() {
   const user = getUser();
@@ -1031,26 +1097,22 @@ async function loadDashboard() {
   document.getElementById('userName').textContent = user.name || 'Admin';
   document.getElementById('userAvatar').textContent = (user.name || 'A')[0].toUpperCase();
 
-  const [exams, users, results] = await Promise.all([
+  const [exams, batches, users, results] = await Promise.all([
     apiFetch('/exams/'),
+    apiFetch('/batches'),
     apiFetch('/admin/users'),
     apiFetch('/admin/results')
   ]);
   
   const examList = exams.data || [];
+  const batchList = batches.data || [];
   const userList = users.data || [];
   const resultList = results.data || [];
   
-  let totalResources = 0;
-  for (const exam of examList) {
-    const { data: resources } = await apiFetch(`/admin/exams/${exam.id}/resources`);
-    totalResources += (resources || []).length;
-  }
-  
   document.getElementById('statExams').textContent = examList.length;
+  document.getElementById('statBatches').textContent = batchList.length;
   document.getElementById('statUsers').textContent = userList.length;
   document.getElementById('statSubmissions').textContent = resultList.length;
-  document.getElementById('statResources').textContent = totalResources;
   
   const recent = resultList.slice(0, 10);
   document.getElementById('recentTable').innerHTML = `<table><thead><tr><th>User</th><th>Exam</th><th>Score</th><th>Date</th></tr></thead><tbody>${recent.map(r => `<tr><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:0.7rem;color:var(--muted)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td>${formatDate(r.submitted_at)}</td></tr>`).join('') || '<tr><td colspan="4">No submissions yet</td></tr>'}</tbody></table>`;
@@ -1059,15 +1121,30 @@ async function loadDashboard() {
 async function loadExams() {
   const { data } = await apiFetch('/exams/');
   allExams = data || [];
-  document.getElementById('examsTable').innerHTML = `<table><thead><tr><th>Name</th><th>Type</th><th>Questions</th><th>Resources</th><th>Actions</th></tr></thead><tbody>${allExams.map(e => `<tr><td><strong>${esc(e.name)}</strong>${e.description ? `<br><span style="font-size:0.7rem;color:var(--muted)">${esc(e.description)}</span>` : ''}</td><td><span class="badge ${e.is_premium ? 'badge-premium' : 'badge-free'}">${e.is_premium ? 'Premium' : 'Free'}</span></td><td>${e.question_count || 0}</td><td><button class="btn btn-secondary btn-sm" onclick="switchSection('resources'); document.getElementById('resourceExamSelect').value=${e.id}; loadResourcesForExam()">Manage</button></td><td><button class="btn btn-secondary btn-sm" onclick="openExamModal(${e.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id})">Delete</button></td></tr>`).join('') || '<tr><td colspan="5">No exams yet</td></tr>'}</tbody></table>`;
+  document.getElementById('examsTable').innerHTML = `<table><thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Questions</th><th>Resources</th><th>Actions</th></tr></thead><tbody>${allExams.map(e => `<tr><td><strong>${esc(e.name)}</strong>${e.description ? `<br><span style="font-size:0.7rem;color:var(--muted)">${esc(e.description)}</span>` : ''}</td><td>${esc(e.batch_name) || '—'}</td><td><span class="badge ${e.is_premium ? 'badge-premium' : 'badge-free'}">${e.is_premium ? 'Premium' : 'Free'}</span></td><td>${e.question_count || 0}</td><td><button class="btn btn-secondary btn-sm" onclick="switchSection('resources'); document.getElementById('resourceExamSelect').value=${e.id}; setResourceType('exam'); loadResourcesForTarget()">Manage</button></td><td><button class="btn btn-secondary btn-sm" onclick="openExamModal(${e.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id})">Delete</button></td></tr>`).join('') || '<tr><td colspan="6">No exams yet</td></tr>'}</tbody></table>`;
   loadExamSelects();
 }
 
+async function loadBatches() {
+  const { data } = await apiFetch('/batches');
+  allBatches = data || [];
+  document.getElementById('batchesTable').innerHTML = `<table><thead><tr><th>Name</th><th>Description</th><th>Exams</th><th>Resources</th><th>Actions</th></tr></thead><tbody>${allBatches.map(b => `<tr><td><strong>${esc(b.name)}</strong></td><td>${esc(b.description) || '—'}</td><td>${b.exam_count || 0}</td><td><button class="btn btn-secondary btn-sm" onclick="switchSection('resources'); document.getElementById('resourceBatchSelect').value=${b.id}; setResourceType('batch'); loadResourcesForTarget()">Manage</button></td><td><button class="btn btn-secondary btn-sm" onclick="openBatchModal(${b.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteBatch(${b.id})">Delete</button></td></tr>`).join('') || '<tr><td colspan="5">No batches yet</td></tr>'}</tbody></tr>`;
+  loadBatchSelects();
+}
+
 async function loadExamSelects() {
-  const selects = ['questionExamSelect', 'resourceExamSelect', 'grantExam', 'resultFilterExam'];
+  const selects = ['questionExamSelect', 'resourceExamSelect', 'grantExam', 'resultFilterExam', 'examBatchSelect'];
   for (const id of selects) {
     const select = document.getElementById(id);
     if (select) select.innerHTML = `<option value="">Select Exam</option>${allExams.map(e => `<option value="${e.id}">${esc(e.name)}</option>`).join('')}`;
+  }
+}
+
+async function loadBatchSelects() {
+  const selects = ['resourceBatchSelect', 'grantBatch'];
+  for (const id of selects) {
+    const select = document.getElementById(id);
+    if (select) select.innerHTML = `<option value="">Select Batch</option>${allBatches.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('')}`;
   }
 }
 
@@ -1079,7 +1156,7 @@ function openExamModal(id = null) {
   document.getElementById('examDesc').value = exam?.description || '';
   document.getElementById('examTime').value = exam?.time_limit || 30;
   document.getElementById('examNeg').value = exam?.negative_marking || 0;
-  document.getElementById('examBatch').value = exam?.batch_name || '';
+  document.getElementById('examBatchSelect').value = exam?.batch_id || '';
   document.getElementById('examLive').value = exam?.live_deadline_hours || 0;
   document.getElementById('examPremium').checked = exam?.is_premium || false;
   document.getElementById('examPractice').checked = exam?.allow_practice !== false;
@@ -1092,7 +1169,7 @@ async function saveExam() {
     description: document.getElementById('examDesc').value,
     time_limit: parseInt(document.getElementById('examTime').value) || 30,
     negative_marking: parseFloat(document.getElementById('examNeg').value) || 0,
-    batch_name: document.getElementById('examBatch').value || null,
+    batch_id: document.getElementById('examBatchSelect').value || null,
     live_deadline_hours: parseInt(document.getElementById('examLive').value) || 0,
     is_premium: document.getElementById('examPremium').checked ? 1 : 0,
     allow_practice: document.getElementById('examPractice').checked ? 1 : 0
@@ -1108,6 +1185,35 @@ async function saveExam() {
 async function deleteExam(id) {
   if (!confirm('Delete this exam and all its data?')) return;
   await apiFetch(`/admin/exams/${id}`, { method: 'DELETE' });
+  loadExams();
+  loadDashboard();
+}
+
+function openBatchModal(id = null) {
+  editingBatchId = id;
+  const batch = id ? allBatches.find(b => b.id == id) : null;
+  document.getElementById('batchName').value = batch?.name || '';
+  document.getElementById('batchDesc').value = batch?.description || '';
+  openModal('batchModal');
+}
+
+async function saveBatch() {
+  const body = {
+    name: document.getElementById('batchName').value.trim(),
+    description: document.getElementById('batchDesc').value
+  };
+  const url = editingBatchId ? `/admin/batches/${editingBatchId}` : '/admin/batches';
+  const method = editingBatchId ? 'PUT' : 'POST';
+  await apiFetch(url, { method, body: JSON.stringify(body) });
+  closeModal('batchModal');
+  loadBatches();
+  loadDashboard();
+}
+
+async function deleteBatch(id) {
+  if (!confirm('Delete this batch? All exams will be unassigned.')) return;
+  await apiFetch(`/admin/batches/${id}`, { method: 'DELETE' });
+  loadBatches();
   loadExams();
   loadDashboard();
 }
@@ -1142,18 +1248,50 @@ async function deleteAllQuestions() {
 }
 
 // ===== RESOURCE MANAGEMENT =====
-let currentResourceExamId = null;
+let currentResourceTargetId = null;
 
-async function loadResourcesForExam() {
-  const examId = document.getElementById('resourceExamSelect').value;
-  if (!examId) { document.getElementById('resourcesList').innerHTML = '<div class="resource-empty">Select an exam to manage resources</div>'; return; }
-  currentResourceExamId = parseInt(examId);
-  const { data } = await apiFetch(`/admin/exams/${examId}/resources`);
+function setResourceType(type) {
+  currentResourceType = type;
+  document.querySelectorAll('.resource-type-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelector(`.resource-type-btn[data-type="${type}"]`).classList.add('active');
+  
+  if (type === 'exam') {
+    document.getElementById('resourceExamGroup').style.display = 'block';
+    document.getElementById('resourceBatchGroup').style.display = 'none';
+    loadResourcesForTarget();
+  } else {
+    document.getElementById('resourceExamGroup').style.display = 'none';
+    document.getElementById('resourceBatchGroup').style.display = 'block';
+    loadResourcesForTarget();
+  }
+}
+
+async function loadResourcesForTarget() {
+  let targetId = null;
+  if (currentResourceType === 'exam') {
+    targetId = document.getElementById('resourceExamSelect').value;
+  } else {
+    targetId = document.getElementById('resourceBatchSelect').value;
+  }
+  
+  if (!targetId) {
+    document.getElementById('resourcesList').innerHTML = '<div class="resource-empty">Select an exam/batch to manage resources</div>';
+    return;
+  }
+  
+  currentResourceTargetId = parseInt(targetId);
+  const endpoint = currentResourceType === 'exam' 
+    ? `/admin/exams/${targetId}/resources` 
+    : `/admin/batches/${targetId}/resources`;
+  
+  const { data } = await apiFetch(endpoint);
   const resources = data || [];
+  
   if (!resources.length) {
     document.getElementById('resourcesList').innerHTML = '<div class="resource-empty">No resources added yet. Add your first resource below.</div>';
     return;
   }
+  
   document.getElementById('resourcesList').innerHTML = `<div class="resource-list">${resources.map(r => `
     <div class="resource-item">
       <div class="resource-info">
@@ -1170,50 +1308,95 @@ async function loadResourcesForExam() {
 async function addResource() {
   const title = document.getElementById('newResourceTitle').value.trim();
   const link = document.getElementById('newResourceLink').value.trim();
-  if (!currentResourceExamId || !title || !link) { alert('Select exam and fill title and link'); return; }
-  const { ok, data } = await apiFetch('/admin/resources', {
-    method: 'POST',
-    body: JSON.stringify({ exam_id: currentResourceExamId, title, link })
-  });
+  if (!currentResourceTargetId || !title || !link) { alert('Select target and fill title and link'); return; }
+  
+  const endpoint = currentResourceType === 'exam' ? '/admin/resources' : '/admin/batch-resources';
+  const body = currentResourceType === 'exam' 
+    ? { exam_id: currentResourceTargetId, title, link }
+    : { batch_id: currentResourceTargetId, title, link };
+  
+  const { ok, data } = await apiFetch(endpoint, { method: 'POST', body: JSON.stringify(body) });
   if (ok) {
     document.getElementById('newResourceTitle').value = '';
     document.getElementById('newResourceLink').value = '';
-    loadResourcesForExam();
+    loadResourcesForTarget();
     alert('Resource added successfully!');
   } else { alert(data.error || 'Failed to add resource'); }
 }
 
 async function deleteResource(resourceId) {
   if (!confirm('Delete this resource?')) return;
-  await apiFetch(`/admin/resources/${resourceId}`, { method: 'DELETE' });
-  loadResourcesForExam();
+  const endpoint = currentResourceType === 'exam' ? `/admin/resources/${resourceId}` : `/admin/batch-resources/${resourceId}`;
+  await apiFetch(endpoint, { method: 'DELETE' });
+  loadResourcesForTarget();
 }
 
-// ===== USERS =====
+// ===== USERS with Premium Display =====
 async function loadUsers() {
   const { data } = await apiFetch('/admin/users');
   allUsers = data || [];
-  document.getElementById('usersTable').innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead><tbody>${allUsers.map(u => `<tr><td><strong>${esc(u.name)}</strong></td><td>${esc(u.email)}</td><td><span class="badge ${u.is_admin ? 'badge-admin' : 'badge-free'}">${u.is_admin ? 'Admin' : 'Student'}</span></td><td>${formatDate(u.created_at)}</td><td>${!u.is_admin ? `<button class="btn btn-primary btn-sm" onclick="openGrantModal(${u.id}, '${esc(u.name)}')">Grant Premium</button>` : '—'}</td></tr>`).join('') || '<tr><td colspan="5">No users</td></tr>'}</tbody></table>`;
+  const now = new Date().toISOString();
+  
+  document.getElementById('usersTable').innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Premium Access</th><th>Actions</th></tr></thead><tbody>${allUsers.map(u => {
+    let premiumHtml = '';
+    if (u.premium_grants && u.premium_grants.length) {
+      premiumHtml = u.premium_grants.map(g => {
+        const typeClass = g.grant_scope === 'exam' ? 'premium-tag-exam' : (g.grant_scope === 'batch' ? 'premium-tag-batch' : 'premium-tag-account');
+        const name = g.exam_name || g.batch_name || (g.grant_scope === 'account' ? 'Account Premium' : g.grant_scope);
+        const revokeFunc = g.grant_scope === 'exam' ? `revokeExamPremium(${u.id}, ${g.exam_id})` : (g.grant_scope === 'batch' ? `revokeBatchPremium(${u.id}, ${g.batch_id})` : `revokeAccountPremium(${u.id})`);
+        return `<span class="premium-tag ${typeClass}">${esc(name)}<button class="revoke-premium" onclick="${revokeFunc}" title="Revoke access">✕</button></span>`;
+      }).join('');
+    } else {
+      premiumHtml = '<span style="color:var(--muted);font-size:0.75rem">None</span>';
+    }
+    
+    return `<tr><td><strong>${esc(u.name)}</strong></td><td style="color:var(--muted);font-size:0.8rem">${esc(u.email)}</td><td><span class="badge ${u.is_admin ? 'badge-admin' : 'badge-free'}">${u.is_admin ? 'Admin' : 'Student'}</span></td><td style="max-width:250px">${premiumHtml}</td><td>${!u.is_admin ? `<button class="btn btn-primary btn-sm" onclick="openGrantModal(${u.id}, '${esc(u.name)}')">Grant Premium</button>` : '—'}</td></td>`}).join('') || '<tr><td colspan="5">No users</td></tr>'}</tbody></tr>`;
 }
 
 function openGrantModal(userId, userName) {
   grantUserId = userId;
   document.getElementById('grantUserDisplay').textContent = userName;
   document.getElementById('grantExam').innerHTML = `<option value="">Select Exam</option>${allExams.filter(e => e.is_premium).map(e => `<option value="${e.id}">${esc(e.name)}</option>`).join('')}`;
+  document.getElementById('grantBatch').innerHTML = `<option value="">Select Batch</option>${allBatches.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('')}`;
+  toggleGrantScope();
   openModal('grantModal');
 }
+
 function toggleGrantScope() {
   const scope = document.getElementById('grantScope').value;
   document.getElementById('grantExamGroup').style.display = scope === 'exam' ? 'block' : 'none';
+  document.getElementById('grantBatchGroup').style.display = scope === 'batch' ? 'block' : 'none';
 }
+
 async function submitGrant() {
   const scope = document.getElementById('grantScope').value;
   const duration = document.getElementById('grantDuration').value;
   const body = { user_id: grantUserId, grant_scope: scope, duration_hours: duration ? parseInt(duration) : null };
   if (scope === 'exam') body.exam_id = parseInt(document.getElementById('grantExam').value);
+  if (scope === 'batch') body.batch_id = parseInt(document.getElementById('grantBatch').value);
+  
   await apiFetch('/admin/grant-premium', { method: 'POST', body: JSON.stringify(body) });
   closeModal('grantModal');
+  loadUsers();
   alert('Premium access granted');
+}
+
+async function revokeExamPremium(userId, examId) {
+  if (!confirm('Revoke this exam premium access?')) return;
+  await apiFetch('/admin/revoke-premium', { method: 'DELETE', body: JSON.stringify({ user_id: userId, exam_id: examId }) });
+  loadUsers();
+}
+
+async function revokeBatchPremium(userId, batchId) {
+  if (!confirm('Revoke this batch premium access?')) return;
+  await apiFetch('/admin/revoke-premium', { method: 'DELETE', body: JSON.stringify({ user_id: userId, batch_id: batchId }) });
+  loadUsers();
+}
+
+async function revokeAccountPremium(userId) {
+  if (!confirm('Revoke account-wide premium access?')) return;
+  await apiFetch('/admin/revoke-account-premium', { method: 'DELETE', body: JSON.stringify({ user_id: userId }) });
+  loadUsers();
 }
 
 // ===== RESULTS =====
@@ -1222,7 +1405,7 @@ async function loadResults() {
   const url = examId ? `/admin/results/${examId}` : '/admin/results';
   const { data } = await apiFetch(url);
   const results = data || [];
-  document.getElementById('resultsTable').innerHTML = `<table><thead><tr><th>User</th><th>Exam</th><th>Score</th><th>Percentage</th><th>Date</th></tr></thead><tbody>${results.map(r => `<tr><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:0.7rem;color:var(--muted)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><span style="color:${r.percentage >= 80 ? 'var(--success)' : r.percentage >= 50 ? 'var(--warning)' : 'var(--error)'}">${r.percentage}%</span></td><td>${formatDate(r.submitted_at)}</td></tr>`).join('') || '<tr><td colspan="5">No results</td></tr>'}</tbody></table>`;
+  document.getElementById('resultsTable').innerHTML = `<table><thead><tr><th>User</th><th>Exam</th><th>Score</th><th>Percentage</th><th>Date</th></tr></thead><tbody>${results.map(r => `<tr><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:0.7rem;color:var(--muted)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><span style="color:${r.percentage >= 80 ? 'var(--success)' : r.percentage >= 50 ? 'var(--warning)' : 'var(--error)'}">${r.percentage}%</span></td><td>${formatDate(r.submitted_at)}</td></tr>`).join('') || '<tr><td colspan="5">No results</td></tr>'}</tbody><td>`;
 }
 
 // ===== UTILITIES =====
@@ -1233,10 +1416,12 @@ function switchSection(section) {
   document.getElementById(`section-${section}`).classList.add('active');
   document.querySelector(`.nav-item[onclick="switchSection('${section}')"]`)?.classList.add('active');
   document.querySelector(`.drawer-link[data-section="${section}"]`)?.classList.add('active');
+  
   if (section === 'dashboard') loadDashboard();
   if (section === 'exams') loadExams();
-  if (section === 'questions') loadExamSelects();
-  if (section === 'resources') loadExamSelects();
+  if (section === 'batches') loadBatches();
+  if (section === 'questions') { loadExamSelects(); loadQuestionsForExam(); }
+  if (section === 'resources') { loadExamSelects(); loadBatchSelects(); }
   if (section === 'users') loadUsers();
   if (section === 'results') { loadExamSelects(); loadResults(); }
   if (window.innerWidth <= 900) closeDrawer();
@@ -1259,6 +1444,7 @@ document.getElementById('drawerClose').addEventListener('click', closeDrawer);
 
 loadDashboard();
 loadExams();
+loadBatches();
 loadUsers();
 </script>
 </body>
