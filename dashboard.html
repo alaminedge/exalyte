@@ -105,13 +105,13 @@ header {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .user-menu {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .user-avatar {
@@ -123,7 +123,9 @@ header {
   align-items: center;
   justify-content: center;
   font-weight: 700;
+  font-size: 0.9rem;
   color: #fff;
+  flex-shrink: 0;
 }
 
 .user-name {
@@ -133,7 +135,7 @@ header {
 }
 
 .btn-logout {
-  padding: 7px 18px;
+  padding: 7px 14px;
   border-radius: 40px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   background: transparent;
@@ -142,11 +144,20 @@ header {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .btn-logout:hover {
   border-color: var(--error);
   color: var(--error);
+}
+
+.btn-logout svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
 }
 
 .hamburger {
@@ -239,10 +250,10 @@ header {
   padding: 32px 40px;
 }
 
-/* Stats Grid */
+/* Stats Grid - 4 cards */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-bottom: 32px;
 }
@@ -252,6 +263,17 @@ header {
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 20px;
+  transition: all 0.2s;
+  cursor: default;
+}
+
+.stat-card.clickable {
+  cursor: pointer;
+}
+
+.stat-card.clickable:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
 }
 
 .stat-icon {
@@ -618,6 +640,7 @@ header {
   border: 1px solid var(--border);
   border-radius: 24px;
   overflow: hidden;
+  scroll-margin-top: 80px;
 }
 
 .resources-header {
@@ -899,8 +922,8 @@ header {
   position: absolute;
   top: 50px;
   right: 0;
-  width: 360px;
-  max-height: 400px;
+  width: 380px;
+  max-height: 450px;
   overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -953,6 +976,7 @@ header {
 .notif-item-body {
   font-size: 0.75rem;
   color: var(--muted);
+  line-height: 1.4;
 }
 
 .notif-item-time {
@@ -1097,7 +1121,8 @@ header {
   }
   .notif-dropdown {
     width: calc(100vw - 32px);
-    right: -100px;
+    right: -10px;
+    max-height: 400px;
   }
   .resources-grid {
     padding: 16px;
@@ -1116,6 +1141,15 @@ header {
   .resource-filter select {
     width: 100%;
   }
+  .user-name {
+    display: none;
+  }
+  .btn-logout span {
+    display: none;
+  }
+  .btn-logout {
+    padding: 7px 10px;
+  }
 }
 
 @media (max-width: 540px) {
@@ -1123,7 +1157,7 @@ header {
     padding: 20px 16px;
   }
   .stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
   .filters {
     flex-wrap: wrap;
@@ -1155,6 +1189,11 @@ header {
   }
   .resources-header span {
     margin-left: 0;
+  }
+  .notif-dropdown {
+    width: calc(100vw - 24px);
+    right: -10px;
+    max-height: 350px;
   }
 }
 </style>
@@ -1193,7 +1232,10 @@ header {
     <div class="user-menu" id="userMenu">
       <div class="user-avatar" id="userAvatar">?</div>
       <span class="user-name" id="userName"></span>
-      <button class="btn-logout" onclick="logout()">Sign out</button>
+      <button class="btn-logout" onclick="logout()">
+        <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        <span>Sign out</span>
+      </button>
     </div>
   </div>
 </header>
@@ -1225,11 +1267,28 @@ header {
 </div>
 
 <main class="main-content">
-  <!-- Stats -->
+  <!-- Stats Grid - 4 cards with Resources clickable -->
   <div class="stats-grid">
-    <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg></div><div class="stat-val" id="statTotal">—</div><div class="stat-lbl">Available Exams</div></div>
-    <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="stat-val" id="statCompleted">—</div><div class="stat-lbl">Completed</div></div>
-    <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div><div class="stat-val" id="statBest">—</div><div class="stat-lbl">Best Score</div></div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg></div>
+      <div class="stat-val" id="statTotal">—</div>
+      <div class="stat-lbl">Available Exams</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+      <div class="stat-val" id="statCompleted">—</div>
+      <div class="stat-lbl">Completed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div>
+      <div class="stat-val" id="statBest">—</div>
+      <div class="stat-lbl">Best Score</div>
+    </div>
+    <div class="stat-card clickable" onclick="scrollToResources()">
+      <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+      <div class="stat-val" id="statResources">—</div>
+      <div class="stat-lbl">Resources →</div>
+    </div>
   </div>
 
   <!-- Live Strip -->
@@ -1316,6 +1375,13 @@ async function apiFetch(path, opts = {}) {
 let allExams = [], allBatchResources = [], currentFilter = 'all', countdowns = {};
 let currentResourceFilter = 'all';
 
+function scrollToResources() {
+  const el = document.getElementById('resourcesContainer');
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
 async function loadDashboard() {
   if (!getToken()) { window.location.href = '/'; return; }
   const user = getUser();
@@ -1326,8 +1392,6 @@ async function loadDashboard() {
   const { ok, data } = await apiFetch('/exams/');
   if (!ok) { logout(); return; }
   
-  // NEW: data.exams contains exams with exam-specific resources
-  // NEW: data.batch_resources contains batch resources (separate)
   allExams = (data.exams || []).filter(e => e.accessible !== false);
   allBatchResources = data.batch_resources || [];
   
@@ -1349,9 +1413,28 @@ function updateStats() {
   const best = allExams.filter(e => e.stored_attempt && e.results_visible).length
     ? Math.max(...allExams.filter(e => e.stored_attempt && e.results_visible).map(e => e.stored_attempt.percentage)).toFixed(0) + '%'
     : '—';
+  
+  // Count total resources from accessible exams + accessible batches
+  const accessibleExams = allExams.filter(e => e.accessible === true);
+  let totalResources = 0;
+  accessibleExams.forEach(exam => {
+    if (exam.exam_resources) totalResources += exam.exam_resources.length;
+  });
+  // Add batch resources for accessible batches
+  const accessibleBatchIds = new Set();
+  accessibleExams.forEach(exam => {
+    if (exam.batch_id) accessibleBatchIds.add(exam.batch_id);
+  });
+  allBatchResources.forEach(batch => {
+    if (accessibleBatchIds.has(batch.id)) {
+      totalResources += batch.resources.length;
+    }
+  });
+  
   document.getElementById('statTotal').textContent = allExams.length;
   document.getElementById('statCompleted').textContent = completed;
   document.getElementById('statBest').textContent = best;
+  document.getElementById('statResources').textContent = totalResources;
 }
 
 function renderLiveStrip() {
@@ -1465,10 +1548,8 @@ function examCardHtml(e) {
 }
 
 function renderResourcesSection() {
-  // Get accessible exams (for exam-specific resources)
   const accessibleExams = allExams.filter(e => e.accessible === true);
   
-  // Build exam resource groups (ONLY from accessible exams)
   let examResourceGroups = [];
   accessibleExams.forEach(exam => {
     if (exam.exam_resources && exam.exam_resources.length) {
@@ -1483,8 +1564,6 @@ function renderResourcesSection() {
     }
   });
   
-  // Get batch resources (ONLY for batches user has access to)
-  // A user has access to a batch if they have access to at least one exam in it
   const accessibleBatchIds = new Set();
   accessibleExams.forEach(exam => {
     if (exam.batch_id) accessibleBatchIds.add(exam.batch_id);
@@ -1501,10 +1580,8 @@ function renderResourcesSection() {
       resources: batch.resources
     }));
   
-  // Combine both
   let allResourceGroups = [...batchResourceGroups, ...examResourceGroups];
   
-  // Apply filter if not 'all'
   if (currentResourceFilter !== 'all') {
     allResourceGroups = allResourceGroups.filter(g => g.id == currentResourceFilter);
   }
@@ -1515,13 +1592,12 @@ function renderResourcesSection() {
       message = 'No resources found for the selected item.';
     }
     
-    // Build dropdown options for filter
     let dropdownOptions = '<option value="all" selected>All Accessible Content</option>';
     [...batchResourceGroups, ...examResourceGroups].forEach(g => {
       dropdownOptions += `<option value="${g.id}">${esc(g.name)} (${g.typeLabel})</option>`;
     });
     
-    document.getElementById('resourcesContainer').innerHTML = `<div class="resources-section">
+    document.getElementById('resourcesContainer').innerHTML = `<div class="resources-section" id="resourcesSection">
       <div class="resources-header">
         <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         <h2>Study Materials</h2>
@@ -1541,13 +1617,12 @@ function renderResourcesSection() {
   
   const totalResources = allResourceGroups.reduce((sum, g) => sum + g.resources.length, 0);
   
-  // Build dropdown options
   let dropdownOptions = '<option value="all" ' + (currentResourceFilter === 'all' ? 'selected' : '') + '>All Accessible Content</option>';
   [...batchResourceGroups, ...examResourceGroups].forEach(g => {
     dropdownOptions += `<option value="${g.id}" ${currentResourceFilter == g.id ? 'selected' : ''}>${esc(g.name)} (${g.typeLabel})</option>`;
   });
   
-  let html = `<div class="resources-section">
+  let html = `<div class="resources-section" id="resourcesSection">
     <div class="resources-header">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
       <h2>Study Materials</h2>
