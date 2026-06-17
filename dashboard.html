@@ -1313,7 +1313,7 @@ async function apiFetch(path, opts = {}) {
   return { ok: res.ok, data: await res.json().catch(() => ({})) };
 }
 
-let allExams = [], currentFilter = 'all', countdowns = {};
+let allExams = [], allBatchResources = [], currentFilter = 'all', countdowns = {};
 let currentResourceFilter = 'all';
 
 async function loadDashboard() {
@@ -1325,7 +1325,12 @@ async function loadDashboard() {
   showSkeleton();
   const { ok, data } = await apiFetch('/exams/');
   if (!ok) { logout(); return; }
-  allExams = (data || []).filter(e => e.accessible !== false);
+  
+  // NEW: data.exams contains exams with exam-specific resources
+  // NEW: data.batch_resources contains batch resources (separate)
+  allExams = (data.exams || []).filter(e => e.accessible !== false);
+  allBatchResources = data.batch_resources || [];
+  
   updateStats();
   renderLiveStrip();
   renderRankings();
@@ -1460,44 +1465,72 @@ function examCardHtml(e) {
 }
 
 function renderResourcesSection() {
-  // ONLY show resources for exams the user has ACCESS to
+  // Get accessible exams (for exam-specific resources)
   const accessibleExams = allExams.filter(e => e.accessible === true);
   
-  // Build resource groups from accessible exams
-  let resourceGroups = [];
+  // Build exam resource groups (ONLY from accessible exams)
+  let examResourceGroups = [];
   accessibleExams.forEach(exam => {
-    if (exam.resources && exam.resources.length) {
-      resourceGroups.push({
+    if (exam.exam_resources && exam.exam_resources.length) {
+      examResourceGroups.push({
         id: exam.id,
         name: exam.name,
         type: 'exam',
         typeLabel: 'Exam',
         typeClass: 'type-exam',
-        resources: exam.resources
+        resources: exam.exam_resources
       });
     }
   });
   
+  // Get batch resources (ONLY for batches user has access to)
+  // A user has access to a batch if they have access to at least one exam in it
+  const accessibleBatchIds = new Set();
+  accessibleExams.forEach(exam => {
+    if (exam.batch_id) accessibleBatchIds.add(exam.batch_id);
+  });
+  
+  let batchResourceGroups = allBatchResources
+    .filter(batch => accessibleBatchIds.has(batch.id))
+    .map(batch => ({
+      id: batch.id,
+      name: batch.name,
+      type: 'batch',
+      typeLabel: 'Batch',
+      typeClass: 'type-batch',
+      resources: batch.resources
+    }));
+  
+  // Combine both
+  let allResourceGroups = [...batchResourceGroups, ...examResourceGroups];
+  
   // Apply filter if not 'all'
   if (currentResourceFilter !== 'all') {
-    resourceGroups = resourceGroups.filter(g => g.id == currentResourceFilter);
+    allResourceGroups = allResourceGroups.filter(g => g.id == currentResourceFilter);
   }
   
-  if (resourceGroups.length === 0) {
-    let message = 'No study materials available for your accessible exams.';
+  if (allResourceGroups.length === 0) {
+    let message = 'No study materials available for your accessible content.';
     if (currentResourceFilter !== 'all') {
-      message = 'No resources found for the selected exam.';
+      message = 'No resources found for the selected item.';
     }
+    
+    // Build dropdown options for filter
+    let dropdownOptions = '<option value="all" selected>All Accessible Content</option>';
+    [...batchResourceGroups, ...examResourceGroups].forEach(g => {
+      dropdownOptions += `<option value="${g.id}">${esc(g.name)} (${g.typeLabel})</option>`;
+    });
+    
     document.getElementById('resourcesContainer').innerHTML = `<div class="resources-section">
       <div class="resources-header">
         <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         <h2>Study Materials</h2>
         <div class="resource-filter">
           <select id="resourceFilterSelect" onchange="filterResources(this.value)">
-            <option value="all">All Accessible Exams</option>
-            ${accessibleExams.filter(e => e.resources && e.resources.length).map(e => `<option value="${e.id}" ${currentResourceFilter == e.id ? 'selected' : ''}>${esc(e.name)}</option>`).join('')}
+            ${dropdownOptions}
           </select>
         </div>
+        <span>0 resources</span>
       </div>
       <div class="resources-grid">
         <div class="resource-empty">${message}</div>
@@ -1506,7 +1539,13 @@ function renderResourcesSection() {
     return;
   }
   
-  const totalResources = resourceGroups.reduce((sum, g) => sum + g.resources.length, 0);
+  const totalResources = allResourceGroups.reduce((sum, g) => sum + g.resources.length, 0);
+  
+  // Build dropdown options
+  let dropdownOptions = '<option value="all" ' + (currentResourceFilter === 'all' ? 'selected' : '') + '>All Accessible Content</option>';
+  [...batchResourceGroups, ...examResourceGroups].forEach(g => {
+    dropdownOptions += `<option value="${g.id}" ${currentResourceFilter == g.id ? 'selected' : ''}>${esc(g.name)} (${g.typeLabel})</option>`;
+  });
   
   let html = `<div class="resources-section">
     <div class="resources-header">
@@ -1514,15 +1553,14 @@ function renderResourcesSection() {
       <h2>Study Materials</h2>
       <div class="resource-filter">
         <select id="resourceFilterSelect" onchange="filterResources(this.value)">
-          <option value="all" ${currentResourceFilter === 'all' ? 'selected' : ''}>All Accessible Exams</option>
-          ${accessibleExams.filter(e => e.resources && e.resources.length).map(e => `<option value="${e.id}" ${currentResourceFilter == e.id ? 'selected' : ''}>${esc(e.name)}</option>`).join('')}
+          ${dropdownOptions}
         </select>
       </div>
       <span>${totalResources} resource${totalResources !== 1 ? 's' : ''}</span>
     </div>
     <div class="resources-grid">`;
   
-  resourceGroups.forEach(group => {
+  allResourceGroups.forEach(group => {
     html += `<div class="resource-group">
       <div class="resource-group-title">
         <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>
