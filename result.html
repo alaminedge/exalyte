@@ -243,7 +243,6 @@ function getToken(){return localStorage.getItem('exalyte_token')}
 function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
 function logout(){localStorage.clear();window.location.href='/'}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function formatDate(iso){return iso?new Date(iso).toLocaleDateString()+' '+new Date(iso).toLocaleTimeString():'—'}
 
 async function apiFetch(path, opts = {}) {
   const token = getToken();
@@ -256,16 +255,18 @@ async function apiFetch(path, opts = {}) {
     const res = await fetch(API + path, { ...opts, headers });
     const text = await res.text();
     
-    // Try to parse as JSON
-    let data = {};
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      // If parsing fails, return the raw text as a message
-      return { ok: res.ok, data: { error: text || 'Invalid response from server' } };
+    // If the response is empty or not JSON, handle it
+    if (!text || text.trim() === '') {
+      return { ok: false, data: { error: 'Empty response from server' } };
     }
     
-    return { ok: res.ok, data };
+    try {
+      const data = JSON.parse(text);
+      return { ok: res.ok, data };
+    } catch (e) {
+      // If JSON parsing fails, return the raw text as error message
+      return { ok: false, data: { error: text.substring(0, 200) } };
+    }
   } catch (error) {
     return { ok: false, data: { error: error.message || 'Network error' } };
   }
@@ -275,8 +276,12 @@ const params = new URLSearchParams(location.search);
 const examId = params.get('examId');
 const attemptId = params.get('attemptId');
 
-if(!examId || !attemptId) window.location.href = 'dashboard.html';
-if(!getToken()) window.location.href = '/';
+if(!examId || !attemptId) {
+  window.location.href = 'dashboard.html';
+}
+if(!getToken()) {
+  window.location.href = '/';
+}
 
 let attempt, questions, exam, userAnswers = {}, reviewFilter = 'all';
 
@@ -285,8 +290,11 @@ let lastScroll = 0;
 const header = document.getElementById('mainHeader');
 window.addEventListener('scroll', () => {
   const currentScroll = window.pageYOffset;
-  if(currentScroll > lastScroll && currentScroll > 80) header.classList.add('hidden');
-  else header.classList.remove('hidden');
+  if(currentScroll > lastScroll && currentScroll > 80) {
+    header.classList.add('hidden');
+  } else {
+    header.classList.remove('hidden');
+  }
   lastScroll = currentScroll;
 });
 
@@ -300,11 +308,11 @@ function gradeInfo(perc){
 
 async function loadResult(){
   try {
-    const result = await apiFetch(`/exams/${examId}/result/${attemptId}`);
-    
-    // Hide loading
+    // Hide loading, show content area
     document.getElementById('loadingState').style.display = 'none';
     document.getElementById('resultWrap').style.display = 'block';
+    
+    const result = await apiFetch(`/exams/${examId}/result/${attemptId}`);
     
     // Check if the response is ok
     if (!result.ok) {
@@ -425,8 +433,6 @@ async function loadResult(){
     
   } catch(e) {
     console.error('Result load error:', e);
-    document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('resultWrap').style.display = 'block';
     document.getElementById('resultWrap').innerHTML = `
       <div class="error-state">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -515,6 +521,7 @@ function shareResult(perc){
   }
 }
 
+// Load the result
 loadResult();
 </script>
 </body>
