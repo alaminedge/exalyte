@@ -246,7 +246,7 @@ header {
   padding-top: 24px;
 }
 
-/* Main Layout */
+/* Admin Layout */
 .admin-layout {
   display: flex;
   min-height: calc(100vh - 64px);
@@ -441,8 +441,7 @@ header {
 
 .form-textarea {
   resize: vertical;
-  font-family: monospace;
-  font-size: 0.8rem;
+  min-height: 80px;
 }
 
 .form-grid {
@@ -563,16 +562,6 @@ tr:last-child td {
   color: var(--accent-h);
 }
 
-.badge-exam {
-  background: rgba(91, 91, 214, 0.1);
-  color: var(--accent-h);
-}
-
-.badge-batch {
-  background: rgba(245, 158, 11, 0.1);
-  color: var(--warning);
-}
-
 /* Resource Management */
 .resource-list {
   margin-bottom: 20px;
@@ -626,7 +615,31 @@ tr:last-child td {
   font-size: 0.85rem;
 }
 
-/* Premium Tags in Users Table */
+/* Resource Type Selector */
+.resource-type-selector {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.resource-type-btn {
+  padding: 8px 20px;
+  border-radius: 40px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.resource-type-btn.active {
+  background: rgba(91, 91, 214, 0.15);
+  border-color: var(--accent);
+  color: var(--accent-h);
+}
+
+/* Premium Tags */
 .premium-tag {
   display: inline-flex;
   align-items: center;
@@ -670,28 +683,95 @@ tr:last-child td {
   opacity: 1;
 }
 
-/* Resource Type Selector */
-.resource-type-selector {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.resource-type-btn {
-  padding: 8px 20px;
-  border-radius: 40px;
-  background: var(--surface2);
+/* Notification */
+.notif-card {
+  background: var(--surface);
   border: 1px solid var(--border);
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 0.8rem;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 12px;
   transition: all 0.2s;
 }
 
-.resource-type-btn.active {
-  background: rgba(91, 91, 214, 0.15);
-  border-color: var(--accent);
+.notif-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.notif-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.notif-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--bright);
+  flex: 1;
+}
+
+.notif-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.notif-meta-item {
+  font-size: 0.72rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.notif-meta-item svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+}
+
+.notif-body {
+  font-size: 0.82rem;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.notif-img {
+  max-width: 100%;
+  max-height: 160px;
+  border-radius: 9px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  object-fit: contain;
+}
+
+.notif-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
   color: var(--accent-h);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.notif-link svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+}
+
+.notif-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 4px;
 }
 
 /* Modal */
@@ -723,6 +803,10 @@ tr:last-child td {
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
+}
+
+.modal-lg {
+  max-width: 660px;
 }
 
 .modal-header {
@@ -765,6 +849,28 @@ tr:last-child td {
   border-top: 1px solid var(--border);
 }
 
+/* Alert */
+.alert {
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-top: 12px;
+  display: none;
+}
+
+.alert-success {
+  display: block;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: var(--success);
+}
+
+.alert-error {
+  display: block;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--error);
+}
+
 /* Skeleton */
 .skeleton {
   background: linear-gradient(90deg, var(--surface2) 25%, var(--surface3) 50%, var(--surface2) 75%);
@@ -783,7 +889,6 @@ tr:last-child td {
   background: var(--surface);
   border-top: 1px solid var(--border);
   padding: 32px 40px 24px;
-  margin-top: auto;
 }
 
 .footer-inner {
@@ -847,6 +952,18 @@ tr:last-child td {
     flex-direction: column;
     text-align: center;
   }
+  .resource-item {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .resource-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .resource-type-selector {
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 540px) {
@@ -856,15 +973,6 @@ tr:last-child td {
   .card-header {
     flex-direction: column;
     align-items: flex-start;
-  }
-  .resource-item {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-  }
-  .resource-actions {
-    width: 100%;
-    justify-content: flex-end;
   }
 }
 </style>
@@ -918,6 +1026,7 @@ tr:last-child td {
   <div class="drawer-link" data-section="resources" onclick="switchSection('resources')">Resources</div>
   <div class="drawer-link" data-section="users" onclick="switchSection('users')">Users</div>
   <div class="drawer-link" data-section="results" onclick="switchSection('results')">Results</div>
+  <div class="drawer-link" data-section="notifications" onclick="switchSection('notifications')">Notifications</div>
   <hr class="drawer-divider">
   <div class="drawer-actions">
     <button class="btn-logout" onclick="logout()" style="width:100%;padding:12px">Sign out</button>
@@ -933,10 +1042,14 @@ tr:last-child td {
       </div>
       <div class="nav-section">
         <div class="nav-section-label">Content</div>
-        <button class="nav-item" onclick="switchSection('exams')"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Exams</button>
+        <button class="nav-item" onclick="switchSection('exams')"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Exams</button>
         <button class="nav-item" onclick="switchSection('batches')"><svg viewBox="0 0 24 24"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg>Batches</button>
         <button class="nav-item" onclick="switchSection('questions')"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Questions</button>
         <button class="nav-item" onclick="switchSection('resources')"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Resources</button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Communication</div>
+        <button class="nav-item" onclick="switchSection('notifications')"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</button>
       </div>
       <div class="nav-section">
         <div class="nav-section-label">People</div>
@@ -1014,6 +1127,19 @@ tr:last-child td {
     <div class="admin-section" id="section-results">
       <div class="card"><div class="card-header"><span class="card-title">Exam Results</span><select class="form-select" id="resultFilterExam" onchange="loadResults()" style="width:200px"><option value="">All Exams</option></select></div><div class="card-body"><div class="table-container" id="resultsTable"><div class="skeleton" style="height:50px"></div></div></div></div>
     </div>
+
+    <!-- Notifications Section -->
+    <div class="admin-section" id="section-notifications">
+      <div class="card"><div class="card-header"><span class="card-title">Send Notification</span></div><div class="card-body">
+        <div id="notifResult"></div>
+        <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="notifTitle" placeholder="Notification title"></div>
+        <div class="form-group"><label class="form-label">Body</label><textarea class="form-textarea" id="notifBody" rows="4" placeholder="Notification body"></textarea></div>
+        <div class="form-group"><label class="form-label">Image URL (optional)</label><input class="form-input" id="notifImage" placeholder="https://example.com/image.jpg"></div>
+        <div class="form-group"><label class="form-label">Link URL (optional)</label><input class="form-input" id="notifLink" placeholder="https://example.com/page"></div>
+        <button class="btn btn-primary" onclick="sendNotification()">Send Notification</button>
+      </div></div>
+      <div class="card"><div class="card-header"><span class="card-title">Sent Notifications</span></div><div class="card-body"><div id="notifList"></div></div></div>
+    </div>
   </main>
 </div>
 
@@ -1030,7 +1156,7 @@ tr:last-child td {
 </footer>
 
 <!-- Exam Modal -->
-<div class="modal-overlay" id="examModal"><div class="modal"><div class="modal-header"><span class="modal-title" id="examModalTitle">New Exam</span><button class="modal-close" onclick="closeModal('examModal')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg></button></div><div class="modal-body">
+<div class="modal-overlay" id="examModal"><div class="modal modal-lg"><div class="modal-header"><span class="modal-title" id="examModalTitle">New Exam</span><button class="modal-close" onclick="closeModal('examModal')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg></button></div><div class="modal-body">
   <div class="form-group"><label class="form-label">Exam Name</label><input class="form-input" id="examName" placeholder="e.g., Mathematics Final"></div>
   <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="examDesc" rows="2" placeholder="Brief description"></textarea></div>
   <div class="form-grid">
@@ -1090,6 +1216,7 @@ async function apiFetch(path, opts = {}) {
 
 let allExams = [], allBatches = [], allUsers = [], editingExamId = null, editingBatchId = null, grantUserId = null;
 let currentResourceType = 'exam';
+let currentResourceTargetId = null;
 
 async function loadDashboard() {
   const user = getUser();
@@ -1104,7 +1231,7 @@ async function loadDashboard() {
     apiFetch('/admin/results')
   ]);
   
-  const examList = exams.data || [];
+  const examList = (exams.data || {}).exams || [];
   const batchList = batches.data || [];
   const userList = users.data || [];
   const resultList = results.data || [];
@@ -1120,7 +1247,7 @@ async function loadDashboard() {
 
 async function loadExams() {
   const { data } = await apiFetch('/exams/');
-  allExams = data || [];
+  allExams = (data.exams || []);
   document.getElementById('examsTable').innerHTML = `<table><thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Questions</th><th>Resources</th><th>Actions</th></tr></thead><tbody>${allExams.map(e => `<tr><td><strong>${esc(e.name)}</strong>${e.description ? `<br><span style="font-size:0.7rem;color:var(--muted)">${esc(e.description)}</span>` : ''}</td><td>${esc(e.batch_name) || '—'}</td><td><span class="badge ${e.is_premium ? 'badge-premium' : 'badge-free'}">${e.is_premium ? 'Premium' : 'Free'}</span></td><td>${e.question_count || 0}</td><td><button class="btn btn-secondary btn-sm" onclick="switchSection('resources'); document.getElementById('resourceExamSelect').value=${e.id}; setResourceType('exam'); loadResourcesForTarget()">Manage</button></td><td><button class="btn btn-secondary btn-sm" onclick="openExamModal(${e.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id})">Delete</button></td></tr>`).join('') || '<tr><td colspan="6">No exams yet</td></tr>'}</tbody></table>`;
   loadExamSelects();
 }
@@ -1128,7 +1255,7 @@ async function loadExams() {
 async function loadBatches() {
   const { data } = await apiFetch('/batches');
   allBatches = data || [];
-  document.getElementById('batchesTable').innerHTML = `<table><thead><tr><th>Name</th><th>Description</th><th>Exams</th><th>Resources</th><th>Actions</th></tr></thead><tbody>${allBatches.map(b => `<tr><td><strong>${esc(b.name)}</strong></td><td>${esc(b.description) || '—'}</td><td>${b.exam_count || 0}</td><td><button class="btn btn-secondary btn-sm" onclick="switchSection('resources'); document.getElementById('resourceBatchSelect').value=${b.id}; setResourceType('batch'); loadResourcesForTarget()">Manage</button></td><td><button class="btn btn-secondary btn-sm" onclick="openBatchModal(${b.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteBatch(${b.id})">Delete</button></td></tr>`).join('') || '<tr><td colspan="5">No batches yet</td></tr>'}</tbody></tr>`;
+  document.getElementById('batchesTable').innerHTML = `<table><thead><tr><th>Name</th><th>Description</th><th>Exams</th><th>Resources</th><th>Actions</th></tr></thead><tbody>${allBatches.map(b => `<tr><td><strong>${esc(b.name)}</strong></td><td>${esc(b.description) || '—'}</td><td>${b.exam_count || 0}</td><td><button class="btn btn-secondary btn-sm" onclick="switchSection('resources'); document.getElementById('resourceBatchSelect').value=${b.id}; setResourceType('batch'); loadResourcesForTarget()">Manage</button></td><td><button class="btn btn-secondary btn-sm" onclick="openBatchModal(${b.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteBatch(${b.id})">Delete</button></td></tr>`).join('') || '<tr><td colspan="5">No batches yet</td></tr>'}</tbody></table>`;
   loadBatchSelects();
 }
 
@@ -1234,7 +1361,7 @@ async function uploadQuestions() {
     const questions = JSON.parse(jsonStr);
     if (document.getElementById('replaceQuestions').checked) await apiFetch(`/admin/questions/${examId}`, { method: 'DELETE' });
     const { data } = await apiFetch('/admin/questions/bulk', { method: 'POST', body: JSON.stringify({ exam_id: parseInt(examId), questions }) });
-    document.getElementById('questionUploadResult').innerHTML = `<div class="alert alert-success">${data.inserted} questions uploaded</div>`;
+    document.getElementById('questionUploadResult').innerHTML = `<div class="alert-success">${data.inserted} questions uploaded</div>`;
     setTimeout(() => { document.getElementById('questionUploadResult').innerHTML = ''; }, 3000);
     loadQuestionsForExam();
   } catch(e) { alert('Invalid JSON format'); }
@@ -1248,8 +1375,6 @@ async function deleteAllQuestions() {
 }
 
 // ===== RESOURCE MANAGEMENT =====
-let currentResourceTargetId = null;
-
 function setResourceType(type) {
   currentResourceType = type;
   document.querySelectorAll('.resource-type-btn').forEach(btn => btn.classList.remove('active'));
@@ -1258,12 +1383,11 @@ function setResourceType(type) {
   if (type === 'exam') {
     document.getElementById('resourceExamGroup').style.display = 'block';
     document.getElementById('resourceBatchGroup').style.display = 'none';
-    loadResourcesForTarget();
   } else {
     document.getElementById('resourceExamGroup').style.display = 'none';
     document.getElementById('resourceBatchGroup').style.display = 'block';
-    loadResourcesForTarget();
   }
+  loadResourcesForTarget();
 }
 
 async function loadResourcesForTarget() {
@@ -1331,18 +1455,17 @@ async function deleteResource(resourceId) {
   loadResourcesForTarget();
 }
 
-// ===== USERS with Premium Display =====
+// ===== USERS =====
 async function loadUsers() {
   const { data } = await apiFetch('/admin/users');
   allUsers = data || [];
-  const now = new Date().toISOString();
   
   document.getElementById('usersTable').innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Premium Access</th><th>Actions</th></tr></thead><tbody>${allUsers.map(u => {
     let premiumHtml = '';
     if (u.premium_grants && u.premium_grants.length) {
       premiumHtml = u.premium_grants.map(g => {
         const typeClass = g.grant_scope === 'exam' ? 'premium-tag-exam' : (g.grant_scope === 'batch' ? 'premium-tag-batch' : 'premium-tag-account');
-        const name = g.exam_name || g.batch_name || (g.grant_scope === 'account' ? 'Account Premium' : g.grant_scope);
+        const name = g.exam_name || g.batch_name || (g.grant_scope === 'account' ? 'Account' : g.grant_scope);
         const revokeFunc = g.grant_scope === 'exam' ? `revokeExamPremium(${u.id}, ${g.exam_id})` : (g.grant_scope === 'batch' ? `revokeBatchPremium(${u.id}, ${g.batch_id})` : `revokeAccountPremium(${u.id})`);
         return `<span class="premium-tag ${typeClass}">${esc(name)}<button class="revoke-premium" onclick="${revokeFunc}" title="Revoke access">✕</button></span>`;
       }).join('');
@@ -1350,7 +1473,7 @@ async function loadUsers() {
       premiumHtml = '<span style="color:var(--muted);font-size:0.75rem">None</span>';
     }
     
-    return `<tr><td><strong>${esc(u.name)}</strong></td><td style="color:var(--muted);font-size:0.8rem">${esc(u.email)}</td><td><span class="badge ${u.is_admin ? 'badge-admin' : 'badge-free'}">${u.is_admin ? 'Admin' : 'Student'}</span></td><td style="max-width:250px">${premiumHtml}</td><td>${!u.is_admin ? `<button class="btn btn-primary btn-sm" onclick="openGrantModal(${u.id}, '${esc(u.name)}')">Grant Premium</button>` : '—'}</td></td>`}).join('') || '<tr><td colspan="5">No users</td></tr>'}</tbody></tr>`;
+    return `<tr><td><strong>${esc(u.name)}</strong></td><td style="color:var(--muted);font-size:0.8rem">${esc(u.email)}</td><td><span class="badge ${u.is_admin ? 'badge-admin' : 'badge-free'}">${u.is_admin ? 'Admin' : 'Student'}</span></td><td style="max-width:250px">${premiumHtml}</td><td>${!u.is_admin ? `<button class="btn btn-primary btn-sm" onclick="openGrantModal(${u.id}, '${esc(u.name)}')">Grant Premium</button>` : '—'}</td></td>`}).join('') || '<tr><td colspan="5">No users</td></tr>'}</tbody></table>`;
 }
 
 function openGrantModal(userId, userName) {
@@ -1405,7 +1528,73 @@ async function loadResults() {
   const url = examId ? `/admin/results/${examId}` : '/admin/results';
   const { data } = await apiFetch(url);
   const results = data || [];
-  document.getElementById('resultsTable').innerHTML = `<table><thead><tr><th>User</th><th>Exam</th><th>Score</th><th>Percentage</th><th>Date</th></tr></thead><tbody>${results.map(r => `<tr><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:0.7rem;color:var(--muted)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><span style="color:${r.percentage >= 80 ? 'var(--success)' : r.percentage >= 50 ? 'var(--warning)' : 'var(--error)'}">${r.percentage}%</span></td><td>${formatDate(r.submitted_at)}</td></tr>`).join('') || '<tr><td colspan="5">No results</td></tr>'}</tbody><td>`;
+  document.getElementById('resultsTable').innerHTML = `<table><thead><tr><th>User</th><th>Exam</th><th>Score</th><th>Percentage</th><th>Date</th></tr></thead><tbody>${results.map(r => `<tr><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:0.7rem;color:var(--muted)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><span style="color:${r.percentage >= 80 ? 'var(--success)' : r.percentage >= 50 ? 'var(--warning)' : 'var(--error)'}">${r.percentage}%</span></td><td>${formatDate(r.submitted_at)}</td></tr>`).join('') || '<tr><td colspan="5">No results</td></tr>'}</tbody></table>`;
+}
+
+// ===== NOTIFICATIONS =====
+async function sendNotification() {
+  const title = document.getElementById('notifTitle').value.trim();
+  const body = document.getElementById('notifBody').value;
+  const image_url = document.getElementById('notifImage').value.trim() || null;
+  const link_url = document.getElementById('notifLink').value.trim() || null;
+  
+  if (!title) {
+    document.getElementById('notifResult').innerHTML = '<div class="alert-error">Title is required</div>';
+    setTimeout(() => { document.getElementById('notifResult').innerHTML = ''; }, 3000);
+    return;
+  }
+  
+  const { ok, data } = await apiFetch('/admin/notifications', { 
+    method: 'POST', 
+    body: JSON.stringify({ title, body, image_url, link_url }) 
+  });
+  
+  if (ok) {
+    document.getElementById('notifResult').innerHTML = '<div class="alert-success">Notification sent to all users!</div>';
+    document.getElementById('notifTitle').value = '';
+    document.getElementById('notifBody').value = '';
+    document.getElementById('notifImage').value = '';
+    document.getElementById('notifLink').value = '';
+    loadNotificationsList();
+    setTimeout(() => { document.getElementById('notifResult').innerHTML = ''; }, 4000);
+  } else {
+    document.getElementById('notifResult').innerHTML = `<div class="alert-error">${data.error || 'Failed to send notification'}</div>`;
+    setTimeout(() => { document.getElementById('notifResult').innerHTML = ''; }, 3000);
+  }
+}
+
+async function loadNotificationsList() {
+  const { data } = await apiFetch('/admin/notifications');
+  const notifs = data || [];
+  if (!notifs.length) {
+    document.getElementById('notifList').innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">No notifications sent yet</p>';
+    return;
+  }
+  
+  document.getElementById('notifList').innerHTML = notifs.map(n => `
+    <div class="notif-card">
+      <div class="notif-header">
+        <div class="notif-title">${esc(n.title)}</div>
+        <div class="notif-actions">
+          <button class="btn btn-danger btn-sm" onclick="deleteNotification(${n.id})">Delete</button>
+        </div>
+      </div>
+      <div class="notif-meta">
+        <span class="notif-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatDate(n.created_at)}</span>
+        <span class="notif-meta-item"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${n.read_count || 0}/${n.total_users || 0} read</span>
+        <span class="notif-meta-item" style="color:var(--muted)">by ${esc(n.creator_name)}</span>
+      </div>
+      ${n.body ? `<div class="notif-body">${esc(n.body)}</div>` : ''}
+      ${n.image_url ? `<img src="${esc(n.image_url)}" class="notif-img" alt="" onerror="this.style.display='none'">` : ''}
+      ${n.link_url ? `<a href="${esc(n.link_url)}" target="_blank" class="notif-link"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open Link</a>` : ''}
+    </div>
+  `).join('');
+}
+
+async function deleteNotification(id) {
+  if (!confirm('Delete this notification?')) return;
+  await apiFetch(`/admin/notifications/${id}`, { method: 'DELETE' });
+  loadNotificationsList();
 }
 
 // ===== UTILITIES =====
@@ -1424,6 +1613,7 @@ function switchSection(section) {
   if (section === 'resources') { loadExamSelects(); loadBatchSelects(); }
   if (section === 'users') loadUsers();
   if (section === 'results') { loadExamSelects(); loadResults(); }
+  if (section === 'notifications') { loadNotificationsList(); }
   if (window.innerWidth <= 900) closeDrawer();
 }
 
@@ -1446,6 +1636,7 @@ loadDashboard();
 loadExams();
 loadBatches();
 loadUsers();
+loadNotificationsList();
 </script>
 </body>
 </html>
