@@ -381,14 +381,14 @@ async function handleDeleteExamResource(resourceId, db) {
 }
 
 // ============================================================
-// EXAMS ROUTES (FIXED - batch resources not duplicated)
+// EXAMS ROUTES - OPTIMIZED, NO DUPLICATION
 // ============================================================
 
 async function handleListExams(request, db) {
   const user = await requireAuth(request);
   const userId = user ? user.id : null;
 
-  // Get all exams with their data
+  // 1. Get all exams with batch info in ONE query
   const exams = await db.prepare(`
     SELECT e.*, b.name as batch_name,
       (SELECT COUNT(*) FROM questions q WHERE q.exam_id = e.id) as question_count
@@ -397,39 +397,48 @@ async function handleListExams(request, db) {
     ORDER BY e.created_at DESC
   `).all();
 
-  // Get all batch resources ONCE (not per exam)
-  const allBatchResources = [];
-  const batchesWithResources = await db.prepare(`
-    SELECT b.id, b.name, br.id as resource_id, br.title, br.link
-    FROM batches b
-    JOIN batch_resources br ON br.batch_id = b.id
-    ORDER BY b.id, br.created_at DESC
+  // 2. Get ALL exam resources in ONE query (not per exam)
+  const allExamResources = await db.prepare(`
+    SELECT er.*, e.id as exam_id
+    FROM exam_resources er
+    JOIN exams e ON er.exam_id = e.id
+    ORDER BY er.created_at DESC
   `).all();
-  
-  // Group batch resources by batch
-  const batchResourcesMap = new Map();
-  for (const item of batchesWithResources.results) {
-    if (!batchResourcesMap.has(item.id)) {
-      batchResourcesMap.set(item.id, {
-        id: item.id,
-        name: item.name,
-        type: 'batch',
-        resources: []
-      });
-    }
-    batchResourcesMap.get(item.id).resources.push({
-      id: item.resource_id,
-      title: item.title,
-      link: item.link
-    });
-  }
-  const batchResourcesList = Array.from(batchResourcesMap.values());
 
+  // Group exam resources by exam_id
+  const examResourcesMap = {};
+  for (const r of allExamResources.results) {
+    if (!examResourcesMap[r.exam_id]) examResourcesMap[r.exam_id] = [];
+    examResourcesMap[r.exam_id].push({ id: r.id, title: r.title, link: r.link });
+  }
+
+  // 3. Get ALL batch resources in ONE query
+  const allBatchResources = await db.prepare(`
+    SELECT br.*, b.id as batch_id, b.name as batch_name
+    FROM batch_resources br
+    JOIN batches b ON br.batch_id = b.id
+    ORDER BY br.created_at DESC
+  `).all();
+
+  // Group batch resources by batch_id
+  const batchResourcesMap = {};
+  for (const r of allBatchResources.results) {
+    if (!batchResourcesMap[r.batch_id]) {
+      batchResourcesMap[r.batch_id] = {
+        id: r.batch_id,
+        name: r.batch_name,
+        resources: []
+      };
+    }
+    batchResourcesMap[r.batch_id].resources.push({ id: r.id, title: r.title, link: r.link });
+  }
+  const batchResourcesList = Object.values(batchResourcesMap);
+
+  // 4. Build exam list with their resources
   const result = [];
   for (const exam of exams.results) {
     const live = getLiveStatus(exam);
     let stored_attempt = null, accessible = false, can_practice = false, results_visible = false;
-    let examResources = [];
     
     if (userId) {
       const sa = await db.prepare(
@@ -444,19 +453,22 @@ async function handleListExams(request, db) {
       results_visible = isResultsPublished(exam);
     }
     
-    // Get exam-specific resources only (NOT batch resources)
-    const examRes = await db.prepare('SELECT id, title, link FROM exam_resources WHERE exam_id = ? ORDER BY created_at DESC').bind(exam.id).all();
-    examResources = examRes.results;
+    // Get exam-specific resources (from the map)
+    const examResources = examResourcesMap[exam.id] || [];
     
     result.push({ 
-      ...exam, ...live, stored_attempt, accessible, can_practice, results_visible,
-      exam_resources: examResources,
+      ...exam, ...live, 
+      stored_attempt, 
+      accessible, 
+      can_practice, 
+      results_visible,
+      exam_resources: examResources,  // ONLY exam-specific resources
       batch_id: exam.batch_id,
       batch_name: exam.batch_name
     });
   }
   
-  // Return both exams and batch resources separately
+  // 5. Return both exams and batch resources separately
   return json({ 
     exams: result, 
     batch_resources: batchResourcesList 
@@ -477,18 +489,10 @@ async function handleGetExamQuestions(examId, request, db) {
     'SELECT id, exam_id, question_text, option_a, option_b, option_c, option_d, image_url, explanation FROM questions WHERE exam_id = ?'
   ).bind(examId).all();
   
-  // Get exam resources
+  // Get exam resources (ONLY for this exam)
   const examRes = await db.prepare('SELECT id, title, link FROM exam_resources WHERE exam_id = ? ORDER BY created_at DESC').bind(examId).all();
   
-  // Get batch resources (for batch the exam belongs to)
-  let batchRes = { results: [] };
-  if (exam.batch_id) {
-    batchRes = await db.prepare('SELECT id, title, link FROM batch_resources WHERE batch_id = ? ORDER BY created_at DESC').bind(exam.batch_id).all();
-  }
-  
-  const allResources = [...examRes.results, ...batchRes.results];
-  
-  return json({ exam, questions: qs.results, resources: allResources });
+  return json({ exam, questions: qs.results, exam_resources: examRes.results });
 }
 
 async function handleSubmitExam(examId, request, db) {
