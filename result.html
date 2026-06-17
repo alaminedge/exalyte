@@ -245,67 +245,90 @@ function logout(){localStorage.clear();window.location.href='/'}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function formatDate(iso){return iso?new Date(iso).toLocaleDateString()+' '+new Date(iso).toLocaleTimeString():'—'}
 
-async function apiFetch(path,opts={}){
-  const token=getToken();
-  const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};
-  const res=await fetch(API+path,{...opts,headers});
-  return{ok:res.ok,data:await res.json().catch(()=>({}))};
+async function apiFetch(path, opts = {}) {
+  const token = getToken();
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  };
+  
+  try {
+    const res = await fetch(API + path, { ...opts, headers });
+    const text = await res.text();
+    
+    // Try to parse as JSON
+    let data = {};
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      // If parsing fails, return the raw text as a message
+      return { ok: res.ok, data: { error: text || 'Invalid response from server' } };
+    }
+    
+    return { ok: res.ok, data };
+  } catch (error) {
+    return { ok: false, data: { error: error.message || 'Network error' } };
+  }
 }
 
-const params=new URLSearchParams(location.search);
-const examId=params.get('examId');
-const attemptId=params.get('attemptId');
+const params = new URLSearchParams(location.search);
+const examId = params.get('examId');
+const attemptId = params.get('attemptId');
 
-if(!examId||!attemptId)window.location.href='dashboard.html';
-if(!getToken())window.location.href='/';
+if(!examId || !attemptId) window.location.href = 'dashboard.html';
+if(!getToken()) window.location.href = '/';
 
-let attempt,questions,exam,userAnswers={},reviewFilter='all';
+let attempt, questions, exam, userAnswers = {}, reviewFilter = 'all';
 
 // Header scroll hide
-let lastScroll=0;
-const header=document.getElementById('mainHeader');
-window.addEventListener('scroll',()=>{
-  const currentScroll=window.pageYOffset;
-  if(currentScroll>lastScroll&&currentScroll>80)header.classList.add('hidden');
+let lastScroll = 0;
+const header = document.getElementById('mainHeader');
+window.addEventListener('scroll', () => {
+  const currentScroll = window.pageYOffset;
+  if(currentScroll > lastScroll && currentScroll > 80) header.classList.add('hidden');
   else header.classList.remove('hidden');
-  lastScroll=currentScroll;
+  lastScroll = currentScroll;
 });
 
 function gradeInfo(perc){
-  if(perc>=90)return{label:'Outstanding',color:'#22c55e',glow:'rgba(34,197,94,.15)'}
-  if(perc>=80)return{label:'Excellent',color:'#22c55e',glow:'rgba(34,197,94,.1)'}
-  if(perc>=60)return{label:'Good',color:'#a855f7',glow:'rgba(168,85,247,.1)'}
-  if(perc>=40)return{label:'Needs Work',color:'#f59e0b',glow:'rgba(245,158,11,.1)'}
-  return{label:'Keep Trying',color:'#ef4444',glow:'rgba(239,68,68,.1)'}
+  if(perc >= 90) return {label:'Outstanding', color:'#22c55e', glow:'rgba(34,197,94,.15)'};
+  if(perc >= 80) return {label:'Excellent', color:'#22c55e', glow:'rgba(34,197,94,.1)'};
+  if(perc >= 60) return {label:'Good', color:'#a855f7', glow:'rgba(168,85,247,.1)'};
+  if(perc >= 40) return {label:'Needs Work', color:'#f59e0b', glow:'rgba(245,158,11,.1)'};
+  return {label:'Keep Trying', color:'#ef4444', glow:'rgba(239,68,68,.1)'};
 }
 
 async function loadResult(){
-  try{
-    const{ok,data}=await apiFetch(`/exams/${examId}/result/${attemptId}`);
+  try {
+    const result = await apiFetch(`/exams/${examId}/result/${attemptId}`);
     
     // Hide loading
-    document.getElementById('loadingState').style.display='none';
-    document.getElementById('resultWrap').style.display='block';
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('resultWrap').style.display = 'block';
     
-    if(!ok){
-      document.getElementById('resultWrap').innerHTML=`
+    // Check if the response is ok
+    if (!result.ok) {
+      const errorMsg = result.data?.error || 'Failed to load result';
+      document.getElementById('resultWrap').innerHTML = `
         <div class="error-state">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <h3>${data.error || 'Could not load result'}</h3>
-          <p style="color:var(--muted);font-size:.85rem">Please try again or go back to dashboard.</p>
+          <h3>Could not load result</h3>
+          <p style="color:var(--muted);font-size:.85rem">${esc(errorMsg)}</p>
           <a href="dashboard.html" class="btn btn-primary" style="margin-top:16px">Back to Dashboard</a>
         </div>
       `;
       return;
     }
     
+    const data = result.data;
+    
     // Pending results
-    if(data.pending){
-      document.getElementById('resultWrap').innerHTML=`
+    if (data.pending) {
+      document.getElementById('resultWrap').innerHTML = `
         <div class="pending-card">
           <span class="icon">⏳</span>
           <div class="title">Results Pending</div>
-          <div class="sub">${esc(data.message||'Results will be available after the exam window closes and results are published.')}</div>
+          <div class="sub">${esc(data.message || 'Results will be available after the exam window closes and results are published.')}</div>
           <a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a>
         </div>
       `;
@@ -313,8 +336,8 @@ async function loadResult(){
     }
     
     // Check if data exists
-    if(!data.attempt || !data.questions){
-      document.getElementById('resultWrap').innerHTML=`
+    if (!data.attempt || !data.questions) {
+      document.getElementById('resultWrap').innerHTML = `
         <div class="error-state">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           <h3>Incomplete Result Data</h3>
@@ -325,28 +348,28 @@ async function loadResult(){
       return;
     }
     
-    attempt=data.attempt;
-    questions=data.questions||[];
-    exam=data.exam;
-    userAnswers=JSON.parse(attempt.answers||'{}');
+    attempt = data.attempt;
+    questions = data.questions || [];
+    exam = data.exam;
+    userAnswers = JSON.parse(attempt.answers || '{}');
     
-    let correct=0,wrong=0,skipped=0;
-    questions.forEach(q=>{
-      const a=userAnswers[q.id];
-      if(a===q.correct_answer)correct++;
-      else if(a)wrong++;
+    let correct = 0, wrong = 0, skipped = 0;
+    questions.forEach(q => {
+      const a = userAnswers[q.id];
+      if (a === q.correct_answer) correct++;
+      else if (a) wrong++;
       else skipped++;
     });
-    const perc=attempt.percentage||0;
-    const grade=gradeInfo(perc);
+    const perc = attempt.percentage || 0;
+    const grade = gradeInfo(perc);
     
     // Build result HTML
-    let html=`
+    let html = `
     <div class="score-card" style="--glow:${grade.glow}">
       <div class="score-circle-wrap">
         <svg viewBox="0 0 128 128">
           <circle class="sc-bg" cx="64" cy="64" r="56"/>
-          <circle class="sc-fill" id="scRing" cx="64" cy="64" r="56" stroke="${grade.color}" style="stroke-dasharray:352;stroke-dashoffset:${352-(perc/100)*352}"/>
+          <circle class="sc-fill" id="scRing" cx="64" cy="64" r="56" stroke="${grade.color}" style="stroke-dasharray:352;stroke-dashoffset:${352 - (perc/100) * 352}"/>
         </svg>
         <div class="sc-inner">
           <div class="sc-perc">${perc.toFixed(1)}%</div>
@@ -354,37 +377,38 @@ async function loadResult(){
         </div>
       </div>
       <div class="score-grade" style="color:${grade.color}">${grade.label}</div>
-      <div class="score-exam">${esc(exam.name)}${attempt.is_practice?' — Practice':''}</div>
+      <div class="score-exam">${esc(exam.name)}${attempt.is_practice ? ' — Practice' : ''}</div>
       <div class="score-stats">
         <div class="sc-stat correct"><div class="sc-stat-val">${correct}</div><div class="sc-stat-lbl">Correct</div></div>
         <div class="sc-stat wrong"><div class="sc-stat-val">${wrong}</div><div class="sc-stat-lbl">Wrong</div></div>
         <div class="sc-stat skip"><div class="sc-stat-val">${skipped}</div><div class="sc-stat-lbl">Skipped</div></div>
       </div>
-      <div class="perf-bar"><div class="perf-fill" style="width:${Math.max(perc,2)}%;background:linear-gradient(90deg,${grade.color},${grade.color}88)"></div></div>
+      <div class="perf-bar"><div class="perf-fill" style="width:${Math.max(perc, 2)}%;background:linear-gradient(90deg,${grade.color},${grade.color}88)"></div></div>
       <div class="result-actions">
         <a href="dashboard.html" class="btn btn-secondary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
         <button class="btn btn-secondary" onclick="shareResult(${perc.toFixed(1)})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>
-        ${!attempt.is_practice&&exam.allow_practice?`<a href="exam.html?id=${examId}&practice=1" class="btn btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Mode</a>`:''}
+        ${!attempt.is_practice && exam.allow_practice ? `<a href="exam.html?id=${examId}&practice=1" class="btn btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Mode</a>` : ''}
       </div>
     </div>`;
     
     // Leaderboard
-    if(!attempt.is_practice){
-      try{
-        const{ok:lok,data:lb}=await apiFetch(`/leaderboard/${examId}`);
-        if(lok&&lb?.rank&&!lb.disabled){
-          html+=`
+    if (!attempt.is_practice) {
+      try {
+        const lbResult = await apiFetch(`/leaderboard/${examId}`);
+        if (lbResult.ok && lbResult.data?.rank && !lbResult.data.disabled) {
+          const lb = lbResult.data;
+          html += `
           <div class="lb-card">
             <div class="lb-badge"><div class="lb-rank-num">#${lb.rank}</div><div class="lb-rank-lbl">Rank</div></div>
-            <div class="lb-info"><div class="lb-info-title">Your Leaderboard Position</div><div class="lb-info-sub">Out of ${lb.total_participants} participant${lb.total_participants!==1?'s':''}</div></div>
+            <div class="lb-info"><div class="lb-info-title">Your Leaderboard Position</div><div class="lb-info-sub">Out of ${lb.total_participants} participant${lb.total_participants !== 1 ? 's' : ''}</div></div>
             <div class="lb-perc"><div class="lb-perc-val">Top ${lb.percentile}%</div><div class="lb-perc-lbl">Percentile</div></div>
           </div>`;
         }
-      }catch(e){}
+      } catch(e) {}
     }
     
     // Review
-    html+=`
+    html += `
     <div class="review-head">
       <span class="title">Question Review</span>
       <div class="chips">
@@ -396,18 +420,18 @@ async function loadResult(){
     </div>
     <div class="review-list" id="reviewList"></div>`;
     
-    document.getElementById('resultWrap').innerHTML=html;
+    document.getElementById('resultWrap').innerHTML = html;
     renderReview();
     
-  }catch(e){
+  } catch(e) {
     console.error('Result load error:', e);
-    document.getElementById('loadingState').style.display='none';
-    document.getElementById('resultWrap').style.display='block';
-    document.getElementById('resultWrap').innerHTML=`
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('resultWrap').style.display = 'block';
+    document.getElementById('resultWrap').innerHTML = `
       <div class="error-state">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <h3>Something went wrong</h3>
-        <p style="color:var(--muted);font-size:.85rem">${e.message || 'Failed to load result'}</p>
+        <p style="color:var(--muted);font-size:.85rem">${esc(e.message || 'Failed to load result')}</p>
         <a href="dashboard.html" class="btn btn-primary" style="margin-top:16px">Back to Dashboard</a>
       </div>
     `;
@@ -415,39 +439,43 @@ async function loadResult(){
 }
 
 function renderReview(){
-  const filtered=questions.filter(q=>{
-    const a=userAnswers[q.id];
-    if(reviewFilter==='correct')return a===q.correct_answer;
-    if(reviewFilter==='wrong')return a&&a!==q.correct_answer;
-    if(reviewFilter==='skipped')return !a;
+  const filtered = questions.filter(q => {
+    const a = userAnswers[q.id];
+    if (reviewFilter === 'correct') return a === q.correct_answer;
+    if (reviewFilter === 'wrong') return a && a !== q.correct_answer;
+    if (reviewFilter === 'skipped') return !a;
     return true;
   });
   
-  if(!filtered.length){
-    document.getElementById('reviewList').innerHTML='<div class="empty-review">No questions in this filter.</div>';
+  if (!filtered.length) {
+    document.getElementById('reviewList').innerHTML = '<div class="empty-review">No questions in this filter.</div>';
     return;
   }
   
-  const icons={correct:'<polyline points="20 6 9 17 4 12"/>',wrong:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',skipped:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'};
+  const icons = {
+    correct: '<polyline points="20 6 9 17 4 12"/>',
+    wrong: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    skipped: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
+  };
   
-  document.getElementById('reviewList').innerHTML=filtered.map(q=>{
-    const a=userAnswers[q.id];
-    const st=a===q.correct_answer?'correct':a?'wrong':'skip';
-    const cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
-    const opts=['A','B','C','D'].map(l=>{
-      const isCorrect=l===q.correct_answer;
-      const isYours=l===a&&!isCorrect;
-      const optCls=isCorrect?'rv-opt-correct':isYours?'rv-opt-wrong':'';
-      return `<div class="rv-opt ${optCls}"><div class="rv-ol">${l}</div><div style="flex:1;line-height:1.4">${esc(q['option_'+l.toLowerCase()])}</div></div>`;
+  document.getElementById('reviewList').innerHTML = filtered.map(q => {
+    const a = userAnswers[q.id];
+    const st = a === q.correct_answer ? 'correct' : a ? 'wrong' : 'skip';
+    const cls = { correct: 'rv-correct', wrong: 'rv-wrong', skip: 'rv-skip' }[st];
+    const opts = ['A','B','C','D'].map(l => {
+      const isCorrect = l === q.correct_answer;
+      const isYours = l === a && !isCorrect;
+      const optCls = isCorrect ? 'rv-opt-correct' : isYours ? 'rv-opt-wrong' : '';
+      return `<div class="rv-opt ${optCls}"><div class="rv-ol">${l}</div><div style="flex:1;line-height:1.4">${esc(q['option_' + l.toLowerCase()])}</div></div>`;
     }).join('');
     
-    let note='';
-    if(a&&a!==q.correct_answer)note=`<div class="rv-ans-note">Your answer: ${a} — Correct: ${q.correct_answer}</div>`;
-    else if(!a)note=`<div class="rv-ans-note" style="color:var(--muted)">Not answered — Correct: ${q.correct_answer}</div>`;
+    let note = '';
+    if (a && a !== q.correct_answer) note = `<div class="rv-ans-note">Your answer: ${a} — Correct: ${q.correct_answer}</div>`;
+    else if (!a) note = `<div class="rv-ans-note" style="color:var(--muted)">Not answered — Correct: ${q.correct_answer}</div>`;
     
-    let explanationHtml='';
-    if(q.explanation&&q.explanation.trim()){
-      explanationHtml=`<div class="rv-explanation"><strong>Explanation</strong>${esc(q.explanation)}</div>`;
+    let explanationHtml = '';
+    if (q.explanation && q.explanation.trim()) {
+      explanationHtml = `<div class="rv-explanation"><strong>Explanation</strong>${esc(q.explanation)}</div>`;
     }
     
     return `<div class="rv-card ${cls}" id="rv${q.id}">
@@ -457,7 +485,7 @@ function renderReview(){
         <svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
       <div class="rv-body">
-        ${q.image_url?`<img src="${esc(q.image_url)}" style="max-width:100%;max-height:140px;border-radius:9px;margin-bottom:10px;border:1px solid var(--border);object-fit:contain">`:''}
+        ${q.image_url ? `<img src="${esc(q.image_url)}" style="max-width:100%;max-height:140px;border-radius:9px;margin-bottom:10px;border:1px solid var(--border);object-fit:contain">` : ''}
         <div class="rv-opts">${opts}</div>
         ${note}
         ${explanationHtml}
@@ -466,24 +494,24 @@ function renderReview(){
   }).join('');
 }
 
-function toggleReview(id){document.getElementById('rv'+id)?.classList.toggle('open')}
-function setFilter(btn,filter){
-  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+function toggleReview(id){ document.getElementById('rv' + id)?.classList.toggle('open'); }
+function setFilter(btn, filter){
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   btn.classList.add('active');
-  reviewFilter=filter;
+  reviewFilter = filter;
   renderReview();
 }
 
 function shareResult(perc){
-  const text=`I scored ${perc}% on "${exam?.name}" on Exalyte!`;
-  if(navigator.share){
-    navigator.share({title:'My Exalyte Result',text}).catch(()=>{})
-  }else{
-    navigator.clipboard.writeText(text).then(()=>{
-      const t=document.getElementById('shareToast');
+  const text = `I scored ${perc}% on "${exam?.name}" on Exalyte!`;
+  if (navigator.share) {
+    navigator.share({ title: 'My Exalyte Result', text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).then(() => {
+      const t = document.getElementById('shareToast');
       t.classList.add('show');
-      setTimeout(()=>t.classList.remove('show'),2500);
-    }).catch(()=>{})
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }).catch(() => {});
   }
 }
 
