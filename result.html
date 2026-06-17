@@ -120,6 +120,7 @@ header.hidden{transform:translateY(-100%)}
 .error-state{text-align:center;padding:60px 20px;color:var(--error)}
 .error-state svg{width:48px;height:48px;stroke:currentColor;margin-bottom:16px}
 .error-state h3{font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:700;color:var(--bright);margin-bottom:6px}
+.error-state p{color:var(--muted);font-size:.85rem}
 
 /* Footer */
 .footer{background:var(--surface);border-top:1px solid var(--border);padding:32px 40px 24px;margin-top:auto}
@@ -308,23 +309,39 @@ function gradeInfo(perc){
 
 async function loadResult(){
   try {
-    // Hide loading, show content area
-    document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('resultWrap').style.display = 'block';
+    // Show loading, hide result
+    document.getElementById('loadingState').style.display = 'flex';
+    document.getElementById('resultWrap').style.display = 'none';
     
     const result = await apiFetch(`/exams/${examId}/result/${attemptId}`);
     
+    // Hide loading, show result area
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('resultWrap').style.display = 'block';
+    
     // Check if the response is ok
     if (!result.ok) {
-      const errorMsg = result.data?.error || 'Failed to load result';
-      document.getElementById('resultWrap').innerHTML = `
-        <div class="error-state">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <h3>Could not load result</h3>
-          <p style="color:var(--muted);font-size:.85rem">${esc(errorMsg)}</p>
-          <a href="dashboard.html" class="btn btn-primary" style="margin-top:16px">Back to Dashboard</a>
-        </div>
-      `;
+      // Check if the error message indicates pending results
+      const errorMsg = result.data?.error || '';
+      if (errorMsg.toLowerCase().includes('pending') || errorMsg.toLowerCase().includes('published')) {
+        document.getElementById('resultWrap').innerHTML = `
+          <div class="pending-card">
+            <span class="icon">⏳</span>
+            <div class="title">Results Pending</div>
+            <div class="sub">${esc(errorMsg)}</div>
+            <a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a>
+          </div>
+        `;
+      } else {
+        document.getElementById('resultWrap').innerHTML = `
+          <div class="error-state">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <h3>Could not load result</h3>
+            <p>${esc(errorMsg || 'The server returned an error. Please try again later.')}</p>
+            <a href="dashboard.html" class="btn btn-primary" style="margin-top:16px">Back to Dashboard</a>
+          </div>
+        `;
+      }
       return;
     }
     
@@ -346,11 +363,11 @@ async function loadResult(){
     // Check if data exists
     if (!data.attempt || !data.questions) {
       document.getElementById('resultWrap').innerHTML = `
-        <div class="error-state">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <h3>Incomplete Result Data</h3>
-          <p style="color:var(--muted);font-size:.85rem">The result data is incomplete. Please try again.</p>
-          <a href="dashboard.html" class="btn btn-primary" style="margin-top:16px">Back to Dashboard</a>
+        <div class="pending-card">
+          <span class="icon">📋</span>
+          <div class="title">No Results Found</div>
+          <div class="sub">We couldn't find your result for this exam. Please try again or contact support.</div>
+          <a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a>
         </div>
       `;
       return;
@@ -359,7 +376,13 @@ async function loadResult(){
     attempt = data.attempt;
     questions = data.questions || [];
     exam = data.exam;
-    userAnswers = JSON.parse(attempt.answers || '{}');
+    
+    // Parse answers safely
+    try {
+      userAnswers = JSON.parse(attempt.answers || '{}');
+    } catch(e) {
+      userAnswers = {};
+    }
     
     let correct = 0, wrong = 0, skipped = 0;
     questions.forEach(q => {
@@ -433,11 +456,13 @@ async function loadResult(){
     
   } catch(e) {
     console.error('Result load error:', e);
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('resultWrap').style.display = 'block';
     document.getElementById('resultWrap').innerHTML = `
       <div class="error-state">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <h3>Something went wrong</h3>
-        <p style="color:var(--muted);font-size:.85rem">${esc(e.message || 'Failed to load result')}</p>
+        <p>${esc(e.message || 'Failed to load result. Please try again.')}</p>
         <a href="dashboard.html" class="btn btn-primary" style="margin-top:16px">Back to Dashboard</a>
       </div>
     `;
