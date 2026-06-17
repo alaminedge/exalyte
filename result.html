@@ -117,6 +117,9 @@ header.hidden{transform:translateY(-100%)}
 .rv-explanation{margin-top:10px;padding:10px 14px;background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.2);border-radius:10px;font-size:.78rem;color:var(--accent-h);line-height:1.6;white-space:pre-wrap}
 .rv-explanation strong{color:var(--bright);display:block;margin-bottom:3px;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em}
 .empty-review{text-align:center;padding:40px;color:var(--muted);font-size:.82rem}
+.error-state{text-align:center;padding:60px 20px;color:var(--error)}
+.error-state svg{width:48px;height:48px;stroke:currentColor;margin-bottom:16px}
+.error-state h3{font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:700;color:var(--bright);margin-bottom:6px}
 
 /* Footer */
 .footer{background:var(--surface);border-top:1px solid var(--border);padding:32px 40px 24px;margin-top:auto}
@@ -279,11 +282,22 @@ function gradeInfo(perc){
 async function loadResult(){
   try{
     const{ok,data}=await apiFetch(`/exams/${examId}/result/${attemptId}`);
-    if(!ok){window.location.href='dashboard.html';return}
     
-    // Hide loading, show result
+    // Hide loading
     document.getElementById('loadingState').style.display='none';
     document.getElementById('resultWrap').style.display='block';
+    
+    if(!ok){
+      document.getElementById('resultWrap').innerHTML=`
+        <div class="error-state">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <h3>${data.error || 'Could not load result'}</h3>
+          <p style="color:var(--muted);font-size:.85rem">Please try again or go back to dashboard.</p>
+          <a href="dashboard.html" class="btn btn-primary" style="margin-top:16px">Back to Dashboard</a>
+        </div>
+      `;
+      return;
+    }
     
     // Pending results
     if(data.pending){
@@ -293,6 +307,19 @@ async function loadResult(){
           <div class="title">Results Pending</div>
           <div class="sub">${esc(data.message||'Results will be available after the exam window closes and results are published.')}</div>
           <a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a>
+        </div>
+      `;
+      return;
+    }
+    
+    // Check if data exists
+    if(!data.attempt || !data.questions){
+      document.getElementById('resultWrap').innerHTML=`
+        <div class="error-state">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <h3>Incomplete Result Data</h3>
+          <p style="color:var(--muted);font-size:.85rem">The result data is incomplete. Please try again.</p>
+          <a href="dashboard.html" class="btn btn-primary" style="margin-top:16px">Back to Dashboard</a>
         </div>
       `;
       return;
@@ -315,14 +342,14 @@ async function loadResult(){
     
     // Build result HTML
     let html=`
-    <div class="score-card" id="scoreCard" style="--glow:${grade.glow}">
+    <div class="score-card" style="--glow:${grade.glow}">
       <div class="score-circle-wrap">
         <svg viewBox="0 0 128 128">
           <circle class="sc-bg" cx="64" cy="64" r="56"/>
-          <circle class="sc-fill" id="scRing" cx="64" cy="64" r="56" stroke="${grade.color}"/>
+          <circle class="sc-fill" id="scRing" cx="64" cy="64" r="56" stroke="${grade.color}" style="stroke-dasharray:352;stroke-dashoffset:${352-(perc/100)*352}"/>
         </svg>
         <div class="sc-inner">
-          <div class="sc-perc" id="scPerc">${perc.toFixed(1)}%</div>
+          <div class="sc-perc">${perc.toFixed(1)}%</div>
           <div class="sc-label">Score</div>
         </div>
       </div>
@@ -333,8 +360,8 @@ async function loadResult(){
         <div class="sc-stat wrong"><div class="sc-stat-val">${wrong}</div><div class="sc-stat-lbl">Wrong</div></div>
         <div class="sc-stat skip"><div class="sc-stat-val">${skipped}</div><div class="sc-stat-lbl">Skipped</div></div>
       </div>
-      <div class="perf-bar"><div class="perf-fill" id="scBar" style="width:${Math.max(perc,2)}%;background:linear-gradient(90deg,${grade.color},${grade.color}88)"></div></div>
-      <div class="result-actions" id="resultActions">
+      <div class="perf-bar"><div class="perf-fill" style="width:${Math.max(perc,2)}%;background:linear-gradient(90deg,${grade.color},${grade.color}88)"></div></div>
+      <div class="result-actions">
         <a href="dashboard.html" class="btn btn-secondary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
         <button class="btn btn-secondary" onclick="shareResult(${perc.toFixed(1)})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>
         ${!attempt.is_practice&&exam.allow_practice?`<a href="exam.html?id=${examId}&practice=1" class="btn btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Mode</a>`:''}
@@ -370,18 +397,20 @@ async function loadResult(){
     <div class="review-list" id="reviewList"></div>`;
     
     document.getElementById('resultWrap').innerHTML=html;
-    
-    // Animate score ring
-    const ring=document.getElementById('scRing');
-    const circ=2*Math.PI*56;
-    ring.style.strokeDasharray=circ;
-    setTimeout(()=>{
-      ring.style.strokeDashoffset=circ-(perc/100)*circ;
-    },100);
-    
     renderReview();
+    
   }catch(e){
-    document.getElementById('loadingState').innerHTML='<p style="color:var(--error)">Failed to load result. <a href="dashboard.html" style="color:var(--accent-h)">Go back</a></p>';
+    console.error('Result load error:', e);
+    document.getElementById('loadingState').style.display='none';
+    document.getElementById('resultWrap').style.display='block';
+    document.getElementById('resultWrap').innerHTML=`
+      <div class="error-state">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <h3>Something went wrong</h3>
+        <p style="color:var(--muted);font-size:.85rem">${e.message || 'Failed to load result'}</p>
+        <a href="dashboard.html" class="btn btn-primary" style="margin-top:16px">Back to Dashboard</a>
+      </div>
+    `;
   }
 }
 
