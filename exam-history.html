@@ -1,223 +1,373 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Exam History — Exalyte</title>
-<link rel="stylesheet" href="assets/main.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
 <style>
-body{min-height:100vh}
-.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:28px}
-.sum-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;text-align:center;position:relative;overflow:hidden}
-.sum-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-.sum-val{font-family:'Lexend',sans-serif;font-size:1.9rem;font-weight:900;color:var(--text-bright);letter-spacing:-.03em}
-.sum-lbl{font-size:.7rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.07em;margin-top:3px}
-.hist-list{display:flex;flex-direction:column;gap:12px}
-.hist-item{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;transition:all .2s}
-.hist-item:hover{border-color:rgba(99,102,241,.3);transform:translateY(-1px);box-shadow:0 6px 24px var(--shadow)}
-.hist-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:10px}
-.hist-left{flex:1;min-width:0}
-.hist-name{font-family:'Lexend',sans-serif;font-weight:700;font-size:.93rem;color:var(--text-bright);margin-bottom:4px;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hist-meta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.hist-batch{font-size:.68rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:5px}
-.hist-date{display:flex;align-items:center;gap:4px;font-size:.72rem;color:var(--muted)}
-.hist-date svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2}
-.hist-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
-.hist-perc{font-family:'Lexend',sans-serif;font-size:1.4rem;font-weight:900;letter-spacing:-.02em}
-.hist-stats-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-.hist-score{font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;color:var(--text-bright)}
-.hist-pbar{height:5px;background:var(--surface2);border-radius:3px;flex:1;min-width:60px;overflow:hidden}
-.hist-pfill{height:100%;border-radius:3px;transition:width .6s ease}
-.rank-pill{display:flex;align-items:center;gap:5px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.22);padding:3px 9px;border-radius:7px;font-size:.72rem}
-.rank-pill strong{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;color:var(--accent2)}
-.perc-chip{font-size:.68rem;font-weight:700;color:var(--success);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);padding:2px 8px;border-radius:5px}
-.hist-actions{display:flex;gap:8px;flex-wrap:wrap}
-.btn-view{background:rgba(99,102,241,.12);color:var(--accent2);border:1px solid rgba(99,102,241,.28);padding:7px 14px;border-radius:9px;font-size:.76rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:5px;text-decoration:none}
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root,[data-theme="dark"]{--bg:#080810;--surface:#0e0e1c;--surface2:#13132a;--surface3:#1a1a36;--border:#1f1f3a;--border2:#2a2a4a;--accent:#5b5bd6;--accent-h:#6e6ee8;--muted:#8b8bae;--text:#c8c8e8;--bright:#f0f0ff;--success:#22c55e;--error:#ef4444;--warning:#f59e0b;--premium:#a855f7}
+[data-theme="light"]{--bg:#f4f4f8;--surface:#ffffff;--surface2:#f0f0f6;--surface3:#e8e8f0;--border:#d8d8e8;--border2:#c8c8d8;--accent:#6366f1;--accent-h:#4f46e5;--text:#2d2d3d;--bright:#111128;--muted:#7c7c96;--error:#dc2626;--success:#16a34a;--warning:#d97706;--premium:#9333ea}
+
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* Header - disappears on scroll */
+header{position:fixed;top:0;left:0;right:0;z-index:200;height:60px;background:rgba(8,8,16,.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+header.hidden{transform:translateY(-100%)}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--bright);font-family:'Sora',sans-serif;font-weight:700;font-size:1rem}
+.logo-img{width:28px;height:28px;border-radius:6px;object-fit:cover}
+.logo-text{background:linear-gradient(135deg,#ffffff,#a0a0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-actions{display:flex;align-items:center;gap:10px}
+.btn-header{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:30px;font-size:.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;text-decoration:none}
+.btn-header:hover{border-color:var(--accent);color:var(--accent-h)}
+.btn-exit{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:30px;font-size:.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s}
+.btn-exit:hover{border-color:var(--error);color:var(--error)}
+
+/* Main Content */
+.main-wrap{padding-top:60px;min-height:100vh;display:flex;flex-direction:column}
+.content{max-width:960px;margin:0 auto;padding:32px 20px 60px;width:100%;flex:1}
+
+/* Stats Grid */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px;text-align:center}
+.stat-icon{width:40px;height:40px;background:rgba(99,102,241,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.stat-icon svg{width:20px;height:20px;stroke:var(--accent-h);fill:none}
+.stat-val{font-family:'Sora',sans-serif;font-size:1.8rem;font-weight:800;color:var(--bright)}
+.stat-lbl{font-size:.7rem;color:var(--muted);margin-top:4px}
+
+/* Filters */
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;align-items:center}
+.search-input{flex:1;min-width:180px;background:var(--surface2);border:1px solid var(--border);border-radius:40px;padding:10px 18px;color:var(--text);font-size:.85rem;outline:none}
+.search-input:focus{border-color:var(--accent)}
+.filter-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:40px;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s}
+.filter-btn.active,.filter-btn:hover{background:rgba(99,102,241,.12);border-color:var(--accent);color:var(--accent-h)}
+
+/* History List */
+.history-list{display:flex;flex-direction:column;gap:14px}
+.history-item{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px;transition:all .2s}
+.history-item:hover{border-color:var(--accent);transform:translateY(-2px)}
+.history-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px}
+.history-exam-name{font-family:'Sora',sans-serif;font-weight:700;font-size:1rem;color:var(--bright)}
+.history-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:30px;font-size:.65rem;font-weight:600}
+.badge-published{background:rgba(34,197,94,.1);color:var(--success);border:1px solid rgba(34,197,94,.2)}
+.badge-pending{background:rgba(245,158,11,.1);color:var(--warning);border:1px solid rgba(245,158,11,.2)}
+.history-meta{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px}
+.meta-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--muted)}
+.meta-item svg{width:12px;height:12px;stroke:currentColor;fill:none}
+.history-score{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:12px}
+.score-number{font-family:'Sora',sans-serif;font-size:1.3rem;font-weight:800;color:var(--bright)}
+.score-total{font-size:.9rem;color:var(--muted);font-weight:400}
+.score-percentage{font-size:1.1rem;font-weight:800}
+.score-percentage.high{color:var(--success)}
+.score-percentage.medium{color:var(--accent-h)}
+.score-percentage.low{color:var(--warning)}
+.score-percentage.fail{color:var(--error)}
+.rank-info{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rank-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:30px;font-size:.65rem;font-weight:600;background:rgba(99,102,241,.1);color:var(--accent-h);border:1px solid rgba(99,102,241,.2)}
+.percentile-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:30px;font-size:.65rem;font-weight:600;background:rgba(168,85,247,.1);color:var(--premium);border:1px solid rgba(168,85,247,.2)}
+.history-actions{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
+.btn-action{display:inline-flex;align-items:center;gap:4px;padding:7px 16px;border-radius:40px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;border:none}
+.btn-view{background:rgba(99,102,241,.12);color:var(--accent-h);border:1px solid rgba(99,102,241,.25)}
 .btn-view:hover{background:rgba(99,102,241,.22)}
-.btn-view svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5}
-.btn-prac{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:7px 14px;border-radius:9px;font-size:.76rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:5px;text-decoration:none}
-.btn-prac:hover{border-color:var(--accent2);color:var(--accent2)}
-.btn-prac svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5}
-.pending-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.28);color:var(--warning);padding:4px 10px;border-radius:6px;font-size:.7rem;font-weight:700}
-.pending-badge svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2}
-.empty-state{text-align:center;padding:70px 20px;color:var(--muted)}
-.empty-state svg{width:48px;height:48px;stroke:var(--muted);fill:none;stroke-width:1.5;margin:0 auto 16px;display:block;opacity:.3}
-.empty-state h3{font-family:'Lexend',sans-serif;font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:7px}
-.empty-state p{font-size:.82rem;line-height:1.6;max-width:280px;margin:0 auto 22px}
+.btn-practice{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-practice:hover{border-color:var(--accent);color:var(--accent-h)}
+.btn-disabled{background:var(--surface2);color:var(--muted);border:1px solid var(--border);cursor:not-allowed;opacity:.6}
+
+/* Skeleton */
+.skeleton{background:linear-gradient(90deg,var(--surface2)25%,var(--surface3)50%,var(--surface2)75%);background-size:200%100%;animation:skeleton-loading 1.5s infinite;border-radius:12px}
+@keyframes skeleton-loading{0%{background-position:200%0}100%{background-position:-200%0}}
+
+/* Empty State */
+.empty-state{text-align:center;padding:80px 20px;color:var(--muted)}
+.empty-state svg{width:56px;height:56px;stroke:currentColor;margin-bottom:16px;opacity:.4}
+.empty-state h3{font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px}
+.empty-state p{font-size:.85rem;margin-bottom:20px}
+
+/* Footer */
+.footer{background:var(--surface);border-top:1px solid var(--border);padding:32px 40px 24px;margin-top:auto}
+.footer-inner{max-width:1160px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+.footer-links{display:flex;gap:24px}
+.footer-links a{color:var(--muted);text-decoration:none;font-size:.72rem;transition:color .2s}
+.footer-links a:hover{color:var(--accent-h)}
+.footer-copy{font-size:.68rem;color:var(--muted)}
+
+/* Bottom Nav */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:30;padding:6px 0 8px}
 .bottom-nav-items{display:flex}
-.bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;color:var(--muted);font-size:.62rem;font-weight:600;border:none;background:none;cursor:pointer;transition:color .2s;font-family:'Inter',sans-serif}
-.bottom-nav-item.active{color:var(--accent2)}
-.bottom-nav-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8}
-@media(max-width:600px){
-  .hist-top{flex-direction:column;gap:8px}
-  .hist-right{flex-direction:row;align-items:center;width:100%;justify-content:space-between}
-  .hist-actions{width:100%}
-  .btn-view,.btn-prac{flex:1;justify-content:center;text-align:center}
+.bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;color:var(--muted);font-size:.55rem;font-weight:600;border:none;background:none;cursor:pointer;transition:color .2s}
+.bottom-nav-item.active{color:var(--accent-h)}
+.bottom-nav-item svg{width:18px;height:18px;stroke:currentColor;fill:none}
+
+/* Responsive */
+@media(max-width:900px){
+  header{padding:0 16px}
+  .content{padding:24px 16px 80px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .bottom-nav{display:block}
+  .footer{padding:24px 20px}
+  .footer-inner{flex-direction:column;text-align:center}
+  .btn-header span{display:none}
+  .history-header{flex-direction:column}
+  .history-actions{width:100%}
+  .history-actions .btn-action{flex:1;justify-content:center}
+}
+
+@media(max-width:540px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .filters{flex-wrap:wrap}
+  .filter-btn{flex:1;text-align:center}
+  .history-score{flex-direction:column;align-items:flex-start;gap:6px}
+  .rank-info{flex-wrap:wrap}
 }
 </style>
 </head>
-<body class="app-layout">
+<body>
 
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-logo">
-    <a href="/" class="logo-wrap">
-      <img src="images/exalyte.png" alt="Exalyte" class="logo-img">
-      <span class="logo-text">Exalyte</span>
+<header id="mainHeader">
+  <a href="/" class="logo">
+    <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
+    <span class="logo-text">Exalyte</span>
+  </a>
+  <div class="header-actions">
+    <a href="dashboard.html" class="btn-header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Dashboard</span>
     </a>
+    <button class="btn-exit" onclick="logout()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 16l4-4m0 0l-4-4m4 4H7"/></svg>
+      <span>Exit</span>
+    </button>
   </div>
-  <nav class="sidebar-nav">
-    <div class="nav-section">
-      <div class="nav-section-label">Main</div>
-      <a href="dashboard.html" class="nav-item">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard
-      </a>
-      <a href="exam-history.html" class="nav-item active">
-        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Exam History
-      </a>
-    </div>
-    <div class="nav-section">
-      <div class="nav-section-label">Account</div>
-      <button class="nav-item" onclick="logout()">
-        <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>Sign Out
-      </button>
-    </div>
-  </nav>
-  <div class="sidebar-footer">
-    <div class="user-card">
-      <div class="user-avatar" id="userAvatar">?</div>
-      <div class="user-info">
-        <div class="user-name" id="userName"></div>
-        <div class="user-role">Student</div>
+</header>
+
+<main class="main-wrap">
+  <div class="content">
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg></div>
+        <div class="stat-val" id="statTotal">—</div>
+        <div class="stat-lbl">Exams Taken</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+        <div class="stat-val" id="statAvg">—</div>
+        <div class="stat-lbl">Average Score</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div>
+        <div class="stat-val" id="statBest">—</div>
+        <div class="stat-lbl">Best Score</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857"/></svg></div>
+        <div class="stat-val" id="statRank">—</div>
+        <div class="stat-lbl">Best Rank</div>
       </div>
     </div>
-  </div>
-</aside>
 
-<div class="app-main">
-  <div class="topbar">
-    <div style="display:flex;align-items:center;gap:12px">
-      <button class="hamburger" id="hamburger"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-      <span class="topbar-title">Exam History</span>
-    </div>
-    <button class="theme-toggle" onclick="toggleTheme()"></button>
-  </div>
-
-  <div class="panel active">
-    <div class="summary-grid">
-      <div class="sum-card"><div class="sum-val" id="sTotal">—</div><div class="sum-lbl">Exams Taken</div></div>
-      <div class="sum-card"><div class="sum-val" id="sAvg">—</div><div class="sum-lbl">Avg Score</div></div>
-      <div class="sum-card"><div class="sum-val" id="sBest">—</div><div class="sum-lbl">Best Score</div></div>
-      <div class="sum-card"><div class="sum-val" id="sRank">—</div><div class="sum-lbl">Best Rank</div></div>
+    <!-- Filters -->
+    <div class="filters">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search exams..." oninput="renderHistory()">
+      <button class="filter-btn active" data-filter="all" onclick="setFilter(this,'all')">All</button>
+      <button class="filter-btn" data-filter="published" onclick="setFilter(this,'published')">Published</button>
+      <button class="filter-btn" data-filter="pending" onclick="setFilter(this,'pending')">Pending</button>
     </div>
 
-    <div class="hist-list" id="histList">
-      <div class="skeleton" style="height:90px"></div>
-      <div class="skeleton" style="height:90px;margin-top:12px"></div>
-      <div class="skeleton" style="height:90px;margin-top:12px"></div>
+    <!-- History List -->
+    <div id="historyContainer">
+      <div class="skeleton" style="height:120px; margin-bottom:14px"></div>
+      <div class="skeleton" style="height:120px; margin-bottom:14px"></div>
+      <div class="skeleton" style="height:120px"></div>
     </div>
   </div>
-</div>
+</main>
 
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-copy">© 2025 Exalyte. All rights reserved.</div>
+    <div class="footer-links">
+      <a href="privacy.html">Privacy</a>
+      <a href="tos.html">Terms</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Bottom Nav (mobile) -->
 <div class="bottom-nav">
   <div class="bottom-nav-items">
     <button class="bottom-nav-item" onclick="window.location='dashboard.html'">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Home
     </button>
-    <button class="bottom-nav-item active" onclick="window.location='exam-history.html'">
-      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>History
+    <button class="bottom-nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>History
     </button>
-    <button class="bottom-nav-item" onclick="toggleTheme()">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>Theme
+    <button class="bottom-nav-item" onclick="window.location='exam-history.html'">
+      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>History
     </button>
     <button class="bottom-nav-item" onclick="logout()">
-      <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>Sign Out
+      <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7"/></svg>Exit
     </button>
   </div>
 </div>
 
-<script src="assets/main.js"></script>
 <script>
-if (!requireAuth()) throw '';
-const user = getUser();
-document.getElementById('userName').textContent  = user?.name || '';
-document.getElementById('userAvatar').textContent = (user?.name || '?')[0].toUpperCase();
+const API='/api';
 
-async function load() {
-  try {
-    const { ok, data } = await apiFetch('/history');
-    if (!ok) { logout(); return; }
+function getToken(){return localStorage.getItem('exalyte_token')}
+function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
+function logout(){localStorage.clear();window.location.href='/'}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function formatDate(iso){return iso?new Date(iso).toLocaleDateString():'—'}
 
-    document.getElementById('sTotal').textContent = data.length;
-    if (data.length) {
-      const visible = data.filter(h => h.results_visible);
-      const avg  = visible.length ? visible.reduce((s, h) => s + h.percentage, 0) / visible.length : 0;
-      const best = visible.length ? Math.max(...visible.map(h => h.percentage)) : 0;
-      const bestRank = visible.filter(h => h.rank).length ? Math.min(...visible.filter(h => h.rank).map(h => h.rank)) : null;
-      document.getElementById('sAvg').textContent  = visible.length ? avg.toFixed(0) + '%' : '—';
-      document.getElementById('sBest').textContent = visible.length ? best.toFixed(0) + '%' : '—';
-      document.getElementById('sRank').textContent = bestRank ? '#' + bestRank : '—';
-    } else {
-      ['sAvg','sBest','sRank'].forEach(id => document.getElementById(id).textContent = '—');
-    }
-
-    if (!data.length) {
-      document.getElementById('histList').innerHTML = `
-        <div class="empty-state">
-          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-          <h3>No exams taken yet</h3>
-          <p>Complete your first exam to see your history here.</p>
-          <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
-        </div>`;
-      return;
-    }
-
-    document.getElementById('histList').innerHTML = data.map(h => {
-      const perc  = h.percentage || 0;
-      const color = h.results_visible
-        ? (perc >= 80 ? 'var(--success)' : perc >= 60 ? 'var(--premium)' : perc >= 40 ? 'var(--warning)' : 'var(--error)')
-        : 'var(--muted)';
-
-      let actionsHtml = '';
-      if (h.results_visible) {
-        actionsHtml += `<a href="result.html?examId=${h.exam_id}&attemptId=${h.id}" class="btn-view">
-          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View Result
-        </a>`;
-        actionsHtml += `<a href="exam.html?id=${h.exam_id}&practice=1" class="btn-prac">
-          <svg viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice
-        </a>`;
-      }
-
-      return `
-      <div class="hist-item">
-        <div class="hist-top">
-          <div class="hist-left">
-            <div class="hist-name">${esc(h.exam_name)}</div>
-            <div class="hist-meta-row">
-              ${h.batch_name ? `<span class="hist-batch">${esc(h.batch_name)}</span>` : ''}
-              <span class="hist-date"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${formatDate(h.submitted_at)}</span>
-              ${!h.results_visible ? `<span class="pending-badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Results Pending</span>` : ''}
-            </div>
-          </div>
-          <div class="hist-right">
-            <div class="hist-perc" style="color:${color}">${h.results_visible ? perc.toFixed(0) + '%' : '—'}</div>
-          </div>
-        </div>
-        <div class="hist-stats-row">
-          ${h.results_visible ? `<span class="hist-score">${h.score}/${h.total_questions} correct</span>
-          <div class="hist-pbar"><div class="hist-pfill" style="width:${perc}%;background:${color}"></div></div>` : `<span class="hist-score" style="color:var(--muted)">Submitted</span>`}
-          ${h.rank ? `<div class="rank-pill"><strong>#${h.rank}</strong><span style="color:var(--muted);font-size:.68rem">/ ${h.total_participants}</span></div>` : ''}
-          ${h.percentile ? `<span class="perc-chip">Top ${h.percentile}%</span>` : ''}
-        </div>
-        <div class="hist-actions">${actionsHtml}</div>
-      </div>`;
-    }).join('');
-  } catch {
-    document.getElementById('histList').innerHTML = '<p style="color:var(--error);text-align:center;padding:40px">Failed to load history. Please refresh.</p>';
-  }
+async function apiFetch(path,opts={}){
+  const token=getToken();
+  const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};
+  const res=await fetch(API+path,{...opts,headers});
+  return{ok:res.ok,data:await res.json().catch(()=>({}))};
 }
 
-load();
+let historyData=[],currentFilter='all';
+
+// Header scroll hide
+let lastScroll=0;
+const header=document.getElementById('mainHeader');
+window.addEventListener('scroll',()=>{
+  const currentScroll=window.pageYOffset;
+  if(currentScroll>lastScroll&&currentScroll>80)header.classList.add('hidden');
+  else header.classList.remove('hidden');
+  lastScroll=currentScroll;
+});
+
+async function loadHistory(){
+  if(!getToken()){window.location.href='/';return}
+  const user=getUser();
+  if(user?.is_admin){window.location.href='admin.html';return}
+  
+  showSkeleton();
+  const{ok,data}=await apiFetch('/history');
+  if(!ok){logout();return}
+  
+  historyData=data||[];
+  updateStats();
+  renderHistory();
+}
+
+function showSkeleton(){
+  document.getElementById('historyContainer').innerHTML=`
+    <div class="skeleton" style="height:120px;margin-bottom:14px"></div>
+    <div class="skeleton" style="height:120px;margin-bottom:14px"></div>
+    <div class="skeleton" style="height:120px"></div>
+  `;
+}
+
+function updateStats(){
+  const total=historyData.length;
+  const visible=historyData.filter(h=>h.results_visible===true);
+  const avg=visible.length? (visible.reduce((s,h)=>s+h.percentage,0)/visible.length).toFixed(0):0;
+  const best=visible.length? Math.max(...visible.map(h=>h.percentage)).toFixed(0):0;
+  const bestRank=visible.filter(h=>h.rank).length? Math.min(...visible.filter(h=>h.rank).map(h=>h.rank)):null;
+  
+  document.getElementById('statTotal').textContent=total;
+  document.getElementById('statAvg').textContent=avg>0?avg+'%':'—';
+  document.getElementById('statBest').textContent=best>0?best+'%':'—';
+  document.getElementById('statRank').textContent=bestRank?'#'+bestRank:'—';
+}
+
+function renderHistory(){
+  const search=document.getElementById('searchInput').value.toLowerCase();
+  let filtered=historyData.filter(h=>{
+    if(search&&!h.exam_name.toLowerCase().includes(search))return false;
+    if(currentFilter==='published')return h.results_visible===true;
+    if(currentFilter==='pending')return h.results_visible===false;
+    return true;
+  });
+  
+  if(!filtered.length){
+    document.getElementById('historyContainer').innerHTML=`
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>
+        <h3>No exams found</h3>
+        <p>${search?'Try different search terms.':'Complete an exam to see your history here.'}</p>
+        <a href="dashboard.html" class="btn-action btn-view">Go to Dashboard</a>
+      </div>
+    `;
+    return;
+  }
+  
+  document.getElementById('historyContainer').innerHTML=filtered.map(item=>{
+    const isVisible=item.results_visible===true;
+    const pct=item.percentage||0;
+    let scoreClass='low';
+    if(pct>=80)scoreClass='high';
+    else if(pct>=60)scoreClass='medium';
+    else if(pct>=40)scoreClass='low';
+    else scoreClass='fail';
+    
+    let actionsHtml='';
+    if(isVisible){
+      actionsHtml=`
+        <a href="result.html?examId=${item.exam_id}&attemptId=${item.id}" class="btn-action btn-view">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View Results
+        </a>
+        <a href="exam.html?id=${item.exam_id}&practice=1" class="btn-action btn-practice">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice
+        </a>
+      `;
+    }else{
+      actionsHtml=`
+        <span class="btn-action btn-disabled">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 15 15"/></svg>Awaiting Results
+        </span>
+      `;
+    }
+    
+    return `
+      <div class="history-item">
+        <div class="history-header">
+          <div class="history-exam-name">${esc(item.exam_name)}</div>
+          <span class="history-badge ${isVisible?'badge-published':'badge-pending'}">
+            ${isVisible?'Results Available':'Pending Publication'}
+          </span>
+        </div>
+        <div class="history-meta">
+          <span class="meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${formatDate(item.submitted_at)}</span>
+          <span class="meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${item.total_questions} Questions</span>
+          ${item.is_practice?'<span class="meta-item" style="color:var(--accent-h)">Practice</span>':''}
+        </div>
+        ${isVisible?`
+          <div class="history-score">
+            <div>
+              <span class="score-number">${item.score}</span>
+              <span class="score-total">/${item.total_questions}</span>
+              <span class="score-percentage ${scoreClass}"> (${pct}%)</span>
+            </div>
+            <div class="rank-info">
+              ${item.rank?`<span class="rank-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Rank #${item.rank} / ${item.total_participants}</span>`:''}
+              ${item.percentile?`<span class="percentile-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 20L22 20"/><path d="M4 16L6 8"/><path d="M10 16L12 4"/><path d="M16 16L18 10"/><path d="M20 16L22 12"/></svg>Top ${item.percentile}%</span>`:''}
+            </div>
+          </div>
+        `:''}
+        <div class="history-actions">${actionsHtml}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setFilter(btn,filter){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter=filter;
+  renderHistory();
+}
+
+loadHistory();
 </script>
 </body>
 </html>
