@@ -137,10 +137,6 @@ header.hidden{transform:translateY(-100%)}
 .bottom-nav-item.active{color:var(--accent-h)}
 .bottom-nav-item svg{width:18px;height:18px;stroke:currentColor;fill:none}
 
-/* Share Toast */
-.share-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--success);color:var(--success);padding:10px 20px;border-radius:10px;font-size:.82rem;font-weight:600;transition:transform .3s;z-index:100;white-space:nowrap}
-.share-toast.show{transform:translateX(-50%) translateY(0)}
-
 /* Responsive */
 @media(max-width:900px){
   header{padding:0 16px}
@@ -234,9 +230,6 @@ header.hidden{transform:translateY(-100%)}
   </div>
 </div>
 
-<!-- Share Toast -->
-<div class="share-toast" id="shareToast">Copied to clipboard!</div>
-
 <script>
 const API = '/api';
 
@@ -256,7 +249,6 @@ async function apiFetch(path, opts = {}) {
     const res = await fetch(API + path, { ...opts, headers });
     const text = await res.text();
     
-    // If the response is empty or not JSON, handle it
     if (!text || text.trim() === '') {
       return { ok: false, data: { error: 'Empty response from server' } };
     }
@@ -265,7 +257,6 @@ async function apiFetch(path, opts = {}) {
       const data = JSON.parse(text);
       return { ok: res.ok, data };
     } catch (e) {
-      // If JSON parsing fails, return the raw text as error message
       return { ok: false, data: { error: text.substring(0, 200) } };
     }
   } catch (error) {
@@ -309,19 +300,15 @@ function gradeInfo(perc){
 
 async function loadResult(){
   try {
-    // Show loading, hide result
     document.getElementById('loadingState').style.display = 'flex';
     document.getElementById('resultWrap').style.display = 'none';
     
     const result = await apiFetch(`/exams/${examId}/result/${attemptId}`);
     
-    // Hide loading, show result area
     document.getElementById('loadingState').style.display = 'none';
     document.getElementById('resultWrap').style.display = 'block';
     
-    // Check if the response is ok
     if (!result.ok) {
-      // Check if the error message indicates pending results
       const errorMsg = result.data?.error || '';
       if (errorMsg.toLowerCase().includes('pending') || errorMsg.toLowerCase().includes('published')) {
         document.getElementById('resultWrap').innerHTML = `
@@ -347,7 +334,6 @@ async function loadResult(){
     
     const data = result.data;
     
-    // Pending results
     if (data.pending) {
       document.getElementById('resultWrap').innerHTML = `
         <div class="pending-card">
@@ -360,7 +346,6 @@ async function loadResult(){
       return;
     }
     
-    // Check if data exists
     if (!data.attempt || !data.questions) {
       document.getElementById('resultWrap').innerHTML = `
         <div class="pending-card">
@@ -377,7 +362,6 @@ async function loadResult(){
     questions = data.questions || [];
     exam = data.exam;
     
-    // Parse answers safely
     try {
       userAnswers = JSON.parse(attempt.answers || '{}');
     } catch(e) {
@@ -394,7 +378,6 @@ async function loadResult(){
     const perc = attempt.percentage || 0;
     const grade = gradeInfo(perc);
     
-    // Build result HTML
     let html = `
     <div class="score-card" style="--glow:${grade.glow}">
       <div class="score-circle-wrap">
@@ -417,7 +400,6 @@ async function loadResult(){
       <div class="perf-bar"><div class="perf-fill" style="width:${Math.max(perc, 2)}%;background:linear-gradient(90deg,${grade.color},${grade.color}88)"></div></div>
       <div class="result-actions">
         <a href="dashboard.html" class="btn btn-secondary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
-        <button class="btn btn-secondary" onclick="shareResult(${perc.toFixed(1)})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>
         ${!attempt.is_practice && exam.allow_practice ? `<a href="exam.html?id=${examId}&practice=1" class="btn btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Mode</a>` : ''}
       </div>
     </div>`;
@@ -438,7 +420,6 @@ async function loadResult(){
       } catch(e) {}
     }
     
-    // Review
     html += `
     <div class="review-head">
       <span class="title">Question Review</span>
@@ -533,20 +514,6 @@ function setFilter(btn, filter){
   renderReview();
 }
 
-function shareResult(perc){
-  const text = `I scored ${perc}% on "${exam?.name}" on Exalyte!`;
-  if (navigator.share) {
-    navigator.share({ title: 'My Exalyte Result', text }).catch(() => {});
-  } else {
-    navigator.clipboard.writeText(text).then(() => {
-      const t = document.getElementById('shareToast');
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2500);
-    }).catch(() => {});
-  }
-}
-
-// Load the result
 loadResult();
 </script>
 </body>
