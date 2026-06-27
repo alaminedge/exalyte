@@ -253,7 +253,6 @@ function getLiveStatus(exam) {
   };
 }
 
-// FIXED: Auto-publish when live deadline ends
 function isResultsPublished(exam) {
   if (exam.results_published) return true;
   
@@ -451,7 +450,6 @@ async function handleListExams(request, db) {
       stored_attempt = sa || null;
       accessible = await checkPremiumAccess(db, userId, exam.id, user.is_admin);
       
-      // FIXED: Practice logic — allowed only after live ends + has attempt, or non-live + has attempt
       if (exam.allow_practice) {
         if (exam.live_deadline_hours > 0) {
           can_practice = live.live_ended && !!stored_attempt;
@@ -460,7 +458,6 @@ async function handleListExams(request, db) {
         }
       }
       
-      // FIXED: During live, results always hidden. After live, auto-published.
       if (exam.live_deadline_hours > 0 && live.is_live) {
         results_visible = false;
       } else {
@@ -482,10 +479,7 @@ async function handleListExams(request, db) {
     });
   }
   
-  return json({ 
-    exams: result, 
-    batch_resources: batchResourcesList 
-  });
+  return json({ exams: result, batch_resources: batchResourcesList });
 }
 
 async function handleGetExamQuestions(examId, request, db) {
@@ -536,7 +530,6 @@ async function handleSubmitExam(examId, request, db) {
   const percentage = total > 0 ? Math.round((score / total) * 10000) / 100 : 0;
   const answersJson = JSON.stringify(detailedAnswers);
   
-  // Check if first non-practice attempt
   const existingFirst = await db.prepare(
     'SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1'
   ).bind(user.id, examId).first();
@@ -554,7 +547,6 @@ async function handleSubmitExam(examId, request, db) {
   return json({ attemptId: r1.id, score: Math.max(0, score), total, percentage });
 }
 
-// FIXED: Block results during live window
 async function handleGetResult(examId, attemptId, request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
@@ -562,7 +554,6 @@ async function handleGetResult(examId, attemptId, request, db) {
   const exam = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   if (!exam) return err('Exam not found', 404);
   
-  // During live window, always pending
   const live = getLiveStatus(exam);
   if (exam.live_deadline_hours > 0 && live.is_live) {
     return json({ pending: true, message: 'Results will be available after the live exam window ends.', exam_name: exam.name });
@@ -578,10 +569,14 @@ async function handleGetResult(examId, attemptId, request, db) {
   if (!attempt) return err('Result not found', 404);
   
   const questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
-  return json({ attempt: { ...attempt, answers: JSON.parse(attempt.answers || '{}') }, questions: questions.results, exam, results_published: true });
+  return json({ 
+    attempt: { ...attempt, answers: JSON.parse(attempt.answers || '{}') }, 
+    questions: questions.results, 
+    exam, 
+    results_published: true 
+  });
 }
 
-// FIXED: Hide leaderboard during live, show after
 async function handleLeaderboard(examId, request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
@@ -591,7 +586,6 @@ async function handleLeaderboard(examId, request, db) {
   
   if (!exam.leaderboard_enabled) return json({ disabled: true });
   
-  // Hide during live window
   if (exam.live_deadline_hours > 0) {
     const liveStatus = getLiveStatus(exam);
     if (liveStatus.is_live) {
@@ -614,12 +608,14 @@ async function handleLeaderboard(examId, request, db) {
   return json({ ...row, percentile, disabled: false });
 }
 
+// FIXED: handleHistory with proper getLiveStatus field mapping
 async function handleHistory(request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
   
   const rows = await db.prepare(`
-    SELECT ers.*, e.name as exam_name, e.results_published, e.publish_after_hours, e.live_deadline_hours, e.created_at as exam_created_at
+    SELECT ers.*, e.name as exam_name, e.results_published, e.publish_after_hours, 
+           e.live_deadline_hours, e.created_at as exam_created_at
     FROM exam_results_stored ers
     JOIN exams e ON ers.exam_id = e.id
     WHERE ers.user_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0
@@ -628,12 +624,19 @@ async function handleHistory(request, db) {
   
   const result = [];
   for (const r of rows.results) {
-    const live = getLiveStatus(r);
+    // FIX: Map exam_created_at to created_at for getLiveStatus
+    const examForLive = {
+      live_deadline_hours: r.live_deadline_hours,
+      created_at: r.exam_created_at
+    };
+    const live = getLiveStatus(examForLive);
+    
     const published = r.live_deadline_hours > 0 && live.is_live 
       ? false 
-      : (r.results_published || (r.publish_after_hours > 0 && 
-        (new Date(r.exam_created_at).getTime() + r.publish_after_hours * 3600000) <= Date.now()) ||
-        (r.live_deadline_hours > 0 && live.live_ended));
+      : (r.results_published || 
+         (r.publish_after_hours > 0 && 
+          (new Date(r.exam_created_at).getTime() + r.publish_after_hours * 3600000) <= Date.now()) ||
+         (r.live_deadline_hours > 0 && live.live_ended));
     
     let lb = null;
     if (published) {
@@ -646,7 +649,13 @@ async function handleHistory(request, db) {
       `).bind(r.exam_id, user.id).first();
     }
     const percentile = lb && lb.total_participants > 1 ? Math.round((1 - (lb.rank - 1) / lb.total_participants) * 100) : null;
-    result.push({ ...r, rank: lb?.rank || null, total_participants: lb?.total_participants || null, percentile, results_visible: published });
+    result.push({ 
+      ...r, 
+      rank: lb?.rank || null, 
+      total_participants: lb?.total_participants || null, 
+      percentile, 
+      results_visible: published 
+    });
   }
   return json(result);
 }
