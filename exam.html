@@ -6,237 +6,341 @@
 <title>Exam — Exalyte</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+:root{
+  --blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;
+  --green:#1e8e3e;--grn-bg:#e6f4ea;--yellow:#f9ab00;--yel-bg:#fef7e0;
+  --bg:#f8f9fa;--surf:#ffffff;--hov:#f1f3f4;--border:#dadce0;
+  --t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
+  --gs:'Google Sans','Roboto',system-ui,sans-serif;
+  --rb:'Roboto',system-ui,sans-serif;
+  --hh:64px;--r:4px;--rl:8px;--tr:.2s cubic-bezier(.4,0,.2,1);
+}
+body{
+  font-family:var(--rb);background:var(--bg);color:var(--t2);
+  -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
+  display:flex;flex-direction:column;overflow-x:hidden;
+}
+.header{
+  position:fixed;top:0;left:0;right:0;height:var(--hh);
+  background:var(--surf);border-bottom:1px solid var(--border);
+  z-index:1000;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;
+  transition:transform .25s ease;
+}
+.header.hidden{transform:translateY(-100%)}
+.header-left{display:flex;align-items:center;gap:12px}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
+.header-right{display:flex;align-items:center;gap:12px}
+.timer-box{
+  display:flex;align-items:center;gap:6px;padding:6px 14px;
+  border:1px solid var(--border);border-radius:20px;
+  font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t2);
+  background:var(--surf);transition:all var(--tr);
+}
+.timer-box.warning{border-color:var(--yellow);background:var(--yel-bg);color:#e37400}
+.timer-box.danger{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+.timer-box svg{width:16px;height:16px;stroke:currentColor;fill:none}
+.timer-val{font-family:'Google Sans',monospace;font-weight:500;font-size:.9rem;min-width:50px}
+.btn-exit{
+  background:transparent;border:1px solid var(--border);color:var(--t3);
+  padding:6px 14px;border-radius:var(--r);font-family:var(--gs);font-size:.8rem;
+  font-weight:500;cursor:pointer;display:flex;align-items:center;gap:5px;
+  transition:all var(--tr);
+}
+.btn-exit:hover{border-color:var(--red);color:var(--red)}
+.btn-exit svg{width:14px;height:14px;stroke:currentColor;fill:none}
 
-:root,[data-theme="dark"]{--bg:#080810;--surface:#0e0e1c;--surface2:#13132a;--surface3:#1a1a36;--border:#1f1f3a;--border2:#2a2a4a;--accent:#5b5bd6;--accent-h:#6e6ee8;--muted:#8b8bae;--text:#c8c8e8;--bright:#f0f0ff;--success:#22c55e;--error:#ef4444;--warning:#f59e0b;--premium:#a855f7;--live:#ef4444}
-[data-theme="light"]{--bg:#f4f4f8;--surface:#ffffff;--surface2:#f0f0f6;--surface3:#e8e8f0;--border:#d8d8e8;--border2:#c8c8d8;--accent:#6366f1;--accent-h:#4f46e5;--text:#2d2d3d;--bright:#111128;--muted:#7c7c96;--error:#dc2626;--success:#16a34a;--warning:#d97706;--premium:#9333ea}
-
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-
-/* Header - disappears on scroll */
-header{position:fixed;top:0;left:0;right:0;z-index:200;height:60px;background:rgba(8,8,16,.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;transition:transform .3s cubic-bezier(.4,0,.2,1)}
-header.hidden{transform:translateY(-100%)}
-.logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--bright);font-family:'Sora',sans-serif;font-weight:700;font-size:1rem}
-.logo-img{width:28px;height:28px;border-radius:6px;object-fit:cover}
-.logo-text{background:linear-gradient(135deg,#ffffff,#a0a0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.timer-box{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:30px;font-size:.78rem;font-weight:600;color:var(--text)}
-.timer-box svg{width:14px;height:14px;stroke:currentColor;fill:none}
-.timer-box.warning{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.08)}
-.timer-box.danger{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.08);color:var(--error)}
-.timer-val{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.9rem;min-width:50px}
-.btn-exit{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:30px;font-size:.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s}
-.btn-exit:hover{border-color:var(--error);color:var(--error)}
-
-/* Agreement Screen */
-#agreementScreen{position:fixed;inset:0;z-index:300;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;padding-top:80px}
-.agree-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;max-width:580px;width:100%;padding:36px 32px;position:relative}
-.agree-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px}
-.agree-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);padding:4px 12px;border-radius:100px;font-size:.7rem;font-weight:700;color:var(--accent-h);margin-bottom:16px}
-.agree-title{font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:900;color:var(--bright);letter-spacing:-.02em;margin-bottom:6px}
-.agree-sub{font-size:.85rem;color:var(--muted);margin-bottom:20px}
-.agree-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
-.agree-meta-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:4px 10px;border-radius:8px}
+/* Agreement */
+.agreement-overlay{
+  position:fixed;inset:0;z-index:500;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  overflow-y:auto;
+}
+.agree-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  max-width:560px;width:100%;padding:36px 32px;
+}
+.agree-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.agree-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 12px;border-radius:20px;font-family:var(--gs);
+  font-size:.72rem;font-weight:500;margin-bottom:14px;
+}
+.badge-blue{background:#e8f0fe;color:var(--blue)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.agree-title{font-family:var(--gs);font-size:1.4rem;font-weight:500;color:var(--t1);margin-bottom:6px}
+.agree-sub{font-size:.85rem;color:var(--t3);margin-bottom:20px}
+.agree-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.agree-meta-item{
+  display:flex;align-items:center;gap:5px;font-size:.72rem;
+  color:var(--t3);padding:4px 10px;border:1px solid var(--border);
+  border-radius:20px;
+}
 .agree-meta-item svg{width:12px;height:12px;stroke:currentColor;fill:none}
-.agree-rules{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
-.agree-rule{display:flex;align-items:flex-start;gap:10px;font-size:.82rem;color:var(--text);line-height:1.5}
-.agree-rule svg{width:16px;height:16px;stroke:var(--accent-h);fill:none;flex-shrink:0;margin-top:1px}
-.agree-check-row{display:flex;align-items:flex-start;gap:10px;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;margin-bottom:20px;cursor:pointer}
-.agree-check-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;margin-top:1px}
-.agree-check-row label{font-size:.85rem;color:var(--text);cursor:pointer;line-height:1.5}
-.btn-agree{width:100%;padding:14px;font-size:.92rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent-h));color:#fff;border:none;border-radius:14px;cursor:pointer;transition:all .2s}
-.btn-agree:hover{opacity:.9;transform:translateY(-1px)}
-.btn-agree:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.btn-back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.82rem;background:none;border:none;cursor:pointer;margin-bottom:16px;transition:color .2s}
-.btn-back:hover{color:var(--text)}
+.agree-rules{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.agree-rule{display:flex;align-items:flex-start;gap:10px;font-size:.82rem;color:var(--t2);line-height:1.5}
+.agree-rule svg{width:16px;height:16px;stroke:var(--blue);fill:none;flex-shrink:0;margin-top:1px}
+.agree-check{
+  display:flex;align-items:flex-start;gap:10px;padding:14px;
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--r);
+  margin-bottom:20px;cursor:pointer;
+}
+.agree-check input[type=checkbox]{width:18px;height:18px;accent-color:var(--blue);cursor:pointer;flex-shrink:0;margin-top:1px}
+.agree-check label{font-size:.85rem;color:var(--t2);cursor:pointer;line-height:1.5}
+.btn-agree{
+  width:100%;padding:14px;font-family:var(--gs);font-size:.92rem;font-weight:500;
+  background:var(--blue);color:#fff;border:none;border-radius:var(--r);
+  cursor:pointer;transition:all var(--tr);
+}
+.btn-agree:hover{background:var(--blue-h)}
+.btn-agree:disabled{background:var(--hov);color:var(--t4);cursor:not-allowed}
+.btn-back{
+  display:inline-flex;align-items:center;gap:6px;color:var(--t3);
+  font-size:.82rem;background:none;border:none;cursor:pointer;
+  margin-bottom:14px;font-family:var(--rb);transition:color var(--tr);
+}
+.btn-back:hover{color:var(--t1)}
 .btn-back svg{width:14px;height:14px;stroke:currentColor;fill:none}
 
 /* Exam UI */
-#examUI{display:none;flex-direction:column;min-height:calc(100vh - 60px)}
-.exam-stats-bar{display:flex;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;flex-wrap:wrap}
-.stat-chip{flex:1;text-align:center;padding:8px 6px;font-size:.65rem;font-weight:600;color:var(--muted);border-right:1px solid var(--border);min-width:60px;line-height:1.3}
+#examUI{display:none;flex-direction:column;min-height:calc(100vh - var(--hh))}
+.exam-stats-bar{
+  display:flex;border-bottom:1px solid var(--border);
+  background:var(--surf);flex-shrink:0;
+}
+.stat-chip{
+  flex:1;text-align:center;padding:10px 8px;font-size:.68rem;
+  font-weight:500;color:var(--t3);border-right:1px solid var(--border);
+}
 .stat-chip:last-child{border-right:none}
-.stat-chip strong{display:block;font-family:'Sora',sans-serif;font-size:.9rem;font-weight:800;margin-bottom:1px}
-.stat-chip.s-answered strong{color:var(--success)}
-.stat-chip.s-remaining strong{color:var(--warning)}
-.stat-chip.s-marked strong{color:var(--accent-h)}
-.prog-wrap{height:3px;background:var(--surface2);flex-shrink:0}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-h));transition:width .3s}
-
+.stat-chip strong{display:block;font-family:var(--gs);font-size:.9rem;font-weight:500;margin-bottom:1px}
+.stat-chip.answered strong{color:var(--green)}
+.stat-chip.remaining strong{color:var(--t3)}
+.stat-chip.marked strong{color:var(--blue)}
+.prog-wrap{height:3px;background:var(--hov);flex-shrink:0}
+.prog-fill{height:100%;background:var(--blue);transition:width .3s}
 .exam-body{display:flex;flex:1;overflow:hidden}
 .questions-area{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
 .questions-area::-webkit-scrollbar{width:4px}
 .questions-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.q-card{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:18px;transition:border-color .2s;scroll-margin-top:20px}
-.q-card.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.08)}
-.q-card.answered{border-color:rgba(34,197,94,.4)}
+.q-card{
+  background:var(--surf);border:2px solid var(--border);border-radius:var(--rl);
+  padding:18px;transition:border-color var(--tr);scroll-margin-top:20px;
+}
+.q-card.active{border-color:var(--blue)}
+.q-card.answered{border-color:rgba(30,142,62,.4)}
 .q-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
-.q-num{min-width:28px;height:28px;background:var(--surface2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;color:var(--muted);flex-shrink:0}
-.q-card.answered .q-num{background:rgba(34,197,94,.12);color:var(--success)}
-.q-card.active .q-num{background:rgba(99,102,241,.18);color:var(--accent-h)}
-.q-text{font-size:.88rem;color:var(--bright);line-height:1.6;font-weight:500;white-space:pre-wrap}
-.q-img{max-width:100%;max-height:200px;border-radius:10px;margin-bottom:12px;border:1px solid var(--border);object-fit:contain}
+.q-num{
+  min-width:28px;height:28px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;
+  font-family:var(--gs);font-size:.7rem;font-weight:500;
+  background:var(--hov);color:var(--t3);flex-shrink:0;
+}
+.q-card.answered .q-num{background:var(--grn-bg);color:var(--green)}
+.q-card.active .q-num{background:#e8f0fe;color:var(--blue)}
+.q-text{font-size:.9rem;color:var(--t1);line-height:1.6;font-weight:400}
+.q-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-bottom:12px;border:1px solid var(--border);object-fit:contain}
 .options{display:flex;flex-direction:column;gap:8px}
-.option{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:all .18s}
-.option:hover:not(.selected):not(.locked){border-color:rgba(99,102,241,.35);background:rgba(99,102,241,.04)}
-.option.selected{border-color:var(--accent);background:rgba(99,102,241,.1)}
+.option{
+  display:flex;align-items:center;gap:12px;padding:10px 14px;
+  background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);
+  cursor:pointer;transition:all .15s;
+}
+.option:hover:not(.selected):not(.locked){border-color:var(--blue);background:#e8f0fe}
+.option.selected{border-color:var(--blue);background:#e8f0fe}
 .option.locked{cursor:default;opacity:.7}
-.option-letter{width:26px;height:26px;background:var(--surface3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;color:var(--muted);flex-shrink:0;transition:all .18s}
-.option.selected .option-letter{background:var(--accent);color:#fff}
-.option-text{font-size:.82rem;color:var(--text);line-height:1.4;flex:1;white-space:pre-wrap}
+.option-letter{
+  width:26px;height:26px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;
+  font-family:var(--gs);font-size:.72rem;font-weight:500;
+  background:var(--surf);color:var(--t3);flex-shrink:0;transition:all .15s;
+}
+.option.selected .option-letter{background:var(--blue);color:#fff}
+.option-text{font-size:.82rem;color:var(--t2);line-height:1.4;flex:1}
 .q-footer{display:flex;align-items:center;gap:8px;margin-top:12px}
-.btn-mark{background:none;border:1px solid var(--border);color:var(--muted);padding:4px 12px;border-radius:8px;font-size:.68rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .2s}
-.btn-mark:hover,.btn-mark.active{border-color:var(--accent-h);color:var(--accent-h);background:rgba(99,102,241,.08)}
+.btn-mark{
+  background:none;border:1px solid var(--border);color:var(--t3);
+  padding:4px 12px;border-radius:20px;font-family:var(--gs);font-size:.7rem;
+  font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;
+  transition:all var(--tr);
+}
+.btn-mark:hover,.btn-mark.active{border-color:var(--blue);color:var(--blue);background:#e8f0fe}
 .btn-mark svg{width:12px;height:12px;stroke:currentColor;fill:none}
 
-/* Sidebar Navigation - No numbers */
-.nav-sidebar{width:200px;border-left:1px solid var(--border);background:var(--surface);overflow-y:auto;padding:14px;flex-shrink:0;display:flex;flex-direction:column;gap:12px}
+/* Sidebar */
+.nav-sidebar{
+  width:200px;border-left:1px solid var(--border);background:var(--surf);
+  overflow-y:auto;padding:14px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;
+}
 .nav-sidebar::-webkit-scrollbar{width:4px}
 .nav-sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.dots-label{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.dots-label{font-size:.65rem;font-weight:500;letter-spacing:.5px;text-transform:uppercase;color:var(--t4)}
 .dots-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
-.dot{width:100%;aspect-ratio:1;border-radius:7px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all .15s;color:var(--muted);font-weight:700}
-.dot:hover{border-color:var(--accent-h);color:var(--accent-h)}
-.dot.d-answered{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.4);color:var(--success)}
-.dot.d-marked{background:rgba(99,102,241,.14);border-color:rgba(99,102,241,.4);color:var(--accent-h)}
-.dot.d-active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(99,102,241,.25)}
+.dot{
+  width:100%;aspect-ratio:1;border-radius:50%;background:var(--hov);
+  border:1px solid var(--border);display:flex;align-items:center;
+  justify-content:center;font-family:var(--gs);font-size:.65rem;
+  cursor:pointer;transition:all .15s;color:var(--t3);font-weight:500;
+}
+.dot:hover{border-color:var(--blue);color:var(--blue)}
+.dot.d-answered{background:var(--grn-bg);border-color:rgba(30,142,62,.4);color:var(--green)}
+.dot.d-marked{background:#e8f0fe;border-color:rgba(26,115,232,.4);color:var(--blue)}
+.dot.d-active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,115,232,.25)}
 .legend{display:flex;flex-direction:column;gap:4px}
-.legend-item{display:flex;align-items:center;gap:6px;font-size:.68rem;color:var(--muted)}
-.legend-dot{width:8px;height:8px;border-radius:3px;flex-shrink:0}
-.btn-submit-sidebar{background:linear-gradient(135deg,var(--accent),var(--accent-h));color:#fff;border:none;padding:12px;border-radius:12px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:auto}
-.btn-submit-sidebar:hover{opacity:.9;transform:translateY(-1px)}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:.68rem;color:var(--t3)}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.btn-submit-sidebar{
+  background:var(--blue);color:#fff;border:none;padding:12px;
+  border-radius:var(--r);font-family:var(--gs);font-size:.78rem;font-weight:500;
+  cursor:pointer;transition:all var(--tr);display:flex;
+  align-items:center;justify-content:center;gap:6px;margin-top:auto;
+}
+.btn-submit-sidebar:hover{background:var(--blue-h)}
 .btn-submit-sidebar svg{width:14px;height:14px;stroke:#fff;fill:none}
 
+/* Mobile footer */
+.exam-mobile-footer{
+  display:none;background:var(--surf);border-top:1px solid var(--border);
+  padding:12px 16px;gap:10px;align-items:center;
+  position:fixed;bottom:0;left:0;right:0;z-index:30;
+  box-shadow:0 -4px 20px rgba(0,0,0,.1);
+}
+.exam-mobile-footer.show{display:flex}
+.btn-mob-submit{
+  flex:1;background:var(--blue);color:#fff;border:none;padding:14px;
+  border-radius:var(--r);font-family:var(--gs);font-size:.9rem;font-weight:500;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all var(--tr);
+}
+.btn-mob-submit:hover{background:var(--blue-h)}
+.btn-mob-submit svg{width:16px;height:16px;stroke:#fff;fill:none}
+
 /* Submit Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(16px);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--surface);border:1px solid var(--border2);border-radius:24px;width:100%;max-width:420px;padding:28px 24px}
-.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.modal-title{font-family:'Sora',sans-serif;font-weight:700;font-size:1rem;color:var(--bright)}
-.modal-close{background:var(--surface2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted)}
-.modal-close svg{width:14px;height:14px;stroke:currentColor;fill:none}
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  width:100%;max-width:400px;padding:28px 24px;box-shadow:0 24px 50px rgba(0,0,0,.3);
+}
+.modal h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1);margin-bottom:4px}
+.modal .subtitle{font-size:.8rem;color:var(--t3);margin-bottom:20px;line-height:1.5}
 .submit-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
-.sub-stat{text-align:center;background:var(--surface2);border-radius:10px;padding:12px 8px}
-.sub-stat .n{font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:900;color:var(--bright)}
-.sub-stat .l{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-top:2px}
-.sub-stat.warn .n{color:var(--warning)}
+.sub-stat{text-align:center;background:var(--bg);border-radius:var(--r);padding:12px 8px}
+.sub-stat .n{font-family:var(--gs);font-size:1.4rem;font-weight:500;color:var(--t1)}
+.sub-stat .l{font-size:.6rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
+.sub-stat.warn .n{color:#e37400}
 .modal-footer{display:flex;gap:10px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border)}
-.btn-secondary{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:40px;font-size:.8rem;font-weight:600;cursor:pointer}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-h));color:#fff;border:none;padding:10px 20px;border-radius:40px;font-size:.8rem;font-weight:600;cursor:pointer}
+.btn-secondary{
+  background:var(--bg);border:1px solid var(--border);color:var(--t2);
+  padding:10px 20px;border-radius:var(--r);font-family:var(--gs);font-size:.8rem;
+  font-weight:500;cursor:pointer;transition:all var(--tr);
+}
+.btn-secondary:hover{background:var(--hov)}
+.btn-primary{
+  background:var(--blue);color:#fff;border:none;padding:10px 20px;
+  border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;
+  cursor:pointer;transition:all var(--tr);
+}
+.btn-primary:hover{background:var(--blue-h)}
 
 /* Tab Warning */
-.tab-warn{position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(16px);z-index:600;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:36px}
+.tab-warn{
+  position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;
+  display:none;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:36px;
+}
 .tab-warn.show{display:flex}
-.warn-icon-wrap{width:60px;height:60px;background:rgba(239,68,68,.18);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
-.warn-icon-wrap svg{width:28px;height:28px;stroke:var(--error);fill:none}
-.tab-warn h2{font-family:'Sora',sans-serif;font-size:1.2rem;font-weight:900;color:var(--bright);margin-bottom:8px}
-.tab-warn p{color:var(--muted);font-size:.85rem;max-width:380px;line-height:1.6}
-.btn-return{background:linear-gradient(135deg,var(--accent),var(--accent-h));color:#fff;border:none;padding:12px 32px;border-radius:14px;font-size:.88rem;font-weight:700;cursor:pointer;margin-top:12px;transition:all .2s}
-.btn-return:hover{opacity:.9}
+.warn-icon-wrap{
+  width:60px;height:60px;border-radius:50%;background:rgba(217,48,37,.18);
+  display:flex;align-items:center;justify-content:center;margin-bottom:16px;
+}
+.warn-icon-wrap svg{width:28px;height:28px;stroke:var(--red);fill:none}
+.tab-warn h2{font-family:var(--gs);font-size:1.2rem;font-weight:500;color:#fff;margin-bottom:8px}
+.tab-warn p{color:rgba(255,255,255,.7);font-size:.85rem;max-width:380px;line-height:1.6}
+.btn-return{
+  background:var(--blue);color:#fff;border:none;padding:12px 32px;
+  border-radius:var(--r);font-family:var(--gs);font-size:.88rem;font-weight:500;
+  cursor:pointer;margin-top:12px;transition:all var(--tr);
+}
+.btn-return:hover{background:var(--blue-h)}
 
-/* Mobile Submit Button */
-.exam-mobile-footer{display:none;background:var(--surface);border-top:1px solid var(--border);padding:12px 16px;gap:10px;align-items:center;position:fixed;bottom:0;left:0;right:0;z-index:30;box-shadow:0 -4px 20px rgba(0,0,0,.3)}
-.exam-mobile-footer.visible{display:flex}
-.btn-mob-submit{flex:1;background:linear-gradient(135deg,var(--accent),var(--accent-h));color:#fff;border:none;padding:14px;border-radius:14px;font-size:.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
-.btn-mob-submit:hover{opacity:.9;transform:translateY(-1px)}
-.btn-mob-submit svg{width:16px;height:16px;stroke:#fff;fill:none}
-.btn-mob-submit:disabled{opacity:.5;cursor:not-allowed}
-
-/* Bottom Nav (mobile) */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:29;padding:6px 0 8px}
-.bottom-nav-items{display:flex}
-.bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;color:var(--muted);font-size:.55rem;font-weight:600;border:none;background:none;cursor:pointer;transition:color .2s}
-.bottom-nav-item.active{color:var(--accent-h)}
-.bottom-nav-item svg{width:18px;height:18px;stroke:currentColor;fill:none}
-
-/* Responsive */
 @media(max-width:900px){
-  header{padding:0 16px}
+  .header{padding:0 16px}
   .exam-body{flex-direction:column}
-  .nav-sidebar{width:100%;border-left:none;border-top:1px solid var(--border);flex-direction:row;flex-wrap:wrap;padding:12px 16px;max-height:160px;overflow-y:auto}
+  .nav-sidebar{width:100%;border-left:none;border-top:1px solid var(--border);flex-direction:row;flex-wrap:wrap;padding:12px 16px;max-height:140px;overflow-y:auto}
   .nav-sidebar .dots-label{width:100%;margin-bottom:4px}
-  .dots-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;flex:1}
+  .dots-grid{grid-template-columns:repeat(10,1fr);gap:4px;flex:1}
   .legend{display:none}
   .btn-submit-sidebar{display:none}
-  .exam-mobile-footer.visible{display:flex}
+  .exam-mobile-footer.show{display:flex}
   .questions-area{padding:14px;padding-bottom:90px}
-  .agree-card{padding:28px 20px}
   .q-card{padding:14px}
-  .stat-chip{font-size:.6rem;padding:6px 4px}
-  .stat-chip strong{font-size:.8rem}
-  .timer-box{padding:4px 10px}
-  .timer-box .timer-val{font-size:.78rem}
-  .bottom-nav{display:block}
+  .agree-card{padding:28px 20px}
+  .timer-box{padding:4px 10px;font-size:.78rem}
 }
-
-@media(max-width:540px){
+@media(max-width:600px){
   .agree-title{font-size:1.2rem}
-  .agree-meta{gap:8px}
-  .agree-meta-item{font-size:.65rem}
   .dots-grid{grid-template-columns:repeat(6,1fr)}
   .modal{padding:20px 16px}
   .submit-stats{grid-template-columns:1fr 1fr}
   .option{padding:8px 12px}
   .option-text{font-size:.78rem}
   .q-text{font-size:.82rem}
-  .q-footer{flex-wrap:wrap}
   .btn-exit span{display:none}
-  .btn-exit{padding:6px 10px}
-  .exam-mobile-footer{padding:10px 14px}
-  .btn-mob-submit{padding:12px;font-size:.82rem}
-}
-
-@media(max-width:400px){
-  .dots-grid{grid-template-columns:repeat(5,1fr)}
-  .stat-chip{font-size:.55rem;padding:4px 2px}
-  .stat-chip strong{font-size:.7rem}
 }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header id="mainHeader">
-  <div style="display:flex;align-items:center;gap:12px">
-    <a href="/" class="logo">
+<header class="header" id="header">
+  <div class="header-left">
+    <a href="/" class="logo-wrap">
       <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
       <span class="logo-text">Exalyte</span>
     </a>
   </div>
-  <div style="display:flex;align-items:center;gap:10px">
+  <div class="header-right">
     <div class="timer-box" id="timerBox">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span class="timer-val" id="timerVal">--:--</span>
     </div>
     <button class="btn-exit" onclick="logout()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 16l4-4m0 0l-4-4m4 4H7"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7"/></svg>
       <span>Exit</span>
     </button>
   </div>
 </header>
 
-<!-- AGREEMENT SCREEN -->
-<div id="agreementScreen">
+<!-- Agreement Screen -->
+<div class="agreement-overlay" id="agreementScreen">
   <div class="agree-card">
     <button class="btn-back" onclick="window.location.href='dashboard.html'">
       <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back to Dashboard
     </button>
     <div class="agree-logo">
-      <img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:6px" onerror="this.style.display='none'">
-      <span style="font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;color:var(--bright)">Exalyte</span>
+      <img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:50%" onerror="this.style.display='none'">
+      <span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1)">Exalyte</span>
     </div>
-    <div class="agree-badge" id="agreeTypeBadge">📝 Exam</div>
+    <div class="agree-badge" id="agreeTypeBadge">Exam</div>
     <div class="agree-title" id="agreeTitle">Loading...</div>
     <div class="agree-sub" id="agreeDesc" style="display:none"></div>
     <div class="agree-meta" id="agreeMeta"></div>
     <div class="agree-rules">
       <div class="agree-rule"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>The timer starts immediately. You cannot pause it.</span></div>
-      <div class="agree-rule" id="tabRule" style="display:none"><svg viewBox="0 0 24 24"><path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01"/></svg><span>Do not switch tabs or windows. You get 2 warnings then auto-submit.</span></div>
-      <div class="agree-rule"><svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span>Once submitted, your answers cannot be changed.</span></div>
+      <div class="agree-rule" id="tabRule" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span>Do not switch tabs or windows. You get 2 warnings then auto-submit.</span></div>
+      <div class="agree-rule"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Once submitted, your answers cannot be changed.</span></div>
       <div class="agree-rule" id="negRule" style="display:none"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg><span id="negRuleText">Negative marking applies to wrong answers.</span></div>
     </div>
-    <div class="agree-check-row" onclick="toggleAgree()">
+    <div class="agree-check" onclick="toggleAgree()">
       <input type="checkbox" id="agreeCheck" onclick="event.stopPropagation()">
       <label for="agreeCheck">I have read and understood the exam rules. I agree to attempt this exam honestly.</label>
     </div>
@@ -244,22 +348,23 @@ header.hidden{transform:translateY(-100%)}
   </div>
 </div>
 
-<!-- EXAM UI -->
+<!-- Exam UI -->
 <div id="examUI">
   <div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
   <div class="exam-stats-bar">
-    <div class="stat-chip s-answered"><strong id="cAnswered">0</strong>Answered</div>
-    <div class="stat-chip s-remaining"><strong id="cRemaining">0</strong>Remaining</div>
-    <div class="stat-chip s-marked"><strong id="cMarked">0</strong>Marked</div>
+    <div class="stat-chip answered"><strong id="cAnswered">0</strong>Answered</div>
+    <div class="stat-chip remaining"><strong id="cRemaining">0</strong>Remaining</div>
+    <div class="stat-chip marked"><strong id="cMarked">0</strong>Marked</div>
   </div>
   <div class="exam-body">
     <div class="questions-area" id="questionsArea"></div>
-    <div class="nav-sidebar" id="navSidebar">
-      <div><div class="dots-label">Questions</div><div class="dots-grid" id="dotsGrid"></div></div>
+    <div class="nav-sidebar">
+      <div class="dots-label">Questions</div>
+      <div class="dots-grid" id="dotsGrid"></div>
       <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:rgba(34,197,94,.4)"></div>Answered</div>
-        <div class="legend-item"><div class="legend-dot" style="background:rgba(99,102,241,.4)"></div>Marked</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--surface2);border:1px solid var(--border)"></div>Unanswered</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(30,142,62,.4)"></div>Answered</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#e8f0fe"></div>Marked</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--hov)"></div>Unanswered</div>
       </div>
       <button class="btn-submit-sidebar" onclick="openSubmit()">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Submit Exam
@@ -268,45 +373,22 @@ header.hidden{transform:translateY(-100%)}
   </div>
 </div>
 
-<!-- Mobile Submit Button -->
+<!-- Mobile Submit -->
 <div class="exam-mobile-footer" id="mobileFooter">
   <button class="btn-mob-submit" onclick="openSubmit()">
     <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Submit Exam
   </button>
 </div>
 
-<!-- Bottom Nav (mobile) -->
-<div class="bottom-nav">
-  <div class="bottom-nav-items">
-    <button class="bottom-nav-item" onclick="window.location='dashboard.html'">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Home
-    </button>
-    <button class="bottom-nav-item active">
-      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Exam
-    </button>
-    <button class="bottom-nav-item" onclick="window.location='exam-history.html'">
-      <svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg>History
-    </button>
-    <button class="bottom-nav-item" onclick="logout()">
-      <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7"/></svg>Exit
-    </button>
-  </div>
-</div>
-
 <!-- Submit Modal -->
 <div class="modal-overlay" id="submitModal">
   <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">Submit Exam?</span>
-      <button class="modal-close" onclick="closeSubmit()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <div class="modal-body">
-      <p style="font-size:.82rem;color:var(--muted);margin-bottom:12px;line-height:1.5">Review your progress before submitting. This action cannot be undone.</p>
-      <div class="submit-stats">
-        <div class="sub-stat"><div class="n" id="sAns">0</div><div class="l">Answered</div></div>
-        <div class="sub-stat warn"><div class="n" id="sUnans">0</div><div class="l">Unanswered</div></div>
-        <div class="sub-stat"><div class="n" id="sMark">0</div><div class="l">Marked</div></div>
-      </div>
+    <h2>Submit Exam?</h2>
+    <p class="subtitle">Review your progress before submitting. This action cannot be undone.</p>
+    <div class="submit-stats">
+      <div class="sub-stat"><div class="n" id="sAns">0</div><div class="l">Answered</div></div>
+      <div class="sub-stat warn"><div class="n" id="sUnans">0</div><div class="l">Unanswered</div></div>
+      <div class="sub-stat"><div class="n" id="sMark">0</div><div class="l">Marked</div></div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeSubmit()">Go Back</button>
@@ -318,9 +400,9 @@ header.hidden{transform:translateY(-100%)}
 <!-- Tab Warning -->
 <div class="tab-warn" id="tabWarn">
   <div class="warn-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
-  <h2>You Left The Exam!</h2>
+  <h2>You Left The Exam</h2>
   <p id="warnMsg">Switching tabs during a live exam is not allowed.</p>
-  <p id="warnCount" style="color:var(--error);font-weight:700;font-size:.85rem;margin-top:4px"></p>
+  <p id="warnCount" style="color:var(--red);font-weight:500;font-size:.85rem;margin-top:4px"></p>
   <button class="btn-return" id="returnBtn" onclick="dismissWarn()">Return to Exam</button>
 </div>
 
@@ -347,41 +429,37 @@ if(!examId)window.location.href='dashboard.html';
 if(!getToken())window.location.href='/';
 
 let questions=[],answers={},marked={},exam=null;
-let timeLeft=0,timerInt=null,tabLeaves=0,examSubmitted=false,currentIndex=0;
+let timeLeft=0,timerInt=null,tabLeaves=0,examSubmitted=false;
 
-// Header scroll hide
-let lastScroll=0;
-const header=document.getElementById('mainHeader');
-window.addEventListener('scroll',()=>{
-  const currentScroll=window.pageYOffset;
-  if(currentScroll>lastScroll&&currentScroll>80)header.classList.add('hidden');
-  else header.classList.remove('hidden');
-  lastScroll=currentScroll;
-});
+// Header scroll
+let lastY=0,ticking=false;
+const header=document.getElementById('header');
+window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(()=>{const y=window.scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;ticking=false});ticking=true}},{passive:true});
 
 async function loadAgreement(){
   try{
-    const{ok,data}=await apiFetch('/exams/');
+    const{ok,data}=await apiFetch('/exams');
     if(!ok){logout();return}
     const exams=(data.exams||[]);
     exam=exams.find(e=>e.id==examId);
     if(!exam){window.location.href='dashboard.html';return}
     
     document.getElementById('agreeTitle').textContent=exam.name+(isPrac?' — Practice':'');
-    document.getElementById('agreeTypeBadge').textContent=isPrac?'Practice Mode':(exam.is_live?'🔴 Live Exam':'📝 Exam');
-    if(isPrac){document.getElementById('agreeTypeBadge').style.background='rgba(99,102,241,.12)';document.getElementById('agreeTypeBadge').style.color='var(--accent-h)'}
-    if(exam.is_live&&!isPrac){document.getElementById('agreeTypeBadge').style.background='rgba(239,68,68,.12)';document.getElementById('agreeTypeBadge').style.color='var(--error)';document.getElementById('agreeTypeBadge').style.borderColor='rgba(239,68,68,.3)'}
+    const badge=document.getElementById('agreeTypeBadge');
+    if(isPrac){badge.textContent='Practice Mode';badge.className='agree-badge badge-blue'}
+    else if(exam.is_live){badge.textContent='Live Exam';badge.className='agree-badge badge-red'}
+    else{badge.textContent='Exam';badge.className='agree-badge badge-blue'}
     
     if(exam.description){document.getElementById('agreeDesc').style.display='block';document.getElementById('agreeDesc').textContent=exam.description}
     
     document.getElementById('agreeMeta').innerHTML=`
-      <span class="agree-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${exam.time_limit} min</span>
-      <span class="agree-meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>${exam.question_count||0} questions</span>
-      ${exam.negative_marking>0?`<span class="agree-meta-item" style="color:var(--error);border-color:rgba(239,68,68,.3)"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>-${exam.negative_marking} per wrong</span>`:''}
+      <span class="agree-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${exam.time_limit}m</span>
+      <span class="agree-meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>${exam.question_count||0} Q</span>
+      ${exam.negative_marking>0?`<span class="agree-meta-item" style="color:var(--red)"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>-${exam.negative_marking}</span>`:''}
     `;
     if(!isPrac&&exam.live_deadline_hours>0)document.getElementById('tabRule').style.display='flex';
     if(exam.negative_marking>0){document.getElementById('negRule').style.display='flex';document.getElementById('negRuleText').textContent=`Wrong answers deduct ${exam.negative_marking} mark${exam.negative_marking!==1?'s':''} each.`}
-  }catch(e){alert('Failed to load exam info.');window.location.href='dashboard.html'}
+  }catch(e){window.location.href='dashboard.html'}
 }
 
 function toggleAgree(){const cb=document.getElementById('agreeCheck');cb.checked=!cb.checked;document.getElementById('agreeBtn').disabled=!cb.checked}
@@ -391,19 +469,15 @@ async function startExam(){
   document.getElementById('agreeBtn').disabled=true;
   document.getElementById('agreeBtn').textContent='Loading...';
   try{
-    const{ok,data}=await apiFetch(`/exams/${examId}/questions`);
+    const{ok,data}=await apiFetch('/exams/'+examId+'/questions');
     if(!ok){alert(data.error||'Cannot load questions.');window.location.href='dashboard.html';return}
     questions=data.questions||[];
     if(!questions.length){alert('This exam has no questions yet.');window.location.href='dashboard.html';return}
-  }catch{alert('Network error loading questions.');window.location.href='dashboard.html';return}
+  }catch{alert('Network error.');window.location.href='dashboard.html';return}
   
   document.getElementById('agreementScreen').style.display='none';
   document.getElementById('examUI').style.display='flex';
-  
-  // Show mobile footer only on mobile
-  if(window.innerWidth<=900){
-    document.getElementById('mobileFooter').classList.add('visible');
-  }
+  if(window.innerWidth<=900)document.getElementById('mobileFooter').classList.add('show');
   
   timeLeft=exam.time_limit*60;
   buildUI();
@@ -412,15 +486,10 @@ async function startExam(){
   window.addEventListener('beforeunload',onBeforeUnload);
 }
 
-// Handle resize for mobile footer
 window.addEventListener('resize',()=>{
-  const footer=document.getElementById('mobileFooter');
+  const f=document.getElementById('mobileFooter');
   if(document.getElementById('examUI').style.display==='flex'){
-    if(window.innerWidth<=900){
-      footer.classList.add('visible');
-    }else{
-      footer.classList.remove('visible');
-    }
+    if(window.innerWidth<=900)f.classList.add('show');else f.classList.remove('show');
   }
 });
 
@@ -436,7 +505,7 @@ function buildUI(){
       </div>
       <div class="q-footer">
         <button class="btn-mark" id="mark${q.id}" onclick="toggleMark(event,${q.id})">
-          <svg viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           Mark
         </button>
       </div>
@@ -459,11 +528,10 @@ function pick(e,qId,letter){
   e.stopPropagation();
   if(answers[qId])return;
   answers[qId]=letter;
-  ['A','B','C','D'].forEach(l=>{const opt=document.getElementById('opt'+qId+l);if(opt){opt.classList.remove('selected');opt.classList.add('locked')}});
+  ['A','B','C','D'].forEach(l=>{const o=document.getElementById('opt'+qId+l);if(o){o.classList.remove('selected');o.classList.add('locked')}});
   document.getElementById('opt'+qId+letter)?.classList.add('selected');
   document.getElementById('qc'+qId)?.classList.add('answered');
-  updateStats();
-  updateDot(qId);
+  updateStats();updateDot(qId);
 }
 
 function toggleMark(e,qId){
@@ -471,9 +539,8 @@ function toggleMark(e,qId){
   marked[qId]=!marked[qId];
   const btn=document.getElementById('mark'+qId);
   btn?.classList.toggle('active',marked[qId]);
-  btn.innerHTML=marked[qId]?`<svg viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" fill="currentColor"/></svg>`:`<svg viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>`;
-  updateStats();
-  updateDot(qId);
+  btn.innerHTML=marked[qId]?`<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>`:`<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+  updateStats();updateDot(qId);
 }
 
 function updateStats(){
@@ -496,8 +563,8 @@ function jumpTo(id){const el=document.getElementById('qc'+id);el?.scrollIntoView
 
 document.addEventListener('keydown',e=>{
   if(['a','b','c','d'].includes(e.key.toLowerCase())){const active=document.querySelector('.q-card.active');if(active){const id=active.id.replace('qc','');pick({stopPropagation:()=>{}},id,e.key.toUpperCase())}}
-  if(e.key==='ArrowDown'){const cards=[...document.querySelectorAll('.q-card')];const i=cards.findIndex(c=>c.classList.contains('active'));if(i<cards.length-1){const next=cards[i+1];next.scrollIntoView({behavior:'smooth',block:'center'});setActive(next.id.replace('qc',''))}}
-  if(e.key==='ArrowUp'){const cards=[...document.querySelectorAll('.q-card')];const i=cards.findIndex(c=>c.classList.contains('active'));if(i>0){const prev=cards[i-1];prev.scrollIntoView({behavior:'smooth',block:'center'});setActive(prev.id.replace('qc',''))}}
+  if(e.key==='ArrowDown'){const cards=[...document.querySelectorAll('.q-card')];const i=cards.findIndex(c=>c.classList.contains('active'));if(i<cards.length-1){const n=cards[i+1];n.scrollIntoView({behavior:'smooth',block:'center'});setActive(n.id.replace('qc',''))}}
+  if(e.key==='ArrowUp'){const cards=[...document.querySelectorAll('.q-card')];const i=cards.findIndex(c=>c.classList.contains('active'));if(i>0){const p=cards[i-1];p.scrollIntoView({behavior:'smooth',block:'center'});setActive(p.id.replace('qc',''))}}
 });
 
 function startTimer(){updateTimerDisplay();timerInt=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInt);doSubmit()}},1000)}
@@ -510,21 +577,17 @@ function updateTimerDisplay(){
   else if(timeLeft<300)box.classList.add('warning');
 }
 
-function setupTabDetection(){
-  document.addEventListener('visibilitychange',onVisChange);
-  window.addEventListener('blur',onBlur);
-}
+function setupTabDetection(){document.addEventListener('visibilitychange',onVisChange);window.addEventListener('blur',onBlur)}
 let lastBlurTime=0;
 function onVisChange(){if(document.hidden)handleLeave()}
 function onBlur(){const now=Date.now();if(now-lastBlurTime>500){lastBlurTime=now;handleLeave()}}
-
 function handleLeave(){
   tabLeaves++;
   const w=document.getElementById('tabWarn'),rb=document.getElementById('returnBtn');
   w.classList.add('show');
   document.getElementById('warnMsg').textContent='Switching tabs or windows during a live exam is not allowed.';
   if(tabLeaves>=2){
-    document.getElementById('warnCount').textContent='Maximum leaves reached! Auto-submitting...';
+    document.getElementById('warnCount').textContent='Maximum leaves reached. Auto-submitting...';
     rb.style.display='none';
     setTimeout(()=>{document.getElementById('tabWarn').classList.remove('show');doSubmit()},2000);
   }else{
@@ -555,14 +618,14 @@ async function doSubmit(){
   document.getElementById('confirmSubmitBtn').textContent='Submitting...';
   
   try{
-    const{ok,data}=await apiFetch(`/exams/${examId}/submit`,{method:'POST',body:JSON.stringify({answers,is_practice:isPrac})});
+    const{ok,data}=await apiFetch('/exams/'+examId+'/submit',{method:'POST',body:JSON.stringify({answers,is_practice:isPrac})});
     if(!ok){alert(data.error||'Submission failed');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now';return}
     window.location.href=`result.html?examId=${examId}&attemptId=${data.attemptId}`;
-  }catch{alert('Network error. Please try again.');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now'}
+  }catch{alert('Network error.');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now'}
 }
 
-// Close modal on overlay click
 document.getElementById('submitModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSubmit()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSubmit()});
 
 loadAgreement();
 </script>
