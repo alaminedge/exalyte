@@ -253,13 +253,23 @@ function getLiveStatus(exam) {
   };
 }
 
+// FIXED: Auto-publish when live deadline ends
 function isResultsPublished(exam) {
   if (exam.results_published) return true;
+  
   if (exam.publish_after_hours > 0) {
     const created = new Date(exam.created_at).getTime();
     const publishTime = created + exam.publish_after_hours * 3600000;
     if (Date.now() >= publishTime) return true;
   }
+  
+  // Auto-publish when live deadline ends
+  if (exam.live_deadline_hours > 0) {
+    const created = new Date(exam.created_at).getTime();
+    const liveEndsAt = created + exam.live_deadline_hours * 3600000;
+    if (Date.now() >= liveEndsAt) return true;
+  }
+  
   return false;
 }
 
@@ -381,14 +391,13 @@ async function handleDeleteExamResource(resourceId, db) {
 }
 
 // ============================================================
-// EXAMS ROUTES - OPTIMIZED, NO DUPLICATION
+// EXAMS ROUTES
 // ============================================================
 
 async function handleListExams(request, db) {
   const user = await requireAuth(request);
   const userId = user ? user.id : null;
 
-  // 1. Get all exams with batch info in ONE query
   const exams = await db.prepare(`
     SELECT e.*, b.name as batch_name,
       (SELECT COUNT(*) FROM questions q WHERE q.exam_id = e.id) as question_count
@@ -397,7 +406,6 @@ async function handleListExams(request, db) {
     ORDER BY e.created_at DESC
   `).all();
 
-  // 2. Get ALL exam resources in ONE query (not per exam)
   const allExamResources = await db.prepare(`
     SELECT er.*, e.id as exam_id
     FROM exam_resources er
@@ -405,14 +413,12 @@ async function handleListExams(request, db) {
     ORDER BY er.created_at DESC
   `).all();
 
-  // Group exam resources by exam_id
   const examResourcesMap = {};
   for (const r of allExamResources.results) {
     if (!examResourcesMap[r.exam_id]) examResourcesMap[r.exam_id] = [];
     examResourcesMap[r.exam_id].push({ id: r.id, title: r.title, link: r.link });
   }
 
-  // 3. Get ALL batch resources in ONE query
   const allBatchResources = await db.prepare(`
     SELECT br.*, b.id as batch_id, b.name as batch_name
     FROM batch_resources br
@@ -420,7 +426,6 @@ async function handleListExams(request, db) {
     ORDER BY br.created_at DESC
   `).all();
 
-  // Group batch resources by batch_id
   const batchResourcesMap = {};
   for (const r of allBatchResources.results) {
     if (!batchResourcesMap[r.batch_id]) {
@@ -434,7 +439,6 @@ async function handleListExams(request, db) {
   }
   const batchResourcesList = Object.values(batchResourcesMap);
 
-  // 4. Build exam list with their resources
   const result = [];
   for (const exam of exams.results) {
     const live = getLiveStatus(exam);
@@ -447,13 +451,23 @@ async function handleListExams(request, db) {
       stored_attempt = sa || null;
       accessible = await checkPremiumAccess(db, userId, exam.id, user.is_admin);
       
-      if (exam.allow_practice && ((live.live_ended && stored_attempt) || (!exam.live_deadline_hours && stored_attempt))) {
-        can_practice = true;
+      // FIXED: Practice logic — allowed only after live ends + has attempt, or non-live + has attempt
+      if (exam.allow_practice) {
+        if (exam.live_deadline_hours > 0) {
+          can_practice = live.live_ended && !!stored_attempt;
+        } else {
+          can_practice = !!stored_attempt;
+        }
       }
-      results_visible = isResultsPublished(exam);
+      
+      // FIXED: During live, results always hidden. After live, auto-published.
+      if (exam.live_deadline_hours > 0 && live.is_live) {
+        results_visible = false;
+      } else {
+        results_visible = isResultsPublished(exam);
+      }
     }
     
-    // Get exam-specific resources (from the map)
     const examResources = examResourcesMap[exam.id] || [];
     
     result.push({ 
@@ -462,13 +476,12 @@ async function handleListExams(request, db) {
       accessible, 
       can_practice, 
       results_visible,
-      exam_resources: examResources,  // ONLY exam-specific resources
+      exam_resources: examResources,
       batch_id: exam.batch_id,
       batch_name: exam.batch_name
     });
   }
   
-  // 5. Return both exams and batch resources separately
   return json({ 
     exams: result, 
     batch_resources: batchResourcesList 
@@ -489,7 +502,6 @@ async function handleGetExamQuestions(examId, request, db) {
     'SELECT id, exam_id, question_text, option_a, option_b, option_c, option_d, image_url, explanation FROM questions WHERE exam_id = ?'
   ).bind(examId).all();
   
-  // Get exam resources (ONLY for this exam)
   const examRes = await db.prepare('SELECT id, title, link FROM exam_resources WHERE exam_id = ? ORDER BY created_at DESC').bind(examId).all();
   
   return json({ exam, questions: qs.results, exam_resources: examRes.results });
@@ -524,10 +536,16 @@ async function handleSubmitExam(examId, request, db) {
   const percentage = total > 0 ? Math.round((score / total) * 10000) / 100 : 0;
   const answersJson = JSON.stringify(detailedAnswers);
   
+  // Check if first non-practice attempt
+  const existingFirst = await db.prepare(
+    'SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1'
+  ).bind(user.id, examId).first();
+  const isFirst = !existingFirst && !is_practice;
+  
   const r1 = await db.prepare(
-    `INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice)
-     VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id`
-  ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson, is_practice ? 1 : 0).first();
+    `INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
+  ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson, is_practice ? 1 : 0, isFirst ? 1 : 0).first();
   
   await db.prepare(
     `INSERT INTO exam_attempts (user_id, exam_id, score, total_questions, percentage, answers) VALUES (?, ?, ?, ?, ?, ?)`
@@ -536,12 +554,19 @@ async function handleSubmitExam(examId, request, db) {
   return json({ attemptId: r1.id, score: Math.max(0, score), total, percentage });
 }
 
+// FIXED: Block results during live window
 async function handleGetResult(examId, attemptId, request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
   
   const exam = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   if (!exam) return err('Exam not found', 404);
+  
+  // During live window, always pending
+  const live = getLiveStatus(exam);
+  if (exam.live_deadline_hours > 0 && live.is_live) {
+    return json({ pending: true, message: 'Results will be available after the live exam window ends.', exam_name: exam.name });
+  }
   
   if (!isResultsPublished(exam)) {
     return json({ pending: true, message: 'Results will be available after publication.', exam_name: exam.name });
@@ -556,6 +581,7 @@ async function handleGetResult(examId, attemptId, request, db) {
   return json({ attempt: { ...attempt, answers: JSON.parse(attempt.answers || '{}') }, questions: questions.results, exam, results_published: true });
 }
 
+// FIXED: Hide leaderboard during live, show after
 async function handleLeaderboard(examId, request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
@@ -564,8 +590,13 @@ async function handleLeaderboard(examId, request, db) {
   if (!exam) return err('Exam not found', 404);
   
   if (!exam.leaderboard_enabled) return json({ disabled: true });
-  if (exam.live_deadline_hours > 0 && !isResultsPublished(exam)) {
-    return json({ disabled: true, pending: true });
+  
+  // Hide during live window
+  if (exam.live_deadline_hours > 0) {
+    const liveStatus = getLiveStatus(exam);
+    if (liveStatus.is_live) {
+      return json({ disabled: true, pending: true });
+    }
   }
   
   const row = await db.prepare(`
@@ -597,9 +628,12 @@ async function handleHistory(request, db) {
   
   const result = [];
   for (const r of rows.results) {
-    const published = r.results_published || (r.publish_after_hours > 0 && 
-      (new Date(r.exam_created_at).getTime() + r.publish_after_hours * 3600000) <= Date.now()) ||
-      (!r.live_deadline_hours || r.live_deadline_hours === 0);
+    const live = getLiveStatus(r);
+    const published = r.live_deadline_hours > 0 && live.is_live 
+      ? false 
+      : (r.results_published || (r.publish_after_hours > 0 && 
+        (new Date(r.exam_created_at).getTime() + r.publish_after_hours * 3600000) <= Date.now()) ||
+        (r.live_deadline_hours > 0 && live.live_ended));
     
     let lb = null;
     if (published) {
