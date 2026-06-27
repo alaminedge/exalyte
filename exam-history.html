@@ -6,219 +6,297 @@
 <title>Exam History — Exalyte</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+:root{
+  --blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;
+  --green:#1e8e3e;--grn-bg:#e6f4ea;--yellow:#f9ab00;--yel-bg:#fef7e0;
+  --bg:#f8f9fa;--surf:#ffffff;--hov:#f1f3f4;--border:#dadce0;
+  --t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
+  --gs:'Google Sans','Roboto',system-ui,sans-serif;
+  --rb:'Roboto',system-ui,sans-serif;
+  --hh:64px;--r:4px;--rl:8px;--tr:.2s cubic-bezier(.4,0,.2,1);
+}
+body{
+  font-family:var(--rb);background:var(--bg);color:var(--t2);
+  -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
+  display:flex;flex-direction:column;overflow-x:hidden;
+}
+.header{
+  position:fixed;top:0;left:0;right:0;height:var(--hh);
+  background:var(--surf);border-bottom:1px solid var(--border);
+  z-index:1000;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;
+  transition:transform .25s ease;
+}
+.header.hidden{transform:translateY(-100%)}
+.header-left{display:flex;align-items:center;gap:24px}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
+.header-nav{display:flex;align-items:center;gap:4px}
+.header-nav a{
+  font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t3);
+  text-decoration:none;padding:8px 16px;border-radius:var(--r);
+  transition:all var(--tr);
+}
+.header-nav a:hover{background:var(--hov);color:var(--t1)}
+.header-nav a.active{color:var(--blue);background:#e8f0fe}
+.header-right{display:flex;align-items:center;gap:8px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px 18px;font-family:var(--gs);font-size:.85rem;font-weight:500;
+  border:none;border-radius:var(--r);cursor:pointer;
+  transition:all var(--tr);text-decoration:none;white-space:nowrap;
+}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-h)}
+.btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
+.btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
+.icon-btn{
+  width:40px;height:40px;border:none;background:none;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0;
+}
+.icon-btn:hover{background:var(--hov)}
+.icon-btn svg{width:20px;height:20px}
+.main{flex:1;padding-top:var(--hh)}
+.content{max-width:1080px;margin:0 auto;padding:32px 24px 60px;width:100%}
 
-:root,[data-theme="dark"]{--bg:#080810;--surface:#0e0e1c;--surface2:#13132a;--surface3:#1a1a36;--border:#1f1f3a;--border2:#2a2a4a;--accent:#5b5bd6;--accent-h:#6e6ee8;--muted:#8b8bae;--text:#c8c8e8;--bright:#f0f0ff;--success:#22c55e;--error:#ef4444;--warning:#f59e0b;--premium:#a855f7}
-[data-theme="light"]{--bg:#f4f4f8;--surface:#ffffff;--surface2:#f0f0f6;--surface3:#e8e8f0;--border:#d8d8e8;--border2:#c8c8d8;--accent:#6366f1;--accent-h:#4f46e5;--text:#2d2d3d;--bright:#111128;--muted:#7c7c96;--error:#dc2626;--success:#16a34a;--warning:#d97706;--premium:#9333ea}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  padding:20px;text-align:center;
+}
+.stat-card-icon{
+  width:40px;height:40px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;margin:0 auto 10px;
+}
+.stat-card-icon svg{width:20px;height:20px}
+.stat-card-val{font-family:var(--gs);font-size:1.8rem;font-weight:500;color:var(--t1)}
+.stat-card-lbl{font-size:.75rem;color:var(--t3)}
 
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.section-header h2{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.search-input{
+  flex:1;min-width:180px;padding:10px 16px;border:1px solid var(--border);
+  border-radius:var(--r);font-family:var(--rb);font-size:.875rem;
+  color:var(--t1);outline:none;background:var(--surf);transition:border var(--tr);
+}
+.search-input:hover{border-color:var(--t3)}
+.search-input:focus{border:2px solid var(--blue);padding:9px 15px}
+.filter-chip{
+  padding:8px 18px;border:1px solid var(--border);border-radius:20px;
+  font-family:var(--gs);font-size:.8rem;font-weight:500;color:var(--t3);
+  background:var(--surf);cursor:pointer;transition:all var(--tr);
+}
+.filter-chip:hover{border-color:var(--blue);color:var(--blue)}
+.filter-chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
 
-/* Header - disappears on scroll */
-header{position:fixed;top:0;left:0;right:0;z-index:200;height:60px;background:rgba(8,8,16,.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;transition:transform .3s cubic-bezier(.4,0,.2,1)}
-header.hidden{transform:translateY(-100%)}
-.logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--bright);font-family:'Sora',sans-serif;font-weight:700;font-size:1rem}
-.logo-img{width:28px;height:28px;border-radius:6px;object-fit:cover}
-.logo-text{background:linear-gradient(135deg,#ffffff,#a0a0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.header-actions{display:flex;align-items:center;gap:10px}
-.btn-header{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:30px;font-size:.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;text-decoration:none}
-.btn-header:hover{border-color:var(--accent);color:var(--accent-h)}
-.btn-exit{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:30px;font-size:.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s}
-.btn-exit:hover{border-color:var(--error);color:var(--error)}
-
-/* Main Content */
-.main-wrap{padding-top:60px;min-height:100vh;display:flex;flex-direction:column}
-.content{max-width:960px;margin:0 auto;padding:32px 20px 60px;width:100%;flex:1}
-
-/* Stats Grid */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px;text-align:center}
-.stat-icon{width:40px;height:40px;background:rgba(99,102,241,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
-.stat-icon svg{width:20px;height:20px;stroke:var(--accent-h);fill:none}
-.stat-val{font-family:'Sora',sans-serif;font-size:1.8rem;font-weight:800;color:var(--bright)}
-.stat-lbl{font-size:.7rem;color:var(--muted);margin-top:4px}
-
-/* Filters */
-.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;align-items:center}
-.search-input{flex:1;min-width:180px;background:var(--surface2);border:1px solid var(--border);border-radius:40px;padding:10px 18px;color:var(--text);font-size:.85rem;outline:none}
-.search-input:focus{border-color:var(--accent)}
-.filter-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:40px;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s}
-.filter-btn.active,.filter-btn:hover{background:rgba(99,102,241,.12);border-color:var(--accent);color:var(--accent-h)}
-
-/* History List */
-.history-list{display:flex;flex-direction:column;gap:14px}
-.history-item{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px;transition:all .2s}
-.history-item:hover{border-color:var(--accent);transform:translateY(-2px)}
+.history-list{display:flex;flex-direction:column;gap:12px}
+.history-item{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  padding:20px;transition:box-shadow var(--tr);
+}
+.history-item:hover{box-shadow:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15)}
 .history-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px}
-.history-exam-name{font-family:'Sora',sans-serif;font-weight:700;font-size:1rem;color:var(--bright)}
-.history-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:30px;font-size:.65rem;font-weight:600}
-.badge-published{background:rgba(34,197,94,.1);color:var(--success);border:1px solid rgba(34,197,94,.2)}
-.badge-pending{background:rgba(245,158,11,.1);color:var(--warning);border:1px solid rgba(245,158,11,.2)}
+.history-exam{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1)}
+.history-badge{
+  display:inline-flex;align-items:center;gap:4px;padding:3px 10px;
+  border-radius:20px;font-family:var(--gs);font-size:.7rem;font-weight:500;
+}
+.badge-pub{background:var(--grn-bg);color:var(--green)}
+.badge-pend{background:var(--yel-bg);color:#e37400}
+.badge-prac{background:#e8f0fe;color:var(--blue)}
 .history-meta{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px}
-.meta-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--muted)}
+.meta-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--t3)}
 .meta-item svg{width:12px;height:12px;stroke:currentColor;fill:none}
 .history-score{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:12px}
-.score-number{font-family:'Sora',sans-serif;font-size:1.3rem;font-weight:800;color:var(--bright)}
-.score-total{font-size:.9rem;color:var(--muted);font-weight:400}
-.score-percentage{font-size:1.1rem;font-weight:800}
-.score-percentage.high{color:var(--success)}
-.score-percentage.medium{color:var(--accent-h)}
-.score-percentage.low{color:var(--warning)}
-.score-percentage.fail{color:var(--error)}
+.score-num{font-family:var(--gs);font-size:1.3rem;font-weight:500;color:var(--t1)}
+.score-total{font-size:.9rem;color:var(--t3)}
+.score-pct{font-size:1.1rem;font-weight:500}
+.pct-high{color:var(--green)}
+.pct-med{color:var(--blue)}
+.pct-low{color:#e37400}
+.pct-fail{color:var(--red)}
 .rank-info{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.rank-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:30px;font-size:.65rem;font-weight:600;background:rgba(99,102,241,.1);color:var(--accent-h);border:1px solid rgba(99,102,241,.2)}
-.percentile-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:30px;font-size:.65rem;font-weight:600;background:rgba(168,85,247,.1);color:var(--premium);border:1px solid rgba(168,85,247,.2)}
+.rank-badge{
+  display:inline-flex;align-items:center;gap:4px;padding:3px 10px;
+  border-radius:20px;font-family:var(--gs);font-size:.68rem;font-weight:500;
+  background:#e8f0fe;color:var(--blue);
+}
+.pct-badge{
+  display:inline-flex;align-items:center;gap:4px;padding:3px 10px;
+  border-radius:20px;font-family:var(--gs);font-size:.68rem;font-weight:500;
+  background:#f3e8fd;color:#9333ea;
+}
 .history-actions{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
-.btn-action{display:inline-flex;align-items:center;gap:4px;padding:7px 16px;border-radius:40px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;border:none}
-.btn-view{background:rgba(99,102,241,.12);color:var(--accent-h);border:1px solid rgba(99,102,241,.25)}
-.btn-view:hover{background:rgba(99,102,241,.22)}
-.btn-practice{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
-.btn-practice:hover{border-color:var(--accent);color:var(--accent-h)}
-.btn-disabled{background:var(--surface2);color:var(--muted);border:1px solid var(--border);cursor:not-allowed;opacity:.6}
+.btn-action{
+  display:inline-flex;align-items:center;gap:4px;padding:7px 16px;
+  border-radius:var(--r);font-family:var(--gs);font-size:.75rem;font-weight:500;
+  cursor:pointer;transition:all var(--tr);text-decoration:none;border:none;
+}
+.btn-view{background:#e8f0fe;color:var(--blue)}
+.btn-view:hover{background:#d2e3fc}
+.btn-practice{background:var(--bg);color:var(--t2);border:1px solid var(--border)}
+.btn-practice:hover{border-color:var(--blue);color:var(--blue)}
+.btn-disabled{background:var(--bg);color:var(--t4);cursor:not-allowed;opacity:.6}
 
-/* Skeleton */
-.skeleton{background:linear-gradient(90deg,var(--surface2)25%,var(--surface3)50%,var(--surface2)75%);background-size:200%100%;animation:skeleton-loading 1.5s infinite;border-radius:12px}
-@keyframes skeleton-loading{0%{background-position:200%0}100%{background-position:-200%0}}
+.empty-state{text-align:center;padding:60px 20px;color:var(--t3)}
+.empty-state svg{width:48px;height:48px;stroke:var(--t4);margin-bottom:12px}
+.empty-state h3{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1);margin-bottom:6px}
+.empty-state p{font-size:.85rem}
 
-/* Empty State */
-.empty-state{text-align:center;padding:80px 20px;color:var(--muted)}
-.empty-state svg{width:56px;height:56px;stroke:currentColor;margin-bottom:16px;opacity:.4}
-.empty-state h3{font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px}
-.empty-state p{font-size:.85rem;margin-bottom:20px}
+.skeleton{
+  background:linear-gradient(90deg,var(--hov)25%,#e8eaed 50%,var(--hov)75%);
+  background-size:200%100%;animation:shimmer 1.5s infinite;border-radius:var(--r);
+}
+@keyframes shimmer{0%{background-position:200%0}100%{background-position:-200%0}}
 
-/* Footer */
-.footer{background:var(--surface);border-top:1px solid var(--border);padding:32px 40px 24px;margin-top:auto}
-.footer-inner{max-width:1160px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
-.footer-links{display:flex;gap:24px}
-.footer-links a{color:var(--muted);text-decoration:none;font-size:.72rem;transition:color .2s}
-.footer-links a:hover{color:var(--accent-h)}
-.footer-copy{font-size:.68rem;color:var(--muted)}
+.footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
+.footer-inner{
+  max-width:1080px;margin:0 auto;padding:40px 24px 24px;
+  display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;
+}
+.fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
+.fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
+.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2}
+.fc a:hover{color:var(--blue);text-decoration:underline}
+.footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.footer-bottom{
+  max-width:1080px;margin:0 auto;padding:16px 24px;
+  border-top:1px solid var(--border);display:flex;
+  justify-content:space-between;align-items:center;
+  font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px;
+}
+.footer-links{display:flex;gap:20px}
+.footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
+.footer-links a:hover{text-decoration:underline;color:var(--blue)}
 
-/* Bottom Nav */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:30;padding:6px 0 8px}
-.bottom-nav-items{display:flex}
-.bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;color:var(--muted);font-size:.55rem;font-weight:600;border:none;background:none;cursor:pointer;transition:color .2s}
-.bottom-nav-item.active{color:var(--accent-h)}
-.bottom-nav-item svg{width:18px;height:18px;stroke:currentColor;fill:none}
-
-/* Responsive */
 @media(max-width:900px){
-  header{padding:0 16px}
+  .header{padding:0 16px}
+  .header-nav{display:none}
   .content{padding:24px 16px 80px}
   .stats-grid{grid-template-columns:1fr 1fr}
-  .bottom-nav{display:block}
-  .footer{padding:24px 20px}
-  .footer-inner{flex-direction:column;text-align:center}
-  .btn-header span{display:none}
   .history-header{flex-direction:column}
   .history-actions{width:100%}
   .history-actions .btn-action{flex:1;justify-content:center}
+  .footer-inner{grid-template-columns:1fr 1fr;gap:28px}
 }
-
-@media(max-width:540px){
+@media(max-width:600px){
   .stats-grid{grid-template-columns:1fr 1fr}
-  .filters{flex-wrap:wrap}
-  .filter-btn{flex:1;text-align:center}
   .history-score{flex-direction:column;align-items:flex-start;gap:6px}
-  .rank-info{flex-wrap:wrap}
+  .footer-inner{grid-template-columns:1fr;gap:20px}
+  .footer-bottom{flex-direction:column;text-align:center}
 }
 </style>
 </head>
 <body>
 
-<header id="mainHeader">
-  <a href="/" class="logo">
-    <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
-    <span class="logo-text">Exalyte</span>
-  </a>
-  <div class="header-actions">
-    <a href="dashboard.html" class="btn-header">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      <span>Dashboard</span>
+<header class="header" id="header">
+  <div class="header-left">
+    <a href="/" class="logo-wrap">
+      <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
+      <span class="logo-text">Exalyte</span>
     </a>
-    <button class="btn-exit" onclick="logout()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 16l4-4m0 0l-4-4m4 4H7"/></svg>
-      <span>Exit</span>
+    <nav class="header-nav">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="exam-history.html" class="active">History</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <button class="icon-btn" onclick="logout()" title="Sign out">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </button>
   </div>
 </header>
 
-<main class="main-wrap">
+<main class="main">
   <div class="content">
-    <!-- Stats -->
+
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg></div>
-        <div class="stat-val" id="statTotal">—</div>
-        <div class="stat-lbl">Exams Taken</div>
+        <div class="stat-card-icon" style="background:#e8f0fe;color:var(--blue)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>
+        </div>
+        <div class="stat-card-val" id="statTotal">—</div>
+        <div class="stat-card-lbl">Exams Taken</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-        <div class="stat-val" id="statAvg">—</div>
-        <div class="stat-lbl">Average Score</div>
+        <div class="stat-card-icon" style="background:var(--grn-bg);color:var(--green)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div class="stat-card-val" id="statAvg">—</div>
+        <div class="stat-card-lbl">Average Score</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div>
-        <div class="stat-val" id="statBest">—</div>
-        <div class="stat-lbl">Best Score</div>
+        <div class="stat-card-icon" style="background:var(--yel-bg);color:#e37400">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        </div>
+        <div class="stat-card-val" id="statBest">—</div>
+        <div class="stat-card-lbl">Best Score</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857"/></svg></div>
-        <div class="stat-val" id="statRank">—</div>
-        <div class="stat-lbl">Best Rank</div>
+        <div class="stat-card-icon" style="background:#f3e8fd;color:#9333ea">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div class="stat-card-val" id="statRank">—</div>
+        <div class="stat-card-lbl">Best Rank</div>
       </div>
     </div>
 
-    <!-- Filters -->
+    <div class="section-header"><h2>Exam History</h2></div>
     <div class="filters">
       <input type="text" class="search-input" id="searchInput" placeholder="Search exams..." oninput="renderHistory()">
-      <button class="filter-btn active" data-filter="all" onclick="setFilter(this,'all')">All</button>
-      <button class="filter-btn" data-filter="published" onclick="setFilter(this,'published')">Published</button>
-      <button class="filter-btn" data-filter="pending" onclick="setFilter(this,'pending')">Pending</button>
+      <button class="filter-chip active" data-filter="all" onclick="setFilter(this)">All</button>
+      <button class="filter-chip" data-filter="published" onclick="setFilter(this)">Published</button>
+      <button class="filter-chip" data-filter="pending" onclick="setFilter(this)">Pending</button>
     </div>
 
-    <!-- History List -->
     <div id="historyContainer">
-      <div class="skeleton" style="height:120px; margin-bottom:14px"></div>
-      <div class="skeleton" style="height:120px; margin-bottom:14px"></div>
+      <div class="skeleton" style="height:120px;margin-bottom:12px"></div>
+      <div class="skeleton" style="height:120px;margin-bottom:12px"></div>
       <div class="skeleton" style="height:120px"></div>
     </div>
+
   </div>
 </main>
 
-<!-- Footer -->
 <footer class="footer">
   <div class="footer-inner">
-    <div class="footer-copy">© 2025 Exalyte. All rights reserved.</div>
+    <div class="fc">
+      <div class="footer-brand">
+        <img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'">
+        <span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t2)">Exalyte</span>
+      </div>
+      <p>A precision examination platform built for students who want to perform, not just prepare.</p>
+    </div>
+    <div class="fc">
+      <h4>Platform</h4>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="exam-history.html">Exam History</a>
+    </div>
+    <div class="fc">
+      <h4>Legal</h4>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="tos.html">Terms of Service</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2025 Exalyte. All rights reserved.</span>
     <div class="footer-links">
       <a href="privacy.html">Privacy</a>
       <a href="tos.html">Terms</a>
-      <a href="contact.html">Contact</a>
     </div>
   </div>
 </footer>
 
-<!-- Bottom Nav (mobile) -->
-<div class="bottom-nav">
-  <div class="bottom-nav-items">
-    <button class="bottom-nav-item" onclick="window.location='dashboard.html'">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Home
-    </button>
-    <button class="bottom-nav-item active">
-      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>History
-    </button>
-    <button class="bottom-nav-item" onclick="window.location='exam-history.html'">
-      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>History
-    </button>
-    <button class="bottom-nav-item" onclick="logout()">
-      <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7"/></svg>Exit
-    </button>
-  </div>
-</div>
-
 <script>
-const API='/api';
+const API = '/api';
 
 function getToken(){return localStorage.getItem('exalyte_token')}
 function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
@@ -235,44 +313,33 @@ async function apiFetch(path,opts={}){
 
 let historyData=[],currentFilter='all';
 
-// Header scroll hide
-let lastScroll=0;
-const header=document.getElementById('mainHeader');
-window.addEventListener('scroll',()=>{
-  const currentScroll=window.pageYOffset;
-  if(currentScroll>lastScroll&&currentScroll>80)header.classList.add('hidden');
-  else header.classList.remove('hidden');
-  lastScroll=currentScroll;
-});
+const header=document.getElementById('header');
+let lastY=0,ticking=false;
+window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(()=>{const y=window.scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;ticking=false});ticking=true}},{passive:true});
 
 async function loadHistory(){
   if(!getToken()){window.location.href='/';return}
   const user=getUser();
   if(user?.is_admin){window.location.href='admin.html';return}
   
-  showSkeleton();
+  document.getElementById('historyContainer').innerHTML=`
+    <div class="skeleton" style="height:120px;margin-bottom:12px"></div>
+    <div class="skeleton" style="height:120px;margin-bottom:12px"></div>
+    <div class="skeleton" style="height:120px"></div>`;
+  
   const{ok,data}=await apiFetch('/history');
   if(!ok){logout();return}
-  
   historyData=data||[];
   updateStats();
   renderHistory();
 }
 
-function showSkeleton(){
-  document.getElementById('historyContainer').innerHTML=`
-    <div class="skeleton" style="height:120px;margin-bottom:14px"></div>
-    <div class="skeleton" style="height:120px;margin-bottom:14px"></div>
-    <div class="skeleton" style="height:120px"></div>
-  `;
-}
-
 function updateStats(){
   const total=historyData.length;
   const visible=historyData.filter(h=>h.results_visible===true);
-  const avg=visible.length? (visible.reduce((s,h)=>s+h.percentage,0)/visible.length).toFixed(0):0;
-  const best=visible.length? Math.max(...visible.map(h=>h.percentage)).toFixed(0):0;
-  const bestRank=visible.filter(h=>h.rank).length? Math.min(...visible.filter(h=>h.rank).map(h=>h.rank)):null;
+  const avg=visible.length?(visible.reduce((s,h)=>s+h.percentage,0)/visible.length).toFixed(0):0;
+  const best=visible.length?Math.max(...visible.map(h=>h.percentage)).toFixed(0):0;
+  const bestRank=visible.filter(h=>h.rank).length?Math.min(...visible.filter(h=>h.rank).map(h=>h.rank)):null;
   
   document.getElementById('statTotal').textContent=total;
   document.getElementById('statAvg').textContent=avg>0?avg+'%':'—';
@@ -292,78 +359,65 @@ function renderHistory(){
   if(!filtered.length){
     document.getElementById('historyContainer').innerHTML=`
       <div class="empty-state">
-        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
         <h3>No exams found</h3>
         <p>${search?'Try different search terms.':'Complete an exam to see your history here.'}</p>
-        <a href="dashboard.html" class="btn-action btn-view">Go to Dashboard</a>
-      </div>
-    `;
+      </div>`;
     return;
   }
   
   document.getElementById('historyContainer').innerHTML=filtered.map(item=>{
-    const isVisible=item.results_visible===true;
+    const isVis=item.results_visible===true;
     const pct=item.percentage||0;
-    let scoreClass='low';
-    if(pct>=80)scoreClass='high';
-    else if(pct>=60)scoreClass='medium';
-    else if(pct>=40)scoreClass='low';
-    else scoreClass='fail';
+    let scoreClass='pct-low';
+    if(pct>=80)scoreClass='pct-high';
+    else if(pct>=60)scoreClass='pct-med';
+    else if(pct>=40)scoreClass='pct-low';
+    else scoreClass='pct-fail';
     
-    let actionsHtml='';
-    if(isVisible){
-      actionsHtml=`
+    let actions='';
+    if(isVis){
+      actions=`
         <a href="result.html?examId=${item.exam_id}&attemptId=${item.id}" class="btn-action btn-view">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View Results
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View Results
         </a>
         <a href="exam.html?id=${item.exam_id}&practice=1" class="btn-action btn-practice">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice
-        </a>
-      `;
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice
+        </a>`;
     }else{
-      actionsHtml=`
-        <span class="btn-action btn-disabled">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 15 15"/></svg>Awaiting Results
-        </span>
-      `;
+      actions=`<span class="btn-action btn-disabled">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 15 15"/></svg>Awaiting Results
+      </span>`;
     }
     
-    return `
-      <div class="history-item">
-        <div class="history-header">
-          <div class="history-exam-name">${esc(item.exam_name)}</div>
-          <span class="history-badge ${isVisible?'badge-published':'badge-pending'}">
-            ${isVisible?'Results Available':'Pending Publication'}
-          </span>
-        </div>
-        <div class="history-meta">
-          <span class="meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${formatDate(item.submitted_at)}</span>
-          <span class="meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${item.total_questions} Questions</span>
-          ${item.is_practice?'<span class="meta-item" style="color:var(--accent-h)">Practice</span>':''}
-        </div>
-        ${isVisible?`
-          <div class="history-score">
-            <div>
-              <span class="score-number">${item.score}</span>
-              <span class="score-total">/${item.total_questions}</span>
-              <span class="score-percentage ${scoreClass}"> (${pct}%)</span>
-            </div>
-            <div class="rank-info">
-              ${item.rank?`<span class="rank-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Rank #${item.rank} / ${item.total_participants}</span>`:''}
-              ${item.percentile?`<span class="percentile-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 20L22 20"/><path d="M4 16L6 8"/><path d="M10 16L12 4"/><path d="M16 16L18 10"/><path d="M20 16L22 12"/></svg>Top ${item.percentile}%</span>`:''}
-            </div>
-          </div>
-        `:''}
-        <div class="history-actions">${actionsHtml}</div>
+    return `<div class="history-item">
+      <div class="history-header">
+        <div class="history-exam">${esc(item.exam_name)}</div>
+        <span class="history-badge ${isVis?'badge-pub':'badge-pend'}">${isVis?'Results Available':'Pending'}</span>
       </div>
-    `;
+      <div class="history-meta">
+        <span class="meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${formatDate(item.submitted_at)}</span>
+        <span class="meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${item.total_questions} Questions</span>
+        ${item.is_practice?`<span class="history-badge badge-prac">Practice</span>`:''}
+      </div>
+      ${isVis?`
+        <div class="history-score">
+          <div><span class="score-num">${item.score}</span><span class="score-total">/${item.total_questions}</span><span class="score-pct ${scoreClass}">(${pct}%)</span></div>
+          <div class="rank-info">
+            ${item.rank?`<span class="rank-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Rank #${item.rank}/${item.total_participants}</span>`:''}
+            ${item.percentile?`<span class="pct-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20L22 20"/><path d="M4 16L6 8"/><path d="M10 16L12 4"/><path d="M16 16L18 10"/><path d="M20 16L22 12"/></svg>Top ${item.percentile}%</span>`:''}
+          </div>
+        </div>
+      `:''}
+      <div class="history-actions">${actions}</div>
+    </div>`;
   }).join('');
 }
 
-function setFilter(btn,filter){
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+function setFilter(btn){
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
   btn.classList.add('active');
-  currentFilter=filter;
+  currentFilter=btn.dataset.filter;
   renderHistory();
 }
 
