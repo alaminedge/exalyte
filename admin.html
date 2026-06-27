@@ -6,301 +6,320 @@
 <title>Admin Panel — Exalyte</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+:root{
+  --blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;
+  --green:#1e8e3e;--grn-bg:#e6f4ea;--yellow:#f9ab00;--yel-bg:#fef7e0;
+  --bg:#f8f9fa;--surf:#ffffff;--hov:#f1f3f4;--border:#dadce0;
+  --t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
+  --gs:'Google Sans','Roboto',system-ui,sans-serif;
+  --rb:'Roboto',system-ui,sans-serif;
+  --hh:64px;--r:4px;--rl:8px;--tr:.2s cubic-bezier(.4,0,.2,1);
+}
+body{
+  font-family:var(--rb);background:var(--bg);color:var(--t2);
+  -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
+  display:flex;flex-direction:column;
+}
+.header{
+  position:fixed;top:0;left:0;right:0;height:var(--hh);
+  background:var(--surf);border-bottom:1px solid var(--border);
+  z-index:1000;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;
+}
+.header-left{display:flex;align-items:center;gap:10px}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
+.admin-tag{
+  font-family:var(--gs);font-size:.65rem;font-weight:500;
+  background:var(--blue);color:#fff;padding:2px 10px;border-radius:20px;
+}
+.header-right{display:flex;align-items:center;gap:8px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px 18px;font-family:var(--gs);font-size:.85rem;font-weight:500;
+  border:none;border-radius:var(--r);cursor:pointer;
+  transition:all var(--tr);text-decoration:none;white-space:nowrap;
+}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-h)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--border)}
+.btn-danger:hover{background:var(--red-bg);border-color:var(--red)}
+.btn-sm{padding:5px 14px;font-size:.75rem}
+.icon-btn{
+  width:40px;height:40px;border:none;background:none;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0;
+}
+.icon-btn:hover{background:var(--hov)}
+.icon-btn svg{width:20px;height:20px}
+.main{flex:1;padding-top:var(--hh);display:flex}
+.sidebar{
+  width:220px;background:var(--surf);border-right:1px solid var(--border);
+  position:sticky;top:var(--hh);height:calc(100vh - var(--hh));
+  overflow-y:auto;flex-shrink:0;padding:16px 10px;
+}
+.sidebar-section{margin-bottom:20px}
+.sidebar-label{
+  font-size:.65rem;font-weight:500;color:var(--t4);
+  text-transform:uppercase;letter-spacing:.5px;padding:0 10px;margin-bottom:6px;
+}
+.sidebar-item{
+  display:flex;align-items:center;gap:10px;padding:8px 12px;
+  border-radius:var(--r);font-family:var(--gs);font-size:.82rem;font-weight:500;
+  color:var(--t3);cursor:pointer;transition:all var(--tr);
+  width:100%;background:none;border:none;text-align:left;
+}
+.sidebar-item:hover{background:var(--hov);color:var(--t1)}
+.sidebar-item.active{background:#e8f0fe;color:var(--blue)}
+.sidebar-item svg{width:17px;height:17px;stroke:currentColor;fill:none}
+.content{flex:1;padding:28px 32px;overflow-x:auto;min-width:0}
+.section{display:none}
+.section.active{display:block}
 
-:root,[data-theme="dark"]{--bg:#080810;--surface:#0e0e1c;--surface2:#13132a;--surface3:#1a1a36;--border:#1f1f3a;--border2:#2a2a4a;--accent:#5b5bd6;--accent-h:#6e6ee8;--muted:#8b8bae;--text:#c8c8e8;--bright:#f0f0ff;--success:#22c55e;--error:#ef4444;--warning:#f59e0b;--premium:#a855f7}
-[data-theme="light"]{--bg:#f4f4f8;--surface:#ffffff;--surface2:#f0f0f6;--surface3:#e8e8f0;--border:#d8d8e8;--border2:#c8c8d8;--accent:#6366f1;--accent-h:#4f46e5;--text:#2d2d3d;--bright:#111128;--muted:#7c7c96;--error:#dc2626;--success:#16a34a;--warning:#d97706;--premium:#9333ea}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  padding:18px;
+}
+.stat-card-icon{
+  width:36px;height:36px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;margin-bottom:10px;
+}
+.stat-card-icon svg{width:18px;height:18px}
+.stat-card-val{font-family:var(--gs);font-size:1.5rem;font-weight:500;color:var(--t1)}
+.stat-card-lbl{font-size:.7rem;color:var(--t3)}
 
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-
-/* Header */
-header{position:sticky;top:0;z-index:200;height:60px;background:rgba(8,8,16,.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
-.logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--bright);font-family:'Sora',sans-serif;font-weight:700;font-size:1rem}
-.logo-img{width:28px;height:28px;border-radius:6px;object-fit:cover}
-.logo-text{background:linear-gradient(135deg,#ffffff,#a0a0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.admin-badge{font-size:.55rem;background:var(--accent);color:#fff;padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle}
-.header-nav{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);padding:4px;border-radius:40px;border:1px solid rgba(255,255,255,.05)}
-.header-nav a{color:var(--muted);text-decoration:none;font-size:.82rem;font-weight:500;padding:6px 16px;border-radius:30px;transition:all .2s}
-.header-nav a:hover,.header-nav a.active{color:var(--bright);background:rgba(255,255,255,.08)}
-.header-actions{display:flex;align-items:center;gap:10px}
-.user-menu{display:flex;align-items:center;gap:10px}
-.user-avatar{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--accent-h));border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff}
-.user-name{font-size:.82rem;font-weight:500;color:var(--bright)}
-.btn-logout{background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:30px;font-size:.72rem;font-weight:500;cursor:pointer;transition:all .2s}
-.btn-logout:hover{border-color:var(--error);color:var(--error)}
-.hamburger{display:none;background:none;border:none;color:var(--text);cursor:pointer;padding:6px}
-
-/* Mobile Drawer */
-.mobile-drawer{position:fixed;top:0;left:-100%;width:min(300px,85vw);height:100vh;background:var(--surface);border-right:1px solid var(--border);z-index:400;transition:left .3s;padding:24px;display:flex;flex-direction:column}
-.mobile-drawer.open{left:0}
-.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:399;display:none}
-.drawer-overlay.open{display:block}
-.drawer-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
-.drawer-close{background:var(--surface2);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.drawer-link{display:block;color:var(--text);text-decoration:none;font-size:.9rem;padding:10px 14px;border-radius:10px;transition:background .2s}
-.drawer-link:hover,.drawer-link.active{background:var(--surface2);color:var(--accent-h)}
-.drawer-divider{border:none;border-top:1px solid var(--border);margin:10px 0}
-.drawer-actions{margin-top:auto;display:flex;flex-direction:column;gap:10px;padding-top:20px}
-
-/* Admin Layout */
-.admin-layout{display:flex;min-height:calc(100vh - 60px)}
-.sidebar{width:240px;background:var(--surface);border-right:1px solid var(--border);position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto}
-.sidebar-nav{padding:16px 10px}
-.nav-section{margin-bottom:20px}
-.nav-section-label{font-size:.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding:0 10px;margin-bottom:6px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;color:var(--muted);font-size:.82rem;font-weight:500;transition:all .2s;width:100%;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:left}
-.nav-item:hover{background:var(--surface2);color:var(--text)}
-.nav-item.active{background:rgba(99,102,241,.12);color:var(--accent-h)}
-.nav-item svg{width:17px;height:17px;stroke:currentColor}
-
-/* Main Content */
-.main-content{flex:1;padding:24px 28px;overflow-x:auto}
-.admin-section{display:none}
-.admin-section.active{display:block}
-
-/* Stats Grid */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:28px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px}
-.stat-icon{width:36px;height:36px;background:rgba(99,102,241,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
-.stat-icon svg{width:18px;height:18px;stroke:var(--accent-h)}
-.stat-value{font-family:'Sora',sans-serif;font-size:1.6rem;font-weight:800;color:var(--bright)}
-.stat-label{font-size:.7rem;color:var(--muted);margin-top:3px}
-
-/* Cards */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;margin-bottom:20px}
-.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.card-title{font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;color:var(--bright)}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:20px}
+.card-header{
+  padding:14px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:10px;
+}
+.card-title{font-family:var(--gs);font-size:.9rem;font-weight:500;color:var(--t1)}
 .card-body{padding:20px}
 
-/* Forms */
-.form-group{margin-bottom:16px}
-.form-label{display:block;font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
-.form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--bright);font-size:.82rem;outline:none;transition:all .2s;font-family:'DM Sans',sans-serif}
-.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent)}
+.form-group{margin-bottom:14px}
+.form-label{
+  display:block;font-size:.68rem;font-weight:500;color:var(--t3);
+  text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px;
+}
+.form-input,.form-select,.form-textarea{
+  width:100%;padding:9px 14px;border:1px solid var(--border);
+  border-radius:var(--r);font-family:var(--rb);font-size:.82rem;
+  color:var(--t1);outline:none;background:var(--surf);transition:border var(--tr);
+}
+.form-input:hover,.form-select:hover,.form-textarea:hover{border-color:var(--t3)}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border:2px solid var(--blue);padding:8px 13px}
 .form-textarea{resize:vertical;min-height:70px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-check{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--t2);cursor:pointer}
+.form-check input[type=checkbox]{width:16px;height:16px;accent-color:var(--blue)}
 
-/* Buttons */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:40px;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;border:none;font-family:'DM Sans',sans-serif}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-h));color:#fff}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(99,102,241,.3)}
-.btn-secondary{background:var(--surface2);border:1px solid var(--border);color:var(--text)}
-.btn-secondary:hover{border-color:var(--accent);color:var(--accent-h)}
-.btn-danger{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--error)}
-.btn-danger:hover{background:rgba(239,68,68,.2)}
-.btn-sm{padding:5px 12px;font-size:.7rem}
-
-/* Tables */
-.table-container{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:14px}
+.table-wrap{overflow-x:auto;background:var(--surf);border:1px solid var(--border);border-radius:var(--rl)}
 table{width:100%;border-collapse:collapse}
-th{text-align:left;padding:10px 14px;font-size:.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border);background:var(--surface2)}
+th{
+  text-align:left;padding:10px 14px;font-size:.68rem;font-weight:500;
+  color:var(--t4);text-transform:uppercase;letter-spacing:.5px;
+  border-bottom:1px solid var(--border);background:var(--bg);
+}
 td{padding:10px 14px;font-size:.8rem;border-bottom:1px solid var(--border)}
 tr:last-child td{border-bottom:none}
 
-/* Badges */
-.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:.65rem;font-weight:600}
-.badge-free{background:rgba(34,197,94,.1);color:var(--success)}
-.badge-premium{background:rgba(168,85,247,.1);color:var(--premium)}
-.badge-admin{background:rgba(99,102,241,.1);color:var(--accent-h)}
+.badge{
+  display:inline-flex;align-items:center;gap:3px;padding:2px 8px;
+  border-radius:20px;font-family:var(--gs);font-size:.65rem;font-weight:500;
+}
+.badge-free{background:var(--grn-bg);color:var(--green)}
+.badge-premium{background:#f3e8fd;color:#9333ea}
+.badge-admin{background:#e8f0fe;color:var(--blue)}
 
-/* Resource Management */
-.resource-list{margin-bottom:16px}
-.resource-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:6px}
+.resource-list{margin-bottom:14px}
+.resource-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--r);margin-bottom:6px;
+}
 .resource-info{display:flex;align-items:center;gap:10px;flex:1}
-.resource-info svg{width:16px;height:16px;stroke:var(--accent-h)}
-.resource-title{font-weight:600;font-size:.8rem;color:var(--bright)}
-.resource-link{font-size:.65rem;color:var(--muted);word-break:break-all}
+.resource-info svg{width:16px;height:16px;stroke:var(--blue)}
+.resource-title{font-weight:500;font-size:.8rem;color:var(--t1)}
+.resource-link{font-size:.65rem;color:var(--t4);word-break:break-all}
 .resource-actions{display:flex;gap:6px}
-.resource-empty{text-align:center;padding:30px;color:var(--muted);font-size:.8rem}
-.resource-type-selector{display:flex;gap:10px;margin-bottom:16px}
-.resource-type-btn{padding:6px 16px;border-radius:40px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:.75rem;transition:all .2s}
-.resource-type-btn.active{background:rgba(99,102,241,.14);border-color:var(--accent);color:var(--accent-h)}
+.resource-empty{text-align:center;padding:30px;color:var(--t3);font-size:.8rem}
+.resource-type-selector{display:flex;gap:8px;margin-bottom:14px}
+.resource-type-btn{
+  padding:6px 16px;border:1px solid var(--border);border-radius:20px;
+  font-family:var(--gs);font-size:.75rem;font-weight:500;color:var(--t3);
+  background:var(--surf);cursor:pointer;transition:all var(--tr);
+}
+.resource-type-btn.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
 
-/* Premium Tags */
-.premium-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:.65rem;font-weight:600;margin:2px 3px 2px 0}
-.premium-tag-exam{background:rgba(99,102,241,.12);color:var(--accent-h);border:1px solid rgba(99,102,241,.2)}
-.premium-tag-batch{background:rgba(245,158,11,.12);color:var(--warning);border:1px solid rgba(245,158,11,.2)}
-.premium-tag-account{background:rgba(168,85,247,.12);color:var(--premium);border:1px solid rgba(168,85,247,.2)}
-.revoke-premium{background:none;border:none;color:currentColor;cursor:pointer;font-size:.65rem;padding:0 3px;opacity:.6}
-.revoke-premium:hover{opacity:1}
+.premium-tag{
+  display:inline-flex;align-items:center;gap:4px;padding:2px 8px;
+  border-radius:20px;font-size:.65rem;font-weight:500;margin:2px 3px 2px 0;
+}
+.pt-exam{background:#e8f0fe;color:var(--blue)}
+.pt-batch{background:var(--yel-bg);color:#e37400}
+.pt-account{background:#f3e8fd;color:#9333ea}
+.revoke-btn{
+  background:none;border:none;color:currentColor;cursor:pointer;
+  font-size:.65rem;padding:0 3px;opacity:.6;
+}
+.revoke-btn:hover{opacity:1}
 
-/* Notifications */
-.notif-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.notif-card{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px 16px;margin-bottom:10px;
+}
 .notif-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px}
-.notif-title{font-weight:700;font-size:.85rem;color:var(--bright);flex:1}
+.notif-title{font-family:var(--gs);font-weight:500;font-size:.85rem;color:var(--t1);flex:1}
 .notif-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px}
-.notif-meta-item{font-size:.68rem;color:var(--muted);display:flex;align-items:center;gap:3px}
-.notif-meta-item svg{width:10px;height:10px;stroke:currentColor}
-.notif-body{font-size:.78rem;color:var(--text);line-height:1.5;margin-bottom:6px}
-.notif-img{max-width:100%;max-height:140px;border-radius:8px;margin-bottom:6px;border:1px solid var(--border);object-fit:contain}
-.notif-link{display:inline-flex;align-items:center;gap:3px;font-size:.7rem;color:var(--accent-h);font-weight:600;text-decoration:none}
-.notif-link svg{width:10px;height:10px;stroke:currentColor}
-.notif-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:4px}
+.notif-meta span{font-size:.68rem;color:var(--t4);display:flex;align-items:center;gap:3px}
+.notif-meta span svg{width:10px;height:10px}
+.notif-body{font-size:.78rem;color:var(--t2);line-height:1.5;margin-bottom:6px}
+.notif-img{max-width:100%;max-height:140px;border-radius:var(--r);margin-bottom:6px;border:1px solid var(--border);object-fit:contain}
+.notif-link{display:inline-flex;align-items:center;gap:3px;font-size:.7rem;color:var(--blue);font-weight:500;text-decoration:none}
+.notif-link svg{width:10px;height:10px}
 
-/* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(16px);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--surface);border:1px solid var(--border2);border-radius:22px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
-.modal-lg{max-width:640px}
-.modal-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.modal-title{font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;color:var(--bright)}
-.modal-close{background:var(--surface2);border:1px solid var(--border);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted)}
-.modal-body{padding:20px 22px}
-.modal-footer{padding:14px 22px 22px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border)}
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  width:100%;max-width:520px;max-height:85vh;overflow-y:auto;
+  box-shadow:0 24px 50px rgba(0,0,0,.3);
+}
+.modal-header{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:var(--surf);z-index:1;
+}
+.modal-header h2{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1)}
+.modal-close{
+  width:32px;height:32px;border:none;background:none;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--t3);transition:background var(--tr);
+}
+.modal-close:hover{background:var(--hov)}
+.modal-close svg{width:18px;height:18px}
+.modal-body{padding:20px}
+.modal-footer{
+  padding:14px 20px 20px;display:flex;gap:10px;
+  justify-content:flex-end;border-top:1px solid var(--border);
+}
 
-/* Alert */
-.alert{padding:10px 14px;border-radius:10px;margin-top:10px;display:none}
-.alert-success{display:block;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:var(--success)}
-.alert-error{display:block;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--error)}
+.alert{padding:10px 14px;border-radius:var(--r);font-size:.8rem;margin-top:8px;display:none}
+.alert-success{display:block;background:var(--grn-bg);color:var(--green);border:1px solid rgba(30,142,62,.2)}
+.alert-error{display:block;background:var(--red-bg);color:var(--red);border:1px solid rgba(217,48,37,.2)}
 
-/* Skeleton */
-.skeleton{background:linear-gradient(90deg,var(--surface2)25%,var(--surface3)50%,var(--surface2)75%);background-size:200%100%;animation:skeleton-loading 1.5s infinite;border-radius:10px}
-@keyframes skeleton-loading{0%{background-position:200%0}100%{background-position:-200%0}}
+.skeleton{
+  background:linear-gradient(90deg,var(--hov)25%,#e8eaed 50%,var(--hov)75%);
+  background-size:200%100%;animation:shimmer 1.5s infinite;border-radius:var(--r);
+}
+@keyframes shimmer{0%{background-position:200%0}100%{background-position:-200%0}}
+.toast{
+  position:fixed;bottom:24px;left:24px;z-index:9999;
+  padding:14px 24px;border-radius:var(--r);background:#323232;
+  color:#f5f5f5;font-size:.875rem;
+  box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px rgba(0,0,0,.14),0 1px 18px rgba(0,0,0,.12);
+  transform:translateY(80px);opacity:0;
+  transition:all .25s cubic-bezier(0,0,.2,1);pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1}
 
-/* Footer */
-.footer{background:var(--surface);border-top:1px solid var(--border);padding:24px 32px 20px;margin-top:auto}
-.footer-inner{max-width:1160px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
-.footer-links{display:flex;gap:20px}
-.footer-links a{color:var(--muted);text-decoration:none;font-size:.7rem;transition:color .2s}
-.footer-links a:hover{color:var(--accent-h)}
-.footer-copy{font-size:.65rem;color:var(--muted)}
-
-/* Bottom Nav */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:30;padding:4px 0 6px}
-.bottom-nav-items{display:flex}
-.bottom-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:3px 2px;color:var(--muted);font-size:.5rem;font-weight:600;border:none;background:none;cursor:pointer;transition:color .2s}
-.bottom-nav-item.active{color:var(--accent-h)}
-.bottom-nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none}
-
-/* Responsive */
 @media(max-width:900px){
-  header{padding:0 16px}
-  .header-nav{display:none}
-  .hamburger{display:block}
+  .header{padding:0 16px}
   .sidebar{display:none}
-  .main-content{padding:16px}
-  .form-grid{grid-template-columns:1fr}
+  .content{padding:20px 16px 80px}
   .stats-grid{grid-template-columns:1fr 1fr}
-  .bottom-nav{display:block}
-  .footer{padding:16px 20px}
-  .footer-inner{flex-direction:column;text-align:center}
+  .form-grid{grid-template-columns:1fr}
   .resource-item{flex-direction:column;gap:8px;align-items:flex-start}
   .resource-actions{width:100%;justify-content:flex-end}
-  .resource-type-selector{flex-wrap:wrap}
 }
-@media(max-width:540px){
+@media(max-width:600px){
   .stats-grid{grid-template-columns:1fr}
   .card-header{flex-direction:column;align-items:flex-start}
-  .btn-header span{display:none}
+  .modal{max-width:95vw}
 }
 </style>
 </head>
 <body>
 
-<header>
-  <div style="display:flex;align-items:center;gap:14px">
-    <button class="hamburger" id="hamburger">
-      <svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8">
-        <line x1="3" y1="7" x2="19" y2="7"/><line x1="3" y1="11" x2="19" y2="11"/><line x1="3" y1="15" x2="19" y2="15"/>
-      </svg>
-    </button>
-    <a href="/" class="logo">
+<header class="header">
+  <div class="header-left">
+    <a href="/" class="logo-wrap">
       <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
-      <span class="logo-text">Exalyte<span class="admin-badge">Admin</span></span>
+      <span class="logo-text">Exalyte</span>
     </a>
+    <span class="admin-tag">Admin</span>
   </div>
-  <div class="header-nav">
-    <a href="admin.html" class="active">Dashboard</a>
-  </div>
-  <div class="header-actions">
-    <div class="user-menu">
-      <div class="user-avatar" id="userAvatar">A</div>
-      <span class="user-name" id="userName">Admin</span>
-      <button class="btn-logout" onclick="logout()">Sign out</button>
-    </div>
+  <div class="header-right">
+    <button class="btn btn-danger btn-sm" onclick="logout()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign out
+    </button>
   </div>
 </header>
 
-<div class="drawer-overlay" id="drawerOverlay"></div>
-<div class="mobile-drawer" id="mobileDrawer">
-  <div class="drawer-header">
-    <a href="/" class="logo"><span class="logo-text">Exalyte</span></a>
-    <button class="drawer-close" id="drawerClose">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-        <line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/>
-      </svg>
-    </button>
-  </div>
-  <div class="drawer-link active" data-section="dashboard" onclick="switchSection('dashboard')">Dashboard</div>
-  <div class="drawer-link" data-section="exams" onclick="switchSection('exams')">Exams</div>
-  <div class="drawer-link" data-section="batches" onclick="switchSection('batches')">Batches</div>
-  <div class="drawer-link" data-section="questions" onclick="switchSection('questions')">Questions</div>
-  <div class="drawer-link" data-section="resources" onclick="switchSection('resources')">Resources</div>
-  <div class="drawer-link" data-section="users" onclick="switchSection('users')">Users</div>
-  <div class="drawer-link" data-section="results" onclick="switchSection('results')">Results</div>
-  <div class="drawer-link" data-section="notifications" onclick="switchSection('notifications')">Notifications</div>
-  <hr class="drawer-divider">
-  <div class="drawer-actions">
-    <button class="btn-logout" onclick="logout()" style="width:100%;padding:10px">Sign out</button>
-  </div>
-</div>
-
-<div class="admin-layout">
+<main class="main">
   <aside class="sidebar">
-    <div class="sidebar-nav">
-      <div class="nav-section">
-        <div class="nav-section-label">Overview</div>
-        <button class="nav-item active" onclick="switchSection('dashboard')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</button>
-      </div>
-      <div class="nav-section">
-        <div class="nav-section-label">Content</div>
-        <button class="nav-item" onclick="switchSection('exams')"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Exams</button>
-        <button class="nav-item" onclick="switchSection('batches')"><svg viewBox="0 0 24 24"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg>Batches</button>
-        <button class="nav-item" onclick="switchSection('questions')"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Questions</button>
-        <button class="nav-item" onclick="switchSection('resources')"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Resources</button>
-      </div>
-      <div class="nav-section">
-        <div class="nav-section-label">Communication</div>
-        <button class="nav-item" onclick="switchSection('notifications')"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</button>
-      </div>
-      <div class="nav-section">
-        <div class="nav-section-label">People</div>
-        <button class="nav-item" onclick="switchSection('users')"><svg viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857"/></svg>Users</button>
-        <button class="nav-item" onclick="switchSection('results')"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg>Results</button>
-      </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Overview</div>
+      <button class="sidebar-item active" onclick="switchSection('dashboard')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Content</div>
+      <button class="sidebar-item" onclick="switchSection('exams')"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Exams</button>
+      <button class="sidebar-item" onclick="switchSection('batches')"><svg viewBox="0 0 24 24"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg>Batches</button>
+      <button class="sidebar-item" onclick="switchSection('questions')"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Questions</button>
+      <button class="sidebar-item" onclick="switchSection('resources')"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Resources</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Communication</div>
+      <button class="sidebar-item" onclick="switchSection('notifications')"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</button>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">People</div>
+      <button class="sidebar-item" onclick="switchSection('users')"><svg viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857"/></svg>Users</button>
+      <button class="sidebar-item" onclick="switchSection('results')"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg>Results</button>
     </div>
   </aside>
 
-  <main class="main-content">
+  <div class="content">
+
     <!-- Dashboard -->
-    <div class="admin-section active" id="section-dashboard">
+    <div class="section active" id="sec-dashboard">
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg></div><div class="stat-value" id="statExams">—</div><div class="stat-label">Total Exams</div></div>
-        <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg></div><div class="stat-value" id="statBatches">—</div><div class="stat-label">Batches</div></div>
-        <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="stat-value" id="statUsers">—</div><div class="stat-label">Total Users</div></div>
-        <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg></div><div class="stat-value" id="statSubmissions">—</div><div class="stat-label">Submissions</div></div>
+        <div class="stat-card"><div class="stat-card-icon" style="background:#e8f0fe;color:var(--blue)"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg></div><div class="stat-card-val" id="statExams">—</div><div class="stat-card-lbl">Total Exams</div></div>
+        <div class="stat-card"><div class="stat-card-icon" style="background:var(--yel-bg);color:#e37400"><svg viewBox="0 0 24 24"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg></div><div class="stat-card-val" id="statBatches">—</div><div class="stat-card-lbl">Batches</div></div>
+        <div class="stat-card"><div class="stat-card-icon" style="background:var(--grn-bg);color:var(--green)"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="stat-card-val" id="statUsers">—</div><div class="stat-card-lbl">Total Users</div></div>
+        <div class="stat-card"><div class="stat-card-icon" style="background:#f3e8fd;color:#9333ea"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg></div><div class="stat-card-val" id="statSubmissions">—</div><div class="stat-card-lbl">Submissions</div></div>
       </div>
-      <div class="card"><div class="card-header"><span class="card-title">Recent Submissions</span></div><div class="card-body"><div class="table-container" id="recentTable"><div class="skeleton" style="height:40px"></div></div></div></div>
+      <div class="card"><div class="card-header"><span class="card-title">Recent Submissions</span></div><div class="card-body"><div class="table-wrap" id="recentTable"><div class="skeleton" style="height:40px"></div></div></div></div>
     </div>
 
     <!-- Exams -->
-    <div class="admin-section" id="section-exams">
-      <div class="card"><div class="card-header"><span class="card-title">All Examinations</span><button class="btn btn-primary btn-sm" onclick="openExamModal()">+ New Exam</button></div><div class="card-body"><div class="table-container" id="examsTable"><div class="skeleton" style="height:40px"></div></div></div></div>
+    <div class="section" id="sec-exams">
+      <div class="card"><div class="card-header"><span class="card-title">All Examinations</span><button class="btn btn-primary btn-sm" onclick="openExamModal()">+ New Exam</button></div><div class="card-body"><div class="table-wrap" id="examsTable"><div class="skeleton" style="height:40px"></div></div></div></div>
     </div>
 
     <!-- Batches -->
-    <div class="admin-section" id="section-batches">
-      <div class="card"><div class="card-header"><span class="card-title">Batches / Courses</span><button class="btn btn-primary btn-sm" onclick="openBatchModal()">+ New Batch</button></div><div class="card-body"><div class="table-container" id="batchesTable"><div class="skeleton" style="height:40px"></div></div></div></div>
+    <div class="section" id="sec-batches">
+      <div class="card"><div class="card-header"><span class="card-title">Batches / Courses</span><button class="btn btn-primary btn-sm" onclick="openBatchModal()">+ New Batch</button></div><div class="card-body"><div class="table-wrap" id="batchesTable"><div class="skeleton" style="height:40px"></div></div></div></div>
     </div>
 
     <!-- Questions -->
-    <div class="admin-section" id="section-questions">
+    <div class="section" id="sec-questions">
       <div class="card"><div class="card-header"><span class="card-title">Upload Questions (JSON)</span></div><div class="card-body">
-        <div class="form-group"><label class="form-label">Select Exam</label><select class="form-select" id="questionExamSelect"></select></div>
+        <div class="form-group"><label class="form-label">Select Exam</label><select class="form-select" id="questionExamSelect" onchange="loadQuestionsForExam()"></select></div>
         <div class="form-group"><label class="form-label">JSON Format</label><textarea class="form-textarea" id="questionsJson" rows="8" placeholder='[{"question":"What is 2+2?","option_a":"3","option_b":"4","option_c":"5","option_d":"6","answer":"B","image_url":"","explanation":"Basic addition"}]'></textarea></div>
-        <div class="form-group"><label class="toggle-label" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="replaceQuestions"> Replace existing questions</label></div>
+        <div class="form-group"><label class="form-check"><input type="checkbox" id="replaceQuestions"> Replace existing questions</label></div>
         <button class="btn btn-primary" onclick="uploadQuestions()">Upload Questions</button>
         <div id="questionUploadResult"></div>
       </div></div>
@@ -308,21 +327,21 @@ tr:last-child td{border-bottom:none}
     </div>
 
     <!-- Resources -->
-    <div class="admin-section" id="section-resources">
+    <div class="section" id="sec-resources">
       <div class="card"><div class="card-header"><span class="card-title">Manage Resources</span></div><div class="card-body">
         <div class="resource-type-selector">
           <button class="resource-type-btn active" data-type="exam" onclick="setResourceType('exam')">Exam Resources</button>
           <button class="resource-type-btn" data-type="batch" onclick="setResourceType('batch')">Batch Resources</button>
         </div>
         <div id="resourceExamGroup">
-          <div class="form-group"><label class="form-label">Select Exam</label><select class="form-select" id="resourceExamSelect"></select></div>
+          <div class="form-group"><label class="form-label">Select Exam</label><select class="form-select" id="resourceExamSelect" onchange="loadResourcesForTarget()"></select></div>
         </div>
         <div id="resourceBatchGroup" style="display:none">
-          <div class="form-group"><label class="form-label">Select Batch</label><select class="form-select" id="resourceBatchSelect"></select></div>
+          <div class="form-group"><label class="form-label">Select Batch</label><select class="form-select" id="resourceBatchSelect" onchange="loadResourcesForTarget()"></select></div>
         </div>
         <div id="resourcesList"></div>
         <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
-          <h3 style="font-size:.8rem;margin-bottom:12px">Add New Resource</h3>
+          <h3 style="font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t1);margin-bottom:12px">Add New Resource</h3>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
             <input type="text" id="newResourceTitle" class="form-input" placeholder="Resource Title" style="flex:2">
             <input type="url" id="newResourceLink" class="form-input" placeholder="Google Drive / YouTube Link" style="flex:3">
@@ -333,20 +352,20 @@ tr:last-child td{border-bottom:none}
     </div>
 
     <!-- Users -->
-    <div class="admin-section" id="section-users">
-      <div class="card"><div class="card-header"><span class="card-title">Registered Users</span></div><div class="card-body"><div class="table-container" id="usersTable"><div class="skeleton" style="height:40px"></div></div></div></div>
+    <div class="section" id="sec-users">
+      <div class="card"><div class="card-header"><span class="card-title">Registered Users</span></div><div class="card-body"><div class="table-wrap" id="usersTable"><div class="skeleton" style="height:40px"></div></div></div></div>
     </div>
 
     <!-- Results -->
-    <div class="admin-section" id="section-results">
-      <div class="card"><div class="card-header"><span class="card-title">Exam Results</span><select class="form-select" id="resultFilterExam" style="width:200px"><option value="">All Exams</option></select></div><div class="card-body"><div class="table-container" id="resultsTable"><div class="skeleton" style="height:40px"></div></div></div></div>
+    <div class="section" id="sec-results">
+      <div class="card"><div class="card-header"><span class="card-title">Exam Results</span><select class="form-select" id="resultFilterExam" style="width:200px" onchange="loadResults()"><option value="">All Exams</option></select></div><div class="card-body"><div class="table-wrap" id="resultsTable"><div class="skeleton" style="height:40px"></div></div></div></div>
     </div>
 
     <!-- Notifications -->
-    <div class="admin-section" id="section-notifications">
+    <div class="section" id="sec-notifications">
       <div class="card"><div class="card-header"><span class="card-title">Send Notification</span></div><div class="card-body">
         <div id="notifResult"></div>
-        <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="notifTitle" placeholder="Notification title"></div>
+        <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="notifTitle" placeholder="Notification title"></div>
         <div class="form-group"><label class="form-label">Body</label><textarea class="form-textarea" id="notifBody" rows="3" placeholder="Notification body"></textarea></div>
         <div class="form-group"><label class="form-label">Image URL (optional)</label><input class="form-input" id="notifImage" placeholder="https://example.com/image.jpg"></div>
         <div class="form-group"><label class="form-label">Link URL (optional)</label><input class="form-input" id="notifLink" placeholder="https://example.com/page"></div>
@@ -354,65 +373,56 @@ tr:last-child td{border-bottom:none}
       </div></div>
       <div class="card"><div class="card-header"><span class="card-title">Sent Notifications</span></div><div class="card-body"><div id="notifList"></div></div></div>
     </div>
-  </main>
-</div>
 
-<!-- Footer -->
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="footer-copy">© 2025 Exalyte. All rights reserved.</div>
-    <div class="footer-links">
-      <a href="privacy.html">Privacy</a>
-      <a href="tos.html">Terms</a>
-      <a href="contact.html">Contact</a>
-    </div>
   </div>
-</footer>
+</main>
 
 <!-- Exam Modal -->
-<div class="modal-overlay" id="examModal"><div class="modal modal-lg"><div class="modal-header"><span class="modal-title" id="examModalTitle">New Exam</span><button class="modal-close" onclick="closeModal('examModal')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg></button></div><div class="modal-body">
-  <div class="form-group"><label class="form-label">Exam Name</label><input class="form-input" id="examName" placeholder="e.g., Mathematics Final"></div>
-  <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="examDesc" rows="2" placeholder="Brief description"></textarea></div>
-  <div class="form-grid">
-    <div class="form-group"><label class="form-label">Time Limit (min)</label><input class="form-input" type="number" id="examTime" value="30"></div>
-    <div class="form-group"><label class="form-label">Negative Marking</label><input class="form-input" type="number" id="examNeg" value="0" step="0.25"></div>
-    <div class="form-group"><label class="form-label">Batch</label><select class="form-select" id="examBatchSelect"></select></div>
-    <div class="form-group"><label class="form-label">Live Deadline (hours, 0=none)</label><input class="form-input" type="number" id="examLive" value="0"></div>
+<div class="modal-overlay" id="examModal"><div class="modal">
+  <div class="modal-header"><h2 id="examModalTitle">New Exam</h2><button class="modal-close" onclick="closeModal('examModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="modal-body">
+    <div class="form-group"><label class="form-label">Exam Name</label><input class="form-input" id="examName" placeholder="e.g., Mathematics Final"></div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="examDesc" rows="2" placeholder="Brief description"></textarea></div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Time Limit (minutes)</label><input class="form-input" type="number" id="examTime" value="30"></div>
+      <div class="form-group"><label class="form-label">Negative Marking</label><input class="form-input" type="number" id="examNeg" value="0" step="0.25"></div>
+      <div class="form-group"><label class="form-label">Batch</label><select class="form-select" id="examBatchSelect"></select></div>
+      <div class="form-group"><label class="form-label">Live Deadline (hours, 0=none)</label><input class="form-input" type="number" id="examLive" value="0"></div>
+    </div>
+    <div class="form-group"><label class="form-check"><input type="checkbox" id="examPremium"> Premium Exam</label></div>
+    <div class="form-group"><label class="form-check"><input type="checkbox" id="examPractice" checked> Allow Practice Mode</label></div>
+    <div class="form-group"><label class="form-check"><input type="checkbox" id="examLeaderboard" checked> Enable Leaderboard</label></div>
   </div>
-  <div class="form-group"><label class="toggle-label" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="examPremium"> Premium Exam</label></div>
-  <div class="form-group"><label class="toggle-label" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="examPractice" checked> Allow Practice Mode</label></div>
-</div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('examModal')">Cancel</button><button class="btn btn-primary" onclick="saveExam()">Save Exam</button></div></div></div>
+  <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('examModal')">Cancel</button><button class="btn btn-primary" onclick="saveExam()">Save Exam</button></div>
+</div></div>
 
 <!-- Batch Modal -->
-<div class="modal-overlay" id="batchModal"><div class="modal"><div class="modal-header"><span class="modal-title">New Batch</span><button class="modal-close" onclick="closeModal('batchModal')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg></button></div><div class="modal-body">
-  <div class="form-group"><label class="form-label">Batch Name</label><input class="form-input" id="batchName" placeholder="e.g., JEE Advanced 2026"></div>
-  <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="batchDesc" rows="2" placeholder="Batch description"></textarea></div>
-</div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('batchModal')">Cancel</button><button class="btn btn-primary" onclick="saveBatch()">Save Batch</button></div></div></div>
+<div class="modal-overlay" id="batchModal"><div class="modal">
+  <div class="modal-header"><h2>New Batch</h2><button class="modal-close" onclick="closeModal('batchModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="modal-body">
+    <div class="form-group"><label class="form-label">Batch Name</label><input class="form-input" id="batchName" placeholder="e.g., JEE Advanced 2026"></div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="batchDesc" rows="2" placeholder="Batch description"></textarea></div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('batchModal')">Cancel</button><button class="btn btn-primary" onclick="saveBatch()">Save Batch</button></div>
+</div></div>
 
 <!-- Grant Premium Modal -->
-<div class="modal-overlay" id="grantModal"><div class="modal"><div class="modal-header"><span class="modal-title">Grant Premium Access</span><button class="modal-close" onclick="closeModal('grantModal')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg></button></div><div class="modal-body">
-  <div class="form-group"><label class="form-label">User</label><div id="grantUserDisplay" style="padding:8px 12px;background:var(--surface2);border-radius:10px"></div></div>
-  <div class="form-group"><label class="form-label">Scope</label>
-    <select class="form-select" id="grantScope" onchange="toggleGrantScope()">
-      <option value="exam">Single Exam</option>
-      <option value="batch">Whole Batch</option>
-      <option value="account">Account-Wide</option>
-    </select>
+<div class="modal-overlay" id="grantModal"><div class="modal">
+  <div class="modal-header"><h2>Grant Premium Access</h2><button class="modal-close" onclick="closeModal('grantModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="modal-body">
+    <div class="form-group"><label class="form-label">User</label><div id="grantUserDisplay" style="padding:8px 12px;background:var(--bg);border-radius:var(--r)"></div></div>
+    <div class="form-group"><label class="form-label">Scope</label><select class="form-select" id="grantScope" onchange="toggleGrantScope()"><option value="exam">Single Exam</option><option value="batch">Whole Batch</option><option value="account">Account-Wide</option></select></div>
+    <div class="form-group" id="grantExamGroup"><label class="form-label">Select Exam</label><select class="form-select" id="grantExam"></select></div>
+    <div class="form-group" id="grantBatchGroup" style="display:none"><label class="form-label">Select Batch</label><select class="form-select" id="grantBatch"></select></div>
+    <div class="form-group"><label class="form-label">Duration</label><select class="form-select" id="grantDuration"><option value="">Permanent</option><option value="24">24 Hours</option><option value="168">7 Days</option><option value="720">30 Days</option></select></div>
   </div>
-  <div class="form-group" id="grantExamGroup"><label class="form-label">Select Exam</label><select class="form-select" id="grantExam"></select></div>
-  <div class="form-group" id="grantBatchGroup" style="display:none"><label class="form-label">Select Batch</label><select class="form-select" id="grantBatch"></select></div>
-  <div class="form-group"><label class="form-label">Duration</label>
-    <select class="form-select" id="grantDuration">
-      <option value="">Permanent</option>
-      <option value="24">24 Hours</option>
-      <option value="168">7 Days</option>
-      <option value="720">30 Days</option>
-    </select>
-  </div>
-</div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('grantModal')">Cancel</button><button class="btn btn-primary" onclick="submitGrant()">Grant Access</button></div></div></div>
+  <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('grantModal')">Cancel</button><button class="btn btn-primary" onclick="submitGrant()">Grant Access</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-const API='/api';
+const API = '/api';
 
 function getToken(){return localStorage.getItem('exalyte_token')}
 function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
@@ -427,20 +437,17 @@ async function apiFetch(path,opts={}){
   return{ok:res.ok,data:await res.json().catch(()=>({}))};
 }
 
-let allExams=[], allBatches=[], allUsers=[], editingExamId=null, editingBatchId=null, grantUserId=null;
-let currentResourceType='exam', currentResourceTargetId=null;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+
+let allExams=[],allBatches=[],allUsers=[],editingExamId=null,editingBatchId=null,grantUserId=null;
+let currentResourceType='exam',currentResourceTargetId=null;
 
 async function loadDashboard(){
   const user=getUser();
   if(!user?.is_admin){window.location.href='/';return}
-  document.getElementById('userName').textContent=user.name||'Admin';
-  document.getElementById('userAvatar').textContent=(user.name||'A')[0].toUpperCase();
-
+  
   const[exams,batches,users,results]=await Promise.all([
-    apiFetch('/exams/'),
-    apiFetch('/batches'),
-    apiFetch('/admin/users'),
-    apiFetch('/admin/results')
+    apiFetch('/exams'),apiFetch('/batches'),apiFetch('/admin/users'),apiFetch('/admin/results')
   ]);
   
   const examList=(exams.data||{}).exams||[];
@@ -454,38 +461,36 @@ async function loadDashboard(){
   document.getElementById('statSubmissions').textContent=resultList.length;
   
   const recent=resultList.slice(0,10);
-  document.getElementById('recentTable').innerHTML=`<table><thead><tr><th>User</th><th>Exam</th><th>Score</th><th>Date</th></tr></thead><tbody>${recent.map(r=>`<tr><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:.65rem;color:var(--muted)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td>${formatDate(r.submitted_at)}</td></tr>`).join('')||'<tr><td colspan="4">No submissions</td></tr>'}</tbody></table>`;
+  document.getElementById('recentTable').innerHTML=`<table><thead><tr><th>User</th><th>Exam</th><th>Score</th><th>Date</th></tr></thead><tbody>${recent.map(r=>`<tr><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:.65rem;color:var(--t4)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td>${formatDate(r.submitted_at)}</td></tr>`).join('')||'<tr><td colspan="4">No submissions</td></tr>'}</tbody></table>`;
 }
 
 async function loadExams(){
-  const{data}=await apiFetch('/exams/');
+  const{data}=await apiFetch('/exams');
   allExams=(data.exams||[]);
-  document.getElementById('examsTable').innerHTML=`<table><thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Questions</th><th>Resources</th><th>Actions</th></tr></thead><tbody>${allExams.map(e=>`<tr><td><strong>${esc(e.name)}</strong>${e.description?`<br><span style="font-size:.65rem;color:var(--muted)">${esc(e.description)}</span>`:''}</td><td>${esc(e.batch_name)||'—'}</td><td><span class="badge ${e.is_premium?'badge-premium':'badge-free'}">${e.is_premium?'Premium':'Free'}</span></td><td>${e.question_count||0}</td><td><button class="btn btn-secondary btn-sm" onclick="switchSection('resources');document.getElementById('resourceExamSelect').value=${e.id};setResourceType('exam');loadResourcesForTarget()">Manage</button></td><td><button class="btn btn-secondary btn-sm" onclick="openExamModal(${e.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id})">Delete</button></td></tr>`).join('')||'<tr><td colspan="6">No exams</td></tr>'}</tbody></table>`;
+  document.getElementById('examsTable').innerHTML=`<table><thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Questions</th><th>Actions</th></tr></thead><tbody>${allExams.map(e=>`<tr><td><strong>${esc(e.name)}</strong>${e.description?`<br><span style="font-size:.65rem;color:var(--t4)">${esc(e.description)}</span>`:''}</td><td>${esc(e.batch_name)||'—'}</td><td><span class="badge ${e.is_premium?'badge-premium':'badge-free'}">${e.is_premium?'Premium':'Free'}</span></td><td>${e.question_count||0}</td><td><button class="btn btn-outline btn-sm" onclick="openExamModal(${e.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id})">Delete</button></td></tr>`).join('')||'<tr><td colspan="5">No exams</td></tr>'}</tbody></table>`;
   loadExamSelects();
 }
 
 async function loadBatches(){
   const{data}=await apiFetch('/batches');
   allBatches=data||[];
-  document.getElementById('batchesTable').innerHTML=`<table><thead><tr><th>Name</th><th>Description</th><th>Exams</th><th>Resources</th><th>Actions</th></tr></thead><tbody>${allBatches.map(b=>`<tr><td><strong>${esc(b.name)}</strong></td><td>${esc(b.description)||'—'}</td><td>${b.exam_count||0}</td><td><button class="btn btn-secondary btn-sm" onclick="switchSection('resources');document.getElementById('resourceBatchSelect').value=${b.id};setResourceType('batch');loadResourcesForTarget()">Manage</button></td><td><button class="btn btn-secondary btn-sm" onclick="openBatchModal(${b.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteBatch(${b.id})">Delete</button></td></tr>`).join('')||'<tr><td colspan="5">No batches</td></tr>'}</tbody></table>`;
+  document.getElementById('batchesTable').innerHTML=`<table><thead><tr><th>Name</th><th>Description</th><th>Exams</th><th>Actions</th></tr></thead><tbody>${allBatches.map(b=>`<tr><td><strong>${esc(b.name)}</strong></td><td>${esc(b.description)||'—'}</td><td>${b.exam_count||0}</td><td><button class="btn btn-outline btn-sm" onclick="openBatchModal(${b.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteBatch(${b.id})">Delete</button></td></tr>`).join('')||'<tr><td colspan="4">No batches</td></tr>'}</tbody></table>`;
   loadBatchSelects();
 }
 
-async function loadExamSelects(){
+function loadExamSelects(){
   const selects=['questionExamSelect','resourceExamSelect','grantExam','resultFilterExam'];
   for(const id of selects){
-    const select=document.getElementById(id);
-    if(select) select.innerHTML=`<option value="">Select Exam</option>${allExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('')}`;
+    const s=document.getElementById(id);
+    if(s)s.innerHTML=`<option value="">Select Exam</option>${allExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('')}`;
   }
 }
 
-async function loadBatchSelects(){
+function loadBatchSelects(){
   const selects=['examBatchSelect','resourceBatchSelect','grantBatch'];
   for(const id of selects){
-    const select=document.getElementById(id);
-    if(select){
-      select.innerHTML=`<option value="">Select Batch</option>${allBatches.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}`;
-    }
+    const s=document.getElementById(id);
+    if(s)s.innerHTML=`<option value="">Select Batch</option>${allBatches.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}`;
   }
 }
 
@@ -500,14 +505,10 @@ function openExamModal(id=null){
   document.getElementById('examLive').value=exam?.live_deadline_hours||0;
   document.getElementById('examPremium').checked=exam?.is_premium||false;
   document.getElementById('examPractice').checked=exam?.allow_practice!==false;
-  
-  // Load batches into the batch select
+  document.getElementById('examLeaderboard').checked=exam?.leaderboard_enabled!==false;
   loadBatchSelects();
-  // Set the selected batch
-  if(exam?.batch_id){
-    document.getElementById('examBatchSelect').value=exam.batch_id;
-  }
-  openModal('examModal');
+  if(exam?.batch_id)document.getElementById('examBatchSelect').value=exam.batch_id;
+  document.getElementById('examModal').classList.add('open');
 }
 
 async function saveExam(){
@@ -519,59 +520,44 @@ async function saveExam(){
     batch_id:document.getElementById('examBatchSelect').value||null,
     live_deadline_hours:parseInt(document.getElementById('examLive').value)||0,
     is_premium:document.getElementById('examPremium').checked?1:0,
-    allow_practice:document.getElementById('examPractice').checked?1:0
+    allow_practice:document.getElementById('examPractice').checked?1:0,
+    leaderboard_enabled:document.getElementById('examLeaderboard').checked?1:0
   };
   const url=editingExamId?`/admin/exams/${editingExamId}`:'/admin/exams';
   const method=editingExamId?'PUT':'POST';
   await apiFetch(url,{method,body:JSON.stringify(body)});
   closeModal('examModal');
-  loadExams();
-  loadDashboard();
+  loadExams();loadDashboard();
 }
 
-async function deleteExam(id){
-  if(!confirm('Delete this exam?'))return;
-  await apiFetch(`/admin/exams/${id}`,{method:'DELETE'});
-  loadExams();
-  loadDashboard();
-}
+async function deleteExam(id){if(!confirm('Delete this exam?'))return;await apiFetch(`/admin/exams/${id}`,{method:'DELETE'});loadExams();loadDashboard()}
 
 function openBatchModal(id=null){
   editingBatchId=id;
   const batch=id?allBatches.find(b=>b.id==id):null;
   document.getElementById('batchName').value=batch?.name||'';
   document.getElementById('batchDesc').value=batch?.description||'';
-  openModal('batchModal');
+  document.getElementById('batchModal').classList.add('open');
 }
 
 async function saveBatch(){
-  const body={
-    name:document.getElementById('batchName').value.trim(),
-    description:document.getElementById('batchDesc').value
-  };
+  const body={name:document.getElementById('batchName').value.trim(),description:document.getElementById('batchDesc').value};
   const url=editingBatchId?`/admin/batches/${editingBatchId}`:'/admin/batches';
   const method=editingBatchId?'PUT':'POST';
   await apiFetch(url,{method,body:JSON.stringify(body)});
   closeModal('batchModal');
-  loadBatches();
-  loadDashboard();
+  loadBatches();loadDashboard();
 }
 
-async function deleteBatch(id){
-  if(!confirm('Delete this batch?'))return;
-  await apiFetch(`/admin/batches/${id}`,{method:'DELETE'});
-  loadBatches();
-  loadExams();
-  loadDashboard();
-}
+async function deleteBatch(id){if(!confirm('Delete this batch?'))return;await apiFetch(`/admin/batches/${id}`,{method:'DELETE'});loadBatches();loadExams();loadDashboard()}
 
 // Questions
 async function loadQuestionsForExam(){
   const examId=document.getElementById('questionExamSelect').value;
-  if(!examId){document.getElementById('questionsList').innerHTML='<p style="color:var(--muted);padding:16px">Select an exam</p>';return}
+  if(!examId){document.getElementById('questionsList').innerHTML='<p style="color:var(--t3);padding:16px">Select an exam</p>';return}
   const{data}=await apiFetch(`/admin/questions/${examId}`);
   const qs=data||[];
-  document.getElementById('questionsList').innerHTML=qs.length?qs.map((q,i)=>`<div style="padding:10px;border-bottom:1px solid var(--border)"><strong>${i+1}. ${esc(q.question_text)}</strong><br><span style="color:var(--success)">Answer: ${q.correct_answer}</span>${q.explanation?`<br><span style="color:var(--accent-h);font-size:.65rem">💡 ${esc(q.explanation)}</span>`:''}</div>`).join(''):'<p style="color:var(--muted);padding:20px;text-align:center">No questions yet</p>';
+  document.getElementById('questionsList').innerHTML=qs.length?qs.map((q,i)=>`<div style="padding:10px;border-bottom:1px solid var(--border)"><strong>${i+1}. ${esc(q.question_text)}</strong><br><span style="color:var(--green)">Answer: ${q.correct_answer}</span>${q.explanation?`<br><span style="color:var(--blue);font-size:.65rem">${esc(q.explanation)}</span>`:''}</div>`).join(''):'<p style="color:var(--t3);padding:20px;text-align:center">No questions yet</p>';
 }
 
 async function uploadQuestions(){
@@ -582,8 +568,8 @@ async function uploadQuestions(){
     const questions=JSON.parse(jsonStr);
     if(document.getElementById('replaceQuestions').checked)await apiFetch(`/admin/questions/${examId}`,{method:'DELETE'});
     const{data}=await apiFetch('/admin/questions/bulk',{method:'POST',body:JSON.stringify({exam_id:parseInt(examId),questions})});
-    document.getElementById('questionUploadResult').innerHTML=`<div class="alert-success">${data.inserted} questions uploaded</div>`;
-    setTimeout(()=>{document.getElementById('questionUploadResult').innerHTML=''},3000);
+    document.getElementById('questionUploadResult').innerHTML=`<div class="alert alert-success">${data.inserted} questions uploaded</div>`;
+    setTimeout(()=>document.getElementById('questionUploadResult').innerHTML='',3000);
     loadQuestionsForExam();
   }catch(e){alert('Invalid JSON format')}
 }
@@ -600,24 +586,16 @@ function setResourceType(type){
   currentResourceType=type;
   document.querySelectorAll('.resource-type-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector(`.resource-type-btn[data-type="${type}"]`).classList.add('active');
-  if(type==='exam'){
-    document.getElementById('resourceExamGroup').style.display='block';
-    document.getElementById('resourceBatchGroup').style.display='none';
-  }else{
-    document.getElementById('resourceExamGroup').style.display='none';
-    document.getElementById('resourceBatchGroup').style.display='block';
-  }
+  document.getElementById('resourceExamGroup').style.display=type==='exam'?'block':'none';
+  document.getElementById('resourceBatchGroup').style.display=type==='batch'?'block':'none';
   loadResourcesForTarget();
 }
 
 async function loadResourcesForTarget(){
   let targetId=null;
-  if(currentResourceType==='exam'){
-    targetId=document.getElementById('resourceExamSelect').value;
-  }else{
-    targetId=document.getElementById('resourceBatchSelect').value;
-  }
-  if(!targetId){document.getElementById('resourcesList').innerHTML='<div class="resource-empty">Select an exam/batch</div>';return}
+  if(currentResourceType==='exam')targetId=document.getElementById('resourceExamSelect').value;
+  else targetId=document.getElementById('resourceBatchSelect').value;
+  if(!targetId){document.getElementById('resourcesList').innerHTML='<div class="resource-empty">Select an exam or batch</div>';return}
   currentResourceTargetId=parseInt(targetId);
   const endpoint=currentResourceType==='exam'?`/admin/exams/${targetId}/resources`:`/admin/batches/${targetId}/resources`;
   const{data}=await apiFetch(endpoint);
@@ -625,7 +603,7 @@ async function loadResourcesForTarget(){
   if(!resources.length){document.getElementById('resourcesList').innerHTML='<div class="resource-empty">No resources added yet</div>';return}
   document.getElementById('resourcesList').innerHTML=`<div class="resource-list">${resources.map(r=>`
     <div class="resource-item">
-      <div class="resource-info"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><div><div class="resource-title">${esc(r.title)}</div><div class="resource-link">${esc(r.link)}</div></div></div>
+      <div class="resource-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><div><div class="resource-title">${esc(r.title)}</div><div class="resource-link">${esc(r.link)}</div></div></div>
       <div class="resource-actions"><button class="btn btn-danger btn-sm" onclick="deleteResource(${r.id})">Delete</button></div>
     </div>`).join('')}</div>`;
 }
@@ -637,8 +615,8 @@ async function addResource(){
   const endpoint=currentResourceType==='exam'?'/admin/resources':'/admin/batch-resources';
   const body=currentResourceType==='exam'?{exam_id:currentResourceTargetId,title,link}:{batch_id:currentResourceTargetId,title,link};
   const{ok,data}=await apiFetch(endpoint,{method:'POST',body:JSON.stringify(body)});
-  if(ok){document.getElementById('newResourceTitle').value='';document.getElementById('newResourceLink').value='';loadResourcesForTarget();alert('Resource added!')}
-  else alert(data.error||'Failed')
+  if(ok){document.getElementById('newResourceTitle').value='';document.getElementById('newResourceLink').value='';loadResourcesForTarget();toast('Resource added')}
+  else alert(data.error||'Failed');
 }
 
 async function deleteResource(id){
@@ -656,23 +634,21 @@ async function loadUsers(){
     let premiumHtml='';
     if(u.premium_grants&&u.premium_grants.length){
       premiumHtml=u.premium_grants.map(g=>{
-        const typeClass=g.grant_scope==='exam'?'premium-tag-exam':g.grant_scope==='batch'?'premium-tag-batch':'premium-tag-account';
+        const typeClass=g.grant_scope==='exam'?'pt-exam':g.grant_scope==='batch'?'pt-batch':'pt-account';
         const name=g.exam_name||g.batch_name||(g.grant_scope==='account'?'Account':g.grant_scope);
         const revokeFunc=g.grant_scope==='exam'?`revokeExamPremium(${u.id},${g.exam_id})`:g.grant_scope==='batch'?`revokeBatchPremium(${u.id},${g.batch_id})`:`revokeAccountPremium(${u.id})`;
-        return `<span class="premium-tag ${typeClass}">${esc(name)}<button class="revoke-premium" onclick="${revokeFunc}">✕</button></span>`;
+        return`<span class="premium-tag ${typeClass}">${esc(name)}<button class="revoke-btn" onclick="${revokeFunc}">x</button></span>`;
       }).join('');
-    }else{premiumHtml='<span style="color:var(--muted);font-size:.7rem">None</span>'}
-    return `<tr><td><strong>${esc(u.name)}</strong></td><td style="color:var(--muted);font-size:.75rem">${esc(u.email)}</td><td><span class="badge ${u.is_admin?'badge-admin':'badge-free'}">${u.is_admin?'Admin':'Student'}</span></td><td style="max-width:220px">${premiumHtml}</td><td>${!u.is_admin?`<button class="btn btn-primary btn-sm" onclick="openGrantModal(${u.id},'${esc(u.name)}')">Grant</button>`:'—'}</td></tr>`
+    }else{premiumHtml='<span style="color:var(--t4);font-size:.7rem">None</span>'}
+    return`<tr><td><strong>${esc(u.name)}</strong></td><td style="color:var(--t4);font-size:.75rem">${esc(u.email)}</td><td><span class="badge ${u.is_admin?'badge-admin':'badge-free'}">${u.is_admin?'Admin':'Student'}</span></td><td style="max-width:220px">${premiumHtml}</td><td>${!u.is_admin?`<button class="btn btn-primary btn-sm" onclick="openGrantModal(${u.id},'${esc(u.name)}')">Grant</button>`:'—'}</td></tr>`;
   }).join('')||'<tr><td colspan="5">No users</td></tr>'}</tbody></table>`;
 }
 
 function openGrantModal(userId,userName){
   grantUserId=userId;
   document.getElementById('grantUserDisplay').textContent=userName;
-  loadExamSelects();
-  loadBatchSelects();
-  toggleGrantScope();
-  openModal('grantModal');
+  loadExamSelects();loadBatchSelects();toggleGrantScope();
+  document.getElementById('grantModal').classList.add('open');
 }
 
 function toggleGrantScope(){
@@ -688,28 +664,12 @@ async function submitGrant(){
   if(scope==='exam')body.exam_id=parseInt(document.getElementById('grantExam').value);
   if(scope==='batch')body.batch_id=parseInt(document.getElementById('grantBatch').value);
   await apiFetch('/admin/grant-premium',{method:'POST',body:JSON.stringify(body)});
-  closeModal('grantModal');
-  loadUsers();
-  alert('Premium access granted');
+  closeModal('grantModal');loadUsers();toast('Premium access granted');
 }
 
-async function revokeExamPremium(userId,examId){
-  if(!confirm('Revoke this exam premium?'))return;
-  await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:userId,exam_id:examId})});
-  loadUsers();
-}
-
-async function revokeBatchPremium(userId,batchId){
-  if(!confirm('Revoke this batch premium?'))return;
-  await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:userId,batch_id:batchId})});
-  loadUsers();
-}
-
-async function revokeAccountPremium(userId){
-  if(!confirm('Revoke account premium?'))return;
-  await apiFetch('/admin/revoke-account-premium',{method:'DELETE',body:JSON.stringify({user_id:userId})});
-  loadUsers();
-}
+async function revokeExamPremium(userId,examId){if(!confirm('Revoke this exam premium?'))return;await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:userId,exam_id:examId})});loadUsers()}
+async function revokeBatchPremium(userId,batchId){if(!confirm('Revoke this batch premium?'))return;await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:userId,batch_id:batchId})});loadUsers()}
+async function revokeAccountPremium(userId){if(!confirm('Revoke account premium?'))return;await apiFetch('/admin/revoke-account-premium',{method:'DELETE',body:JSON.stringify({user_id:userId})});loadUsers()}
 
 // Results
 async function loadResults(){
@@ -717,7 +677,7 @@ async function loadResults(){
   const url=examId?`/admin/results/${examId}`:'/admin/results';
   const{data}=await apiFetch(url);
   const results=data||[];
-  document.getElementById('resultsTable').innerHTML=`<table><thead><tr><th>User</th><th>Exam</th><th>Score</th><th>%</th><th>Date</th></tr></thead><tbody>${results.map(r=>`<tr><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:.65rem;color:var(--muted)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><span style="color:${r.percentage>=80?'var(--success)':r.percentage>=50?'var(--warning)':'var(--error)'}">${r.percentage}%</span></td><td>${formatDate(r.submitted_at)}</td></tr>`).join('')||'<tr><td colspan="5">No results</td></tr>'}</tbody></table>`;
+  document.getElementById('resultsTable').innerHTML=`<table><thead><tr><th>User</th><th>Exam</th><th>Score</th><th>%</th><th>Date</th></tr></thead><tbody>${results.map(r=>`<tr><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:.65rem;color:var(--t4)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><span style="color:${r.percentage>=80?'var(--green)':r.percentage>=50?'#e37400':'var(--red)'}">${r.percentage}%</span></td><td>${formatDate(r.submitted_at)}</td></tr>`).join('')||'<tr><td colspan="5">No results</td></tr>'}</tbody></table>`;
 }
 
 // Notifications
@@ -726,71 +686,50 @@ async function sendNotification(){
   const body=document.getElementById('notifBody').value;
   const image_url=document.getElementById('notifImage').value.trim()||null;
   const link_url=document.getElementById('notifLink').value.trim()||null;
-  if(!title){document.getElementById('notifResult').innerHTML='<div class="alert-error">Title required</div>';setTimeout(()=>{document.getElementById('notifResult').innerHTML=''},3000);return}
+  if(!title){document.getElementById('notifResult').innerHTML='<div class="alert alert-error">Title required</div>';setTimeout(()=>document.getElementById('notifResult').innerHTML='',3000);return}
   const{ok,data}=await apiFetch('/admin/notifications',{method:'POST',body:JSON.stringify({title,body,image_url,link_url})});
-  if(ok){document.getElementById('notifResult').innerHTML='<div class="alert-success">Notification sent!</div>';document.getElementById('notifTitle').value='';document.getElementById('notifBody').value='';document.getElementById('notifImage').value='';document.getElementById('notifLink').value='';loadNotificationsList();setTimeout(()=>{document.getElementById('notifResult').innerHTML=''},4000)}
-  else{document.getElementById('notifResult').innerHTML=`<div class="alert-error">${data.error||'Failed'}</div>`;setTimeout(()=>{document.getElementById('notifResult').innerHTML=''},3000)}
+  if(ok){document.getElementById('notifResult').innerHTML='<div class="alert alert-success">Notification sent!</div>';document.getElementById('notifTitle').value='';document.getElementById('notifBody').value='';document.getElementById('notifImage').value='';document.getElementById('notifLink').value='';loadNotificationsList();setTimeout(()=>document.getElementById('notifResult').innerHTML='',4000)}
+  else{document.getElementById('notifResult').innerHTML=`<div class="alert alert-error">${data.error||'Failed'}</div>`;setTimeout(()=>document.getElementById('notifResult').innerHTML='',3000)}
 }
 
 async function loadNotificationsList(){
   const{data}=await apiFetch('/admin/notifications');
   const notifs=data||[];
-  if(!notifs.length){document.getElementById('notifList').innerHTML='<p style="color:var(--muted);text-align:center;padding:16px">No notifications sent</p>';return}
+  if(!notifs.length){document.getElementById('notifList').innerHTML='<p style="color:var(--t3);text-align:center;padding:16px">No notifications sent</p>';return}
   document.getElementById('notifList').innerHTML=notifs.map(n=>`
     <div class="notif-card">
       <div class="notif-header"><div class="notif-title">${esc(n.title)}</div><button class="btn btn-danger btn-sm" onclick="deleteNotification(${n.id})">Delete</button></div>
-      <div class="notif-meta"><span class="notif-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatDate(n.created_at)}</span><span class="notif-meta-item"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${n.read_count||0}/${n.total_users||0} read</span><span style="color:var(--muted);font-size:.65rem">by ${esc(n.creator_name)}</span></div>
+      <div class="notif-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatDate(n.created_at)}</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${n.read_count||0}/${n.total_users||0} read</span><span style="color:var(--t4);font-size:.65rem">by ${esc(n.creator_name)}</span></div>
       ${n.body?`<div class="notif-body">${esc(n.body)}</div>`:''}
-      ${n.image_url?`<img src="${esc(n.image_url)}" class="notif-img" onerror="this.style.display='none'">`:''}
-      ${n.link_url?`<a href="${esc(n.link_url)}" target="_blank" class="notif-link"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open</a>`:''}
+      ${n.image_url?`<img src="${esc(n.image_url)}" class="notif-img" onerror="this.style.display='none'" alt="">`:''}
+      ${n.link_url?`<a href="${esc(n.link_url)}" target="_blank" rel="noopener" class="notif-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open</a>`:''}
     </div>`).join('');
 }
 
-async function deleteNotification(id){
-  if(!confirm('Delete this notification?'))return;
-  await apiFetch(`/admin/notifications/${id}`,{method:'DELETE'});
-  loadNotificationsList();
-}
+async function deleteNotification(id){if(!confirm('Delete this notification?'))return;await apiFetch(`/admin/notifications/${id}`,{method:'DELETE'});loadNotificationsList()}
 
 // Utilities
 function switchSection(section){
-  document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.querySelectorAll('.drawer-link').forEach(d=>d.classList.remove('active'));
-  document.getElementById(`section-${section}`).classList.add('active');
-  document.querySelector(`.nav-item[onclick="switchSection('${section}')"]`)?.classList.add('active');
-  document.querySelector(`.drawer-link[data-section="${section}"]`)?.classList.add('active');
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+section).classList.add('active');
+  document.querySelector(`.sidebar-item[onclick="switchSection('${section}')"]`)?.classList.add('active');
   if(section==='dashboard')loadDashboard();
   if(section==='exams')loadExams();
   if(section==='batches')loadBatches();
-  if(section==='questions'){loadExamSelects();loadQuestionsForExam();}
-  if(section==='resources'){loadExamSelects();loadBatchSelects();}
+  if(section==='questions'){loadExamSelects();loadQuestionsForExam()}
+  if(section==='resources'){loadExamSelects();loadBatchSelects()}
   if(section==='users')loadUsers();
-  if(section==='results'){loadExamSelects();loadResults();}
+  if(section==='results'){loadExamSelects();loadResults()}
   if(section==='notifications')loadNotificationsList();
-  if(window.innerWidth<=900)closeDrawer();
 }
 
-function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden'}
-function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow=''}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open')})});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'))});
 
-function closeDrawer(){
-  document.getElementById('mobileDrawer').classList.remove('open');
-  document.getElementById('drawerOverlay').classList.remove('open');
-}
-
-document.getElementById('hamburger').addEventListener('click',()=>{
-  document.getElementById('mobileDrawer').classList.add('open');
-  document.getElementById('drawerOverlay').classList.add('open');
-});
-document.getElementById('drawerOverlay').addEventListener('click',closeDrawer);
-document.getElementById('drawerClose').addEventListener('click',closeDrawer);
-
-loadDashboard();
-loadExams();
-loadBatches();
-loadUsers();
-loadNotificationsList();
+loadDashboard();loadExams();loadBatches();loadUsers();loadNotificationsList();
 </script>
 </body>
 </html>
