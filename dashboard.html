@@ -695,9 +695,13 @@ function examCard(e){
       actionHtml=`<button class="btn-take" disabled>Awaiting Results</button>`;
     }
   }else{
-    if(e.is_live)actionHtml=`<button class="btn-take" onclick="startExam(${e.id},false)">Take Live Exam</button>`;
-    else if(e.live_ended)actionHtml=`<button class="btn-take" disabled>Exam Ended</button>`;
-    else actionHtml=`<button class="btn-take" onclick="startExam(${e.id},false)">Start Exam</button>`;
+    if(e.is_live){
+      actionHtml=`<button class="btn-take" onclick="startExam(${e.id},false)">Take Live Exam</button>`;
+    }else if(e.live_ended&&e.live_deadline_hours>0){
+      actionHtml=`<button class="btn-take" onclick="startExam(${e.id},true)">Start Practice</button>`;
+    }else{
+      actionHtml=`<button class="btn-take" onclick="startExam(${e.id},false)">Start Exam</button>`;
+    }
   }
   return`<div class="exam-card"><div class="exam-card-inner">
     <div class="exam-body">
@@ -769,6 +773,11 @@ function setFilter(btn){
 }
 
 function startExam(id,isPractice){
+  const exam=allExams.find(e=>e.id==id);
+  if(exam&&exam.live_ended&&exam.stored_attempt&&!isPractice){
+    window.location.href=`exam.html?id=${id}&practice=1`;
+    return;
+  }
   window.location.href=`exam.html?id=${id}&practice=${isPractice?1:0}`;
 }
 
