@@ -91,6 +91,8 @@ async function initDB(db) {
       password TEXT NOT NULL,
       is_admin INTEGER DEFAULT 0,
       premium_until DATETIME,
+      device_fingerprint TEXT DEFAULT '',
+      created_ip TEXT DEFAULT '',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE TABLE IF NOT EXISTS batches (
@@ -195,6 +197,10 @@ async function initDB(db) {
     await db.prepare(sql).run();
   }
 
+  // Add columns for existing databases that may not have them
+  try { await db.prepare(`ALTER TABLE users ADD COLUMN device_fingerprint TEXT DEFAULT ''`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE users ADD COLUMN created_ip TEXT DEFAULT ''`).run(); } catch (e) {}
+
   const adminHash = await sha256('Admin@2024');
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind('admin@exalyte.com').first();
   if (!existing) {
@@ -254,26 +260,16 @@ function getLiveStatus(exam) {
 }
 
 function isResultsPublished(exam) {
-  // Non-live exams: results always visible immediately
-  if (!exam.live_deadline_hours || exam.live_deadline_hours === 0) {
-    return true;
-  }
-  
-  // Admin manually published
+  if (!exam.live_deadline_hours || exam.live_deadline_hours === 0) return true;
   if (exam.results_published) return true;
-  
-  // Auto-publish by timer
   if (exam.publish_after_hours > 0) {
     const created = new Date(exam.created_at).getTime();
     const publishTime = created + exam.publish_after_hours * 3600000;
     if (Date.now() >= publishTime) return true;
   }
-  
-  // Auto-publish when live deadline ends
   const created = new Date(exam.created_at).getTime();
   const liveEndsAt = created + exam.live_deadline_hours * 3600000;
   if (Date.now() >= liveEndsAt) return true;
-  
   return false;
 }
 
@@ -282,16 +278,35 @@ function isResultsPublished(exam) {
 // ============================================================
 
 async function handleSignup(request, db) {
-  const { name, email, password } = await request.json();
+  const { name, email, password, fingerprint } = await request.json();
   if (!name || !email || !password) return err('All fields required');
   if (password.length < 6) return err('Password must be at least 6 characters');
   
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind(email.toLowerCase()).first();
   if (existing) return err('Email already registered');
   
+  // Device fingerprint + IP check: max 2 accounts per device/network
+  const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const fp = fingerprint || clientIP;
+  
+  const countByFP = await db.prepare(
+    'SELECT COUNT(*) as count FROM users WHERE device_fingerprint = ? AND device_fingerprint != ?'
+  ).bind(fp, '').first();
+  
+  const countByIP = await db.prepare(
+    'SELECT COUNT(*) as count FROM users WHERE created_ip = ?'
+  ).bind(clientIP).first();
+  
+  const totalCount = Math.max(countByFP?.count || 0, countByIP?.count || 0);
+  
+  if (totalCount >= 2) {
+    return err('Maximum 2 accounts allowed per device/network.', 403);
+  }
+  
   const hash = await sha256(password);
-  const result = await db.prepare('INSERT INTO users (name, email, password) VALUES (?, ?, ?) RETURNING id, name, email, is_admin')
-    .bind(name, email.toLowerCase(), hash).first();
+  const result = await db.prepare(
+    'INSERT INTO users (name, email, password, device_fingerprint, created_ip) VALUES (?, ?, ?, ?, ?) RETURNING id, name, email, is_admin'
+  ).bind(name, email.toLowerCase(), hash, fp, clientIP).first();
   
   const token = await signJWT({ id: result.id, email: result.email, is_admin: result.is_admin });
   return json({ token, user: { id: result.id, name: result.name, email: result.email, is_admin: result.is_admin } });
@@ -451,7 +466,6 @@ async function handleListExams(request, db) {
       stored_attempt = sa || null;
       accessible = await checkPremiumAccess(db, userId, exam.id, user.is_admin);
       
-      // Practice allowed: only after live ends + has first attempt (or non-live + has attempt)
       if (exam.allow_practice) {
         if (exam.live_deadline_hours > 0) {
           can_practice = live.live_ended && !!stored_attempt;
@@ -460,7 +474,6 @@ async function handleListExams(request, db) {
         }
       }
       
-      // Results visible: during live = hidden, after live or non-live = check isResultsPublished
       if (exam.live_deadline_hours > 0 && live.is_live) {
         results_visible = false;
       } else {
@@ -547,17 +560,7 @@ async function handleSubmitExam(examId, request, db) {
     `INSERT INTO exam_attempts (user_id, exam_id, score, total_questions, percentage, answers) VALUES (?, ?, ?, ?, ?, ?)`
   ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson).run();
   
-  // For non-live exams or practice: return result immediately
-  const live = getLiveStatus(exam);
-  const showResult = !exam.live_deadline_hours || exam.live_deadline_hours === 0 || live.live_ended || is_practice;
-  
-  return json({ 
-    attemptId: r1.id, 
-    score: Math.max(0, score), 
-    total, 
-    percentage,
-    showResult 
-  });
+  return json({ attemptId: r1.id, score: Math.max(0, score), total, percentage });
 }
 
 async function handleGetResult(examId, attemptId, request, db) {
@@ -567,7 +570,6 @@ async function handleGetResult(examId, attemptId, request, db) {
   const exam = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   if (!exam) return err('Exam not found', 404);
   
-  // During live window: always pending
   const live = getLiveStatus(exam);
   if (exam.live_deadline_hours > 0 && live.is_live) {
     return json({ pending: true, message: 'Results will be available after the live exam window ends.', exam_name: exam.name });
@@ -600,12 +602,9 @@ async function handleLeaderboard(examId, request, db) {
   
   if (!exam.leaderboard_enabled) return json({ disabled: true });
   
-  // Hide during live window
   if (exam.live_deadline_hours > 0) {
     const liveStatus = getLiveStatus(exam);
-    if (liveStatus.is_live) {
-      return json({ disabled: true, pending: true });
-    }
+    if (liveStatus.is_live) return json({ disabled: true, pending: true });
   }
   
   const row = await db.prepare(`
@@ -623,7 +622,6 @@ async function handleLeaderboard(examId, request, db) {
   return json({ ...row, percentile, disabled: false });
 }
 
-// FIXED: handleHistory with proper published logic
 async function handleHistory(request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
@@ -639,26 +637,17 @@ async function handleHistory(request, db) {
   
   const result = [];
   for (const r of rows.results) {
-    // Build proper object for getLiveStatus
-    const examForLive = {
-      live_deadline_hours: r.live_deadline_hours,
-      created_at: r.exam_created_at
-    };
+    const examForLive = { live_deadline_hours: r.live_deadline_hours, created_at: r.exam_created_at };
     const live = getLiveStatus(examForLive);
     
-    // FIXED: Clear published logic
     let published;
     if (r.live_deadline_hours > 0) {
-      // Live exam: hidden during live, visible after live ends
       published = live.live_ended;
-      // Also check if admin manually published
       if (r.results_published) published = true;
     } else {
-      // Non-live exam: results always visible immediately
       published = true;
     }
     
-    // If publish_after_hours is set and time has passed
     if (!published && r.publish_after_hours > 0) {
       const publishTime = new Date(r.exam_created_at).getTime() + r.publish_after_hours * 3600000;
       if (Date.now() >= publishTime) published = true;
@@ -675,13 +664,7 @@ async function handleHistory(request, db) {
       `).bind(r.exam_id, user.id).first();
     }
     const percentile = lb && lb.total_participants > 1 ? Math.round((1 - (lb.rank - 1) / lb.total_participants) * 100) : null;
-    result.push({ 
-      ...r, 
-      rank: lb?.rank || null, 
-      total_participants: lb?.total_participants || null, 
-      percentile, 
-      results_visible: published 
-    });
+    result.push({ ...r, rank: lb?.rank || null, total_participants: lb?.total_participants || null, percentile, results_visible: published });
   }
   return json(result);
 }
@@ -800,7 +783,7 @@ async function handleAdminBulkQuestions(request, db) {
 
 async function handleAdminListUsers(db) {
   const users = await db.prepare(`
-    SELECT u.id, u.name, u.email, u.is_admin, u.premium_until, u.created_at
+    SELECT u.id, u.name, u.email, u.is_admin, u.premium_until, u.created_at, u.device_fingerprint, u.created_ip
     FROM users u
     ORDER BY u.created_at DESC
   `).all();
@@ -808,9 +791,7 @@ async function handleAdminListUsers(db) {
   const result = [];
   for (const user of users.results) {
     const grants = await db.prepare(`
-      SELECT pa.*, 
-        e.name as exam_name, 
-        b.name as batch_name
+      SELECT pa.*, e.name as exam_name, b.name as batch_name
       FROM premium_access pa
       LEFT JOIN exams e ON pa.exam_id = e.id
       LEFT JOIN batches b ON pa.batch_id = b.id
@@ -943,10 +924,10 @@ export async function onRequest(context) {
   if (path === '/auth/signup' && method === 'POST') return handleSignup(request, db);
   if (path === '/auth/login' && method === 'POST') return handleLogin(request, db);
   
-  // Batch routes (public)
+  // Batch routes
   if (path === '/batches' && method === 'GET') return handleListBatches(db);
   
-  // Exam routes (authenticated)
+  // Exam routes
   if (path === '/exams' && method === 'GET') return handleListExams(request, db);
   if (path === '/history' && method === 'GET') return handleHistory(request, db);
   
@@ -962,15 +943,14 @@ export async function onRequest(context) {
   const leaderboard = path.match(/^\/leaderboard\/(\d+)$/);
   if (leaderboard && method === 'GET') return handleLeaderboard(leaderboard[1], request, db);
   
-  // Notification routes
+  // Notifications
   if (path === '/notifications' && method === 'GET') return handleListNotifications(request, db);
   const markRead = path.match(/^\/notifications\/(\d+)\/read$/);
   if (markRead && method === 'POST') return handleMarkNotificationRead(markRead[1], request, db);
   
-  // Admin check
+  // Admin
   const admin = await requireAdmin(request, db);
   
-  // Admin: Batches
   if (path === '/admin/batches' && method === 'POST') {
     if (!admin) return err('Admin required', 403);
     return handleCreateBatch(request, db);
@@ -985,7 +965,6 @@ export async function onRequest(context) {
     return handleDeleteBatch(adminBatch[1], db);
   }
   
-  // Admin: Batch Resources
   const adminBatchResources = path.match(/^\/admin\/batches\/(\d+)\/resources$/);
   if (adminBatchResources && method === 'GET') {
     if (!admin) return err('Admin required', 403);
@@ -1001,7 +980,6 @@ export async function onRequest(context) {
     return handleDeleteBatchResource(adminBatchResource[1], db);
   }
   
-  // Admin: Exam Resources
   const adminExamResources = path.match(/^\/admin\/exams\/(\d+)\/resources$/);
   if (adminExamResources && method === 'GET') {
     if (!admin) return err('Admin required', 403);
@@ -1017,7 +995,6 @@ export async function onRequest(context) {
     return handleDeleteExamResource(adminExamResource[1], db);
   }
   
-  // Admin: Exams
   if (path === '/admin/exams' && method === 'POST') {
     if (!admin) return err('Admin required', 403);
     return handleAdminCreateExam(request, db);
@@ -1032,7 +1009,6 @@ export async function onRequest(context) {
     return handleAdminDeleteExam(adminExam[1], db);
   }
   
-  // Admin: Questions
   if (path === '/admin/questions/bulk' && method === 'POST') {
     if (!admin) return err('Admin required', 403);
     return handleAdminBulkQuestions(request, db);
@@ -1052,7 +1028,6 @@ export async function onRequest(context) {
     return handleAdminDeleteQuestion(adminSingleQ[1], db);
   }
   
-  // Admin: Users & Premium
   if (path === '/admin/users' && method === 'GET') {
     if (!admin) return err('Admin required', 403);
     return handleAdminListUsers(db);
@@ -1070,7 +1045,6 @@ export async function onRequest(context) {
     return handleAdminRevokeAccountPremium(request, db);
   }
   
-  // Admin: Results
   if (path === '/admin/results' && method === 'GET') {
     if (!admin) return err('Admin required', 403);
     return handleAdminResults(null, db);
@@ -1085,7 +1059,6 @@ export async function onRequest(context) {
     return handleAdminDeleteResult(adminResults[1], db);
   }
   
-  // Admin: Notifications
   if (path === '/admin/notifications' && method === 'POST') {
     if (!admin) return err('Admin required', 403);
     return handleAdminCreateNotification(request, db, admin.id);
@@ -1100,7 +1073,6 @@ export async function onRequest(context) {
     return handleAdminDeleteNotification(adminNotif[1], db);
   }
   
-  // Admin: Publish results
   const adminPublish = path.match(/^\/admin\/exams\/(\d+)\/publish$/);
   if (adminPublish && method === 'POST') {
     if (!admin) return err('Admin required', 403);
