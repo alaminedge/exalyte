@@ -253,7 +253,6 @@ function getLiveStatus(exam) {
   };
 }
 
-// FIXED: isResultsPublished - non-live exams always published, live exams auto-publish after deadline
 function isResultsPublished(exam) {
   // Non-live exams: results always visible immediately
   if (!exam.live_deadline_hours || exam.live_deadline_hours === 0) {
@@ -434,11 +433,7 @@ async function handleListExams(request, db) {
   const batchResourcesMap = {};
   for (const r of allBatchResources.results) {
     if (!batchResourcesMap[r.batch_id]) {
-      batchResourcesMap[r.batch_id] = {
-        id: r.batch_id,
-        name: r.batch_name,
-        resources: []
-      };
+      batchResourcesMap[r.batch_id] = { id: r.batch_id, name: r.batch_name, resources: [] };
     }
     batchResourcesMap[r.batch_id].resources.push({ id: r.id, title: r.title, link: r.link });
   }
@@ -456,6 +451,7 @@ async function handleListExams(request, db) {
       stored_attempt = sa || null;
       accessible = await checkPremiumAccess(db, userId, exam.id, user.is_admin);
       
+      // Practice allowed: only after live ends + has first attempt (or non-live + has attempt)
       if (exam.allow_practice) {
         if (exam.live_deadline_hours > 0) {
           can_practice = live.live_ended && !!stored_attempt;
@@ -464,7 +460,7 @@ async function handleListExams(request, db) {
         }
       }
       
-      // During live: always hidden. After live or non-live: check isResultsPublished
+      // Results visible: during live = hidden, after live or non-live = check isResultsPublished
       if (exam.live_deadline_hours > 0 && live.is_live) {
         results_visible = false;
       } else {
@@ -551,7 +547,17 @@ async function handleSubmitExam(examId, request, db) {
     `INSERT INTO exam_attempts (user_id, exam_id, score, total_questions, percentage, answers) VALUES (?, ?, ?, ?, ?, ?)`
   ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson).run();
   
-  return json({ attemptId: r1.id, score: Math.max(0, score), total, percentage });
+  // For non-live exams or practice: return result immediately
+  const live = getLiveStatus(exam);
+  const showResult = !exam.live_deadline_hours || exam.live_deadline_hours === 0 || live.live_ended || is_practice;
+  
+  return json({ 
+    attemptId: r1.id, 
+    score: Math.max(0, score), 
+    total, 
+    percentage,
+    showResult 
+  });
 }
 
 async function handleGetResult(examId, attemptId, request, db) {
