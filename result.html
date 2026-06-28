@@ -368,12 +368,17 @@ async function loadResult(){
     
     try{userAnswers=JSON.parse(attempt.answers||'{}')}catch(e){userAnswers={}}
     
+    // FIXED: Properly parse the answer data structure
     let correct=0,wrong=0,skipped=0;
     questions.forEach(q=>{
-      const a=userAnswers[q.id];
-      if(a===q.correct_answer)correct++;
-      else if(a)wrong++;
-      else skipped++;
+      const ansData=userAnswers[q.id];
+      if(!ansData||!ansData.given){
+        skipped++;
+      }else if(ansData.given===q.correct_answer){
+        correct++;
+      }else{
+        wrong++;
+      }
     });
     const pct=attempt.percentage||0;
     const grade=gradeInfo(pct);
@@ -404,7 +409,7 @@ async function loadResult(){
       </div>
     </div>`;
     
-    // Leaderboard
+    // Leaderboard - only for non-practice
     if(!attempt.is_practice){
       try{
         const lbRes=await apiFetch('/leaderboard/'+examId);
@@ -450,10 +455,11 @@ async function loadResult(){
 
 function renderReview(){
   const filtered=questions.filter(q=>{
-    const a=userAnswers[q.id];
-    if(reviewFilter==='correct')return a===q.correct_answer;
-    if(reviewFilter==='wrong')return a&&a!==q.correct_answer;
-    if(reviewFilter==='skipped')return!a;
+    const ansData=userAnswers[q.id];
+    const given=ansData?.given||'';
+    if(reviewFilter==='correct')return given===q.correct_answer;
+    if(reviewFilter==='wrong')return given&&given!==q.correct_answer;
+    if(reviewFilter==='skipped')return!given;
     return true;
   });
   
@@ -469,19 +475,20 @@ function renderReview(){
   };
   
   document.getElementById('reviewList').innerHTML=filtered.map(q=>{
-    const a=userAnswers[q.id];
-    const st=a===q.correct_answer?'correct':a?'wrong':'skip';
+    const ansData=userAnswers[q.id];
+    const given=ansData?.given||'';
+    const st=given===q.correct_answer?'correct':given?'wrong':'skip';
     const cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
     const opts=['A','B','C','D'].map(l=>{
       const isCorrect=l===q.correct_answer;
-      const isYours=l===a&&!isCorrect;
+      const isYours=l===given&&!isCorrect;
       const optCls=isCorrect?'rv-opt-correct':isYours?'rv-opt-wrong':'';
       return`<div class="rv-opt ${optCls}"><div class="rv-ol">${l}</div><div style="flex:1;line-height:1.4">${esc(q['option_'+l.toLowerCase()])}</div></div>`;
     }).join('');
     
     let note='';
-    if(a&&a!==q.correct_answer)note=`<div class="rv-ans-note">Your answer: ${a} — Correct: ${q.correct_answer}</div>`;
-    else if(!a)note=`<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: ${q.correct_answer}</div>`;
+    if(given&&given!==q.correct_answer)note=`<div class="rv-ans-note">Your answer: ${given} — Correct: ${q.correct_answer}</div>`;
+    else if(!given)note=`<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: ${q.correct_answer}</div>`;
     
     let exp='';
     if(q.explanation&&q.explanation.trim()){
