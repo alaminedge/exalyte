@@ -36,7 +36,7 @@ body{
 .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
 .logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
 .logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
-.header-right{display:flex;align-items:center;gap:12px}
+.header-right{display:flex;align-items:center;gap:8px}
 .timer-box{
   display:flex;align-items:center;gap:6px;padding:6px 14px;
   border:1px solid var(--border);border-radius:20px;
@@ -47,14 +47,14 @@ body{
 .timer-box.danger{border-color:var(--red);background:var(--red-bg);color:var(--red)}
 .timer-box svg{width:16px;height:16px;stroke:currentColor;fill:none}
 .timer-val{font-family:'Google Sans',monospace;font-weight:500;font-size:.9rem;min-width:50px}
-.btn-exit{
-  background:transparent;border:1px solid var(--border);color:var(--t3);
-  padding:6px 14px;border-radius:var(--r);font-family:var(--gs);font-size:.8rem;
-  font-weight:500;cursor:pointer;display:flex;align-items:center;gap:5px;
-  transition:all var(--tr);
+.icon-btn{
+  width:40px;height:40px;border:none;background:none;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0;
 }
-.btn-exit:hover{border-color:var(--red);color:var(--red)}
-.btn-exit svg{width:14px;height:14px;stroke:currentColor;fill:none}
+.icon-btn:hover{background:var(--hov)}
+.icon-btn svg{width:20px;height:20px}
+.icon-btn.leave:hover{background:var(--red-bg);color:var(--red)}
 
 /* Agreement */
 .agreement-overlay{
@@ -125,7 +125,6 @@ body{
 .stat-chip.marked strong{color:var(--blue)}
 .prog-wrap{height:3px;background:var(--hov);flex-shrink:0}
 .prog-fill{height:100%;background:var(--blue);transition:width .3s}
-.exam-body{display:flex;flex:1;overflow:hidden}
 .questions-area{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
 .questions-area::-webkit-scrollbar{width:4px}
 .questions-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
@@ -173,38 +172,7 @@ body{
 .btn-mark:hover,.btn-mark.active{border-color:var(--blue);color:var(--blue);background:#e8f0fe}
 .btn-mark svg{width:12px;height:12px;stroke:currentColor;fill:none}
 
-/* Sidebar */
-.nav-sidebar{
-  width:200px;border-left:1px solid var(--border);background:var(--surf);
-  overflow-y:auto;padding:14px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;
-}
-.nav-sidebar::-webkit-scrollbar{width:4px}
-.nav-sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.dots-label{font-size:.65rem;font-weight:500;letter-spacing:.5px;text-transform:uppercase;color:var(--t4)}
-.dots-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
-.dot{
-  width:100%;aspect-ratio:1;border-radius:50%;background:var(--hov);
-  border:1px solid var(--border);display:flex;align-items:center;
-  justify-content:center;font-family:var(--gs);font-size:.65rem;
-  cursor:pointer;transition:all .15s;color:var(--t3);font-weight:500;
-}
-.dot:hover{border-color:var(--blue);color:var(--blue)}
-.dot.d-answered{background:var(--grn-bg);border-color:rgba(30,142,62,.4);color:var(--green)}
-.dot.d-marked{background:#e8f0fe;border-color:rgba(26,115,232,.4);color:var(--blue)}
-.dot.d-active{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,115,232,.25)}
-.legend{display:flex;flex-direction:column;gap:4px}
-.legend-item{display:flex;align-items:center;gap:6px;font-size:.68rem;color:var(--t3)}
-.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.btn-submit-sidebar{
-  background:var(--blue);color:#fff;border:none;padding:12px;
-  border-radius:var(--r);font-family:var(--gs);font-size:.78rem;font-weight:500;
-  cursor:pointer;transition:all var(--tr);display:flex;
-  align-items:center;justify-content:center;gap:6px;margin-top:auto;
-}
-.btn-submit-sidebar:hover{background:var(--blue-h)}
-.btn-submit-sidebar svg{width:14px;height:14px;stroke:#fff;fill:none}
-
-/* Mobile footer */
+/* Mobile submit footer */
 .exam-mobile-footer{
   display:none;background:var(--surf);border-top:1px solid var(--border);
   padding:12px 16px;align-items:center;
@@ -269,27 +237,19 @@ body{
 
 @media(max-width:900px){
   .header{padding:0 16px}
-  .exam-body{flex-direction:column}
-  .nav-sidebar{width:100%;border-left:none;border-top:1px solid var(--border);flex-direction:row;flex-wrap:wrap;padding:12px 16px;max-height:140px;overflow-y:auto}
-  .nav-sidebar .dots-label{width:100%;margin-bottom:4px}
-  .dots-grid{grid-template-columns:repeat(10,1fr);gap:4px;flex:1}
-  .legend{display:none}
-  .btn-submit-sidebar{display:none}
-  .exam-mobile-footer.show{display:flex}
   .questions-area{padding:14px;padding-bottom:90px}
   .q-card{padding:14px}
   .agree-card{padding:28px 20px}
   .timer-box{padding:4px 10px;font-size:.78rem}
+  .exam-mobile-footer.show{display:flex}
 }
 @media(max-width:600px){
   .agree-title{font-size:1.2rem}
-  .dots-grid{grid-template-columns:repeat(6,1fr)}
   .modal{padding:20px 16px}
   .submit-stats{grid-template-columns:1fr 1fr}
   .option{padding:8px 12px}
   .option-text{font-size:.78rem}
   .q-text{font-size:.82rem}
-  .btn-exit span{display:none}
 }
 </style>
 </head>
@@ -307,9 +267,11 @@ body{
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span class="timer-val" id="timerVal">--:--</span>
     </div>
-    <button class="btn-exit" onclick="logout()">
-      <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7"/></svg>
-      <span>Exit</span>
+    <button class="icon-btn" onclick="window.location.href='dashboard.html'" title="Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </button>
+    <button class="icon-btn leave" onclick="logout()" title="Leave Exam">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </button>
   </div>
 </header>
@@ -350,21 +312,7 @@ body{
     <div class="stat-chip remaining"><strong id="cRemaining">0</strong>Remaining</div>
     <div class="stat-chip marked"><strong id="cMarked">0</strong>Marked</div>
   </div>
-  <div class="exam-body">
-    <div class="questions-area" id="questionsArea"></div>
-    <div class="nav-sidebar">
-      <div class="dots-label">Questions</div>
-      <div class="dots-grid" id="dotsGrid"></div>
-      <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:rgba(30,142,62,.4)"></div>Answered</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#e8f0fe"></div>Marked</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--hov)"></div>Unanswered</div>
-      </div>
-      <button class="btn-submit-sidebar" onclick="openSubmit()">
-        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Submit Exam
-      </button>
-    </div>
-  </div>
+  <div class="questions-area" id="questionsArea"></div>
 </div>
 
 <!-- Mobile Submit -->
@@ -423,7 +371,7 @@ if(!examId)window.location.href='dashboard.html';
 if(!getToken())window.location.href='/';
 
 let questions=[],answers={},marked={},exam=null;
-let timeLeft=0,timerInt=null,tabLeaves=0,examSubmitted=false;
+let timeLeft=0,timerInt=null,tabLeaves=0;
 
 // Header scroll
 let lastY=0,ticking=false;
@@ -489,7 +437,7 @@ window.addEventListener('resize',()=>{
 
 function buildUI(){
   document.getElementById('questionsArea').innerHTML=questions.map((q,i)=>`
-    <div class="q-card" id="qc${q.id}" onclick="setActive(${q.id})">
+    <div class="q-card" id="qc${q.id}">
       <div class="q-top"><div class="q-num">${i+1}</div><div class="q-text">${esc(q.question_text)}</div></div>
       ${q.image_url?`<img src="${esc(q.image_url)}" class="q-img" alt="" onerror="this.style.display='none'">`:''}
       <div class="options" id="opts${q.id}">${['A','B','C','D'].map(l=>`
@@ -500,22 +448,11 @@ function buildUI(){
       <div class="q-footer">
         <button class="btn-mark" id="mark${q.id}" onclick="toggleMark(event,${q.id})">
           <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          Mark
+          Mark for review
         </button>
       </div>
     </div>`).join('');
-  document.getElementById('dotsGrid').innerHTML=questions.map((q,i)=>`
-    <div class="dot" id="dot${q.id}" onclick="jumpTo(${q.id})">${i+1}</div>
-  `).join('');
   updateStats();
-  if(questions.length)setActive(questions[0].id);
-}
-
-function setActive(id){
-  document.querySelectorAll('.q-card').forEach(c=>c.classList.remove('active'));
-  document.querySelectorAll('.dot').forEach(d=>d.classList.remove('d-active'));
-  document.getElementById('qc'+id)?.classList.add('active');
-  document.getElementById('dot'+id)?.classList.add('d-active');
 }
 
 function pick(e,qId,letter){
@@ -525,7 +462,7 @@ function pick(e,qId,letter){
   ['A','B','C','D'].forEach(l=>{const o=document.getElementById('opt'+qId+l);if(o){o.classList.remove('selected');o.classList.add('locked')}});
   document.getElementById('opt'+qId+letter)?.classList.add('selected');
   document.getElementById('qc'+qId)?.classList.add('answered');
-  updateStats();updateDot(qId);
+  updateStats();
 }
 
 function toggleMark(e,qId){
@@ -533,8 +470,8 @@ function toggleMark(e,qId){
   marked[qId]=!marked[qId];
   const btn=document.getElementById('mark'+qId);
   btn?.classList.toggle('active',marked[qId]);
-  btn.innerHTML=marked[qId]?`<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>`:`<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-  updateStats();updateDot(qId);
+  btn.innerHTML=marked[qId]?`<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>Marked`:`<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review`;
+  updateStats();
 }
 
 function updateStats(){
@@ -545,20 +482,26 @@ function updateStats(){
   document.getElementById('progFill').style.width=(questions.length?ans/questions.length*100:0)+'%';
 }
 
-function updateDot(id){
-  const d=document.getElementById('dot'+id);if(!d)return;
-  d.className='dot';
-  if(marked[id])d.classList.add('d-marked');
-  else if(answers[id])d.classList.add('d-answered');
-  if(d.classList.contains('d-active'))d.classList.add('d-active');
-}
-
-function jumpTo(id){const el=document.getElementById('qc'+id);el?.scrollIntoView({behavior:'smooth',block:'center'});setActive(id)}
-
 document.addEventListener('keydown',e=>{
-  if(['a','b','c','d'].includes(e.key.toLowerCase())){const active=document.querySelector('.q-card.active');if(active){const id=active.id.replace('qc','');pick({stopPropagation:()=>{}},id,e.key.toUpperCase())}}
-  if(e.key==='ArrowDown'){const cards=[...document.querySelectorAll('.q-card')];const i=cards.findIndex(c=>c.classList.contains('active'));if(i<cards.length-1){const n=cards[i+1];n.scrollIntoView({behavior:'smooth',block:'center'});setActive(n.id.replace('qc',''))}}
-  if(e.key==='ArrowUp'){const cards=[...document.querySelectorAll('.q-card')];const i=cards.findIndex(c=>c.classList.contains('active'));if(i>0){const p=cards[i-1];p.scrollIntoView({behavior:'smooth',block:'center'});setActive(p.id.replace('qc',''))}}
+  if(['a','b','c','d'].includes(e.key.toLowerCase())){
+    const cards=[...document.querySelectorAll('.q-card')];
+    const idx=cards.findIndex(c=>c.classList.contains('active'));
+    if(idx>=0){
+      const id=cards[idx].id.replace('qc','');
+      pick({stopPropagation:()=>{}},id,e.key.toUpperCase());
+    }
+  }
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+    e.preventDefault();
+    const cards=[...document.querySelectorAll('.q-card')];
+    const idx=cards.findIndex(c=>c.classList.contains('active'));
+    const next=idx+(e.key==='ArrowDown'?1:-1);
+    if(next>=0&&next<cards.length){
+      cards[idx].classList.remove('active');
+      cards[next].classList.add('active');
+      cards[next].scrollIntoView({behavior:'smooth',block:'center'});
+    }
+  }
 });
 
 function startTimer(){updateTimerDisplay();timerInt=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInt);doSubmit()}},1000)}
