@@ -90,7 +90,7 @@ body{
 }
 .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:56px}
 
-/* Feature images grid */
+/* Feature images */
 .hero-visuals{
   display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;
   max-width:900px;margin:0 auto 64px;
@@ -530,6 +530,26 @@ function clearModalAlert() {
   el.textContent = '';
 }
 
+// Simple device fingerprint (no storage needed)
+function getFingerprint() {
+  const data = [
+    navigator.hardwareConcurrency || 'unknown',
+    navigator.deviceMemory || 'unknown',
+    screen.width + 'x' + screen.height,
+    new Date().getTimezoneOffset(),
+    navigator.language,
+    navigator.platform || 'unknown',
+    !!navigator.webdriver
+  ].join('|');
+  let hash = 0;
+  for (let i = 0; i < data.length; i++) {
+    const char = data.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  return 'fp_' + Math.abs(hash).toString(36);
+}
+
 let authMode = 'login';
 
 function openAuth(mode) {
@@ -602,10 +622,11 @@ document.getElementById('authForm').addEventListener('submit', async function(e)
     if (password.length < 6) { modalAlert('Password must be at least 6 characters.'); return; }
     setAuthLoading();
     try {
+      const fingerprint = getFingerprint();
       const res = await fetch(API + '/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({ name, email, password, fingerprint })
       });
       const data = await res.json();
       if (!res.ok) { modalAlert(data.error || 'Signup failed.'); resetAuthBtn(); return; }
