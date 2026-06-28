@@ -207,7 +207,7 @@ body{
 /* Mobile footer */
 .exam-mobile-footer{
   display:none;background:var(--surf);border-top:1px solid var(--border);
-  padding:12px 16px;gap:10px;align-items:center;
+  padding:12px 16px;align-items:center;
   position:fixed;bottom:0;left:0;right:0;z-index:30;
   box-shadow:0 -4px 20px rgba(0,0,0,.1);
 }
@@ -245,12 +245,6 @@ body{
   font-weight:500;cursor:pointer;transition:all var(--tr);
 }
 .btn-secondary:hover{background:var(--hov)}
-.btn-primary{
-  background:var(--blue);color:#fff;border:none;padding:10px 20px;
-  border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;
-  cursor:pointer;transition:all var(--tr);
-}
-.btn-primary:hover{background:var(--blue-h)}
 
 /* Tab Warning */
 .tab-warn{
@@ -585,7 +579,6 @@ function handleLeave(){
   tabLeaves++;
   const w=document.getElementById('tabWarn'),rb=document.getElementById('returnBtn');
   w.classList.add('show');
-  document.getElementById('warnMsg').textContent='Switching tabs or windows during a live exam is not allowed.';
   if(tabLeaves>=2){
     document.getElementById('warnCount').textContent='Maximum leaves reached. Auto-submitting...';
     rb.style.display='none';
