@@ -43,7 +43,6 @@ body{
   transition:all var(--tr);
 }
 .header-nav a:hover{background:var(--hov);color:var(--t1)}
-.header-nav a.active{color:var(--blue);background:#e8f0fe}
 .header-right{display:flex;align-items:center;gap:8px}
 .icon-btn{
   width:40px;height:40px;border:none;background:none;border-radius:50%;
@@ -366,20 +365,32 @@ async function loadResult(){
     questions=data.questions||[];
     exam=data.exam;
     
-    try{userAnswers=JSON.parse(attempt.answers||'{}')}catch(e){userAnswers={}}
+    // FIXED: Handle both string and already-parsed answers
+    if(typeof attempt.answers==='string'){
+      try{userAnswers=JSON.parse(attempt.answers||'{}')}catch(e){userAnswers={}}
+    }else{
+      userAnswers=attempt.answers||{};
+    }
     
-    // FIXED: Properly parse the answer data structure
+    // FIXED: Parse nested answer objects correctly
     let correct=0,wrong=0,skipped=0;
     questions.forEach(q=>{
       const ansData=userAnswers[q.id];
-      if(!ansData||!ansData.given){
-        skipped++;
-      }else if(ansData.given===q.correct_answer){
-        correct++;
+      if(!ansData||typeof ansData==='object'){
+        const given=ansData?.given||'';
+        if(!given)skipped++;
+        else if(given===q.correct_answer)correct++;
+        else wrong++;
+      }else if(typeof ansData==='string'){
+        // Fallback: if answer is stored as plain string
+        if(!ansData)skipped++;
+        else if(ansData===q.correct_answer)correct++;
+        else wrong++;
       }else{
-        wrong++;
+        skipped++;
       }
     });
+    
     const pct=attempt.percentage||0;
     const grade=gradeInfo(pct);
     
@@ -409,7 +420,6 @@ async function loadResult(){
       </div>
     </div>`;
     
-    // Leaderboard - only for non-practice
     if(!attempt.is_practice){
       try{
         const lbRes=await apiFetch('/leaderboard/'+examId);
@@ -456,7 +466,7 @@ async function loadResult(){
 function renderReview(){
   const filtered=questions.filter(q=>{
     const ansData=userAnswers[q.id];
-    const given=ansData?.given||'';
+    const given=(typeof ansData==='object'?ansData?.given:'')||(typeof ansData==='string'?ansData:'')||'';
     if(reviewFilter==='correct')return given===q.correct_answer;
     if(reviewFilter==='wrong')return given&&given!==q.correct_answer;
     if(reviewFilter==='skipped')return!given;
@@ -476,7 +486,7 @@ function renderReview(){
   
   document.getElementById('reviewList').innerHTML=filtered.map(q=>{
     const ansData=userAnswers[q.id];
-    const given=ansData?.given||'';
+    const given=(typeof ansData==='object'?ansData?.given:'')||(typeof ansData==='string'?ansData:'')||'';
     const st=given===q.correct_answer?'correct':given?'wrong':'skip';
     const cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
     const opts=['A','B','C','D'].map(l=>{
