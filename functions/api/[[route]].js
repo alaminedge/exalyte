@@ -239,7 +239,7 @@ async function checkPremiumAccess(db, userId, examId, isAdmin) {
 
 function getLiveStatus(exam) {
   if (!exam.live_deadline_hours || exam.live_deadline_hours === 0) {
-    return { is_live: false, live_ends_at: null, live_seconds_remaining: 0, live_ended: false };
+    return { is_live: false, live_ends_at: null, live_seconds_remaining: 0, live_ended: true };
   }
   const created = new Date(exam.created_at).getTime();
   const liveEnds = created + exam.live_deadline_hours * 3600000;
@@ -253,9 +253,17 @@ function getLiveStatus(exam) {
   };
 }
 
+// FIXED: isResultsPublished - non-live exams always published, live exams auto-publish after deadline
 function isResultsPublished(exam) {
+  // Non-live exams: results always visible immediately
+  if (!exam.live_deadline_hours || exam.live_deadline_hours === 0) {
+    return true;
+  }
+  
+  // Admin manually published
   if (exam.results_published) return true;
   
+  // Auto-publish by timer
   if (exam.publish_after_hours > 0) {
     const created = new Date(exam.created_at).getTime();
     const publishTime = created + exam.publish_after_hours * 3600000;
@@ -263,11 +271,9 @@ function isResultsPublished(exam) {
   }
   
   // Auto-publish when live deadline ends
-  if (exam.live_deadline_hours > 0) {
-    const created = new Date(exam.created_at).getTime();
-    const liveEndsAt = created + exam.live_deadline_hours * 3600000;
-    if (Date.now() >= liveEndsAt) return true;
-  }
+  const created = new Date(exam.created_at).getTime();
+  const liveEndsAt = created + exam.live_deadline_hours * 3600000;
+  if (Date.now() >= liveEndsAt) return true;
   
   return false;
 }
@@ -458,6 +464,7 @@ async function handleListExams(request, db) {
         }
       }
       
+      // During live: always hidden. After live or non-live: check isResultsPublished
       if (exam.live_deadline_hours > 0 && live.is_live) {
         results_visible = false;
       } else {
@@ -554,6 +561,7 @@ async function handleGetResult(examId, attemptId, request, db) {
   const exam = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   if (!exam) return err('Exam not found', 404);
   
+  // During live window: always pending
   const live = getLiveStatus(exam);
   if (exam.live_deadline_hours > 0 && live.is_live) {
     return json({ pending: true, message: 'Results will be available after the live exam window ends.', exam_name: exam.name });
@@ -586,6 +594,7 @@ async function handleLeaderboard(examId, request, db) {
   
   if (!exam.leaderboard_enabled) return json({ disabled: true });
   
+  // Hide during live window
   if (exam.live_deadline_hours > 0) {
     const liveStatus = getLiveStatus(exam);
     if (liveStatus.is_live) {
@@ -608,7 +617,7 @@ async function handleLeaderboard(examId, request, db) {
   return json({ ...row, percentile, disabled: false });
 }
 
-// FIXED: handleHistory with proper getLiveStatus field mapping
+// FIXED: handleHistory with proper published logic
 async function handleHistory(request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
@@ -624,19 +633,30 @@ async function handleHistory(request, db) {
   
   const result = [];
   for (const r of rows.results) {
-    // FIX: Map exam_created_at to created_at for getLiveStatus
+    // Build proper object for getLiveStatus
     const examForLive = {
       live_deadline_hours: r.live_deadline_hours,
       created_at: r.exam_created_at
     };
     const live = getLiveStatus(examForLive);
     
-    const published = r.live_deadline_hours > 0 && live.is_live 
-      ? false 
-      : (r.results_published || 
-         (r.publish_after_hours > 0 && 
-          (new Date(r.exam_created_at).getTime() + r.publish_after_hours * 3600000) <= Date.now()) ||
-         (r.live_deadline_hours > 0 && live.live_ended));
+    // FIXED: Clear published logic
+    let published;
+    if (r.live_deadline_hours > 0) {
+      // Live exam: hidden during live, visible after live ends
+      published = live.live_ended;
+      // Also check if admin manually published
+      if (r.results_published) published = true;
+    } else {
+      // Non-live exam: results always visible immediately
+      published = true;
+    }
+    
+    // If publish_after_hours is set and time has passed
+    if (!published && r.publish_after_hours > 0) {
+      const publishTime = new Date(r.exam_created_at).getTime() + r.publish_after_hours * 3600000;
+      if (Date.now() >= publishTime) published = true;
+    }
     
     let lb = null;
     if (published) {
