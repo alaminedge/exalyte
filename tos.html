@@ -2,76 +2,261 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Terms of Service — Exalyte</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:#05050a; --surface:#0c0c16; --surface2:#141424; --border:#1e1e32;
-  --accent:#6366f1; --accent2:#818cf8; --text:#e9e9f0; --muted:#76768e;
-  --radius:12px; --radius-sm:8px; --transition:0.25s cubic-bezier(0.4,0,0.2,1);
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+:root{
+  --blue:#1a73e8;--blue-h:#1557b0;--bg:#f8f9fa;--surf:#ffffff;--hov:#f1f3f4;
+  --border:#dadce0;--t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
+  --gs:'Google Sans','Roboto',system-ui,sans-serif;
+  --rb:'Roboto',system-ui,sans-serif;
+  --hh:64px;--r:4px;--rl:8px;--tr:.2s cubic-bezier(.4,0,.2,1);
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-nav{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
-.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Lexend',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:-0.02em}
-.nav-logo img{width:26px;height:26px;border-radius:4px}
-.btn-back{padding:8px 16px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--radius-sm);font-family:'Lexend',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all var(--transition)}
-.btn-back:hover{border-color:var(--accent);color:var(--accent2)}
-.main{max-width:760px;margin:0 auto;padding:48px 24px}
-.page-title{font-family:'Lexend',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px}
-.last-updated{font-size:0.78rem;color:var(--muted);margin-bottom:32px}
-.content h2{font-family:'Lexend',sans-serif;font-size:1.2rem;font-weight:700;margin:28px 0 10px;letter-spacing:-0.01em}
-.content p,.content li{color:var(--muted);font-size:0.88rem;line-height:1.8;margin-bottom:10px}
-.content ul{padding-left:20px;margin-bottom:16px}
-@media(max-width:600px){nav{padding:0 16px}.main{padding:32px 16px}}
+body{
+  font-family:var(--rb);background:var(--bg);color:var(--t2);
+  -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
+  display:flex;flex-direction:column;
+}
+.header{
+  position:sticky;top:0;height:var(--hh);
+  background:var(--surf);border-bottom:1px solid var(--border);
+  z-index:1000;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;
+}
+.header-left{display:flex;align-items:center}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px 18px;font-family:var(--gs);font-size:.85rem;font-weight:500;
+  border:none;border-radius:var(--r);cursor:pointer;
+  transition:all var(--tr);text-decoration:none;white-space:nowrap;
+}
+.btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
+.btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
+.main{flex:1}
+.content{max-width:760px;margin:0 auto;padding:48px 24px 60px;width:100%}
+.page-title{font-family:var(--gs);font-size:2rem;font-weight:500;color:var(--t1);margin-bottom:8px;letter-spacing:-0.3px}
+.page-sub{color:var(--t3);font-size:.95rem;margin-bottom:40px;line-height:1.5}
+.last-updated{font-size:.75rem;color:var(--t4);margin-bottom:32px}
+
+.policy-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  padding:36px 32px;margin-bottom:20px;
+}
+.policy-card h2{
+  font-family:var(--gs);font-size:1.15rem;font-weight:500;color:var(--t1);
+  margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+.policy-card p,.policy-card ul{
+  font-size:.9rem;color:var(--t3);line-height:1.7;margin-bottom:16px;
+}
+.policy-card ul{padding-left:20px}
+.policy-card ul li{margin-bottom:8px}
+.policy-card ul li::marker{color:var(--blue)}
+.policy-card strong{color:var(--t2);font-weight:500}
+
+.footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
+.footer-inner{
+  max-width:1080px;margin:0 auto;padding:40px 24px 24px;
+  display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;
+}
+.fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
+.fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
+.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2}
+.fc a:hover{color:var(--blue);text-decoration:underline}
+.footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.footer-bottom{
+  max-width:1080px;margin:0 auto;padding:16px 24px;
+  border-top:1px solid var(--border);display:flex;
+  justify-content:space-between;align-items:center;
+  font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px;
+}
+.footer-links{display:flex;gap:20px}
+.footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
+.footer-links a:hover{text-decoration:underline;color:var(--blue)}
+
+@media(max-width:600px){
+  .header{padding:0 16px}
+  .content{padding:32px 16px}
+  .policy-card{padding:24px 20px}
+  .footer-inner{grid-template-columns:1fr;gap:20px}
+  .footer-bottom{flex-direction:column;text-align:center}
+}
 </style>
 </head>
 <body>
-<nav>
-  <div class="nav-logo"><img src="/images/exalyte.png" alt="Exalyte">Exalyte</div>
-  <a href="/index.html" class="btn-back">← Home</a>
-</nav>
-<div class="main">
-  <h1 class="page-title">Terms of Service</h1>
-  <p class="last-updated">Last updated: January 2024</p>
-  <div class="content">
-    <h2>1. Acceptance of Terms</h2>
-    <p>By accessing or using Exalyte, you agree to be bound by these Terms of Service. If you disagree with any part, you may not access the platform.</p>
 
-    <h2>2. Account Responsibilities</h2>
-    <ul>
-      <li>You are responsible for maintaining the confidentiality of your login credentials</li>
-      <li>You must provide accurate and complete registration information</li>
-      <li>You may not share your account with others or use another user's account</li>
-      <li>You must be at least 13 years of age to use this platform</li>
-    </ul>
-
-    <h2>3. Acceptable Use</h2>
-    <p>You agree not to:</p>
-    <ul>
-      <li>Attempt to bypass or manipulate exam timing or scoring systems</li>
-      <li>Upload malicious content, scripts, or attempt to breach platform security</li>
-      <li>Use automated tools or bots to access the platform</li>
-      <li>Post or share exam content publicly without authorization</li>
-    </ul>
-
-    <h2>4. Intellectual Property</h2>
-    <p>All exam content uploaded by administrators and users remains the property of the respective creators. The Exalyte platform, branding, and code are protected by copyright.</p>
-
-    <h2>5. Limitation of Liability</h2>
-    <p>Exalyte is provided "as is." We do not guarantee uninterrupted service and are not liable for any damages arising from platform use or downtime.</p>
-
-    <h2>6. Termination</h2>
-    <p>We reserve the right to suspend or terminate accounts that violate these terms without prior notice.</p>
-
-    <h2>7. Changes to Terms</h2>
-    <p>We may update these terms periodically. Continued use after changes constitutes acceptance.</p>
-
-    <h2>8. Contact</h2>
-    <p>For terms-related inquiries: <a href="mailto:legal@exalyte.com" style="color:var(--accent2)">legal@exalyte.com</a></p>
+<header class="header">
+  <div class="header-left">
+    <a href="/" class="logo-wrap">
+      <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
+      <span class="logo-text">Exalyte</span>
+    </a>
   </div>
-</div>
+  <a href="/" class="btn btn-outline">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    Home
+  </a>
+</header>
+
+<main class="main">
+  <div class="content">
+    <h1 class="page-title">Terms of Service</h1>
+    <p class="page-sub">Please read these terms carefully before using the Exalyte platform. By creating an account or accessing any examination, you agree to be bound by these terms.</p>
+    <p class="last-updated">Last updated: June 2025</p>
+
+    <div class="policy-card">
+      <h2>1. About Exalyte</h2>
+      <p>
+        Exalyte is an examination platform operated by <strong>SciVerse Academy</strong>, designed to help HSC and university admission candidates prepare through live timed exams, performance tracking, and structured practice. The platform provides tools for honest self-assessment — it is not a guarantee of any specific academic outcome.
+      </p>
+    </div>
+
+    <div class="policy-card">
+      <h2>2. Account Registration</h2>
+      <ul>
+        <li>Each individual is permitted <strong>one account</strong>. In exceptional circumstances, a maximum of two accounts may be considered — but our automated systems actively restrict and block excessive registrations.</li>
+        <li>You must provide accurate information during signup. Fake accounts, impersonation, or registration with invalid credentials will be automatically detected and restricted by our security systems.</li>
+        <li>You are responsible for maintaining the confidentiality of your account credentials. Any activity under your account is your responsibility.</li>
+        <li>Fake accounts serve no purpose on this platform — our bot detection and spam prevention systems render them useless before they gain access to any examination content.</li>
+      </ul>
+    </div>
+
+    <div class="policy-card">
+      <h2>3. Exam Conduct & Academic Honesty</h2>
+      <p>
+        Exalyte is built to support <strong>honest preparation</strong>. The platform includes automated monitoring during live examinations. Any detected violation — including but not limited to unauthorized tab switching, automated scripts, or attempts to manipulate the exam environment — will result in an automatic block.
+      </p>
+      <p>
+        This platform exists to help you assess and improve your own abilities. How you choose to use it is entirely your decision. If you compromise your own preparation through dishonest conduct, that outcome is yours alone — it is not the concern or liability of SciVerse Academy or the Exalyte platform.
+      </p>
+      <ul>
+        <li>Live exams include active monitoring. Violations trigger automatic restrictions.</li>
+        <li>Deliberate attempts to bypass security or cheat the system will result in immediate account suspension.</li>
+        <li>The platform is designed for self-improvement. Honesty benefits you — dishonesty harms only yourself.</li>
+      </ul>
+    </div>
+
+    <div class="policy-card">
+      <h2>4. Content Ownership & Intellectual Property</h2>
+      <p>
+        All examination content — including questions, answer keys, explanations, images, resources, and any materials uploaded by administrators — is the exclusive intellectual property of <strong>SciVerse Academy</strong>.
+      </p>
+      <ul>
+        <li>Users may <strong>not</strong> copy, reproduce, screenshot, download, distribute, or share any exam content, questions, or resources outside the platform.</li>
+        <li>Any proven violation of content ownership — including leaking questions, sharing answers publicly, or redistributing materials — will result in immediate and permanent account termination with no warning.</li>
+        <li>Study resources provided within the platform are for personal use only during your active participation.</li>
+      </ul>
+    </div>
+
+    <div class="policy-card">
+      <h2>5. Automated Enforcement</h2>
+      <p>
+        Exalyte operates with advanced automated systems that monitor account activity, exam conduct, and platform usage in real time. These systems require no manual administrator intervention.
+      </p>
+      <ul>
+        <li>Fake accounts are automatically detected and restricted at registration.</li>
+        <li>Exam violations are automatically flagged and result in immediate blocking.</li>
+        <li>Content scraping, bulk downloading, or suspicious access patterns trigger automatic security responses.</li>
+        <li>Administrators reserve the right to review and enforce manual bans where automated systems indicate persistent abuse.</li>
+      </ul>
+    </div>
+
+    <div class="policy-card">
+      <h2>6. Account Termination</h2>
+      <p>
+        SciVerse Academy, through its authorized administrators, reserves the right to suspend or permanently terminate any account that violates these terms. Grounds for termination include:
+      </p>
+      <ul>
+        <li>Creation of fake or fraudulent accounts.</li>
+        <li>Cheating, bypassing security, or manipulating the exam environment.</li>
+        <li>Copying, sharing, or redistributing platform content without authorization.</li>
+        <li>Any conduct that disrupts the platform or harms other users' experience.</li>
+        <li>Violation of any applicable laws of Bangladesh.</li>
+      </ul>
+      <p>
+        Termination decisions made by administrators are final. Banned users forfeit access to all examination data, history, and resources associated with their account.
+      </p>
+    </div>
+
+    <div class="policy-card">
+      <h2>7. Limitation of Liability</h2>
+      <p>
+        Exalyte is provided as a preparation tool. By using the platform, you acknowledge and agree that:
+      </p>
+      <ul>
+        <li>SciVerse Academy is <strong>not responsible</strong> for your actual examination results, academic performance, admission outcomes, or any consequential outcomes related to your preparation.</li>
+        <li>The platform is not liable for technical issues arising from your device, internet connection, power supply, or any external factors beyond our control during an active examination session.</li>
+        <li>You use the platform at your own discretion. Any decisions made based on your performance data are your responsibility.</li>
+        <li>We do not guarantee uninterrupted availability — maintenance, updates, or unforeseen technical events may cause temporary downtime.</li>
+      </ul>
+    </div>
+
+    <div class="policy-card">
+      <h2>8. Governing Law & Jurisdiction</h2>
+      <p>
+        These Terms of Service are governed by and construed in accordance with the laws of <strong>Bangladesh</strong>. Any disputes arising from the use of Exalyte shall be subject to the exclusive jurisdiction of the courts of Bangladesh.
+      </p>
+      <p>
+        As the platform expands internationally, users from other regions agree to comply with these terms as established under Bangladeshi jurisdiction, in addition to any applicable local laws.
+      </p>
+    </div>
+
+    <div class="policy-card">
+      <h2>9. Changes to These Terms</h2>
+      <p>
+        We may update these Terms of Service from time to time to reflect changes in platform functionality, legal requirements, or operational policies. Continued use of Exalyte after any modifications constitutes acceptance of the updated terms. It is your responsibility to review these terms periodically.
+      </p>
+    </div>
+
+    <div class="policy-card">
+      <h2>10. Contact</h2>
+      <p>
+        For questions regarding these Terms of Service, please reach out through our official contact page.
+      </p>
+      <p>
+        <a href="contact.html" style="color:var(--blue);text-decoration:none;font-weight:500">Visit Contact Page →</a>
+      </p>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="fc">
+      <div class="footer-brand">
+        <img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'">
+        <span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t2)">Exalyte</span>
+      </div>
+      <p>A precision examination platform built for students who want to perform, not just prepare.</p>
+    </div>
+    <div class="fc">
+      <h4>Platform</h4>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="exam-history.html">Exam History</a>
+    </div>
+    <div class="fc">
+      <h4>Legal</h4>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="tos.html">Terms of Service</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2025 Exalyte — SciVerse Academy. All rights reserved.</span>
+    <div class="footer-links">
+      <a href="privacy.html">Privacy</a>
+      <a href="tos.html">Terms</a>
+    </div>
+  </div>
+</footer>
+
 </body>
 </html>
