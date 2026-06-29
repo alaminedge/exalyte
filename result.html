@@ -43,6 +43,29 @@ body{
   transition:all var(--tr);
 }
 .header-nav a:hover{background:var(--hov);color:var(--t1)}
+
+/* Hamburger */
+.hamburger{
+  display:none;background:none;border:none;cursor:pointer;
+  color:var(--t3);padding:8px;border-radius:50%;
+  align-items:center;justify-content:center;transition:background var(--tr);
+}
+.hamburger:hover{background:var(--hov)}
+.hamburger svg{width:22px;height:22px}
+
+/* Mobile nav dropdown */
+.mobile-nav-dropdown{
+  display:none;position:fixed;top:var(--hh);left:0;right:0;
+  background:var(--surf);border-bottom:1px solid var(--border);
+  box-shadow:0 4px 16px rgba(0,0,0,.1);padding:8px 16px;z-index:999;
+}
+.mobile-nav-dropdown.show{display:block}
+.mobile-nav-dropdown a{
+  display:block;padding:12px 16px;font-family:var(--gs);font-size:.9rem;
+  color:var(--t2);text-decoration:none;border-radius:var(--r);
+}
+.mobile-nav-dropdown a:hover{background:var(--hov)}
+
 .header-right{display:flex;align-items:center;gap:8px}
 .icon-btn{
   width:40px;height:40px;border:none;background:none;border-radius:50%;
@@ -198,6 +221,7 @@ body{
 @media(max-width:900px){
   .header{padding:0 16px}
   .header-nav{display:none}
+  .hamburger{display:flex}
   .content{padding:24px 16px 80px}
   .score-card{padding:28px 20px}
   .score-ring-wrap{width:100px;height:100px}
@@ -226,6 +250,11 @@ body{
 
 <header class="header" id="header">
   <div class="header-left">
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
     <a href="/" class="logo-wrap">
       <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
       <span class="logo-text">Exalyte</span>
@@ -241,6 +270,12 @@ body{
     </button>
   </div>
 </header>
+
+<!-- Mobile Nav Dropdown -->
+<div class="mobile-nav-dropdown" id="mobileNavDropdown">
+  <a href="dashboard.html">Dashboard</a>
+  <a href="exam-history.html">History</a>
+</div>
 
 <main class="main">
   <div class="content">
@@ -319,6 +354,16 @@ const header=document.getElementById('header');
 let lastY=0,ticking=false;
 window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(()=>{const y=window.scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;ticking=false});ticking=true}},{passive:true});
 
+// Mobile nav
+function toggleMobileNav(){
+  document.getElementById('mobileNavDropdown').classList.toggle('show');
+}
+document.addEventListener('click',function(e){
+  const dd=document.getElementById('mobileNavDropdown');
+  const hb=document.getElementById('hamburger');
+  if(dd&&!dd.contains(e.target)&&!hb.contains(e.target))dd.classList.remove('show');
+});
+
 function gradeInfo(pct){
   if(pct>=90)return{label:'Outstanding',color:'#1e8e3e'};
   if(pct>=80)return{label:'Excellent',color:'#1e8e3e'};
@@ -365,14 +410,14 @@ async function loadResult(){
     questions=data.questions||[];
     exam=data.exam;
     
-    // FIXED: Handle both string and already-parsed answers
+    // Handle both string and already-parsed answers
     if(typeof attempt.answers==='string'){
       try{userAnswers=JSON.parse(attempt.answers||'{}')}catch(e){userAnswers={}}
     }else{
       userAnswers=attempt.answers||{};
     }
     
-    // FIXED: Parse nested answer objects correctly
+    // Parse nested answer objects correctly
     let correct=0,wrong=0,skipped=0;
     questions.forEach(q=>{
       const ansData=userAnswers[q.id];
@@ -382,7 +427,6 @@ async function loadResult(){
         else if(given===q.correct_answer)correct++;
         else wrong++;
       }else if(typeof ansData==='string'){
-        // Fallback: if answer is stored as plain string
         if(!ansData)skipped++;
         else if(ansData===q.correct_answer)correct++;
         else wrong++;
@@ -420,6 +464,7 @@ async function loadResult(){
       </div>
     </div>`;
     
+    // Leaderboard - only for non-practice
     if(!attempt.is_practice){
       try{
         const lbRes=await apiFetch('/leaderboard/'+examId);
