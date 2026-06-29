@@ -172,6 +172,19 @@ body{
 .btn-mark:hover,.btn-mark.active{border-color:var(--blue);color:var(--blue);background:#e8f0fe}
 .btn-mark svg{width:12px;height:12px;stroke:currentColor;fill:none}
 
+/* Floating submit button (desktop) */
+.floating-submit{
+  position:fixed;bottom:28px;right:28px;z-index:50;
+  background:var(--blue);color:#fff;border:none;
+  padding:14px 28px;border-radius:28px;
+  font-family:var(--gs);font-size:.88rem;font-weight:500;
+  cursor:pointer;display:flex;align-items:center;gap:8px;
+  box-shadow:0 4px 20px rgba(26,115,232,.35);
+  transition:all var(--tr);
+}
+.floating-submit:hover{background:var(--blue-h);transform:translateY(-2px);box-shadow:0 6px 24px rgba(26,115,232,.45)}
+.floating-submit svg{width:18px;height:18px;stroke:#fff;fill:none}
+
 /* Mobile submit footer */
 .exam-mobile-footer{
   display:none;background:var(--surf);border-top:1px solid var(--border);
@@ -237,11 +250,12 @@ body{
 
 @media(max-width:900px){
   .header{padding:0 16px}
+  .floating-submit{display:none}
+  .exam-mobile-footer.show{display:flex}
   .questions-area{padding:14px;padding-bottom:90px}
   .q-card{padding:14px}
   .agree-card{padding:28px 20px}
   .timer-box{padding:4px 10px;font-size:.78rem}
-  .exam-mobile-footer.show{display:flex}
 }
 @media(max-width:600px){
   .agree-title{font-size:1.2rem}
@@ -315,10 +329,17 @@ body{
   <div class="questions-area" id="questionsArea"></div>
 </div>
 
-<!-- Mobile Submit -->
+<!-- Floating Submit Button (desktop only) -->
+<button class="floating-submit" id="floatingSubmit" onclick="openSubmit()">
+  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  Submit Exam
+</button>
+
+<!-- Mobile Submit Footer -->
 <div class="exam-mobile-footer" id="mobileFooter">
   <button class="btn-mob-submit" onclick="openSubmit()">
-    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Submit Exam
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    Submit Exam
   </button>
 </div>
 
@@ -419,7 +440,12 @@ async function startExam(){
   
   document.getElementById('agreementScreen').style.display='none';
   document.getElementById('examUI').style.display='flex';
-  if(window.innerWidth<=900)document.getElementById('mobileFooter').classList.add('show');
+  
+  // Show floating button on desktop, mobile footer on mobile
+  if(window.innerWidth<=900){
+    document.getElementById('floatingSubmit').style.display='none';
+    document.getElementById('mobileFooter').classList.add('show');
+  }
   
   timeLeft=exam.time_limit*60;
   buildUI();
@@ -429,9 +455,14 @@ async function startExam(){
 }
 
 window.addEventListener('resize',()=>{
-  const f=document.getElementById('mobileFooter');
   if(document.getElementById('examUI').style.display==='flex'){
-    if(window.innerWidth<=900)f.classList.add('show');else f.classList.remove('show');
+    if(window.innerWidth<=900){
+      document.getElementById('floatingSubmit').style.display='none';
+      document.getElementById('mobileFooter').classList.add('show');
+    }else{
+      document.getElementById('floatingSubmit').style.display='flex';
+      document.getElementById('mobileFooter').classList.remove('show');
+    }
   }
 });
 
