@@ -2,69 +2,251 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Privacy Policy — Exalyte</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:#05050a; --surface:#0c0c16; --surface2:#141424; --border:#1e1e32;
-  --accent:#6366f1; --accent2:#818cf8; --text:#e9e9f0; --muted:#76768e;
-  --radius:12px; --radius-sm:8px; --transition:0.25s cubic-bezier(0.4,0,0.2,1);
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+:root{
+  --blue:#1a73e8;--blue-h:#1557b0;--bg:#f8f9fa;--surf:#ffffff;--hov:#f1f3f4;
+  --border:#dadce0;--t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
+  --gs:'Google Sans','Roboto',system-ui,sans-serif;
+  --rb:'Roboto',system-ui,sans-serif;
+  --hh:64px;--r:4px;--rl:8px;--tr:.2s cubic-bezier(.4,0,.2,1);
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-nav{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
-.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Lexend',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:-0.02em}
-.nav-logo img{width:26px;height:26px;border-radius:4px}
-.btn-back{padding:8px 16px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:var(--radius-sm);font-family:'Lexend',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all var(--transition)}
-.btn-back:hover{border-color:var(--accent);color:var(--accent2)}
-.main{max-width:760px;margin:0 auto;padding:48px 24px}
-.page-title{font-family:'Lexend',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px}
-.last-updated{font-size:0.78rem;color:var(--muted);margin-bottom:32px}
-.content h2{font-family:'Lexend',sans-serif;font-size:1.2rem;font-weight:700;margin:28px 0 10px;letter-spacing:-0.01em}
-.content p,.content li{color:var(--muted);font-size:0.88rem;line-height:1.8;margin-bottom:10px}
-.content ul{padding-left:20px;margin-bottom:16px}
-@media(max-width:600px){nav{padding:0 16px}.main{padding:32px 16px}}
+body{
+  font-family:var(--rb);background:var(--bg);color:var(--t2);
+  -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
+  display:flex;flex-direction:column;
+}
+.header{
+  position:sticky;top:0;height:var(--hh);
+  background:var(--surf);border-bottom:1px solid var(--border);
+  z-index:1000;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;
+}
+.header-left{display:flex;align-items:center}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px 18px;font-family:var(--gs);font-size:.85rem;font-weight:500;
+  border:none;border-radius:var(--r);cursor:pointer;
+  transition:all var(--tr);text-decoration:none;white-space:nowrap;
+}
+.btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
+.btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
+.main{flex:1}
+.content{max-width:760px;margin:0 auto;padding:48px 24px 60px;width:100%}
+.page-title{font-family:var(--gs);font-size:2rem;font-weight:500;color:var(--t1);margin-bottom:8px;letter-spacing:-0.3px}
+.page-sub{color:var(--t3);font-size:.95rem;margin-bottom:40px;line-height:1.5}
+.last-updated{font-size:.75rem;color:var(--t4);margin-bottom:32px}
+
+/* Policy Card */
+.policy-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  padding:36px 32px;margin-bottom:20px;
+}
+.policy-card h2{
+  font-family:var(--gs);font-size:1.15rem;font-weight:500;color:var(--t1);
+  margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+.policy-card p,.policy-card ul{
+  font-size:.9rem;color:var(--t3);line-height:1.7;margin-bottom:16px;
+}
+.policy-card ul{padding-left:20px}
+.policy-card ul li{margin-bottom:8px}
+.policy-card ul li::marker{color:var(--blue)}
+.policy-card strong{color:var(--t2);font-weight:500}
+
+.footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
+.footer-inner{
+  max-width:1080px;margin:0 auto;padding:40px 24px 24px;
+  display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;
+}
+.fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
+.fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
+.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2}
+.fc a:hover{color:var(--blue);text-decoration:underline}
+.footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.footer-bottom{
+  max-width:1080px;margin:0 auto;padding:16px 24px;
+  border-top:1px solid var(--border);display:flex;
+  justify-content:space-between;align-items:center;
+  font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px;
+}
+.footer-links{display:flex;gap:20px}
+.footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
+.footer-links a:hover{text-decoration:underline;color:var(--blue)}
+
+@media(max-width:600px){
+  .header{padding:0 16px}
+  .content{padding:32px 16px}
+  .policy-card{padding:24px 20px}
+  .footer-inner{grid-template-columns:1fr;gap:20px}
+  .footer-bottom{flex-direction:column;text-align:center}
+}
 </style>
 </head>
 <body>
-<nav>
-  <div class="nav-logo"><img src="/images/exalyte.png" alt="Exalyte">Exalyte</div>
-  <a href="/index.html" class="btn-back">← Home</a>
-</nav>
-<div class="main">
-  <h1 class="page-title">Privacy Policy</h1>
-  <p class="last-updated">Last updated: January 2024</p>
-  <div class="content">
-    <h2>1. Information We Collect</h2>
-    <p>When you register on Exalyte, we collect:</p>
-    <ul>
-      <li>Your full name and email address</li>
-      <li>Encrypted password (hashed, never stored in plain text)</li>
-      <li>Exam attempt data including scores and answers</li>
-    </ul>
 
-    <h2>2. How We Use Your Information</h2>
-    <p>We use your data solely for:</p>
-    <ul>
-      <li>Providing examination services and score tracking</li>
-      <li>Administering your account and premium access</li>
-      <li>Improving platform performance and user experience</li>
-    </ul>
-
-    <h2>3. Data Storage and Security</h2>
-    <p>All data is stored securely on Cloudflare D1 with encryption at rest and in transit. Passwords are hashed using SHA-256 before storage. We never sell, share, or distribute your personal information to third parties.</p>
-
-    <h2>4. Cookies</h2>
-    <p>Exalyte uses localStorage to maintain your authentication session. No third-party tracking cookies are used.</p>
-
-    <h2>5. Your Rights</h2>
-    <p>You may request deletion of your account and associated data at any time by contacting us at <a href="mailto:support@exalyte.com" style="color:var(--accent2)">support@exalyte.com</a>.</p>
-
-    <h2>6. Contact</h2>
-    <p>For privacy-related inquiries, email <a href="mailto:privacy@exalyte.com" style="color:var(--accent2)">privacy@exalyte.com</a>.</p>
+<header class="header">
+  <div class="header-left">
+    <a href="/" class="logo-wrap">
+      <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
+      <span class="logo-text">Exalyte</span>
+    </a>
   </div>
-</div>
+  <a href="/" class="btn btn-outline">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    Home
+  </a>
+</header>
+
+<main class="main">
+  <div class="content">
+    <h1 class="page-title">Privacy Policy</h1>
+    <p class="page-sub">Your privacy matters. This policy outlines how we handle information across the Exalyte examination platform, operated under SciVerse Academy.</p>
+    <p class="last-updated">Last updated: June 2025</p>
+
+    <div class="policy-card">
+      <h2>1. About This Platform</h2>
+      <p>
+        Exalyte is a precision examination platform by <strong>SciVerse Academy</strong>, designed primarily for HSC and university admission candidates in Bangladesh. It provides live timed exams, detailed performance tracking, and structured practice to help students prepare effectively for competitive assessments.
+      </p>
+      <p>
+        This is a closed, secure environment. There is no public profile, no social features, and no data sharing with external parties. Every aspect of the platform is built with student focus and data integrity in mind.
+      </p>
+    </div>
+
+    <div class="policy-card">
+      <h2>2. Information We Collect</h2>
+      <p>We collect only the <strong>minimum data necessary</strong> to authenticate you and operate the exam platform:</p>
+      <ul>
+        <li><strong>Account data:</strong> Your name and email address — provided by you during signup.</li>
+        <li><strong>Exam data:</strong> Your answers, scores, attempt records, and performance metrics — generated as you use the platform.</li>
+      </ul>
+      <p>We do not collect phone numbers, physical addresses, payment information, or any sensitive personal identifiers beyond what is listed above. Your exam responses and scores are stored securely and are never made public.</p>
+    </div>
+
+    <div class="policy-card">
+      <h2>3. How We Use Your Information</h2>
+      <ul>
+        <li>To authenticate your identity and provide secure access to your account.</li>
+        <li>To display your own exam history, scores, rankings, and performance analytics to you.</li>
+        <li>To maintain the leaderboard feature — showing your rank alongside other participants after live exams.</li>
+        <li>To operate spam prevention and security systems that protect the platform from abuse.</li>
+      </ul>
+      <p>We do <strong>not</strong> send marketing emails, newsletters, promotional offers, or any form of unsolicited communication. The platform exists solely as an examination tool.</p>
+    </div>
+
+    <div class="policy-card">
+      <h2>4. Account Integrity & Bot Prevention</h2>
+      <p>
+        We employ advanced automated systems to detect and block fraudulent signups, spam accounts, and automated bots. Invalid or suspicious registrations are identified and restricted before gaining platform access. These security measures run silently in the background — they do not affect legitimate students and require no manual intervention from any administrator.
+      </p>
+      <p>
+        This ensures that every active account represents a real student preparing for genuine examinations. Our platform maintains a zero-tolerance approach toward fake accounts, impersonation, or any attempt to manipulate the system.
+      </p>
+    </div>
+
+    <div class="policy-card">
+      <h2>5. Data Storage & Security</h2>
+      <p>
+        All data is stored in a highly secure environment with multiple layers of protection. The platform operates on Cloudflare's global infrastructure with industry-standard encryption for all data in transit.
+      </p>
+      <p>
+        Your account is protected by an encrypted authentication system. No administrator manually accesses or browses user databases. The platform functions autonomously — exam creation, student participation, scoring, and leaderboard generation are all automated processes requiring zero human intervention in user data.
+      </p>
+      <p>
+        We retain your data only for the duration of your active participation. There is no external server storage, no offline backups accessible to third parties, and no data export to any external system.
+      </p>
+    </div>
+
+    <div class="policy-card">
+      <h2>6. Data Sharing & Third Parties</h2>
+      <p>
+        We do <strong>not</strong> sell, rent, trade, or share your personal information with any third party. Your exam records, email address, name, and performance data remain strictly within the platform.
+      </p>
+      <p>
+        The only visible information to other users is your name and score as it appears on the leaderboard after a live exam concludes. No other personal details are ever publicly exposed.
+      </p>
+    </div>
+
+    <div class="policy-card">
+      <h2>7. Your Rights</h2>
+      <p>
+        As a user of Exalyte, you have the right to:
+      </p>
+      <ul>
+        <li>Access all your own exam history and performance data through your dashboard at any time.</li>
+        <li>Request a copy of your stored data by contacting us through official channels.</li>
+        <li>Stop using the platform at any time — your data remains secured and inaccessible to others.</li>
+      </ul>
+      <p>
+        Since we maintain a zero-exposure data policy and do not use your information for any purpose beyond platform functionality, account deletion requests are generally unnecessary. The platform is designed so that your data never leaves the secure environment.
+      </p>
+    </div>
+
+    <div class="policy-card">
+      <h2>8. Platform Scope</h2>
+      <p>
+        Exalyte is currently based in <strong>Bangladesh</strong> under the operation of SciVerse Academy. As the platform expands globally, this privacy policy will be updated to comply with additional regional regulations while maintaining the same core principles of data minimization and security.
+      </p>
+    </div>
+
+    <div class="policy-card">
+      <h2>9. Changes to This Policy</h2>
+      <p>
+        We may update this Privacy Policy from time to time to reflect improvements in our security practices or changes in platform functionality. Any significant changes will be communicated through the platform. Continued use of Exalyte after such updates constitutes acceptance of the revised policy.
+      </p>
+    </div>
+
+    <div class="policy-card">
+      <h2>10. Contact</h2>
+      <p>
+        For any privacy-related inquiries, please reach out through our official contact page. We are committed to transparency and will respond to legitimate requests regarding data handling practices.
+      </p>
+      <p>
+        <a href="contact.html" style="color:var(--blue);text-decoration:none;font-weight:500">Visit Contact Page →</a>
+      </p>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="fc">
+      <div class="footer-brand">
+        <img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'">
+        <span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t2)">Exalyte</span>
+      </div>
+      <p>A precision examination platform built for students who want to perform, not just prepare.</p>
+    </div>
+    <div class="fc">
+      <h4>Platform</h4>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="exam-history.html">Exam History</a>
+    </div>
+    <div class="fc">
+      <h4>Legal</h4>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="tos.html">Terms of Service</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2025 Exalyte — SciVerse Academy. All rights reserved.</span>
+    <div class="footer-links">
+      <a href="privacy.html">Privacy</a>
+      <a href="tos.html">Terms</a>
+    </div>
+  </div>
+</footer>
+
 </body>
 </html>
