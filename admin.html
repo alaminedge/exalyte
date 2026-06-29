@@ -38,6 +38,38 @@ body{
   font-family:var(--gs);font-size:.65rem;font-weight:500;
   background:var(--blue);color:#fff;padding:2px 10px;border-radius:20px;
 }
+
+/* Hamburger */
+.hamburger{
+  display:none;background:none;border:none;cursor:pointer;
+  color:var(--t3);padding:8px;border-radius:50%;
+  align-items:center;justify-content:center;transition:background var(--tr);
+}
+.hamburger:hover{background:var(--hov)}
+.hamburger svg{width:22px;height:22px}
+
+/* Mobile nav dropdown */
+.mobile-nav-dropdown{
+  display:none;position:fixed;top:var(--hh);left:0;right:0;
+  background:var(--surf);border-bottom:1px solid var(--border);
+  box-shadow:0 4px 16px rgba(0,0,0,.1);padding:8px 16px;z-index:999;max-height:70vh;overflow-y:auto;
+}
+.mobile-nav-dropdown.show{display:block}
+.mobile-nav-dropdown .sidebar-section{margin-bottom:12px}
+.mobile-nav-dropdown .sidebar-label{
+  font-size:.65rem;font-weight:500;color:var(--t4);
+  text-transform:uppercase;letter-spacing:.5px;padding:8px 4px 4px;margin-bottom:2px;
+}
+.mobile-nav-dropdown .sidebar-item{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  border-radius:var(--r);font-family:var(--gs);font-size:.85rem;font-weight:500;
+  color:var(--t2);cursor:pointer;transition:all var(--tr);
+  width:100%;background:none;border:none;text-align:left;
+}
+.mobile-nav-dropdown .sidebar-item:hover{background:var(--hov)}
+.mobile-nav-dropdown .sidebar-item.active{background:#e8f0fe;color:var(--blue)}
+.mobile-nav-dropdown .sidebar-item svg{width:17px;height:17px;stroke:currentColor;fill:none}
+
 .header-right{display:flex;align-items:center;gap:8px}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
@@ -50,6 +82,7 @@ body{
 .btn-danger{background:transparent;color:var(--red);border:1px solid var(--border)}
 .btn-danger:hover{background:var(--red-bg);border-color:var(--red)}
 .btn-sm{padding:5px 14px;font-size:.75rem}
+.btn-xs{padding:3px 10px;font-size:.68rem}
 .icon-btn{
   width:40px;height:40px;border:none;background:none;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
@@ -137,6 +170,7 @@ tr:last-child td{border-bottom:none}
 .badge-free{background:var(--grn-bg);color:var(--green)}
 .badge-premium{background:#f3e8fd;color:#9333ea}
 .badge-admin{background:#e8f0fe;color:var(--blue)}
+.badge-banned{background:var(--red-bg);color:var(--red)}
 
 .resource-list{margin-bottom:14px}
 .resource-item{
@@ -185,6 +219,7 @@ tr:last-child td{border-bottom:none}
 .notif-link{display:inline-flex;align-items:center;gap:3px;font-size:.7rem;color:var(--blue);font-weight:500;text-decoration:none}
 .notif-link svg{width:10px;height:10px}
 
+/* Ban/Delete Modal */
 .modal-overlay{
   position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;
   display:none;align-items:center;justify-content:center;padding:20px;
@@ -209,6 +244,8 @@ tr:last-child td{border-bottom:none}
 .modal-close:hover{background:var(--hov)}
 .modal-close svg{width:18px;height:18px}
 .modal-body{padding:20px}
+.modal-body p{font-size:.85rem;color:var(--t2);line-height:1.6;margin-bottom:8px}
+.modal-body .warning-text{color:var(--red);font-weight:500}
 .modal-footer{
   padding:14px 20px 20px;display:flex;gap:10px;
   justify-content:flex-end;border-top:1px solid var(--border);
@@ -235,6 +272,7 @@ tr:last-child td{border-bottom:none}
 
 @media(max-width:900px){
   .header{padding:0 16px}
+  .hamburger{display:flex}
   .sidebar{display:none}
   .content{padding:20px 16px 80px}
   .stats-grid{grid-template-columns:1fr 1fr}
@@ -253,6 +291,11 @@ tr:last-child td{border-bottom:none}
 
 <header class="header">
   <div class="header-left">
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
     <a href="/" class="logo-wrap">
       <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
       <span class="logo-text">Exalyte</span>
@@ -266,6 +309,30 @@ tr:last-child td{border-bottom:none}
     </button>
   </div>
 </header>
+
+<!-- Mobile Nav Dropdown -->
+<div class="mobile-nav-dropdown" id="mobileNavDropdown">
+  <div class="sidebar-section">
+    <div class="sidebar-label">Overview</div>
+    <button class="sidebar-item active" onclick="switchSection('dashboard')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</button>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Content</div>
+    <button class="sidebar-item" onclick="switchSection('exams')"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Exams</button>
+    <button class="sidebar-item" onclick="switchSection('batches')"><svg viewBox="0 0 24 24"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg>Batches</button>
+    <button class="sidebar-item" onclick="switchSection('questions')"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Questions</button>
+    <button class="sidebar-item" onclick="switchSection('resources')"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Resources</button>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Communication</div>
+    <button class="sidebar-item" onclick="switchSection('notifications')"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</button>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">People</div>
+    <button class="sidebar-item" onclick="switchSection('users')"><svg viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857"/></svg>Users</button>
+    <button class="sidebar-item" onclick="switchSection('results')"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg>Results</button>
+  </div>
+</div>
 
 <main class="main">
   <aside class="sidebar">
@@ -419,6 +486,13 @@ tr:last-child td{border-bottom:none}
   <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('grantModal')">Cancel</button><button class="btn btn-primary" onclick="submitGrant()">Grant Access</button></div>
 </div></div>
 
+<!-- Ban/Delete Confirm Modal -->
+<div class="modal-overlay" id="confirmActionModal"><div class="modal">
+  <div class="modal-header"><h2 id="confirmActionTitle">Confirm Action</h2><button class="modal-close" onclick="closeModal('confirmActionModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="modal-body" id="confirmActionBody"></div>
+  <div class="modal-footer" id="confirmActionFooter"></div>
+</div></div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -441,6 +515,17 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 
 let allExams=[],allBatches=[],allUsers=[],editingExamId=null,editingBatchId=null,grantUserId=null;
 let currentResourceType='exam',currentResourceTargetId=null;
+let pendingAction=null,pendingUserId=null;
+
+// Mobile nav
+function toggleMobileNav(){
+  document.getElementById('mobileNavDropdown').classList.toggle('show');
+}
+document.addEventListener('click',function(e){
+  const dd=document.getElementById('mobileNavDropdown');
+  const hb=document.getElementById('hamburger');
+  if(dd&&!dd.contains(e.target)&&!hb.contains(e.target))dd.classList.remove('show');
+});
 
 async function loadDashboard(){
   const user=getUser();
@@ -630,7 +715,7 @@ async function deleteResource(id){
 async function loadUsers(){
   const{data}=await apiFetch('/admin/users');
   allUsers=data||[];
-  document.getElementById('usersTable').innerHTML=`<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Premium Access</th><th>Actions</th></tr></thead><tbody>${allUsers.map(u=>{
+  document.getElementById('usersTable').innerHTML=`<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Premium</th><th>Actions</th></tr></thead><tbody>${allUsers.map(u=>{
     let premiumHtml='';
     if(u.premium_grants&&u.premium_grants.length){
       premiumHtml=u.premium_grants.map(g=>{
@@ -640,8 +725,29 @@ async function loadUsers(){
         return`<span class="premium-tag ${typeClass}">${esc(name)}<button class="revoke-btn" onclick="${revokeFunc}">x</button></span>`;
       }).join('');
     }else{premiumHtml='<span style="color:var(--t4);font-size:.7rem">None</span>'}
-    return`<tr><td><strong>${esc(u.name)}</strong></td><td style="color:var(--t4);font-size:.75rem">${esc(u.email)}</td><td><span class="badge ${u.is_admin?'badge-admin':'badge-free'}">${u.is_admin?'Admin':'Student'}</span></td><td style="max-width:220px">${premiumHtml}</td><td>${!u.is_admin?`<button class="btn btn-primary btn-sm" onclick="openGrantModal(${u.id},'${esc(u.name)}')">Grant</button>`:'—'}</td></tr>`;
-  }).join('')||'<tr><td colspan="5">No users</td></tr>'}</tbody></table>`;
+    
+    let statusHtml='';
+    if(u.is_banned){
+      statusHtml='<span class="badge badge-banned">Banned</span>';
+    }else if(u.is_admin){
+      statusHtml='<span class="badge badge-admin">Admin</span>';
+    }else{
+      statusHtml='<span class="badge badge-free">Active</span>';
+    }
+    
+    let actionHtml='';
+    if(!u.is_admin){
+      actionHtml=`<button class="btn btn-primary btn-xs" onclick="openGrantModal(${u.id},'${esc(u.name)}')">Grant</button>`;
+      if(u.is_banned){
+        actionHtml+=` <button class="btn btn-outline btn-xs" onclick="unbanUser(${u.id})">Unban</button>`;
+      }else{
+        actionHtml+=` <button class="btn btn-outline btn-xs" style="color:#e37400;border-color:#e37400" onclick="confirmBan(${u.id},'${esc(u.name)}')">Ban</button>`;
+      }
+      actionHtml+=` <button class="btn btn-danger btn-xs" onclick="confirmDelete(${u.id},'${esc(u.name)}')">Delete</button>`;
+    }
+    
+    return`<tr><td><strong>${esc(u.name)}</strong></td><td style="color:var(--t4);font-size:.75rem">${esc(u.email)}</td><td><span class="badge ${u.is_admin?'badge-admin':'badge-free'}">${u.is_admin?'Admin':'Student'}</span></td><td>${statusHtml}</td><td style="max-width:180px">${premiumHtml}</td><td>${actionHtml||'—'}</td></tr>`;
+  }).join('')||'<tr><td colspan="6">No users</td></tr>'}</tbody></table>`;
 }
 
 function openGrantModal(userId,userName){
@@ -670,6 +776,53 @@ async function submitGrant(){
 async function revokeExamPremium(userId,examId){if(!confirm('Revoke this exam premium?'))return;await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:userId,exam_id:examId})});loadUsers()}
 async function revokeBatchPremium(userId,batchId){if(!confirm('Revoke this batch premium?'))return;await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:userId,batch_id:batchId})});loadUsers()}
 async function revokeAccountPremium(userId){if(!confirm('Revoke account premium?'))return;await apiFetch('/admin/revoke-account-premium',{method:'DELETE',body:JSON.stringify({user_id:userId})});loadUsers()}
+
+// Ban & Delete
+function confirmBan(userId,userName){
+  pendingAction='ban';pendingUserId=userId;
+  document.getElementById('confirmActionTitle').textContent='Ban User';
+  document.getElementById('confirmActionBody').innerHTML=`
+    <p>Are you sure you want to <strong style="color:#e37400">ban</strong> <strong>${esc(userName)}</strong>?</p>
+    <p style="font-size:.8rem;color:var(--t3)">This user will be unable to login. All their data will be preserved. You can unban them later.</p>`;
+  document.getElementById('confirmActionFooter').innerHTML=`
+    <button class="btn btn-outline" onclick="closeModal('confirmActionModal')">Cancel</button>
+    <button class="btn btn-primary" style="background:#e37400" onclick="executeAction()">Ban User</button>`;
+  document.getElementById('confirmActionModal').classList.add('open');
+}
+
+function confirmDelete(userId,userName){
+  pendingAction='delete';pendingUserId=userId;
+  document.getElementById('confirmActionTitle').textContent='Delete User Permanently';
+  document.getElementById('confirmActionBody').innerHTML=`
+    <p class="warning-text">This action CANNOT be undone.</p>
+    <p>This will <strong>permanently delete</strong> <strong>${esc(userName)}</strong> and all related accounts from the same device/network.</p>
+    <p style="font-size:.8rem;color:var(--t3)">All exam attempts, results, premium access, and personal data will be wiped. The device will be permanently blocked from creating new accounts.</p>`;
+  document.getElementById('confirmActionFooter').innerHTML=`
+    <button class="btn btn-outline" onclick="closeModal('confirmActionModal')">Cancel</button>
+    <button class="btn btn-danger" onclick="executeAction()">Delete Permanently</button>`;
+  document.getElementById('confirmActionModal').classList.add('open');
+}
+
+async function executeAction(){
+  closeModal('confirmActionModal');
+  if(pendingAction==='ban'){
+    const{ok,data}=await apiFetch(`/admin/users/${pendingUserId}/ban`,{method:'POST'});
+    if(ok){toast(data.message||'User banned');loadUsers()}
+    else toast(data.error||'Failed');
+  }else if(pendingAction==='delete'){
+    const{ok,data}=await apiFetch(`/admin/users/${pendingUserId}/delete`,{method:'DELETE'});
+    if(ok){toast(data.message||'User deleted');loadUsers();loadDashboard()}
+    else toast(data.error||'Failed');
+  }
+  pendingAction=null;pendingUserId=null;
+}
+
+async function unbanUser(userId){
+  if(!confirm('Unban this user? They will regain access.'))return;
+  const{ok,data}=await apiFetch(`/admin/users/${userId}/unban`,{method:'POST'});
+  if(ok){toast(data.message||'User unbanned');loadUsers()}
+  else toast(data.error||'Failed');
+}
 
 // Results
 async function loadResults(){
@@ -712,8 +865,11 @@ async function deleteNotification(id){if(!confirm('Delete this notification?'))r
 function switchSection(section){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.mobile-nav-dropdown .sidebar-item').forEach(s=>s.classList.remove('active'));
   document.getElementById('sec-'+section).classList.add('active');
   document.querySelector(`.sidebar-item[onclick="switchSection('${section}')"]`)?.classList.add('active');
+  document.querySelector(`.mobile-nav-dropdown .sidebar-item[onclick="switchSection('${section}')"]`)?.classList.add('active');
+  document.getElementById('mobileNavDropdown').classList.remove('show');
   if(section==='dashboard')loadDashboard();
   if(section==='exams')loadExams();
   if(section==='batches')loadBatches();
