@@ -12,7 +12,7 @@
 html{scroll-behavior:smooth}
 :root{
   --blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;
-  --green:#1e8e3e;--grn-bg:#e6f4ea;--yellow:#f9ab00;--yel-bg:#fef7e0;
+  --green:#1e8e3e;--grn-bg:#e6f4ea;
   --bg:#f8f9fa;--surf:#ffffff;--hov:#f1f3f4;--border:#dadce0;
   --t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
   --gs:'Google Sans','Roboto',system-ui,sans-serif;
@@ -43,39 +43,24 @@ body{
 .btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
 .btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
 .main{flex:1}
-.content{max-width:720px;margin:0 auto;padding:48px 24px 60px;width:100%}
+.content{max-width:640px;margin:0 auto;padding:48px 24px 60px;width:100%}
 .page-title{font-family:var(--gs);font-size:2rem;font-weight:500;color:var(--t1);margin-bottom:8px;letter-spacing:-0.3px}
 .page-sub{color:var(--t3);font-size:.95rem;margin-bottom:36px;line-height:1.5}
-
-/* Info Cards */
-.info-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
-.info-card{
-  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
-  padding:24px;text-align:center;
-}
-.info-card-icon{
-  width:44px;height:44px;border-radius:50%;display:flex;
-  align-items:center;justify-content:center;margin:0 auto 12px;
-}
-.info-card-icon svg{width:20px;height:20px}
-.info-card h4{font-family:var(--gs);font-size:.9rem;font-weight:500;color:var(--t1);margin-bottom:6px}
-.info-card p{color:var(--t3);font-size:.82rem;line-height:1.5;margin-bottom:8px}
-.info-card a{color:var(--blue);text-decoration:none;font-weight:500}
-.info-card a:hover{text-decoration:underline}
-.tg-badge{
-  display:inline-flex;align-items:center;gap:6px;
-  background:#e8f0fe;color:var(--blue);padding:6px 14px;
-  border-radius:20px;font-size:.8rem;font-weight:500;
-  text-decoration:none;transition:all var(--tr);
-}
-.tg-badge:hover{background:#d2e3fc}
 
 /* Form Card */
 .form-card{
   background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
-  padding:32px;margin-bottom:20px;
+  padding:36px 32px;margin-bottom:20px;
 }
-.form-title{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1);margin-bottom:24px}
+.form-card-icon{
+  width:48px;height:48px;border-radius:50%;
+  background:#e8f0fe;color:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;
+}
+.form-card-icon svg{width:22px;height:22px}
+.form-title{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1);margin-bottom:8px}
+.form-desc{font-size:.85rem;color:var(--t3);margin-bottom:24px;line-height:1.5}
 .form-group{margin-bottom:18px}
 .form-label{
   display:block;font-size:.68rem;font-weight:500;color:var(--t3);
@@ -89,7 +74,7 @@ body{
 .form-input:hover,.form-textarea:hover{border-color:var(--t3)}
 .form-input:focus,.form-textarea:focus{border:2px solid var(--blue);padding:10px 13px}
 .form-input::placeholder,.form-textarea::placeholder{color:var(--t4)}
-.form-textarea{resize:vertical;min-height:120px}
+.form-textarea{resize:vertical;min-height:140px}
 .btn-submit{
   width:100%;padding:13px;background:var(--blue);color:#fff;
   border:none;border-radius:var(--r);font-family:var(--gs);font-size:.9rem;
@@ -113,6 +98,16 @@ body{
   animation:spin .6s linear infinite;vertical-align:middle;margin-right:7px;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* Note card */
+.note-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  padding:20px 24px;display:flex;align-items:flex-start;gap:12px;
+}
+.note-icon{
+  width:20px;height:20px;stroke:var(--blue);fill:none;flex-shrink:0;margin-top:1px;
+}
+.note-card p{font-size:.82rem;color:var(--t3);line-height:1.6}
 
 /* Footer */
 .footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
@@ -138,8 +133,7 @@ body{
 @media(max-width:600px){
   .header{padding:0 16px}
   .content{padding:32px 16px}
-  .info-row{grid-template-columns:1fr}
-  .form-card{padding:24px}
+  .form-card{padding:24px 20px}
   .footer-inner{grid-template-columns:1fr;gap:20px}
   .footer-bottom{flex-direction:column;text-align:center}
 }
@@ -163,34 +157,15 @@ body{
 <main class="main">
   <div class="content">
     <h1 class="page-title">Contact Us</h1>
-    <p class="page-sub">Have questions, suggestions, or need help? Reach out below. We respond within 24 hours.</p>
+    <p class="page-sub">Have a question, suggestion, or need assistance? Send us a message below and we'll get back to you.</p>
 
-    <!-- Info Row -->
-    <div class="info-row">
-      <div class="info-card">
-        <div class="info-card-icon" style="background:#e8f0fe;color:var(--blue)">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.87 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.938z"/></svg>
-        </div>
-        <h4>Telegram</h4>
-        <p>Direct message for quick support</p>
-        <a href="https://t.me/crackers_10" target="_blank" rel="noopener" class="tg-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.87 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.938z"/></svg>
-          @crackers_10
-        </a>
-      </div>
-      <div class="info-card">
-        <div class="info-card-icon" style="background:#e8f0fe;color:var(--blue)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        </div>
-        <h4>Email</h4>
-        <p>Formal inquiries & business</p>
-        <a href="mailto:support@exalyte.com">support@exalyte.com</a>
-      </div>
-    </div>
-
-    <!-- Contact Form -->
+    <!-- Form -->
     <div class="form-card">
+      <div class="form-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
       <div class="form-title">Send a Message</div>
+      <div class="form-desc">We typically respond within 24 hours. Please be as detailed as possible so we can help you efficiently.</div>
       <div class="alert" id="formAlert"></div>
 
       <form id="contactForm" onsubmit="handleSubmit(event)">
@@ -209,10 +184,16 @@ body{
         </div>
         <div class="form-group">
           <label class="form-label">Message</label>
-          <textarea class="form-textarea" name="message" id="contactMessage" placeholder="How can we help you?" required></textarea>
+          <textarea class="form-textarea" name="message" id="contactMessage" placeholder="Describe your question or issue in detail..." required></textarea>
         </div>
         <button class="btn-submit" type="submit" id="submitBtn">Send Message</button>
       </form>
+    </div>
+
+    <!-- Note -->
+    <div class="note-card">
+      <svg class="note-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <p>Please ensure your email address is correct — we'll use it to respond to your inquiry. All submissions are reviewed by our team.</p>
     </div>
   </div>
 </main>
@@ -239,7 +220,7 @@ body{
     </div>
   </div>
   <div class="footer-bottom">
-    <span>&copy; 2025 Exalyte. All rights reserved.</span>
+    <span>&copy; 2025 Exalyte — SciVerse Academy. All rights reserved.</span>
     <div class="footer-links">
       <a href="privacy.html">Privacy</a>
       <a href="tos.html">Terms</a>
@@ -281,7 +262,7 @@ async function handleSubmit(event) {
   if (!canSubmit()) {
     const timeLeft = getTimeUntilNext();
     alertEl.className = 'alert alert-error';
-    alertEl.textContent = `You can only send one message per day. Please try again in ${timeLeft}. For urgent matters, contact us on Telegram.`;
+    alertEl.textContent = `You can only send one message per day. Please try again in ${timeLeft}.`;
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return;
   }
@@ -322,7 +303,7 @@ async function handleSubmit(event) {
     if (data.success) {
       localStorage.setItem(SUBMISSION_KEY, Date.now().toString());
       alertEl.className = 'alert alert-success';
-      alertEl.textContent = 'Message sent successfully! We will get back to you within 24 hours. For urgent help, reach us on Telegram @crackers_10';
+      alertEl.textContent = 'Message sent successfully! We will get back to you soon.';
       form.reset();
       btn.disabled = false;
       btn.textContent = 'Sent ✓';
@@ -330,14 +311,14 @@ async function handleSubmit(event) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       alertEl.className = 'alert alert-error';
-      alertEl.textContent = data.message || 'Failed to send. Please try again or contact us on Telegram.';
+      alertEl.textContent = data.message || 'Failed to send. Please try again later.';
       btn.disabled = false;
       btn.textContent = 'Send Message';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   } catch (e) {
     alertEl.className = 'alert alert-error';
-    alertEl.textContent = 'Network error. Please try again or contact us on Telegram @crackers_10';
+    alertEl.textContent = 'Network error. Please check your connection and try again.';
     btn.disabled = false;
     btn.textContent = 'Send Message';
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -349,7 +330,7 @@ async function handleSubmit(event) {
     const alertEl = document.getElementById('formAlert');
     const timeLeft = getTimeUntilNext();
     alertEl.className = 'alert alert-info';
-    alertEl.textContent = `You've already submitted a message today. Next submission available in ${timeLeft}. For urgent matters, contact us on Telegram @crackers_10`;
+    alertEl.textContent = `You've already submitted a message today. Next submission available in ${timeLeft}.`;
     document.getElementById('submitBtn').disabled = true;
     document.getElementById('submitBtn').textContent = 'Limit Reached';
   }
