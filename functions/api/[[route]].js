@@ -90,10 +90,20 @@ async function initDB(db) {
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
       is_admin INTEGER DEFAULT 0,
+      is_banned INTEGER DEFAULT 0,
       premium_until DATETIME,
       device_fingerprint TEXT DEFAULT '',
       created_ip TEXT DEFAULT '',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS banned_users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      device_fingerprint TEXT DEFAULT '',
+      ip_address TEXT DEFAULT '',
+      ban_type TEXT DEFAULT 'ban',
+      banned_by INTEGER,
+      banned_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE TABLE IF NOT EXISTS batches (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -200,6 +210,7 @@ async function initDB(db) {
   // Add columns for existing databases that may not have them
   try { await db.prepare(`ALTER TABLE users ADD COLUMN device_fingerprint TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE users ADD COLUMN created_ip TEXT DEFAULT ''`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE users ADD COLUMN is_banned INTEGER DEFAULT 0`).run(); } catch (e) {}
 
   const adminHash = await sha256('Admin@2024');
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind('admin@exalyte.com').first();
@@ -285,10 +296,16 @@ async function handleSignup(request, db) {
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind(email.toLowerCase()).first();
   if (existing) return err('Email already registered');
   
-  // Device fingerprint + IP check: max 2 accounts per device/network
+  // Check if device fingerprint or IP is permanently banned (delete ban)
   const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
   const fp = fingerprint || clientIP;
   
+  const permBan = await db.prepare(
+    'SELECT id FROM banned_users WHERE (device_fingerprint = ? OR ip_address = ?) AND ban_type = ? LIMIT 1'
+  ).bind(fp, clientIP, 'delete').first();
+  if (permBan) return err('Access denied. This device is permanently restricted.', 403);
+  
+  // Device fingerprint + IP check: max 2 accounts per device/network
   const countByFP = await db.prepare(
     'SELECT COUNT(*) as count FROM users WHERE device_fingerprint = ? AND device_fingerprint != ?'
   ).bind(fp, '').first();
@@ -317,12 +334,15 @@ async function handleLogin(request, db) {
   if (!email || !password) return err('Email and password required');
   
   const hash = await sha256(password);
-  const user = await db.prepare('SELECT id, name, email, is_admin FROM users WHERE email = ? AND password = ?')
+  const user = await db.prepare('SELECT id, name, email, is_admin, is_banned FROM users WHERE email = ? AND password = ?')
     .bind(email.toLowerCase(), hash).first();
   if (!user) return err('Invalid credentials', 401);
   
+  // Check if banned
+  if (user.is_banned) return err('Account suspended. Contact support for assistance.', 403);
+  
   const token = await signJWT({ id: user.id, email: user.email, is_admin: user.is_admin });
-  return json({ token, user });
+  return json({ token, user: { id: user.id, name: user.name, email: user.email, is_admin: user.is_admin } });
 }
 
 // ============================================================
@@ -783,7 +803,7 @@ async function handleAdminBulkQuestions(request, db) {
 
 async function handleAdminListUsers(db) {
   const users = await db.prepare(`
-    SELECT u.id, u.name, u.email, u.is_admin, u.premium_until, u.created_at, u.device_fingerprint, u.created_ip
+    SELECT u.id, u.name, u.email, u.is_admin, u.is_banned, u.premium_until, u.created_at, u.device_fingerprint, u.created_ip
     FROM users u
     ORDER BY u.created_at DESC
   `).all();
@@ -845,6 +865,99 @@ async function handleAdminRevokeAccountPremium(request, db) {
   const { user_id } = await request.json();
   await db.prepare('UPDATE users SET premium_until = NULL WHERE id = ?').bind(user_id).run();
   return json({ success: true });
+}
+
+// ============================================================
+// ADMIN: BAN USER (reversible — blocks login, keeps data)
+// ============================================================
+
+async function handleAdminBanUser(userId, request, db, adminId) {
+  const user = await db.prepare('SELECT id, device_fingerprint, created_ip FROM users WHERE id = ?').bind(userId).first();
+  if (!user) return err('User not found', 404);
+  if (user.is_admin) return err('Cannot ban an admin');
+  
+  // Ban the user
+  await db.prepare('UPDATE users SET is_banned = 1 WHERE id = ?').bind(userId).run();
+  
+  // Record in banned_users
+  await db.prepare(
+    'INSERT INTO banned_users (user_id, device_fingerprint, ip_address, ban_type, banned_by) VALUES (?, ?, ?, ?, ?)'
+  ).bind(userId, user.device_fingerprint || '', user.created_ip || '', 'ban', adminId).run();
+  
+  return json({ success: true, message: 'User banned successfully. They cannot login. Data preserved.' });
+}
+
+// ============================================================
+// ADMIN: UNBAN USER (reversible — restores access)
+// ============================================================
+
+async function handleAdminUnbanUser(userId, request, db) {
+  const user = await db.prepare('SELECT id FROM users WHERE id = ?').bind(userId).first();
+  if (!user) return err('User not found', 404);
+  
+  // Unban the user
+  await db.prepare('UPDATE users SET is_banned = 0 WHERE id = ?').bind(userId).run();
+  
+  // Remove from banned_users
+  await db.prepare('DELETE FROM banned_users WHERE user_id = ? AND ban_type = ?').bind(userId, 'ban').run();
+  
+  return json({ success: true, message: 'User unbanned successfully. Access restored.' });
+}
+
+// ============================================================
+// ADMIN: DELETE USER (permanent — wipes all data + device ban)
+// ============================================================
+
+async function handleAdminDeleteUser(userId, request, db, adminId) {
+  const user = await db.prepare('SELECT id, device_fingerprint, created_ip, is_admin FROM users WHERE id = ?').bind(userId).first();
+  if (!user) return err('User not found', 404);
+  if (user.is_admin) return err('Cannot delete an admin');
+  
+  const fp = user.device_fingerprint || '';
+  const ip = user.created_ip || '';
+  
+  // Find all user IDs with same fingerprint or IP
+  let relatedUserIds = [userId];
+  
+  if (fp) {
+    const fpUsers = await db.prepare(
+      'SELECT id FROM users WHERE device_fingerprint = ? AND device_fingerprint != ?'
+    ).bind(fp, '').all();
+    for (const u of fpUsers.results) {
+      if (!relatedUserIds.includes(u.id)) relatedUserIds.push(u.id);
+    }
+  }
+  
+  if (ip) {
+    const ipUsers = await db.prepare(
+      'SELECT id FROM users WHERE created_ip = ?'
+    ).bind(ip).all();
+    for (const u of ipUsers.results) {
+      if (!relatedUserIds.includes(u.id)) relatedUserIds.push(u.id);
+    }
+  }
+  
+  // Delete all data for all related users
+  for (const uid of relatedUserIds) {
+    // Check not admin
+    const u = await db.prepare('SELECT is_admin FROM users WHERE id = ?').bind(uid).first();
+    if (u && u.is_admin) continue;
+    
+    await db.prepare('DELETE FROM notification_reads WHERE user_id = ?').bind(uid).run();
+    await db.prepare('DELETE FROM exam_attempts WHERE user_id = ?').bind(uid).run();
+    await db.prepare('DELETE FROM exam_results_stored WHERE user_id = ?').bind(uid).run();
+    await db.prepare('DELETE FROM premium_access WHERE user_id = ?').bind(uid).run();
+    await db.prepare('DELETE FROM banned_users WHERE user_id = ?').bind(uid).run();
+    await db.prepare('DELETE FROM users WHERE id = ?').bind(uid).run();
+  }
+  
+  // Add permanent device ban
+  await db.prepare(
+    'INSERT INTO banned_users (device_fingerprint, ip_address, ban_type, banned_by) VALUES (?, ?, ?, ?)'
+  ).bind(fp, ip, 'delete', adminId).run();
+  
+  const count = relatedUserIds.length;
+  return json({ success: true, message: `${count} account(s) permanently deleted. Device banned from future signups.` });
 }
 
 async function handleAdminResults(examId, db) {
@@ -1043,6 +1156,25 @@ export async function onRequest(context) {
   if (path === '/admin/revoke-account-premium' && method === 'DELETE') {
     if (!admin) return err('Admin required', 403);
     return handleAdminRevokeAccountPremium(request, db);
+  }
+  
+  // Admin: Ban & Delete users
+  const adminBanUser = path.match(/^\/admin\/users\/(\d+)\/ban$/);
+  if (adminBanUser && method === 'POST') {
+    if (!admin) return err('Admin required', 403);
+    return handleAdminBanUser(adminBanUser[1], request, db, admin.id);
+  }
+  
+  const adminUnbanUser = path.match(/^\/admin\/users\/(\d+)\/unban$/);
+  if (adminUnbanUser && method === 'POST') {
+    if (!admin) return err('Admin required', 403);
+    return handleAdminUnbanUser(adminUnbanUser[1], request, db);
+  }
+  
+  const adminDeleteUser = path.match(/^\/admin\/users\/(\d+)\/delete$/);
+  if (adminDeleteUser && method === 'DELETE') {
+    if (!admin) return err('Admin required', 403);
+    return handleAdminDeleteUser(adminDeleteUser[1], request, db, admin.id);
   }
   
   if (path === '/admin/results' && method === 'GET') {
