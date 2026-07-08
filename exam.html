@@ -172,7 +172,7 @@ body{
 .btn-mark:hover,.btn-mark.active{border-color:var(--blue);color:var(--blue);background:#e8f0fe}
 .btn-mark svg{width:12px;height:12px;stroke:currentColor;fill:none}
 
-/* Floating submit button (desktop) */
+/* Floating submit */
 .floating-submit{
   position:fixed;bottom:28px;right:28px;z-index:50;
   background:var(--blue);color:#fff;border:none;
@@ -185,7 +185,7 @@ body{
 .floating-submit:hover{background:var(--blue-h);transform:translateY(-2px);box-shadow:0 6px 24px rgba(26,115,232,.45)}
 .floating-submit svg{width:18px;height:18px;stroke:#fff;fill:none}
 
-/* Mobile submit footer */
+/* Mobile submit */
 .exam-mobile-footer{
   display:none;background:var(--surf);border-top:1px solid var(--border);
   padding:12px 16px;align-items:center;
@@ -229,8 +229,8 @@ body{
 
 /* Practice Result */
 .practice-result-wrap{
-  display:flex;align-items:center;justify-content:center;
-  padding:60px 20px;text-align:center;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:40px 20px 60px;text-align:center;overflow-y:auto;flex:1;
 }
 .practice-ring-wrap{width:120px;height:120px;margin:0 auto 16px;position:relative}
 .practice-ring-wrap svg{transform:rotate(-90deg);width:120px;height:120px}
@@ -248,6 +248,54 @@ body{
 .practice-correct .practice-stat-val{color:var(--green)}
 .practice-wrong .practice-stat-val{color:var(--red)}
 .practice-skip .practice-stat-val{color:var(--t3)}
+
+/* Practice Review */
+.practice-chip{
+  padding:5px 14px;border:1px solid var(--border);border-radius:20px;
+  font-family:var(--gs);font-size:.72rem;font-weight:500;color:var(--t3);
+  background:var(--surf);cursor:pointer;transition:all var(--tr);
+}
+.practice-chip:hover{border-color:var(--blue);color:var(--blue)}
+.practice-chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
+.rv-card{background:var(--surf);border:2px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.rv-card.rv-correct{border-color:rgba(30,142,62,.4)}
+.rv-card.rv-wrong{border-color:rgba(217,48,37,.3)}
+.rv-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none}
+.rv-status{
+  width:26px;height:26px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;flex-shrink:0;
+}
+.rv-status svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5}
+.rv-correct .rv-status{background:var(--grn-bg);color:var(--green)}
+.rv-wrong .rv-status{background:var(--red-bg);color:var(--red)}
+.rv-skip .rv-status{background:var(--hov);color:var(--t3)}
+.rv-q{font-size:.84rem;color:var(--t2);flex:1;line-height:1.5;text-align:left}
+.rv-arrow{width:16px;height:16px;stroke:var(--t3);fill:none;stroke-width:2;flex-shrink:0;transition:transform .2s}
+.rv-card.open .rv-arrow{transform:rotate(180deg)}
+.rv-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
+.rv-card.open .rv-body{display:block}
+.rv-opts{display:flex;flex-direction:column;gap:6px;margin-top:12px;text-align:left}
+.rv-opt{
+  display:flex;align-items:flex-start;gap:8px;padding:8px 12px;
+  border-radius:var(--r);background:var(--bg);border:1.5px solid var(--border);
+  font-size:.8rem;color:var(--t2);line-height:1.4;
+}
+.rv-opt.rv-opt-correct{background:var(--grn-bg);border-color:rgba(30,142,62,.4);color:var(--green)}
+.rv-opt.rv-opt-wrong{background:var(--red-bg);border-color:rgba(217,48,37,.3);color:var(--red)}
+.rv-ol{
+  width:22px;height:22px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;
+  font-family:var(--gs);font-size:.7rem;font-weight:500;flex-shrink:0;
+}
+.rv-opt-correct .rv-ol{background:rgba(30,142,62,.2);color:var(--green)}
+.rv-opt-wrong .rv-ol{background:rgba(217,48,37,.15);color:var(--red)}
+.rv-ans-note{font-size:.68rem;font-weight:500;color:var(--t4);text-transform:uppercase;letter-spacing:.3px;margin-top:10px;text-align:left}
+.rv-explanation{
+  margin-top:10px;padding:10px 14px;background:#e8f0fe;
+  border:1px solid rgba(26,115,232,.2);border-radius:var(--r);
+  font-size:.78rem;color:var(--blue);line-height:1.6;text-align:left;
+}
+.rv-explanation strong{color:var(--t1);display:block;margin-bottom:3px;font-size:.68rem;text-transform:uppercase;letter-spacing:.3px}
 
 /* Tab Warning */
 .tab-warn{
@@ -278,6 +326,7 @@ body{
   .q-card{padding:14px}
   .agree-card{padding:28px 20px}
   .timer-box{padding:4px 10px;font-size:.78rem}
+  .practice-result-wrap{padding:24px 14px 80px}
 }
 @media(max-width:600px){
   .agree-title{font-size:1.2rem}
@@ -351,13 +400,11 @@ body{
   <div class="questions-area" id="questionsArea"></div>
 </div>
 
-<!-- Floating Submit Button (desktop only) -->
 <button class="floating-submit" id="floatingSubmit" onclick="openSubmit()">
   <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
   Submit Exam
 </button>
 
-<!-- Mobile Submit Footer -->
 <div class="exam-mobile-footer" id="mobileFooter">
   <button class="btn-mob-submit" onclick="openSubmit()">
     <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
@@ -365,7 +412,6 @@ body{
   </button>
 </div>
 
-<!-- Submit Modal -->
 <div class="modal-overlay" id="submitModal">
   <div class="modal">
     <h2>Submit Exam?</h2>
@@ -382,7 +428,6 @@ body{
   </div>
 </div>
 
-<!-- Tab Warning -->
 <div class="tab-warn" id="tabWarn">
   <div class="warn-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
   <h2>You Left The Exam</h2>
@@ -594,7 +639,7 @@ function openSubmit(){
 }
 function closeSubmit(){document.getElementById('submitModal').classList.remove('open')}
 
-function showPracticeResult(data){
+async function showPracticeResult(data){
   const pct=data.percentage||0;
   const correct=data.correct||0;
   const wrong=data.wrong||0;
@@ -607,9 +652,32 @@ function showPracticeResult(data){
   else if(pct>=40){gradeColor='#f9ab00';gradeLabel='Needs Work';}
   else{gradeColor='#d93025';gradeLabel='Keep Trying';}
   
+  let reviewQuestions=[];
+  try{
+    const{ok,data:qData}=await apiFetch('/exams/'+examId+'/questions');
+    if(ok)reviewQuestions=qData.questions||[];
+  }catch(e){}
+  
+  let reviewHTML='';
+  if(reviewQuestions.length>0){
+    reviewHTML=`
+    <div style="margin-top:32px;text-align:left">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <h2 style="font-family:'Google Sans',sans-serif;font-size:1.1rem;font-weight:500;color:#202124">Question Review</h2>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="practiceChips">
+          <button class="practice-chip active" data-f="all" onclick="filterPracticeReview('all')">All</button>
+          <button class="practice-chip" data-f="correct" onclick="filterPracticeReview('correct')">Correct</button>
+          <button class="practice-chip" data-f="wrong" onclick="filterPracticeReview('wrong')">Wrong</button>
+          <button class="practice-chip" data-f="skipped" onclick="filterPracticeReview('skipped')">Skipped</button>
+        </div>
+      </div>
+      <div id="practiceReviewList" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>`;
+  }
+  
   document.getElementById('examUI').innerHTML=`
     <div class="practice-result-wrap">
-      <div style="max-width:500px;width:100%">
+      <div style="max-width:700px;width:100%">
         <div class="practice-ring-wrap">
           <svg viewBox="0 0 120 120">
             <circle class="practice-ring-bg" cx="60" cy="60" r="54"/>
@@ -629,12 +697,92 @@ function showPracticeResult(data){
         </div>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px">
           <a href="dashboard.html" class="btn-secondary" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
-          <a href="exam.html?id=${examId}&practice=1" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;font-family:var(--gs);font-size:.8rem;font-weight:500;border:none;border-radius:var(--r);background:var(--blue);color:#fff;text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Again</a>
+          <a href="exam.html?id=${examId}&practice=1" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;font-family:'Google Sans',sans-serif;font-size:.8rem;font-weight:500;border:none;border-radius:4px;background:#1a73e8;color:#fff;text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Again</a>
         </div>
+        ${reviewHTML}
       </div>
     </div>`;
+  
   document.getElementById('floatingSubmit').style.display='none';
   document.getElementById('mobileFooter').classList.remove('show');
+  
+  window._practiceQuestions=reviewQuestions;
+  window._practiceAnswers=answers;
+  window._practiceFilter='all';
+  
+  if(reviewQuestions.length>0)renderPracticeReviewList();
+}
+
+function renderPracticeReviewList(){
+  const questions=window._practiceQuestions||[];
+  const userAnswers=window._practiceAnswers||{};
+  const filter=window._practiceFilter||'all';
+  
+  const filtered=questions.filter(q=>{
+    const given=(userAnswers[q.id]||'').toString().trim().toUpperCase();
+    const correctAns=(q.correct_answer||'').toString().trim().toUpperCase();
+    if(filter==='correct')return given&&given===correctAns;
+    if(filter==='wrong')return given&&given!==correctAns;
+    if(filter==='skipped')return!given;
+    return true;
+  });
+  
+  const icons={
+    correct:'<polyline points="20 6 9 17 4 12"/>',
+    wrong:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    skipped:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
+  };
+  
+  const list=document.getElementById('practiceReviewList');
+  if(!list)return;
+  
+  if(!filtered.length){
+    list.innerHTML='<div style="text-align:center;padding:40px;color:#5f6368;font-size:.82rem">No questions in this filter.</div>';
+    return;
+  }
+  
+  list.innerHTML=filtered.map(q=>{
+    const given=(userAnswers[q.id]||'').toString().trim().toUpperCase();
+    const correctAns=(q.correct_answer||'').toString().trim().toUpperCase();
+    const st=!given?'skip':given===correctAns?'correct':'wrong';
+    const cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st]||'';
+    
+    const opts=['A','B','C','D'].map(l=>{
+      const isCorrect=l===correctAns;
+      const isYours=l===given&&!isCorrect;
+      const optCls=isCorrect?'rv-opt-correct':isYours?'rv-opt-wrong':'';
+      return`<div class="rv-opt ${optCls}"><div class="rv-ol">${l}</div><div style="flex:1;line-height:1.4">${esc(q['option_'+l.toLowerCase()])}</div></div>`;
+    }).join('');
+    
+    let note='';
+    if(given&&given!==correctAns)note=`<div class="rv-ans-note">Your answer: ${given} — Correct: ${correctAns}</div>`;
+    else if(!given)note=`<div class="rv-ans-note" style="color:#5f6368">Not answered — Correct: ${correctAns}</div>`;
+    
+    let exp='';
+    if(q.explanation&&q.explanation.trim()){
+      exp=`<div class="rv-explanation"><strong>Explanation</strong>${esc(q.explanation)}</div>`;
+    }
+    
+    return`<div class="rv-card ${cls}" onclick="this.classList.toggle('open')">
+      <div class="rv-header">
+        <div class="rv-status"><svg viewBox="0 0 24 24">${icons[st]}</svg></div>
+        <div class="rv-q">${esc(q.question_text)}</div>
+        <svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="rv-body">
+        ${q.image_url?`<img src="${esc(q.image_url)}" style="max-width:100%;max-height:140px;border-radius:4px;margin-bottom:10px;border:1px solid #dadce0;object-fit:contain" alt="">`:''}
+        <div class="rv-opts">${opts}</div>
+        ${note}${exp}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterPracticeReview(filter){
+  window._practiceFilter=filter;
+  document.querySelectorAll('#practiceChips .practice-chip').forEach(c=>c.classList.remove('active'));
+  document.querySelector('#practiceChips .practice-chip[data-f="'+filter+'"]')?.classList.add('active');
+  renderPracticeReviewList();
 }
 
 async function doSubmit(){
