@@ -211,7 +211,6 @@ async function initDB(db) {
     await db.prepare(sql).run();
   }
 
-  // Add columns for existing databases that may not have them
   try { await db.prepare(`ALTER TABLE users ADD COLUMN device_fingerprint TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE users ADD COLUMN created_ip TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE users ADD COLUMN is_banned INTEGER DEFAULT 0`).run(); } catch (e) {}
@@ -652,7 +651,7 @@ async function handleGetExamQuestions(examId, request, db) {
   return json({ exam, questions: qs.results, exam_resources: examRes.results });
 }
 
-// FIXED: Only store first attempt, never store practice or repeat attempts
+// FIXED: Only store first attempt, return correct/wrong/skipped counts
 async function handleSubmitExam(examId, request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
@@ -666,16 +665,28 @@ async function handleSubmitExam(examId, request, db) {
   
   const questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
   let score = 0;
+  let correctCount = 0;
+  let wrongCount = 0;
+  let skippedCount = 0;
   const total = questions.results.length;
   const nm = exam.negative_marking || 0;
   const detailedAnswers = {};
   
   for (const q of questions.results) {
-    const given = answers[q.id] || '';
+    const given = (answers[q.id] || answers[String(q.id)] || '').trim().toUpperCase();
     const correct = q.correct_answer;
     const isCorrect = given === correct;
-    if (isCorrect) score += 1;
-    else if (given && nm > 0) score -= nm;
+    
+    if (!given) {
+      skippedCount++;
+    } else if (isCorrect) {
+      correctCount++;
+      score += 1;
+    } else {
+      wrongCount++;
+      if (nm > 0) score -= nm;
+    }
+    
     detailedAnswers[q.id] = { given, correct, isCorrect };
   }
   
@@ -709,7 +720,10 @@ async function handleSubmitExam(examId, request, db) {
     attemptId: attemptId || 0, 
     score: Math.max(0, score), 
     total, 
-    percentage 
+    percentage,
+    correct: correctCount,
+    wrong: wrongCount,
+    skipped: skippedCount
   });
 }
 
@@ -729,7 +743,6 @@ async function handleGetResult(examId, attemptId, request, db) {
     return json({ pending: true, message: 'Results will be available after publication.', exam_name: exam.name });
   }
   
-  // If attemptId is 0 (practice or repeat), return result without storing
   if (attemptId == 0 || !attemptId) {
     const questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
     return json({ 
@@ -793,7 +806,8 @@ async function handleHistory(request, db) {
     FROM exam_results_stored ers
     JOIN exams e ON ers.exam_id = e.id
     WHERE ers.user_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0
-    ORDER BY ers.submitted_at DESC  `).bind(user.id).all();
+    ORDER BY ers.submitted_at DESC
+  `).bind(user.id).all();
   
   const result = [];
   for (const r of rows.results) {
@@ -1152,19 +1166,15 @@ export async function onRequest(context) {
   let path = url.pathname.replace(/^\/api/, '').replace(/\/$/, '') || '/';
   const method = request.method;
   
-  // Auth routes
   if (path === '/auth/signup' && method === 'POST') return handleSignup(request, db);
   if (path === '/auth/login' && method === 'POST') return handleLogin(request, db);
   
-  // Master key routes
   if (path === '/auth/master-key/status' && method === 'POST') return handleMasterKeyStatus(db);
   if (path === '/auth/master-key/set' && method === 'POST') return handleMasterKeySet(request, db);
   if (path === '/auth/master-key/verify' && method === 'POST') return handleMasterKeyVerify(request, db);
   
-  // Batch routes
   if (path === '/batches' && method === 'GET') return handleListBatches(db);
   
-  // Exam routes
   if (path === '/exams' && method === 'GET') return handleListExams(request, db);
   if (path === '/history' && method === 'GET') return handleHistory(request, db);
   
@@ -1180,12 +1190,10 @@ export async function onRequest(context) {
   const leaderboard = path.match(/^\/leaderboard\/(\d+)$/);
   if (leaderboard && method === 'GET') return handleLeaderboard(leaderboard[1], request, db);
   
-  // Notifications
   if (path === '/notifications' && method === 'GET') return handleListNotifications(request, db);
   const markRead = path.match(/^\/notifications\/(\d+)\/read$/);
   if (markRead && method === 'POST') return handleMarkNotificationRead(markRead[1], request, db);
   
-  // Admin
   const admin = await requireAdmin(request, db);
   
   if (path === '/admin/batches' && method === 'POST') {
