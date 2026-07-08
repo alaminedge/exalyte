@@ -342,23 +342,19 @@ async function handleLogin(request, db) {
   
   if (user.is_banned) return err('Account suspended. Contact support for assistance.', 403);
   
-  // If admin, check if master key is required
   if (user.is_admin) {
     const masterKeyRow = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('master_key_hash').first();
     const hasMasterKey = masterKeyRow && masterKeyRow.value;
     
     if (hasMasterKey) {
-      // Master key exists — admin must verify it
       const tempToken = await signJWT({ id: user.id, email: user.email, is_admin: true, temp: true, exp: Math.floor(Date.now() / 1000) + 300 });
       return json({ requires_master_key: true, temp_token: tempToken, user: { id: user.id, name: user.name, email: user.email, is_admin: true } });
     } else {
-      // No master key set yet — first time setup
       const tempToken = await signJWT({ id: user.id, email: user.email, is_admin: true, temp: true, setup_master: true, exp: Math.floor(Date.now() / 1000) + 300 });
       return json({ setup_master_key: true, temp_token: tempToken, user: { id: user.id, name: user.name, email: user.email, is_admin: true } });
     }
   }
   
-  // Non-admin: return token directly
   const token = await signJWT({ id: user.id, email: user.email, is_admin: user.is_admin });
   return json({ token, user: { id: user.id, name: user.name, email: user.email, is_admin: user.is_admin } });
 }
@@ -380,7 +376,6 @@ async function handleMasterKeySet(request, db) {
   const payload = await verifyJWT(temp_token);
   if (!payload || !payload.setup_master || !payload.is_admin) return err('Invalid or expired session', 401);
   
-  // Check if master key already set
   const existing = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('master_key_hash').first();
   if (existing && existing.value) return err('Master key already set', 403);
   
@@ -510,7 +505,7 @@ async function handleListExams(request, db) {
   `).all();
 
   const allExamResources = await db.prepare(`
-    SELECT er.*, e.id as exam_id, e.is_premium
+    SELECT er.*, e.id as exam_id, e.is_premium, e.batch_id
     FROM exam_resources er
     JOIN exams e ON er.exam_id = e.id
     ORDER BY er.created_at DESC
@@ -523,7 +518,6 @@ async function handleListExams(request, db) {
     ORDER BY br.created_at DESC
   `).all();
 
-  // Get premium access for user
   let userPremiumBatches = new Set();
   let userPremiumExams = new Set();
   let hasAccountPremium = false;
@@ -546,58 +540,51 @@ async function handleListExams(request, db) {
     for (const g of examGrants.results) { userPremiumExams.add(g.exam_id); }
   }
 
-  // Build exam resource map with premium check
   const examResourcesMap = {};
   for (const r of allExamResources.results) {
-    const examId = r.exam_id;
-    
-    // Check if user can see this exam's resources
+    const eid = r.exam_id;
     let canSee = false;
     if (isAdmin) {
       canSee = true;
     } else if (!r.is_premium) {
-      canSee = true; // Free exam — resources visible to all
-    } else if (hasAccountPremium || userPremiumExams.has(examId)) {
-      canSee = true; // User has premium access to this exam
+      canSee = true;
+    } else if (hasAccountPremium || userPremiumExams.has(eid)) {
+      canSee = true;
     } else if (r.batch_id && userPremiumBatches.has(r.batch_id)) {
-      canSee = true; // User has batch premium
+      canSee = true;
     }
     
     if (canSee) {
-      if (!examResourcesMap[examId]) examResourcesMap[examId] = [];
-      examResourcesMap[examId].push({ id: r.id, title: r.title, link: r.link });
+      if (!examResourcesMap[eid]) examResourcesMap[eid] = [];
+      examResourcesMap[eid].push({ id: r.id, title: r.title, link: r.link });
     }
   }
 
-  // Build batch resource map with premium check
   const batchResourcesMap = {};
   for (const r of allBatchResources.results) {
-    const batchId = r.batch_id;
-    
-    // Check if all exams in this batch are accessible (or user has premium)
+    const bid = r.batch_id;
     const batchExams = await db.prepare(
       'SELECT id, is_premium FROM exams WHERE batch_id = ?'
-    ).bind(batchId).all();
+    ).bind(bid).all();
     
     let canSeeBatch = false;
     
     if (isAdmin) {
       canSeeBatch = true;
-    } else if (hasAccountPremium || userPremiumBatches.has(batchId)) {
-      canSeeBatch = true; // User has batch premium or account premium
+    } else if (hasAccountPremium || userPremiumBatches.has(bid)) {
+      canSeeBatch = true;
     } else if (batchExams.results.length > 0) {
-      // Check if ALL exams in this batch are free
       const allFree = batchExams.results.every(e => !e.is_premium);
       if (allFree) {
-        canSeeBatch = true; // All exams in batch are free — resources visible
+        canSeeBatch = true;
       }
     }
     
     if (canSeeBatch) {
-      if (!batchResourcesMap[batchId]) {
-        batchResourcesMap[batchId] = { id: batchId, name: r.batch_name, resources: [] };
+      if (!batchResourcesMap[bid]) {
+        batchResourcesMap[bid] = { id: bid, name: r.batch_name, resources: [] };
       }
-      batchResourcesMap[batchId].resources.push({ id: r.id, title: r.title, link: r.link });
+      batchResourcesMap[bid].resources.push({ id: r.id, title: r.title, link: r.link });
     }
   }
   const batchResourcesList = Object.values(batchResourcesMap);
@@ -665,6 +652,7 @@ async function handleGetExamQuestions(examId, request, db) {
   return json({ exam, questions: qs.results, exam_resources: examRes.results });
 }
 
+// FIXED: Only store first attempt, never store practice or repeat attempts
 async function handleSubmitExam(examId, request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
@@ -694,21 +682,35 @@ async function handleSubmitExam(examId, request, db) {
   const percentage = total > 0 ? Math.round((score / total) * 10000) / 100 : 0;
   const answersJson = JSON.stringify(detailedAnswers);
   
+  // Check if first non-practice attempt already exists
   const existingFirst = await db.prepare(
     'SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1'
   ).bind(user.id, examId).first();
-  const isFirst = !existingFirst && !is_practice;
   
-  const r1 = await db.prepare(
-    `INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
-  ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson, is_practice ? 1 : 0, isFirst ? 1 : 0).first();
+  let attemptId = null;
   
-  await db.prepare(
-    `INSERT INTO exam_attempts (user_id, exam_id, score, total_questions, percentage, answers) VALUES (?, ?, ?, ?, ?, ?)`
-  ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson).run();
+  // ONLY store if: NOT practice AND first attempt doesn't exist yet
+  if (!is_practice && !existingFirst) {
+    const r1 = await db.prepare(
+      `INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
+    ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson, 0, 1).first();
+    
+    await db.prepare(
+      `INSERT INTO exam_attempts (user_id, exam_id, score, total_questions, percentage, answers) VALUES (?, ?, ?, ?, ?, ?)`
+    ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson).run();
+    
+    attemptId = r1.id;
+  } else if (existingFirst) {
+    attemptId = existingFirst.id;
+  }
   
-  return json({ attemptId: r1.id, score: Math.max(0, score), total, percentage });
+  return json({ 
+    attemptId: attemptId || 0, 
+    score: Math.max(0, score), 
+    total, 
+    percentage 
+  });
 }
 
 async function handleGetResult(examId, attemptId, request, db) {
@@ -725,6 +727,17 @@ async function handleGetResult(examId, attemptId, request, db) {
   
   if (!isResultsPublished(exam)) {
     return json({ pending: true, message: 'Results will be available after publication.', exam_name: exam.name });
+  }
+  
+  // If attemptId is 0 (practice or repeat), return result without storing
+  if (attemptId == 0 || !attemptId) {
+    const questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
+    return json({ 
+      attempt: { id: 0, score: 0, total_questions: questions.results.length, percentage: 0, answers: '{}', is_practice: 1 }, 
+      questions: questions.results, 
+      exam, 
+      results_published: true 
+    });
   }
   
   const attempt = await db.prepare(
@@ -780,8 +793,7 @@ async function handleHistory(request, db) {
     FROM exam_results_stored ers
     JOIN exams e ON ers.exam_id = e.id
     WHERE ers.user_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0
-    ORDER BY ers.submitted_at DESC
-  `).bind(user.id).all();
+    ORDER BY ers.submitted_at DESC  `).bind(user.id).all();
   
   const result = [];
   for (const r of rows.results) {
@@ -1144,7 +1156,7 @@ export async function onRequest(context) {
   if (path === '/auth/signup' && method === 'POST') return handleSignup(request, db);
   if (path === '/auth/login' && method === 'POST') return handleLogin(request, db);
   
-  // Master key routes (no auth required — uses temp token)
+  // Master key routes
   if (path === '/auth/master-key/status' && method === 'POST') return handleMasterKeyStatus(db);
   if (path === '/auth/master-key/set' && method === 'POST') return handleMasterKeySet(request, db);
   if (path === '/auth/master-key/verify' && method === 'POST') return handleMasterKeyVerify(request, db);
