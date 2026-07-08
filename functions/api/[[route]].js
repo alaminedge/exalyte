@@ -642,6 +642,13 @@ async function handleGetExamQuestions(examId, request, db) {
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
   
+  // Block loading questions if practice is disabled
+  const url = new URL(request.url);
+  const isPractice = url.searchParams.get('practice') === '1';
+  if (isPractice && !exam.allow_practice) {
+    return err('Practice mode is not available for this exam.', 403);
+  }
+  
   const qs = await db.prepare(
     'SELECT id, exam_id, question_text, option_a, option_b, option_c, option_d, image_url, explanation FROM questions WHERE exam_id = ?'
   ).bind(examId).all();
@@ -651,7 +658,6 @@ async function handleGetExamQuestions(examId, request, db) {
   return json({ exam, questions: qs.results, exam_resources: examRes.results });
 }
 
-// FIXED: Proper answer key matching with .toString()
 async function handleSubmitExam(examId, request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
@@ -663,6 +669,11 @@ async function handleSubmitExam(examId, request, db) {
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
   
+  // Block submission if practice is disabled
+  if (is_practice && !exam.allow_practice) {
+    return err('Practice mode is not available for this exam.', 403);
+  }
+  
   const questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
   let score = 0;
   let correctCount = 0;
@@ -673,7 +684,6 @@ async function handleSubmitExam(examId, request, db) {
   const detailedAnswers = {};
   
   for (const q of questions.results) {
-    // Try both numeric and string keys
     const rawGiven = answers[q.id] || answers[String(q.id)] || '';
     const given = rawGiven.toString().trim().toUpperCase();
     const correct = (q.correct_answer || '').toString().trim().toUpperCase();
@@ -723,7 +733,8 @@ async function handleSubmitExam(examId, request, db) {
     percentage,
     correct: correctCount,
     wrong: wrongCount,
-    skipped: skippedCount
+    skipped: skippedCount,
+    detailed: detailedAnswers
   });
 }
 
