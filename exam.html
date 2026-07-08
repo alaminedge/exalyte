@@ -331,6 +331,19 @@ body{
 }
 .btn-return:hover{background:var(--blue-h)}
 
+/* Footer */
+.footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
+.footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
+.fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
+.fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
+.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2}
+.fc a:hover{color:var(--blue);text-decoration:underline}
+.footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.footer-bottom{border-top:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px}
+.footer-links{display:flex;gap:20px}
+.footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
+.footer-links a:hover{text-decoration:underline;color:var(--blue)}
+
 @media(max-width:900px){
   .header{padding:0 16px}
   .floating-submit{display:none}
@@ -344,6 +357,7 @@ body{
   .score-ring-wrap{width:100px;height:100px}
   .score-ring-wrap svg{width:100px;height:100px}
   .ring-pct{font-size:1.4rem}
+  .footer-inner{grid-template-columns:1fr 1fr;gap:28px}
 }
 @media(max-width:600px){
   .agree-title{font-size:1.2rem}
@@ -355,6 +369,8 @@ body{
   .score-stats{grid-template-columns:1fr 1fr}
   .score-stats .sc-stat:last-child{grid-column:span 2}
   .result-actions .btn{flex:1;justify-content:center}
+  .footer-inner{grid-template-columns:1fr;gap:20px}
+  .footer-bottom{flex-direction:column;text-align:center}
 }
 </style>
 </head>
@@ -716,7 +732,36 @@ async function showPracticeResult(data){
     <div class="review-list" id="practiceReviewList"></div>`;
   }
   
-  html+=`</div>`;
+  html+=`</div>
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="fc">
+        <div class="footer-brand">
+          <img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'">
+          <span style="font-family:'Google Sans',sans-serif;font-size:1rem;font-weight:500;color:#3c4043">Exalyte</span>
+        </div>
+        <p>A precision examination platform built for students who want to perform, not just prepare.</p>
+      </div>
+      <div class="fc">
+        <h4>Platform</h4>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="exam-history.html">Exam History</a>
+      </div>
+      <div class="fc">
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="tos.html">Terms of Service</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2025 Exalyte — SciVerse Academy. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy</a>
+        <a href="tos.html">Terms</a>
+      </div>
+    </div>
+  </footer>`;
   
   const main=document.querySelector('.main');
   if(!main){
@@ -730,6 +775,8 @@ async function showPracticeResult(data){
     main.innerHTML=html;
     main.style.paddingTop='64px';
   }
+  
+  window.scrollTo({top:0,behavior:'instant'});
   
   window._practiceQuestions=questions;
   window._practiceDetailed=detailed;
