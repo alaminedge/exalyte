@@ -84,6 +84,10 @@ async function requireAdmin(request, db) {
 
 async function initDB(db) {
   const statements = [
+    `CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT DEFAULT ''
+    )`,
     `CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -296,7 +300,6 @@ async function handleSignup(request, db) {
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind(email.toLowerCase()).first();
   if (existing) return err('Email already registered');
   
-  // Check if device fingerprint or IP is permanently banned (delete ban)
   const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
   const fp = fingerprint || clientIP;
   
@@ -305,7 +308,6 @@ async function handleSignup(request, db) {
   ).bind(fp, clientIP, 'delete').first();
   if (permBan) return err('Access denied. This device is permanently restricted.', 403);
   
-  // Device fingerprint + IP check: max 2 accounts per device/network
   const countByFP = await db.prepare(
     'SELECT COUNT(*) as count FROM users WHERE device_fingerprint = ? AND device_fingerprint != ?'
   ).bind(fp, '').first();
@@ -338,11 +340,72 @@ async function handleLogin(request, db) {
     .bind(email.toLowerCase(), hash).first();
   if (!user) return err('Invalid credentials', 401);
   
-  // Check if banned
   if (user.is_banned) return err('Account suspended. Contact support for assistance.', 403);
   
+  // If admin, check if master key is required
+  if (user.is_admin) {
+    const masterKeyRow = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('master_key_hash').first();
+    const hasMasterKey = masterKeyRow && masterKeyRow.value;
+    
+    if (hasMasterKey) {
+      // Master key exists — admin must verify it
+      const tempToken = await signJWT({ id: user.id, email: user.email, is_admin: true, temp: true, exp: Math.floor(Date.now() / 1000) + 300 });
+      return json({ requires_master_key: true, temp_token: tempToken, user: { id: user.id, name: user.name, email: user.email, is_admin: true } });
+    } else {
+      // No master key set yet — first time setup
+      const tempToken = await signJWT({ id: user.id, email: user.email, is_admin: true, temp: true, setup_master: true, exp: Math.floor(Date.now() / 1000) + 300 });
+      return json({ setup_master_key: true, temp_token: tempToken, user: { id: user.id, name: user.name, email: user.email, is_admin: true } });
+    }
+  }
+  
+  // Non-admin: return token directly
   const token = await signJWT({ id: user.id, email: user.email, is_admin: user.is_admin });
   return json({ token, user: { id: user.id, name: user.name, email: user.email, is_admin: user.is_admin } });
+}
+
+// ============================================================
+// MASTER KEY ROUTES
+// ============================================================
+
+async function handleMasterKeyStatus(db) {
+  const row = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('master_key_hash').first();
+  return json({ exists: !!(row && row.value) });
+}
+
+async function handleMasterKeySet(request, db) {
+  const { temp_token, master_key } = await request.json();
+  if (!temp_token || !master_key) return err('Missing token or master key');
+  if (master_key.length < 6) return err('Master key must be at least 6 characters');
+  
+  const payload = await verifyJWT(temp_token);
+  if (!payload || !payload.setup_master || !payload.is_admin) return err('Invalid or expired session', 401);
+  
+  // Check if master key already set
+  const existing = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('master_key_hash').first();
+  if (existing && existing.value) return err('Master key already set', 403);
+  
+  const hash = await sha256(master_key);
+  await db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').bind('master_key_hash', hash).run();
+  
+  const token = await signJWT({ id: payload.id, email: payload.email, is_admin: true });
+  return json({ success: true, token, message: 'Master key set successfully' });
+}
+
+async function handleMasterKeyVerify(request, db) {
+  const { temp_token, master_key } = await request.json();
+  if (!temp_token || !master_key) return err('Missing token or master key');
+  
+  const payload = await verifyJWT(temp_token);
+  if (!payload || !payload.temp || !payload.is_admin) return err('Invalid or expired session', 401);
+  
+  const row = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('master_key_hash').first();
+  if (!row || !row.value) return err('Master key not configured', 500);
+  
+  const hash = await sha256(master_key);
+  if (hash !== row.value) return err('Incorrect master key', 403);
+  
+  const token = await signJWT({ id: payload.id, email: payload.email, is_admin: true });
+  return json({ success: true, token });
 }
 
 // ============================================================
@@ -436,6 +499,7 @@ async function handleDeleteExamResource(resourceId, db) {
 async function handleListExams(request, db) {
   const user = await requireAuth(request);
   const userId = user ? user.id : null;
+  const isAdmin = user ? user.is_admin : false;
 
   const exams = await db.prepare(`
     SELECT e.*, b.name as batch_name,
@@ -446,17 +510,11 @@ async function handleListExams(request, db) {
   `).all();
 
   const allExamResources = await db.prepare(`
-    SELECT er.*, e.id as exam_id
+    SELECT er.*, e.id as exam_id, e.is_premium
     FROM exam_resources er
     JOIN exams e ON er.exam_id = e.id
     ORDER BY er.created_at DESC
   `).all();
-
-  const examResourcesMap = {};
-  for (const r of allExamResources.results) {
-    if (!examResourcesMap[r.exam_id]) examResourcesMap[r.exam_id] = [];
-    examResourcesMap[r.exam_id].push({ id: r.id, title: r.title, link: r.link });
-  }
 
   const allBatchResources = await db.prepare(`
     SELECT br.*, b.id as batch_id, b.name as batch_name
@@ -465,12 +523,82 @@ async function handleListExams(request, db) {
     ORDER BY br.created_at DESC
   `).all();
 
+  // Get premium access for user
+  let userPremiumBatches = new Set();
+  let userPremiumExams = new Set();
+  let hasAccountPremium = false;
+  
+  if (userId && !isAdmin) {
+    const now = new Date().toISOString();
+    const userRow = await db.prepare('SELECT premium_until FROM users WHERE id = ?').bind(userId).first();
+    if (userRow && userRow.premium_until && userRow.premium_until > now) {
+      hasAccountPremium = true;
+    }
+    
+    const batchGrants = await db.prepare(
+      'SELECT batch_id FROM premium_access WHERE user_id = ? AND batch_id IS NOT NULL AND (expires_at IS NULL OR expires_at > ?)'
+    ).bind(userId, now).all();
+    for (const g of batchGrants.results) { userPremiumBatches.add(g.batch_id); }
+    
+    const examGrants = await db.prepare(
+      'SELECT exam_id FROM premium_access WHERE user_id = ? AND exam_id IS NOT NULL AND (expires_at IS NULL OR expires_at > ?)'
+    ).bind(userId, now).all();
+    for (const g of examGrants.results) { userPremiumExams.add(g.exam_id); }
+  }
+
+  // Build exam resource map with premium check
+  const examResourcesMap = {};
+  for (const r of allExamResources.results) {
+    const examId = r.exam_id;
+    
+    // Check if user can see this exam's resources
+    let canSee = false;
+    if (isAdmin) {
+      canSee = true;
+    } else if (!r.is_premium) {
+      canSee = true; // Free exam — resources visible to all
+    } else if (hasAccountPremium || userPremiumExams.has(examId)) {
+      canSee = true; // User has premium access to this exam
+    } else if (r.batch_id && userPremiumBatches.has(r.batch_id)) {
+      canSee = true; // User has batch premium
+    }
+    
+    if (canSee) {
+      if (!examResourcesMap[examId]) examResourcesMap[examId] = [];
+      examResourcesMap[examId].push({ id: r.id, title: r.title, link: r.link });
+    }
+  }
+
+  // Build batch resource map with premium check
   const batchResourcesMap = {};
   for (const r of allBatchResources.results) {
-    if (!batchResourcesMap[r.batch_id]) {
-      batchResourcesMap[r.batch_id] = { id: r.batch_id, name: r.batch_name, resources: [] };
+    const batchId = r.batch_id;
+    
+    // Check if all exams in this batch are accessible (or user has premium)
+    const batchExams = await db.prepare(
+      'SELECT id, is_premium FROM exams WHERE batch_id = ?'
+    ).bind(batchId).all();
+    
+    let canSeeBatch = false;
+    
+    if (isAdmin) {
+      canSeeBatch = true;
+    } else if (hasAccountPremium || userPremiumBatches.has(batchId)) {
+      canSeeBatch = true; // User has batch premium or account premium
+    } else if (batchExams.results.length > 0) {
+      // Check if ALL exams in this batch are free
+      const allFree = batchExams.results.every(e => !e.is_premium);
+      if (allFree) {
+        canSeeBatch = true; // All exams in batch are free — resources visible
+      }
     }
-    batchResourcesMap[r.batch_id].resources.push({ id: r.id, title: r.title, link: r.link });
+    
+    if (canSeeBatch) {
+      if (!batchResourcesMap[batchId]) {
+        batchResourcesMap[batchId] = { id: batchId, name: r.batch_name, resources: [] };
+      }
+      batchResourcesMap[batchId].resources.push({ id: r.id, title: r.title, link: r.link });
+    }
   }
   const batchResourcesList = Object.values(batchResourcesMap);
 
@@ -484,7 +612,7 @@ async function handleListExams(request, db) {
         `SELECT * FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1 LIMIT 1`
       ).bind(userId, exam.id).first();
       stored_attempt = sa || null;
-      accessible = await checkPremiumAccess(db, userId, exam.id, user.is_admin);
+      accessible = await checkPremiumAccess(db, userId, exam.id, isAdmin);
       
       if (exam.allow_practice) {
         if (exam.live_deadline_hours > 0) {
@@ -867,19 +995,13 @@ async function handleAdminRevokeAccountPremium(request, db) {
   return json({ success: true });
 }
 
-// ============================================================
-// ADMIN: BAN USER (reversible — blocks login, keeps data)
-// ============================================================
-
 async function handleAdminBanUser(userId, request, db, adminId) {
   const user = await db.prepare('SELECT id, device_fingerprint, created_ip FROM users WHERE id = ?').bind(userId).first();
   if (!user) return err('User not found', 404);
   if (user.is_admin) return err('Cannot ban an admin');
   
-  // Ban the user
   await db.prepare('UPDATE users SET is_banned = 1 WHERE id = ?').bind(userId).run();
   
-  // Record in banned_users
   await db.prepare(
     'INSERT INTO banned_users (user_id, device_fingerprint, ip_address, ban_type, banned_by) VALUES (?, ?, ?, ?, ?)'
   ).bind(userId, user.device_fingerprint || '', user.created_ip || '', 'ban', adminId).run();
@@ -887,26 +1009,15 @@ async function handleAdminBanUser(userId, request, db, adminId) {
   return json({ success: true, message: 'User banned successfully. They cannot login. Data preserved.' });
 }
 
-// ============================================================
-// ADMIN: UNBAN USER (reversible — restores access)
-// ============================================================
-
 async function handleAdminUnbanUser(userId, request, db) {
   const user = await db.prepare('SELECT id FROM users WHERE id = ?').bind(userId).first();
   if (!user) return err('User not found', 404);
   
-  // Unban the user
   await db.prepare('UPDATE users SET is_banned = 0 WHERE id = ?').bind(userId).run();
-  
-  // Remove from banned_users
   await db.prepare('DELETE FROM banned_users WHERE user_id = ? AND ban_type = ?').bind(userId, 'ban').run();
   
   return json({ success: true, message: 'User unbanned successfully. Access restored.' });
 }
-
-// ============================================================
-// ADMIN: DELETE USER (permanent — wipes all data + device ban)
-// ============================================================
 
 async function handleAdminDeleteUser(userId, request, db, adminId) {
   const user = await db.prepare('SELECT id, device_fingerprint, created_ip, is_admin FROM users WHERE id = ?').bind(userId).first();
@@ -916,7 +1027,6 @@ async function handleAdminDeleteUser(userId, request, db, adminId) {
   const fp = user.device_fingerprint || '';
   const ip = user.created_ip || '';
   
-  // Find all user IDs with same fingerprint or IP
   let relatedUserIds = [userId];
   
   if (fp) {
@@ -937,9 +1047,7 @@ async function handleAdminDeleteUser(userId, request, db, adminId) {
     }
   }
   
-  // Delete all data for all related users
   for (const uid of relatedUserIds) {
-    // Check not admin
     const u = await db.prepare('SELECT is_admin FROM users WHERE id = ?').bind(uid).first();
     if (u && u.is_admin) continue;
     
@@ -951,7 +1059,6 @@ async function handleAdminDeleteUser(userId, request, db, adminId) {
     await db.prepare('DELETE FROM users WHERE id = ?').bind(uid).run();
   }
   
-  // Add permanent device ban
   await db.prepare(
     'INSERT INTO banned_users (device_fingerprint, ip_address, ban_type, banned_by) VALUES (?, ?, ?, ?)'
   ).bind(fp, ip, 'delete', adminId).run();
@@ -1036,6 +1143,11 @@ export async function onRequest(context) {
   // Auth routes
   if (path === '/auth/signup' && method === 'POST') return handleSignup(request, db);
   if (path === '/auth/login' && method === 'POST') return handleLogin(request, db);
+  
+  // Master key routes (no auth required — uses temp token)
+  if (path === '/auth/master-key/status' && method === 'POST') return handleMasterKeyStatus(db);
+  if (path === '/auth/master-key/set' && method === 'POST') return handleMasterKeySet(request, db);
+  if (path === '/auth/master-key/verify' && method === 'POST') return handleMasterKeyVerify(request, db);
   
   // Batch routes
   if (path === '/batches' && method === 'GET') return handleListBatches(db);
@@ -1158,7 +1270,6 @@ export async function onRequest(context) {
     return handleAdminRevokeAccountPremium(request, db);
   }
   
-  // Admin: Ban & Delete users
   const adminBanUser = path.match(/^\/admin\/users\/(\d+)\/ban$/);
   if (adminBanUser && method === 'POST') {
     if (!admin) return err('Admin required', 403);
