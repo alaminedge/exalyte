@@ -651,7 +651,7 @@ async function handleGetExamQuestions(examId, request, db) {
   return json({ exam, questions: qs.results, exam_resources: examRes.results });
 }
 
-// FIXED: Only store first attempt, return correct/wrong/skipped counts
+// FIXED: Proper answer key matching with .toString()
 async function handleSubmitExam(examId, request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
@@ -673,8 +673,10 @@ async function handleSubmitExam(examId, request, db) {
   const detailedAnswers = {};
   
   for (const q of questions.results) {
-    const given = (answers[q.id] || answers[String(q.id)] || '').trim().toUpperCase();
-    const correct = q.correct_answer;
+    // Try both numeric and string keys
+    const rawGiven = answers[q.id] || answers[String(q.id)] || '';
+    const given = rawGiven.toString().trim().toUpperCase();
+    const correct = (q.correct_answer || '').toString().trim().toUpperCase();
     const isCorrect = given === correct;
     
     if (!given) {
@@ -693,14 +695,12 @@ async function handleSubmitExam(examId, request, db) {
   const percentage = total > 0 ? Math.round((score / total) * 10000) / 100 : 0;
   const answersJson = JSON.stringify(detailedAnswers);
   
-  // Check if first non-practice attempt already exists
   const existingFirst = await db.prepare(
     'SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1'
   ).bind(user.id, examId).first();
   
   let attemptId = null;
   
-  // ONLY store if: NOT practice AND first attempt doesn't exist yet
   if (!is_practice && !existingFirst) {
     const r1 = await db.prepare(
       `INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt)
