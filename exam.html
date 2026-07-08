@@ -441,7 +441,6 @@ async function startExam(){
   document.getElementById('agreementScreen').style.display='none';
   document.getElementById('examUI').style.display='flex';
   
-  // Show floating button on desktop, mobile footer on mobile
   if(window.innerWidth<=900){
     document.getElementById('floatingSubmit').style.display='none';
     document.getElementById('mobileFooter').classList.add('show');
@@ -587,7 +586,21 @@ async function doSubmit(){
   try{
     const{ok,data}=await apiFetch('/exams/'+examId+'/submit',{method:'POST',body:JSON.stringify({answers,is_practice:isPrac})});
     if(!ok){alert(data.error||'Submission failed');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now';return}
-    window.location.href=`result.html?examId=${examId}&attemptId=${data.attemptId}`;
+    
+    // If practice or no attemptId stored, pass data via URL
+    if(isPrac || !data.attemptId || data.attemptId == 0){
+      const params=new URLSearchParams({
+        examId:examId,
+        practice:'1',
+        score:data.score,
+        total:data.total,
+        percentage:data.percentage,
+        answers:JSON.stringify(answers)
+      });
+      window.location.href='result.html?'+params.toString();
+    }else{
+      window.location.href='result.html?examId='+examId+'&attemptId='+data.attemptId;
+    }
   }catch{alert('Network error.');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now'}
 }
 
