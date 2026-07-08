@@ -670,11 +670,8 @@ async function showPracticeResult(data){
   else if(pct>=40){gradeColor='#f9ab00';gradeLabel='Needs Work';}
   else{gradeColor='#d93025';gradeLabel='Keep Trying';}
   
-  let reviewQuestions=[];
-  try{
-    const{ok,data:qData}=await apiFetch('/exams/'+examId+'/questions');
-    if(ok)reviewQuestions=qData.questions||[];
-  }catch(e){}
+  // Use existing questions (same IDs as answers) instead of fetching
+  let reviewQuestions=questions;
   
   document.getElementById('examUI').style.display='none';
   document.getElementById('floatingSubmit').style.display='none';
@@ -744,11 +741,11 @@ async function showPracticeResult(data){
 }
 
 function renderPracticeReviewList(){
-  const questions=window._practiceQuestions||[];
+  const reviewQuestions=window._practiceQuestions||[];
   const userAnswers=window._practiceAnswers||{};
   const filter=window._practiceFilter||'all';
   
-  const filtered=questions.filter(q=>{
+  const filtered=reviewQuestions.filter(q=>{
     const given=String(userAnswers[q.id]||userAnswers[String(q.id)]||'').trim().toUpperCase();
     const correctAns=String(q.correct_answer||'').trim().toUpperCase();
     if(filter==='correct')return given&&given===correctAns;
