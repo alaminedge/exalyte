@@ -227,6 +227,28 @@ body{
 }
 .btn-secondary:hover{background:var(--hov)}
 
+/* Practice Result */
+.practice-result-wrap{
+  display:flex;align-items:center;justify-content:center;
+  padding:60px 20px;text-align:center;
+}
+.practice-ring-wrap{width:120px;height:120px;margin:0 auto 16px;position:relative}
+.practice-ring-wrap svg{transform:rotate(-90deg);width:120px;height:120px}
+.practice-ring-bg{fill:none;stroke:var(--hov);stroke-width:8}
+.practice-ring-fill{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:339;stroke-dashoffset:339;transition:stroke-dashoffset 1.4s ease}
+.practice-ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.practice-pct{font-family:var(--gs);font-size:1.8rem;font-weight:500;color:var(--t1)}
+.practice-pct-lbl{font-size:.6rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
+.practice-grade{font-family:var(--gs);font-size:1.2rem;font-weight:500;margin-bottom:4px}
+.practice-sub{font-size:.82rem;color:var(--t3);margin-bottom:20px}
+.practice-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:360px;margin:0 auto 18px}
+.practice-stat{background:var(--bg);border-radius:var(--r);padding:12px 8px;text-align:center}
+.practice-stat-val{font-family:var(--gs);font-size:1.3rem;font-weight:500}
+.practice-stat-lbl{font-size:.6rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
+.practice-correct .practice-stat-val{color:var(--green)}
+.practice-wrong .practice-stat-val{color:var(--red)}
+.practice-skip .practice-stat-val{color:var(--t3)}
+
 /* Tab Warning */
 .tab-warn{
   position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;
@@ -394,7 +416,6 @@ if(!getToken())window.location.href='/';
 let questions=[],answers={},marked={},exam=null;
 let timeLeft=0,timerInt=null,tabLeaves=0;
 
-// Header scroll
 let lastY=0,ticking=false;
 const header=document.getElementById('header');
 window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(()=>{const y=window.scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;ticking=false});ticking=true}},{passive:true});
@@ -573,6 +594,49 @@ function openSubmit(){
 }
 function closeSubmit(){document.getElementById('submitModal').classList.remove('open')}
 
+function showPracticeResult(data){
+  const pct=data.percentage||0;
+  const correct=data.correct||0;
+  const wrong=data.wrong||0;
+  const skipped=data.skipped||0;
+  
+  let gradeColor='#1e8e3e',gradeLabel='Excellent';
+  if(pct>=90){gradeColor='#1e8e3e';gradeLabel='Outstanding';}
+  else if(pct>=80){gradeColor='#1e8e3e';gradeLabel='Excellent';}
+  else if(pct>=60){gradeColor='#1a73e8';gradeLabel='Good';}
+  else if(pct>=40){gradeColor='#f9ab00';gradeLabel='Needs Work';}
+  else{gradeColor='#d93025';gradeLabel='Keep Trying';}
+  
+  document.getElementById('examUI').innerHTML=`
+    <div class="practice-result-wrap">
+      <div style="max-width:500px;width:100%">
+        <div class="practice-ring-wrap">
+          <svg viewBox="0 0 120 120">
+            <circle class="practice-ring-bg" cx="60" cy="60" r="54"/>
+            <circle class="practice-ring-fill" cx="60" cy="60" r="54" stroke="${gradeColor}" style="stroke-dasharray:339;stroke-dashoffset:${339-(pct/100)*339}"/>
+          </svg>
+          <div class="practice-ring-inner">
+            <div class="practice-pct">${pct.toFixed(1)}%</div>
+            <div class="practice-pct-lbl">Score</div>
+          </div>
+        </div>
+        <div class="practice-grade" style="color:${gradeColor}">${gradeLabel}</div>
+        <div class="practice-sub">Practice Result</div>
+        <div class="practice-stats">
+          <div class="practice-stat practice-correct"><div class="practice-stat-val">${correct}</div><div class="practice-stat-lbl">Correct</div></div>
+          <div class="practice-stat practice-wrong"><div class="practice-stat-val">${wrong}</div><div class="practice-stat-lbl">Wrong</div></div>
+          <div class="practice-stat practice-skip"><div class="practice-stat-val">${skipped}</div><div class="practice-stat-lbl">Skipped</div></div>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px">
+          <a href="dashboard.html" class="btn-secondary" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+          <a href="exam.html?id=${examId}&practice=1" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;font-family:var(--gs);font-size:.8rem;font-weight:500;border:none;border-radius:var(--r);background:var(--blue);color:#fff;text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Again</a>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('floatingSubmit').style.display='none';
+  document.getElementById('mobileFooter').classList.remove('show');
+}
+
 async function doSubmit(){
   clearInterval(timerInt);
   document.removeEventListener('visibilitychange',onVisChange);
@@ -587,19 +651,10 @@ async function doSubmit(){
     const{ok,data}=await apiFetch('/exams/'+examId+'/submit',{method:'POST',body:JSON.stringify({answers,is_practice:isPrac})});
     if(!ok){alert(data.error||'Submission failed');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now';return}
     
-    // If practice or no attemptId stored, pass data via URL
-    if(isPrac || !data.attemptId || data.attemptId == 0){
-      const params=new URLSearchParams({
-        examId:examId,
-        practice:'1',
-        score:data.score,
-        total:data.total,
-        percentage:data.percentage,
-        answers:JSON.stringify(answers)
-      });
-      window.location.href='result.html?'+params.toString();
+    if(isPrac){
+      showPracticeResult(data);
     }else{
-      window.location.href='result.html?examId='+examId+'&attemptId='+data.attemptId;
+      window.location.href='result.html?examId='+examId+'&attemptId='+(data.attemptId||0);
     }
   }catch{alert('Network error.');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now'}
 }
