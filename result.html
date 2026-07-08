@@ -269,7 +269,6 @@ body{
   </div>
 </header>
 
-<!-- Mobile Nav Dropdown -->
 <div class="mobile-nav-dropdown" id="mobileNavDropdown">
   <a href="dashboard.html">Dashboard</a>
   <a href="exam-history.html">History</a>
@@ -346,9 +345,11 @@ const isPractice=params.get('practice')==='1';
 const urlScore=params.get('score');
 const urlTotal=params.get('total');
 const urlPercentage=params.get('percentage');
+const urlCorrect=params.get('correct');
+const urlWrong=params.get('wrong');
+const urlSkipped=params.get('skipped');
 const urlAnswers=params.get('answers');
 
-// Allow practice mode without attemptId
 if(!examId)window.location.href='dashboard.html';
 if(!attemptId&&!isPractice)window.location.href='dashboard.html';
 if(!getToken())window.location.href='/';
@@ -360,7 +361,6 @@ const header=document.getElementById('header');
 let lastY=0,ticking=false;
 window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(()=>{const y=window.scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;ticking=false});ticking=true}},{passive:true});
 
-// Mobile nav
 function toggleMobileNav(){
   document.getElementById('mobileNavDropdown').classList.toggle('show');
 }
@@ -382,18 +382,11 @@ function showUrlPracticeResult(){
   const score=parseInt(urlScore)||0;
   const total=parseInt(urlTotal)||0;
   const percentage=parseFloat(urlPercentage)||0;
+  // FIXED: Use counts directly from URL instead of recalculating
+  const correct=parseInt(urlCorrect)||0;
+  const wrong=parseInt(urlWrong)||0;
+  const skipped=parseInt(urlSkipped)||0;
   const grade=gradeInfo(percentage);
-  
-  let correct=0,wrong=0,skipped=0;
-  try{
-    const rawAnswers=JSON.parse(urlAnswers||'{}');
-    questions.forEach(q=>{
-      const given=rawAnswers[q.id]||'';
-      if(!given)skipped++;
-      else if(given===q.correct_answer)correct++;
-      else wrong++;
-    });
-  }catch(e){}
   
   let html=`
   <div class="score-card">
@@ -442,9 +435,10 @@ function renderPracticeReview(){
   try{rawAnswers=JSON.parse(urlAnswers||'{}')}catch(e){}
   
   const filtered=questions.filter(q=>{
-    const given=rawAnswers[q.id]||'';
-    if(reviewFilter==='correct')return given===q.correct_answer;
-    if(reviewFilter==='wrong')return given&&given!==q.correct_answer;
+    const given=(rawAnswers[q.id]||rawAnswers[String(q.id)]||'').toString().trim().toUpperCase();
+    const correct=(q.correct_answer||'').toString().trim().toUpperCase();
+    if(reviewFilter==='correct')return given&&given===correct;
+    if(reviewFilter==='wrong')return given&&given!==correct;
     if(reviewFilter==='skipped')return!given;
     return true;
   });
@@ -461,19 +455,20 @@ function renderPracticeReview(){
   };
   
   document.getElementById('reviewList').innerHTML=filtered.map(q=>{
-    const given=rawAnswers[q.id]||'';
-    const st=given===q.correct_answer?'correct':given?'wrong':'skip';
+    const given=(rawAnswers[q.id]||rawAnswers[String(q.id)]||'').toString().trim().toUpperCase();
+    const correct=(q.correct_answer||'').toString().trim().toUpperCase();
+    const st=!given?'skip':given===correct?'correct':'wrong';
     const cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
     const opts=['A','B','C','D'].map(l=>{
-      const isCorrect=l===q.correct_answer;
+      const isCorrect=l===correct;
       const isYours=l===given&&!isCorrect;
       const optCls=isCorrect?'rv-opt-correct':isYours?'rv-opt-wrong':'';
       return`<div class="rv-opt ${optCls}"><div class="rv-ol">${l}</div><div style="flex:1;line-height:1.4">${esc(q['option_'+l.toLowerCase()])}</div></div>`;
     }).join('');
     
     let note='';
-    if(given&&given!==q.correct_answer)note=`<div class="rv-ans-note">Your answer: ${given} — Correct: ${q.correct_answer}</div>`;
-    else if(!given)note=`<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: ${q.correct_answer}</div>`;
+    if(given&&given!==correct)note=`<div class="rv-ans-note">Your answer: ${given} — Correct: ${correct}</div>`;
+    else if(!given)note=`<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: ${correct}</div>`;
     
     let exp='';
     if(q.explanation&&q.explanation.trim()){
@@ -496,13 +491,11 @@ function renderPracticeReview(){
 }
 
 async function loadResult(){
-  // If practice with URL data, show practice result directly
   if(isPractice&&urlScore){
     isUrlMode=true;
     document.getElementById('loadingState').style.display='none';
     document.getElementById('resultWrap').style.display='block';
     
-    // Fetch questions for review display
     try{
       const{ok,data}=await apiFetch('/exams/'+examId+'/questions');
       if(ok){questions=data.questions||[]}
@@ -512,7 +505,6 @@ async function loadResult(){
     return;
   }
   
-  // Normal result loading from API
   try{
     document.getElementById('loadingState').style.display='flex';
     document.getElementById('resultWrap').style.display='none';
