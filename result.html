@@ -44,7 +44,6 @@ body{
 }
 .header-nav a:hover{background:var(--hov);color:var(--t1)}
 
-/* Hamburger */
 .hamburger{
   display:none;background:none;border:none;cursor:pointer;
   color:var(--t3);padding:8px;border-radius:50%;
@@ -53,7 +52,6 @@ body{
 .hamburger:hover{background:var(--hov)}
 .hamburger svg{width:22px;height:22px}
 
-/* Mobile nav dropdown */
 .mobile-nav-dropdown{
   display:none;position:fixed;top:var(--hh);left:0;right:0;
   background:var(--surf);border-bottom:1px solid var(--border);
@@ -344,11 +342,19 @@ async function apiFetch(path,opts={}){
 const params=new URLSearchParams(location.search);
 const examId=params.get('examId');
 const attemptId=params.get('attemptId');
+const isPractice=params.get('practice')==='1';
+const urlScore=params.get('score');
+const urlTotal=params.get('total');
+const urlPercentage=params.get('percentage');
+const urlAnswers=params.get('answers');
 
-if(!examId||!attemptId)window.location.href='dashboard.html';
+// Allow practice mode without attemptId
+if(!examId)window.location.href='dashboard.html';
+if(!attemptId&&!isPractice)window.location.href='dashboard.html';
 if(!getToken())window.location.href='/';
 
 let attempt,questions,exam,userAnswers={},reviewFilter='all';
+let isUrlMode=false;
 
 const header=document.getElementById('header');
 let lastY=0,ticking=false;
@@ -372,7 +378,141 @@ function gradeInfo(pct){
   return{label:'Keep Trying',color:'#d93025'};
 }
 
+function showUrlPracticeResult(){
+  const score=parseInt(urlScore)||0;
+  const total=parseInt(urlTotal)||0;
+  const percentage=parseFloat(urlPercentage)||0;
+  const grade=gradeInfo(percentage);
+  
+  let correct=0,wrong=0,skipped=0;
+  try{
+    const rawAnswers=JSON.parse(urlAnswers||'{}');
+    questions.forEach(q=>{
+      const given=rawAnswers[q.id]||'';
+      if(!given)skipped++;
+      else if(given===q.correct_answer)correct++;
+      else wrong++;
+    });
+  }catch(e){}
+  
+  let html=`
+  <div class="score-card">
+    <div class="score-ring-wrap">
+      <svg viewBox="0 0 120 120">
+        <circle class="ring-bg" cx="60" cy="60" r="54"/>
+        <circle class="ring-fill" id="scRing" cx="60" cy="60" r="54" stroke="${grade.color}" style="stroke-dasharray:339;stroke-dashoffset:${339-(percentage/100)*339}"/>
+      </svg>
+      <div class="ring-inner">
+        <div class="ring-pct">${percentage.toFixed(1)}%</div>
+        <div class="ring-lbl">Score</div>
+      </div>
+    </div>
+    <div class="score-grade" style="color:${grade.color}">${grade.label}</div>
+    <div class="score-exam">Practice Result</div>
+    <div class="score-stats">
+      <div class="sc-stat sc-correct"><div class="sc-stat-val">${correct}</div><div class="sc-stat-lbl">Correct</div></div>
+      <div class="sc-stat sc-wrong"><div class="sc-stat-val">${wrong}</div><div class="sc-stat-lbl">Wrong</div></div>
+      <div class="sc-stat sc-skip"><div class="sc-stat-val">${skipped}</div><div class="sc-stat-lbl">Skipped</div></div>
+    </div>
+    <div class="perf-bar"><div class="perf-fill" style="width:${Math.max(percentage,2)}%;background:${grade.color}"></div></div>
+    <div class="result-actions">
+      <a href="dashboard.html" class="btn btn-outline"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a href="exam.html?id=${examId}&practice=1" class="btn btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Again</a>
+    </div>
+  </div>`;
+  
+  html+=`
+  <div class="review-head">
+    <h2>Question Review</h2>
+    <div class="chips">
+      <button class="chip active" data-f="all" onclick="setFilter(this,'all')">All</button>
+      <button class="chip" data-f="correct" onclick="setFilter(this,'correct')">Correct</button>
+      <button class="chip" data-f="wrong" onclick="setFilter(this,'wrong')">Wrong</button>
+      <button class="chip" data-f="skipped" onclick="setFilter(this,'skipped')">Skipped</button>
+    </div>
+  </div>
+  <div class="review-list" id="reviewList"></div>`;
+  
+  document.getElementById('resultWrap').innerHTML=html;
+  renderPracticeReview();
+}
+
+function renderPracticeReview(){
+  let rawAnswers={};
+  try{rawAnswers=JSON.parse(urlAnswers||'{}')}catch(e){}
+  
+  const filtered=questions.filter(q=>{
+    const given=rawAnswers[q.id]||'';
+    if(reviewFilter==='correct')return given===q.correct_answer;
+    if(reviewFilter==='wrong')return given&&given!==q.correct_answer;
+    if(reviewFilter==='skipped')return!given;
+    return true;
+  });
+  
+  if(!filtered.length){
+    document.getElementById('reviewList').innerHTML='<div class="empty-review">No questions in this filter.</div>';
+    return;
+  }
+  
+  const icons={
+    correct:'<polyline points="20 6 9 17 4 12"/>',
+    wrong:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    skipped:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
+  };
+  
+  document.getElementById('reviewList').innerHTML=filtered.map(q=>{
+    const given=rawAnswers[q.id]||'';
+    const st=given===q.correct_answer?'correct':given?'wrong':'skip';
+    const cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
+    const opts=['A','B','C','D'].map(l=>{
+      const isCorrect=l===q.correct_answer;
+      const isYours=l===given&&!isCorrect;
+      const optCls=isCorrect?'rv-opt-correct':isYours?'rv-opt-wrong':'';
+      return`<div class="rv-opt ${optCls}"><div class="rv-ol">${l}</div><div style="flex:1;line-height:1.4">${esc(q['option_'+l.toLowerCase()])}</div></div>`;
+    }).join('');
+    
+    let note='';
+    if(given&&given!==q.correct_answer)note=`<div class="rv-ans-note">Your answer: ${given} — Correct: ${q.correct_answer}</div>`;
+    else if(!given)note=`<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: ${q.correct_answer}</div>`;
+    
+    let exp='';
+    if(q.explanation&&q.explanation.trim()){
+      exp=`<div class="rv-explanation"><strong>Explanation</strong>${esc(q.explanation)}</div>`;
+    }
+    
+    return`<div class="rv-card ${cls}" id="rv${q.id}">
+      <div class="rv-header" onclick="toggleReview('${q.id}')">
+        <div class="rv-status"><svg viewBox="0 0 24 24">${icons[st]}</svg></div>
+        <div class="rv-q">${esc(q.question_text)}</div>
+        <svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="rv-body">
+        ${q.image_url?`<img src="${esc(q.image_url)}" style="max-width:100%;max-height:140px;border-radius:var(--r);margin-bottom:10px;border:1px solid var(--border);object-fit:contain" alt="">`:''}
+        <div class="rv-opts">${opts}</div>
+        ${note}${exp}
+      </div>
+    </div>`;
+  }).join('');
+}
+
 async function loadResult(){
+  // If practice with URL data, show practice result directly
+  if(isPractice&&urlScore){
+    isUrlMode=true;
+    document.getElementById('loadingState').style.display='none';
+    document.getElementById('resultWrap').style.display='block';
+    
+    // Fetch questions for review display
+    try{
+      const{ok,data}=await apiFetch('/exams/'+examId+'/questions');
+      if(ok){questions=data.questions||[]}
+    }catch(e){}
+    
+    showUrlPracticeResult();
+    return;
+  }
+  
+  // Normal result loading from API
   try{
     document.getElementById('loadingState').style.display='flex';
     document.getElementById('resultWrap').style.display='none';
@@ -410,14 +550,12 @@ async function loadResult(){
     questions=data.questions||[];
     exam=data.exam;
     
-    // Handle both string and already-parsed answers
     if(typeof attempt.answers==='string'){
       try{userAnswers=JSON.parse(attempt.answers||'{}')}catch(e){userAnswers={}}
     }else{
       userAnswers=attempt.answers||{};
     }
     
-    // Parse nested answer objects correctly
     let correct=0,wrong=0,skipped=0;
     questions.forEach(q=>{
       const ansData=userAnswers[q.id];
@@ -464,7 +602,6 @@ async function loadResult(){
       </div>
     </div>`;
     
-    // Leaderboard - only for non-practice
     if(!attempt.is_practice){
       try{
         const lbRes=await apiFetch('/leaderboard/'+examId);
@@ -570,7 +707,7 @@ function setFilter(btn,filter){
   document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
   btn.classList.add('active');
   reviewFilter=filter;
-  renderReview();
+  if(isUrlMode){renderPracticeReview()}else{renderReview()}
 }
 
 loadResult();
