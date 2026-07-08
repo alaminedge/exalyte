@@ -43,7 +43,6 @@ body{
   transition:all var(--tr);
 }
 .header-nav a:hover{background:var(--hov);color:var(--t1)}
-
 .hamburger{
   display:none;background:none;border:none;cursor:pointer;
   color:var(--t3);padding:8px;border-radius:50%;
@@ -51,7 +50,6 @@ body{
 }
 .hamburger:hover{background:var(--hov)}
 .hamburger svg{width:22px;height:22px}
-
 .mobile-nav-dropdown{
   display:none;position:fixed;top:var(--hh);left:0;right:0;
   background:var(--surf);border-bottom:1px solid var(--border);
@@ -63,7 +61,6 @@ body{
   color:var(--t2);text-decoration:none;border-radius:var(--r);
 }
 .mobile-nav-dropdown a:hover{background:var(--hov)}
-
 .header-right{display:flex;align-items:center;gap:8px}
 .icon-btn{
   width:40px;height:40px;border:none;background:none;border-radius:50%;
@@ -324,7 +321,6 @@ function getToken(){return localStorage.getItem('exalyte_token')}
 function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
 function logout(){localStorage.clear();window.location.href='/'}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function formatDate(iso){return iso?new Date(iso).toLocaleDateString():'—'}
 
 async function apiFetch(path,opts={}){
   const token=getToken();
@@ -382,7 +378,6 @@ function showUrlPracticeResult(){
   const score=parseInt(urlScore)||0;
   const total=parseInt(urlTotal)||0;
   const percentage=parseFloat(urlPercentage)||0;
-  // FIXED: Use counts directly from URL instead of recalculating
   const correct=parseInt(urlCorrect)||0;
   const wrong=parseInt(urlWrong)||0;
   const skipped=parseInt(urlSkipped)||0;
@@ -435,10 +430,10 @@ function renderPracticeReview(){
   try{rawAnswers=JSON.parse(urlAnswers||'{}')}catch(e){}
   
   const filtered=questions.filter(q=>{
-    const given=(rawAnswers[q.id]||rawAnswers[String(q.id)]||'').toString().trim().toUpperCase();
-    const correct=(q.correct_answer||'').toString().trim().toUpperCase();
-    if(reviewFilter==='correct')return given&&given===correct;
-    if(reviewFilter==='wrong')return given&&given!==correct;
+    const given=String(rawAnswers[q.id]||rawAnswers[String(q.id)]||'').trim().toUpperCase();
+    const correctAns=String(q.correct_answer||'').trim().toUpperCase();
+    if(reviewFilter==='correct')return given&&given===correctAns;
+    if(reviewFilter==='wrong')return given&&given!==correctAns;
     if(reviewFilter==='skipped')return!given;
     return true;
   });
@@ -455,20 +450,20 @@ function renderPracticeReview(){
   };
   
   document.getElementById('reviewList').innerHTML=filtered.map(q=>{
-    const given=(rawAnswers[q.id]||rawAnswers[String(q.id)]||'').toString().trim().toUpperCase();
-    const correct=(q.correct_answer||'').toString().trim().toUpperCase();
-    const st=!given?'skip':given===correct?'correct':'wrong';
+    const given=String(rawAnswers[q.id]||rawAnswers[String(q.id)]||'').trim().toUpperCase();
+    const correctAns=String(q.correct_answer||'').trim().toUpperCase();
+    const st=!given?'skip':given===correctAns?'correct':'wrong';
     const cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
     const opts=['A','B','C','D'].map(l=>{
-      const isCorrect=l===correct;
+      const isCorrect=l===correctAns;
       const isYours=l===given&&!isCorrect;
       const optCls=isCorrect?'rv-opt-correct':isYours?'rv-opt-wrong':'';
       return`<div class="rv-opt ${optCls}"><div class="rv-ol">${l}</div><div style="flex:1;line-height:1.4">${esc(q['option_'+l.toLowerCase()])}</div></div>`;
     }).join('');
     
     let note='';
-    if(given&&given!==correct)note=`<div class="rv-ans-note">Your answer: ${given} — Correct: ${correct}</div>`;
-    else if(!given)note=`<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: ${correct}</div>`;
+    if(given&&given!==correctAns)note=`<div class="rv-ans-note">Your answer: ${given} — Correct: ${correctAns}</div>`;
+    else if(!given)note=`<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: ${correctAns}</div>`;
     
     let exp='';
     if(q.explanation&&q.explanation.trim()){
