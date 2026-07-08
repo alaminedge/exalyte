@@ -700,7 +700,7 @@ async function showPracticeResult(data){
         <div class="sc-stat sc-wrong"><div class="sc-stat-val">${wrong}</div><div class="sc-stat-lbl">Wrong</div></div>
         <div class="sc-stat sc-skip"><div class="sc-stat-val">${skipped}</div><div class="sc-stat-lbl">Skipped</div></div>
       </div>
-      <div class="perf-bar"><div class="perf-fill" style="width:${Math.max(pct,2)}%;background:${grade.color}"></div></div>
+      <div class="perf-bar"><div class="perf-fill" style="width:${Math.max(pct,2)}%;background:${gradeColor}"></div></div>
       <div class="result-actions">
         <a href="dashboard.html" class="btn-secondary" style="text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
         <a href="exam.html?id=${examId}&practice=1" class="btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Again</a>
@@ -749,8 +749,8 @@ function renderPracticeReviewList(){
   const filter=window._practiceFilter||'all';
   
   const filtered=questions.filter(q=>{
-    const given=(userAnswers[q.id]||'').toString().trim().toUpperCase();
-    const correctAns=(q.correct_answer||'').toString().trim().toUpperCase();
+    const given=String(userAnswers[q.id]||userAnswers[String(q.id)]||'').trim().toUpperCase();
+    const correctAns=String(q.correct_answer||'').trim().toUpperCase();
     if(filter==='correct')return given&&given===correctAns;
     if(filter==='wrong')return given&&given!==correctAns;
     if(filter==='skipped')return!given;
@@ -772,12 +772,11 @@ function renderPracticeReviewList(){
   }
   
   list.innerHTML=filtered.map(q=>{
-    const given=(userAnswers[q.id]||'').toString().trim().toUpperCase();
-    const correctAns=(q.correct_answer||'').toString().trim().toUpperCase();
+    const given=String(userAnswers[q.id]||userAnswers[String(q.id)]||'').trim().toUpperCase();
+    const correctAns=String(q.correct_answer||'').trim().toUpperCase();
     const st=!given?'skip':given===correctAns?'correct':'wrong';
     const cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st]||'';
     
-    // Build options with proper highlighting
     const opts=['A','B','C','D'].map(l=>{
       const isCorrectOption=l===correctAns;
       const isYoursWrong=l===given&&l!==correctAns;
