@@ -162,6 +162,7 @@ body{
 }
 .option.selected .option-letter{background:var(--blue);color:#fff}
 .option-text{font-size:.82rem;color:var(--t2);line-height:1.4;flex:1}
+.option-img{max-width:100%;max-height:160px;border-radius:var(--r);border:1px solid var(--border);object-fit:contain}
 .q-footer{display:flex;align-items:center;gap:8px;margin-top:12px}
 .btn-mark{
   background:none;border:1px solid var(--border);color:var(--t3);
@@ -309,6 +310,7 @@ body{
   font-size:.78rem;color:var(--blue);line-height:1.6;text-align:left;
 }
 .rv-explanation strong{color:var(--t1);display:block;margin-bottom:3px;font-size:.68rem;text-transform:uppercase;letter-spacing:.3px}
+.rv-explanation-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:10px;border:1px solid var(--border);object-fit:contain}
 
 /* Tab Warning */
 .tab-warn{
@@ -478,6 +480,30 @@ function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null
 function logout(){localStorage.clear();window.location.href='/'}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
+// Helper: check if a string is an image URL
+function isImageURL(str){
+  if(!str)return false;
+  const s=str.trim();
+  return (s.startsWith('http')&&(s.includes('.jpg')||s.includes('.jpeg')||s.includes('.png')||s.includes('.webp')||s.includes('.gif')||s.includes('ibb.co')||s.includes('images.unsplash.com')||s.includes('i.imgur.com')));
+}
+
+// Render option content: text or image
+function renderOptionContent(text){
+  if(isImageURL(text)){
+    return`<img src="${esc(text)}" class="option-img" alt="Option" onerror="this.style.display='none'">`;
+  }
+  return esc(text||'');
+}
+
+// Render explanation content: text or image
+function renderExplanationContent(text){
+  if(!text)return'';
+  if(isImageURL(text)){
+    return`<img src="${esc(text)}" class="rv-explanation-img" alt="Explanation" onerror="this.style.display='none'">`;
+  }
+  return esc(text);
+}
+
 async function apiFetch(path,opts={}){
   const token=getToken();
   const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};
@@ -568,11 +594,12 @@ window.addEventListener('resize',()=>{
 function buildUI(){
   document.getElementById('questionsArea').innerHTML=questions.map((q,i)=>`
     <div class="q-card" id="qc${q.id}">
-      <div class="q-top"><div class="q-num">${i+1}</div><div class="q-text">${esc(q.question_text)}</div></div>
+      <div class="q-top"><div class="q-num">${i+1}</div><div class="q-text">${esc(q.question_text||'')}</div></div>
       ${q.image_url?`<img src="${esc(q.image_url)}" class="q-img" alt="" onerror="this.style.display='none'">`:''}
       <div class="options" id="opts${q.id}">${['A','B','C','D'].map(l=>`
         <div class="option" id="opt${q.id}${l}" onclick="pick(event,${q.id},'${l}')">
-          <div class="option-letter">${l}</div><div class="option-text">${esc(q['option_'+l.toLowerCase()])}</div>
+          <div class="option-letter">${l}</div>
+          <div class="option-text">${renderOptionContent(q['option_'+l.toLowerCase()])}</div>
         </div>`).join('')}
       </div>
       <div class="q-footer">
@@ -827,7 +854,8 @@ function renderPracticeReviewList(){
       let optCls='';
       if(isCorrectOption)optCls='rv-opt-correct';
       else if(isYoursWrong)optCls='rv-opt-wrong';
-      return`<div class="rv-opt ${optCls}"><div class="rv-ol">${l}</div><div style="flex:1;line-height:1.4">${esc(q['option_'+l.toLowerCase()])}</div></div>`;
+      const optText=q['option_'+l.toLowerCase()]||'';
+      return`<div class="rv-opt ${optCls}"><div class="rv-ol">${l}</div><div style="flex:1;line-height:1.4">${renderOptionContent(optText)}</div></div>`;
     }).join('');
     
     let note='';
@@ -836,17 +864,16 @@ function renderPracticeReviewList(){
     
     let exp='';
     if(q.explanation&&q.explanation.trim()){
-      exp=`<div class="rv-explanation"><strong>Explanation</strong>${esc(q.explanation)}</div>`;
+      exp=`<div class="rv-explanation">${renderExplanationContent(q.explanation)}</div>`;
     }
     
     return`<div class="rv-card ${cls}" onclick="this.classList.toggle('open')">
       <div class="rv-header">
         <div class="rv-status"><svg viewBox="0 0 24 24">${icons[st]}</svg></div>
-        <div class="rv-q">${esc(q.question_text)}</div>
+        <div class="rv-q">${esc(q.question_text||'')}${q.image_url?`<br><img src="${esc(q.image_url)}" style="max-width:100%;max-height:140px;border-radius:4px;margin-top:6px;border:1px solid #dadce0;object-fit:contain" alt="">`:''}</div>
         <svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
       <div class="rv-body">
-        ${q.image_url?`<img src="${esc(q.image_url)}" style="max-width:100%;max-height:140px;border-radius:4px;margin-bottom:10px;border:1px solid #dadce0;object-fit:contain" alt="">`:''}
         <div class="rv-opts">${opts}</div>
         ${note}${exp}
       </div>
