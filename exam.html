@@ -483,31 +483,23 @@ function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null
 function logout(){localStorage.clear();window.location.href='/'}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
-// Helper: check if a string is an image URL
 function isImageURL(str){
   if(!str)return false;
   const s=str.trim();
   return (s.startsWith('http')&&(s.includes('.jpg')||s.includes('.jpeg')||s.includes('.png')||s.includes('.webp')||s.includes('.gif')||s.includes('ibb.co')||s.includes('images.unsplash.com')||s.includes('i.imgur.com')));
 }
 
-// Render option content: text or image
 function renderOptionContent(text){
-  if(isImageURL(text)){
-    return`<img src="${esc(text)}" class="option-img" alt="Option" onerror="this.style.display='none'">`;
-  }
+  if(isImageURL(text))return`<img src="${esc(text)}" class="option-img" alt="Option" onerror="this.style.display='none'">`;
   return esc(text||'');
 }
 
-// Render explanation content: text or image
 function renderExplanationContent(text){
   if(!text)return'';
-  if(isImageURL(text)){
-    return`<img src="${esc(text)}" class="rv-explanation-img" alt="Explanation" onerror="this.style.display='none'">`;
-  }
+  if(isImageURL(text))return`<img src="${esc(text)}" class="rv-explanation-img" alt="Explanation" onerror="this.style.display='none'">`;
   return esc(text);
 }
 
-// Format seconds to min:sec display
 function formatTimeTaken(seconds){
   if(!seconds||seconds<=0)return'';
   const min=Math.floor(seconds/60);
@@ -516,7 +508,6 @@ function formatTimeTaken(seconds){
   return sec+'s';
 }
 
-// Format avg time per question
 function formatAvgTime(seconds,total){
   if(!seconds||!total||seconds<=0||total<=0)return'';
   const avg=seconds/total;
@@ -579,7 +570,8 @@ async function startExam(){
   document.getElementById('agreeBtn').disabled=true;
   document.getElementById('agreeBtn').textContent='Loading...';
   try{
-    const{ok,data}=await apiFetch('/exams/'+examId+'/questions');
+    // FIXED: Send practice parameter to backend for validation
+    const{ok,data}=await apiFetch('/exams/'+examId+'/questions?practice='+(isPrac?'1':'0'));
     if(!ok){alert(data.error||'Cannot load questions.');window.location.href='dashboard.html';return}
     questions=data.questions||[];
     if(!questions.length){alert('This exam has no questions yet.');window.location.href='dashboard.html';return}
@@ -745,7 +737,6 @@ async function showPracticeResult(data){
   let timeHTML='';
   if(timeTaken>0){
     const timeMin=(timeTaken/60).toFixed(1);
-    const avgSec=Math.round(timeTaken/totalQuestions);
     timeHTML=`
     <div class="time-info">
       <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: ${timeMin} min / ${exam.time_limit} min</span>
@@ -799,52 +790,25 @@ async function showPracticeResult(data){
   <footer class="footer">
     <div class="footer-inner">
       <div class="fc">
-        <div class="footer-brand">
-          <img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'">
-          <span style="font-family:'Google Sans',sans-serif;font-size:1rem;font-weight:500;color:#3c4043">Exalyte</span>
-        </div>
+        <div class="footer-brand"><img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'"><span style="font-family:'Google Sans',sans-serif;font-size:1rem;font-weight:500;color:#3c4043">Exalyte</span></div>
         <p>A precision examination platform built for students who want to perform, not just prepare.</p>
       </div>
-      <div class="fc">
-        <h4>Platform</h4>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="exam-history.html">Exam History</a>
-      </div>
-      <div class="fc">
-        <h4>Legal</h4>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="tos.html">Terms of Service</a>
-        <a href="contact.html">Contact</a>
-      </div>
+      <div class="fc"><h4>Platform</h4><a href="dashboard.html">Dashboard</a><a href="exam-history.html">Exam History</a></div>
+      <div class="fc"><h4>Legal</h4><a href="privacy.html">Privacy Policy</a><a href="tos.html">Terms of Service</a><a href="contact.html">Contact</a></div>
     </div>
-    <div class="footer-bottom">
-      <span>&copy; 2025 Exalyte — SciVerse Academy. All rights reserved.</span>
-      <div class="footer-links">
-        <a href="privacy.html">Privacy</a>
-        <a href="tos.html">Terms</a>
-      </div>
-    </div>
+    <div class="footer-bottom"><span>&copy; 2025 Exalyte — SciVerse Academy. All rights reserved.</span><div class="footer-links"><a href="privacy.html">Privacy</a><a href="tos.html">Terms</a></div></div>
   </footer>`;
   
   const main=document.querySelector('.main');
   if(!main){
-    const m=document.createElement('div');
-    m.className='main';
-    m.style.flex='1';
-    m.style.paddingTop='64px';
-    m.innerHTML=html;
+    const m=document.createElement('div');m.className='main';m.style.flex='1';m.style.paddingTop='64px';m.innerHTML=html;
     document.body.insertBefore(m,document.querySelector('.modal-overlay'));
-  }else{
-    main.innerHTML=html;
-    main.style.paddingTop='64px';
-  }
+  }else{main.innerHTML=html;main.style.paddingTop='64px';}
   
   window.scrollTo({top:0,behavior:'instant'});
-  
   window._practiceQuestions=questions;
   window._practiceDetailed=detailed;
   window._practiceFilter='all';
-  
   if(questions.length>0)renderPracticeReviewList();
 }
 
@@ -870,11 +834,7 @@ function renderPracticeReviewList(){
   
   const list=document.getElementById('practiceReviewList');
   if(!list)return;
-  
-  if(!filtered.length){
-    list.innerHTML='<div style="text-align:center;padding:40px;color:#5f6368;font-size:.82rem">No questions in this filter.</div>';
-    return;
-  }
+  if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:40px;color:#5f6368;font-size:.82rem">No questions in this filter.</div>';return;}
   
   list.innerHTML=filtered.map(q=>{
     const detail=detailed[q.id]||{};
@@ -899,20 +859,11 @@ function renderPracticeReviewList(){
     else if(!given)note=`<div class="rv-ans-note" style="color:#5f6368">Not answered — Correct: ${correctAns}</div>`;
     
     let exp='';
-    if(q.explanation&&q.explanation.trim()){
-      exp=`<div class="rv-explanation">${renderExplanationContent(q.explanation)}</div>`;
-    }
+    if(q.explanation&&q.explanation.trim())exp=`<div class="rv-explanation">${renderExplanationContent(q.explanation)}</div>`;
     
     return`<div class="rv-card ${cls}" onclick="this.classList.toggle('open')">
-      <div class="rv-header">
-        <div class="rv-status"><svg viewBox="0 0 24 24">${icons[st]}</svg></div>
-        <div class="rv-q">${esc(q.question_text||'')}${q.image_url?`<br><img src="${esc(q.image_url)}" style="max-width:100%;max-height:140px;border-radius:4px;margin-top:6px;border:1px solid #dadce0;object-fit:contain" alt="">`:''}</div>
-        <svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>
-      <div class="rv-body">
-        <div class="rv-opts">${opts}</div>
-        ${note}${exp}
-      </div>
+      <div class="rv-header"><div class="rv-status"><svg viewBox="0 0 24 24">${icons[st]}</svg></div><div class="rv-q">${esc(q.question_text||'')}${q.image_url?`<br><img src="${esc(q.image_url)}" style="max-width:100%;max-height:140px;border-radius:4px;margin-top:6px;border:1px solid #dadce0;object-fit:contain" alt="">`:''}</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+      <div class="rv-body"><div class="rv-opts">${opts}</div>${note}${exp}</div>
     </div>`;
   }).join('');
 }
@@ -942,11 +893,8 @@ async function doSubmit(){
     const{ok,data}=await apiFetch('/exams/'+examId+'/submit',{method:'POST',body:JSON.stringify({answers,is_practice:isPrac,time_taken_seconds:actualTime})});
     if(!ok){alert(data.error||'Submission failed');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now';return}
     
-    if(isPrac){
-      showPracticeResult(data);
-    }else{
-      window.location.href='result.html?examId='+examId+'&attemptId='+(data.attemptId||0);
-    }
+    if(isPrac){showPracticeResult(data)}
+    else{window.location.href='result.html?examId='+examId+'&attemptId='+(data.attemptId||0)}
   }catch{alert('Network error.');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now'}
 }
 
