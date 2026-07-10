@@ -74,9 +74,10 @@ body{
 }
 .badge-blue{background:#e8f0fe;color:var(--blue)}
 .badge-red{background:var(--red-bg);color:var(--red)}
+.badge-scheduled-badge{background:var(--yel-bg);color:#e37400;border:1px solid rgba(249,171,0,.3)}
 .agree-title{font-family:var(--gs);font-size:1.4rem;font-weight:500;color:var(--t1);margin-bottom:6px}
 .agree-sub{font-size:.85rem;color:var(--t3);margin-bottom:20px}
-.agree-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.agree-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;justify-content:flex-start}
 .agree-meta-item{
   display:flex;align-items:center;gap:5px;font-size:.72rem;
   color:var(--t3);padding:4px 10px;border:1px solid var(--border);
@@ -107,6 +108,13 @@ body{
 }
 .btn-back:hover{color:var(--t1)}
 .btn-back svg{width:14px;height:14px;stroke:currentColor;fill:none}
+
+/* Scheduled countdown */
+.scheduled-countdown-wrap{text-align:center;padding:24px 0}
+.scheduled-countdown-display{font-family:var(--gs);font-size:2rem;font-weight:500;color:#e37400;margin-bottom:8px}
+.scheduled-countdown-label{font-size:.8rem;color:var(--t4)}
+.scheduled-date-row{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--t3);justify-content:center}
+.scheduled-date-row svg{width:12px;height:12px;stroke:currentColor;fill:none}
 
 /* Exam UI */
 #examUI{display:none;flex-direction:column;min-height:calc(100vh - var(--hh))}
@@ -389,7 +397,7 @@ body{
     </a>
   </div>
   <div class="header-right">
-    <div class="timer-box" id="timerBox">
+    <div class="timer-box" id="timerBox" style="display:none">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span class="timer-val" id="timerVal">--:--</span>
     </div>
@@ -415,13 +423,13 @@ body{
     <div class="agree-title" id="agreeTitle">Loading...</div>
     <div class="agree-sub" id="agreeDesc" style="display:none"></div>
     <div class="agree-meta" id="agreeMeta"></div>
-    <div class="agree-rules">
+    <div class="agree-rules" id="agreeRules">
       <div class="agree-rule"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>The timer starts immediately. You cannot pause it.</span></div>
       <div class="agree-rule" id="tabRule" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span>Do not switch tabs or windows. You get 2 warnings then auto-submit.</span></div>
       <div class="agree-rule"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Once submitted, your answers cannot be changed.</span></div>
       <div class="agree-rule" id="negRule" style="display:none"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg><span id="negRuleText">Negative marking applies to wrong answers.</span></div>
     </div>
-    <div class="agree-check" onclick="toggleAgree()">
+    <div class="agree-check" id="agreeCheckWrap" onclick="toggleAgree()">
       <input type="checkbox" id="agreeCheck" onclick="event.stopPropagation()">
       <label for="agreeCheck">I have read and understood the exam rules. I agree to attempt this exam honestly.</label>
     </div>
@@ -515,6 +523,20 @@ function formatAvgTime(seconds,total){
   return (avg/60).toFixed(1)+'m/Q';
 }
 
+function formatCountdown(sec){
+  if(sec<=0)return'0s';
+  const d=Math.floor(sec/86400);
+  const h=Math.floor((sec%86400)/3600);
+  const m=Math.floor((sec%3600)/60);
+  const s=sec%60;
+  const p=[];
+  if(d>0)p.push(d+'d');
+  if(h>0)p.push(h+'h');
+  if(m>0)p.push(m+'m');
+  if(s>0||p.length===0)p.push(s+'s');
+  return p.join(' ');
+}
+
 async function apiFetch(path,opts={}){
   const token=getToken();
   const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};
@@ -532,6 +554,7 @@ if(!getToken())window.location.href='/';
 let questions=[],answers={},marked={},exam=null;
 let timeLeft=0,timerInt=null,tabLeaves=0;
 let examStartTime=0;
+let scheduledExamInterval=null;
 
 let lastY=0,ticking=false;
 const header=document.getElementById('header');
@@ -544,6 +567,17 @@ async function loadAgreement(){
     const exams=(data.exams||[]);
     exam=exams.find(e=>e.id==examId);
     if(!exam){window.location.href='dashboard.html';return}
+    
+    // ── CHECK IF EXAM IS SCHEDULED FOR FUTURE ──
+    if(exam.scheduled_at){
+      const scheduledTime = new Date(exam.scheduled_at).getTime();
+      const now = Date.now();
+      if(now < scheduledTime){
+        showScheduledCountdown(exam, scheduledTime);
+        return;
+      }
+    }
+    // ─────────────────────────────────────────────
     
     document.getElementById('agreeTitle').textContent=exam.name+(isPrac?' — Practice':'');
     const badge=document.getElementById('agreeTypeBadge');
@@ -563,6 +597,63 @@ async function loadAgreement(){
   }catch(e){window.location.href='dashboard.html'}
 }
 
+// ── SCHEDULED COUNTDOWN ON EXAM PAGE ──
+function showScheduledCountdown(examData, scheduledTime){
+  if(scheduledExamInterval) clearInterval(scheduledExamInterval);
+  
+  const card = document.querySelector('.agree-card');
+  const remaining = Math.max(0, Math.floor((scheduledTime - Date.now()) / 1000));
+  
+  card.innerHTML = `
+    <button class="btn-back" onclick="window.location.href='dashboard.html'">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back to Dashboard
+    </button>
+    <div class="agree-logo">
+      <img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:50%" onerror="this.style.display='none'">
+      <span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1)">Exalyte</span>
+    </div>
+    <div class="agree-badge badge-scheduled-badge">Scheduled</div>
+    <div class="agree-title">${esc(examData.name)}</div>
+    <div class="agree-sub" style="display:block">This exam is scheduled for a future date. You cannot access it until the scheduled time.</div>
+    <div class="scheduled-countdown-wrap">
+      <div class="scheduled-countdown-display" id="scheduledExamCountdown">${formatCountdown(remaining)}</div>
+      <div class="scheduled-countdown-label">until exam opens</div>
+    </div>
+    <div class="agree-meta" style="justify-content:center">
+      <span class="agree-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${examData.time_limit}m</span>
+      <span class="agree-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${new Date(examData.scheduled_at).toLocaleString()}</span>
+      ${examData.question_count ? `<span class="agree-meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>${examData.question_count} Q</span>` : ''}
+    </div>
+    <button class="btn-agree" disabled id="scheduledAgreeBtn" style="background:var(--hov);color:var(--t4);cursor:not-allowed">
+      ${formatCountdown(remaining)} remaining
+    </button>
+  `;
+  
+  let r = remaining;
+  scheduledExamInterval = setInterval(() => {
+    r--;
+    const countdownEl = document.getElementById('scheduledExamCountdown');
+    const btnEl = document.getElementById('scheduledAgreeBtn');
+    
+    if(r <= 0){
+      if(countdownEl) countdownEl.textContent = 'Available now';
+      if(btnEl){
+        btnEl.textContent = 'Begin Exam';
+        btnEl.disabled = false;
+        btnEl.style.background = 'var(--blue)';
+        btnEl.style.color = '#fff';
+        btnEl.style.cursor = 'pointer';
+        btnEl.onclick = function(){ loadAgreement(); };
+      }
+      clearInterval(scheduledExamInterval);
+    } else {
+      if(countdownEl) countdownEl.textContent = formatCountdown(r);
+      if(btnEl) btnEl.textContent = formatCountdown(r) + ' remaining';
+    }
+  }, 1000);
+}
+// ─────────────────────────────────────
+
 function toggleAgree(){const cb=document.getElementById('agreeCheck');cb.checked=!cb.checked;document.getElementById('agreeBtn').disabled=!cb.checked}
 document.getElementById('agreeCheck').addEventListener('change',e=>{document.getElementById('agreeBtn').disabled=!e.target.checked});
 
@@ -570,7 +661,6 @@ async function startExam(){
   document.getElementById('agreeBtn').disabled=true;
   document.getElementById('agreeBtn').textContent='Loading...';
   try{
-    // FIXED: Send practice parameter to backend for validation
     const{ok,data}=await apiFetch('/exams/'+examId+'/questions?practice='+(isPrac?'1':'0'));
     if(!ok){alert(data.error||'Cannot load questions.');window.location.href='dashboard.html';return}
     questions=data.questions||[];
@@ -579,6 +669,7 @@ async function startExam(){
   
   document.getElementById('agreementScreen').style.display='none';
   document.getElementById('examUI').style.display='flex';
+  document.getElementById('timerBox').style.display='flex';
   
   if(window.innerWidth<=900){
     document.getElementById('floatingSubmit').style.display='none';
@@ -733,6 +824,7 @@ async function showPracticeResult(data){
   document.getElementById('examUI').style.display='none';
   document.getElementById('floatingSubmit').style.display='none';
   document.getElementById('mobileFooter').classList.remove('show');
+  document.getElementById('timerBox').style.display='none';
   
   let timeHTML='';
   if(timeTaken>0){
