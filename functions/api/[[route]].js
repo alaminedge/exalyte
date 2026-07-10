@@ -128,6 +128,7 @@ async function initDB(db) {
       results_published INTEGER DEFAULT 0,
       publish_after_hours INTEGER DEFAULT 0,
       leaderboard_enabled INTEGER DEFAULT 1,
+      is_closed INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE TABLE IF NOT EXISTS questions (
@@ -150,6 +151,7 @@ async function initDB(db) {
       total_questions INTEGER DEFAULT 0,
       percentage REAL DEFAULT 0,
       answers TEXT,
+      time_taken_seconds INTEGER DEFAULT 0,
       submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE TABLE IF NOT EXISTS exam_results_stored (
@@ -160,6 +162,7 @@ async function initDB(db) {
       total_questions INTEGER DEFAULT 0,
       percentage REAL DEFAULT 0,
       answers TEXT,
+      time_taken_seconds INTEGER DEFAULT 0,
       submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       attempt_number INTEGER DEFAULT 1,
       is_first_attempt INTEGER DEFAULT 1,
@@ -214,6 +217,9 @@ async function initDB(db) {
   try { await db.prepare(`ALTER TABLE users ADD COLUMN device_fingerprint TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE users ADD COLUMN created_ip TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE users ADD COLUMN is_banned INTEGER DEFAULT 0`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE exams ADD COLUMN is_closed INTEGER DEFAULT 0`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE exam_attempts ADD COLUMN time_taken_seconds INTEGER DEFAULT 0`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE exam_results_stored ADD COLUMN time_taken_seconds INTEGER DEFAULT 0`).run(); } catch (e) {}
 
   const adminHash = await sha256('Admin@2024');
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind('admin@exalyte.com').first();
@@ -600,7 +606,7 @@ async function handleListExams(request, db) {
       stored_attempt = sa || null;
       accessible = await checkPremiumAccess(db, userId, exam.id, isAdmin);
       
-      if (exam.allow_practice) {
+      if (exam.allow_practice && !exam.is_closed) {
         if (exam.live_deadline_hours > 0) {
           can_practice = live.live_ended && !!stored_attempt;
         } else {
@@ -639,10 +645,14 @@ async function handleGetExamQuestions(examId, request, db) {
   const exam = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   if (!exam) return err('Exam not found', 404);
   
+  // Block if exam is closed
+  if (exam.is_closed && !user.is_admin) {
+    return err('This exam is currently closed.', 403);
+  }
+  
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
   
-  // Block loading questions if practice is disabled
   const url = new URL(request.url);
   const isPractice = url.searchParams.get('practice') === '1';
   if (isPractice && !exam.allow_practice) {
@@ -662,14 +672,18 @@ async function handleSubmitExam(examId, request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
   
-  const { answers, is_practice } = await request.json();
+  const { answers, is_practice, time_taken_seconds } = await request.json();
   const exam = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   if (!exam) return err('Exam not found', 404);
+  
+  // Block if exam is closed
+  if (exam.is_closed && !user.is_admin) {
+    return err('This exam is currently closed.', 403);
+  }
   
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
   
-  // Block submission if practice is disabled
   if (is_practice && !exam.allow_practice) {
     return err('Practice mode is not available for this exam.', 403);
   }
@@ -704,6 +718,7 @@ async function handleSubmitExam(examId, request, db) {
   
   const percentage = total > 0 ? Math.round((score / total) * 10000) / 100 : 0;
   const answersJson = JSON.stringify(detailedAnswers);
+  const timeTaken = time_taken_seconds || 0;
   
   const existingFirst = await db.prepare(
     'SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1'
@@ -713,13 +728,13 @@ async function handleSubmitExam(examId, request, db) {
   
   if (!is_practice && !existingFirst) {
     const r1 = await db.prepare(
-      `INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
-    ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson, 0, 1).first();
+      `INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt, time_taken_seconds)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
+    ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson, 0, 1, timeTaken).first();
     
     await db.prepare(
-      `INSERT INTO exam_attempts (user_id, exam_id, score, total_questions, percentage, answers) VALUES (?, ?, ?, ?, ?, ?)`
-    ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson).run();
+      `INSERT INTO exam_attempts (user_id, exam_id, score, total_questions, percentage, answers, time_taken_seconds) VALUES (?, ?, ?, ?, ?, ?, ?)`
+    ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson, timeTaken).run();
     
     attemptId = r1.id;
   } else if (existingFirst) {
@@ -734,7 +749,8 @@ async function handleSubmitExam(examId, request, db) {
     correct: correctCount,
     wrong: wrongCount,
     skipped: skippedCount,
-    detailed: detailedAnswers
+    detailed: detailedAnswers,
+    time_taken_seconds: timeTaken
   });
 }
 
@@ -757,7 +773,7 @@ async function handleGetResult(examId, attemptId, request, db) {
   if (attemptId == 0 || !attemptId) {
     const questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
     return json({ 
-      attempt: { id: 0, score: 0, total_questions: questions.results.length, percentage: 0, answers: '{}', is_practice: 1 }, 
+      attempt: { id: 0, score: 0, total_questions: questions.results.length, percentage: 0, answers: '{}', is_practice: 1, time_taken_seconds: 0 }, 
       questions: questions.results, 
       exam, 
       results_published: true 
@@ -1104,22 +1120,79 @@ async function handleAdminDeleteUser(userId, request, db, adminId) {
   return json({ success: true, message: `${count} account(s) permanently deleted. Device banned from future signups.` });
 }
 
+async function handleAdminToggleExam(examId, request, db) {
+  const { is_closed } = await request.json();
+  await db.prepare('UPDATE exams SET is_closed = ? WHERE id = ?').bind(is_closed ? 1 : 0, examId).run();
+  return json({ success: true, is_closed: is_closed ? 1 : 0 });
+}
+
 async function handleAdminResults(examId, db) {
   const query = examId
-    ? `SELECT ers.*, u.name as user_name, u.email as user_email, e.name as exam_name 
+    ? `SELECT ers.*, u.name as user_name, u.email as user_email, e.name as exam_name, e.time_limit,
+       ROW_NUMBER() OVER (ORDER BY ers.percentage DESC, ers.submitted_at ASC) as rank
        FROM exam_results_stored ers 
        JOIN users u ON ers.user_id = u.id 
        JOIN exams e ON ers.exam_id = e.id 
        WHERE ers.exam_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0 
-       ORDER BY ers.submitted_at DESC`
-    : `SELECT ers.*, u.name as user_name, u.email as user_email, e.name as exam_name 
+       ORDER BY ers.percentage DESC, ers.submitted_at ASC`
+    : `SELECT ers.*, u.name as user_name, u.email as user_email, e.name as exam_name, e.time_limit,
+       ROW_NUMBER() OVER (ORDER BY ers.percentage DESC, ers.submitted_at ASC) as rank
        FROM exam_results_stored ers 
        JOIN users u ON ers.user_id = u.id 
        JOIN exams e ON ers.exam_id = e.id 
        WHERE ers.is_first_attempt = 1 AND ers.is_practice = 0 
-       ORDER BY ers.submitted_at DESC`;
+       ORDER BY ers.percentage DESC, ers.submitted_at ASC`;
   const rows = examId ? await db.prepare(query).bind(examId).all() : await db.prepare(query).all();
   return json(rows.results);
+}
+
+async function handleAdminDownloadResults(examId, db) {
+  const rows = await db.prepare(`
+    SELECT u.name as user_name, u.email as user_email, e.name as exam_name, e.time_limit,
+           ers.score, ers.total_questions, ers.percentage, ers.time_taken_seconds, ers.submitted_at,
+           ROW_NUMBER() OVER (ORDER BY ers.percentage DESC, ers.submitted_at ASC) as rank
+    FROM exam_results_stored ers 
+    JOIN users u ON ers.user_id = u.id 
+    JOIN exams e ON ers.exam_id = e.id 
+    WHERE ers.exam_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0 
+    ORDER BY ers.percentage DESC, ers.submitted_at ASC
+  `).bind(examId).all();
+  
+  const results = rows.results;
+  if (!results.length) return err('No results found', 404);
+  
+  const examName = results[0].exam_name;
+  const timeLimit = results[0].time_limit || 30;
+  
+  let txt = `Exam: ${examName}\n`;
+  txt += `Total Time: ${timeLimit} min\n`;
+  txt += `Total Participants: ${results.length}\n`;
+  txt += `Date: ${new Date().toLocaleDateString()}\n`;
+  txt += `${'─'.repeat(80)}\n`;
+  txt += `Rank  Name                 Score    Percentage  Time Taken    Email\n`;
+  txt += `${'─'.repeat(80)}\n`;
+  
+  for (const r of results) {
+    const timeMin = (r.time_taken_seconds || 0) > 0 ? (r.time_taken_seconds / 60).toFixed(1) + ' min' : 'N/A';
+    const rank = String(r.rank).padStart(4);
+    const name = (r.user_name || 'Unknown').substring(0, 20).padEnd(20);
+    const score = `${r.score}/${r.total_questions}`.padEnd(9);
+    const pct = (r.percentage || 0).toFixed(1) + '%'.padEnd(12);
+    const time = timeMin.padEnd(14);
+    txt += `${rank} ${name} ${score} ${pct} ${time} ${r.email}\n`;
+  }
+  
+  txt += `${'─'.repeat(80)}\n`;
+  txt += `Generated by Exalyte Admin Panel\n`;
+  
+  return new Response(txt, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Content-Disposition': `attachment; filename="${examName.replace(/[^a-zA-Z0-9]/g, '_')}_results.txt"`,
+      ...CORS
+    }
+  });
 }
 
 async function handleAdminDeleteResult(resultId, db) {
@@ -1263,6 +1336,18 @@ export async function onRequest(context) {
   if (adminExam && method === 'DELETE') {
     if (!admin) return err('Admin required', 403);
     return handleAdminDeleteExam(adminExam[1], db);
+  }
+  
+  const adminToggleExam = path.match(/^\/admin\/exams\/(\d+)\/toggle$/);
+  if (adminToggleExam && method === 'POST') {
+    if (!admin) return err('Admin required', 403);
+    return handleAdminToggleExam(adminToggleExam[1], request, db);
+  }
+  
+  const adminDownloadResults = path.match(/^\/admin\/results\/(\d+)\/download$/);
+  if (adminDownloadResults && method === 'GET') {
+    if (!admin) return err('Admin required', 403);
+    return handleAdminDownloadResults(adminDownloadResults[1], db);
   }
   
   if (path === '/admin/questions/bulk' && method === 'POST') {
