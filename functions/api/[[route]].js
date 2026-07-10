@@ -262,35 +262,57 @@ async function checkPremiumAccess(db, userId, examId, isAdmin) {
 }
 
 // ============================================================
-// LIVE STATUS HELPER
+// LIVE STATUS HELPER — FIXED: uses scheduled_at as start time
 // ============================================================
 
 function getLiveStatus(exam) {
   if (!exam.live_deadline_hours || exam.live_deadline_hours === 0) {
-    return { is_live: false, live_ends_at: null, live_seconds_remaining: 0, live_ended: true };
+    return { 
+      is_live: false, 
+      live_ends_at: null, 
+      live_seconds_remaining: 0, 
+      live_ended: true,
+      live_starts_at: null,
+      is_scheduled: false,
+      seconds_until_live: 0
+    };
   }
-  const created = new Date(exam.created_at).getTime();
-  const liveEnds = created + exam.live_deadline_hours * 3600000;
+  
+  // Use scheduled_at as the start time if set, otherwise use created_at
+  const startTime = exam.scheduled_at 
+    ? new Date(exam.scheduled_at).getTime() 
+    : new Date(exam.created_at).getTime();
+  
+  const liveEnds = startTime + exam.live_deadline_hours * 3600000;
   const now = Date.now();
   const remaining = Math.max(0, Math.floor((liveEnds - now) / 1000));
+  const secondsUntilLive = Math.max(0, Math.floor((startTime - now) / 1000));
+  
   return {
-    is_live: now < liveEnds,
+    is_live: now >= startTime && now < liveEnds,
     live_ends_at: new Date(liveEnds).toISOString(),
     live_seconds_remaining: remaining,
-    live_ended: now >= liveEnds
+    live_ended: now >= liveEnds,
+    live_starts_at: new Date(startTime).toISOString(),
+    is_scheduled: now < startTime,
+    seconds_until_live: secondsUntilLive
   };
 }
 
 function isResultsPublished(exam) {
   if (!exam.live_deadline_hours || exam.live_deadline_hours === 0) return true;
   if (exam.results_published) return true;
+  
+  const startTime = exam.scheduled_at 
+    ? new Date(exam.scheduled_at).getTime() 
+    : new Date(exam.created_at).getTime();
+  
   if (exam.publish_after_hours > 0) {
-    const created = new Date(exam.created_at).getTime();
-    const publishTime = created + exam.publish_after_hours * 3600000;
+    const publishTime = startTime + exam.publish_after_hours * 3600000;
     if (Date.now() >= publishTime) return true;
   }
-  const created = new Date(exam.created_at).getTime();
-  const liveEndsAt = created + exam.live_deadline_hours * 3600000;
+  
+  const liveEndsAt = startTime + exam.live_deadline_hours * 3600000;
   if (Date.now() >= liveEndsAt) return true;
   return false;
 }
@@ -659,6 +681,18 @@ async function handleGetExamQuestions(examId, request, db) {
     }
   }
   
+  // Check if live exam has ended
+  if (exam.live_deadline_hours > 0) {
+    const live = getLiveStatus(exam);
+    if (live.live_ended && !user.is_admin) {
+      const url = new URL(request.url);
+      const isPractice = url.searchParams.get('practice') === '1';
+      if (!isPractice) {
+        return err('This live exam has ended. You can only access it in practice mode.', 403);
+      }
+    }
+  }
+  
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
   
@@ -775,13 +809,13 @@ async function handleGetResult(examId, attemptId, request, db) {
   }
   
   if (!isResultsPublished(exam)) {
-    const created = new Date(exam.created_at).getTime();
     let remainingSeconds = 0;
+    const startTime = exam.scheduled_at ? new Date(exam.scheduled_at).getTime() : new Date(exam.created_at).getTime();
     if (exam.live_deadline_hours > 0) {
-      const liveEndsAt = created + exam.live_deadline_hours * 3600000;
+      const liveEndsAt = startTime + exam.live_deadline_hours * 3600000;
       remainingSeconds = Math.max(0, Math.floor((liveEndsAt - Date.now()) / 1000));
     } else if (exam.publish_after_hours > 0) {
-      const publishTime = created + exam.publish_after_hours * 3600000;
+      const publishTime = startTime + exam.publish_after_hours * 3600000;
       remainingSeconds = Math.max(0, Math.floor((publishTime - Date.now()) / 1000));
     }
     return json({ pending: true, message: 'Results will be available after publication.', exam_name: exam.name, live_seconds_remaining: remainingSeconds });
@@ -846,7 +880,7 @@ async function handleHistory(request, db) {
   
   const rows = await db.prepare(`
     SELECT ers.*, e.name as exam_name, e.results_published, e.publish_after_hours, 
-           e.live_deadline_hours, e.created_at as exam_created_at
+           e.live_deadline_hours, e.created_at as exam_created_at, e.scheduled_at
     FROM exam_results_stored ers
     JOIN exams e ON ers.exam_id = e.id
     WHERE ers.user_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0
@@ -855,7 +889,7 @@ async function handleHistory(request, db) {
   
   const result = [];
   for (const r of rows.results) {
-    const examForLive = { live_deadline_hours: r.live_deadline_hours, created_at: r.exam_created_at };
+    const examForLive = { live_deadline_hours: r.live_deadline_hours, created_at: r.exam_created_at, scheduled_at: r.scheduled_at };
     const live = getLiveStatus(examForLive);
     
     let published;
@@ -867,7 +901,8 @@ async function handleHistory(request, db) {
     }
     
     if (!published && r.publish_after_hours > 0) {
-      const publishTime = new Date(r.exam_created_at).getTime() + r.publish_after_hours * 3600000;
+      const startTime = r.scheduled_at ? new Date(r.scheduled_at).getTime() : new Date(r.exam_created_at).getTime();
+      const publishTime = startTime + r.publish_after_hours * 3600000;
       if (Date.now() >= publishTime) published = true;
     }
     
