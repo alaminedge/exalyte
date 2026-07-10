@@ -262,7 +262,7 @@ async function checkPremiumAccess(db, userId, examId, isAdmin) {
 }
 
 // ============================================================
-// LIVE STATUS HELPER — FIXED: uses scheduled_at as start time
+// LIVE STATUS HELPER — uses scheduled_at as start time
 // ============================================================
 
 function getLiveStatus(exam) {
@@ -278,7 +278,6 @@ function getLiveStatus(exam) {
     };
   }
   
-  // Use scheduled_at as the start time if set, otherwise use created_at
   const startTime = exam.scheduled_at 
     ? new Date(exam.scheduled_at).getTime() 
     : new Date(exam.created_at).getTime();
@@ -630,10 +629,13 @@ async function handleListExams(request, db) {
       stored_attempt = sa || null;
       accessible = await checkPremiumAccess(db, userId, exam.id, isAdmin);
       
+      // ── FIXED: Practice mode logic ──
       if (exam.allow_practice && !exam.is_closed) {
         if (exam.live_deadline_hours > 0) {
-          can_practice = live.live_ended && !!stored_attempt;
+          // After live ends, ANYONE can practice (whether they participated or not)
+          can_practice = live.live_ended;
         } else {
+          // For non-live exams, practice available if student has an attempt
           can_practice = !!stored_attempt;
         }
       }
@@ -681,13 +683,27 @@ async function handleGetExamQuestions(examId, request, db) {
     }
   }
   
-  // Check if live exam has ended
-  if (exam.live_deadline_hours > 0) {
-    const live = getLiveStatus(exam);
-    if (live.live_ended && !user.is_admin) {
-      const url = new URL(request.url);
-      const isPractice = url.searchParams.get('practice') === '1';
-      if (!isPractice) {
+  const url = new URL(request.url);
+  const isPractice = url.searchParams.get('practice') === '1';
+  
+  // ── FIXED: Practice mode access check ──
+  if (isPractice) {
+    // Admin can turn off practice anytime
+    if (!exam.allow_practice) {
+      return err('Practice mode is not available for this exam.', 403);
+    }
+    // If live exam, practice only after live ends
+    if (exam.live_deadline_hours > 0) {
+      const live = getLiveStatus(exam);
+      if (!live.live_ended && !user.is_admin) {
+        return err('Practice mode will be available after the live exam ends.', 403);
+      }
+    }
+  } else {
+    // Live exam — check if it has ended
+    if (exam.live_deadline_hours > 0) {
+      const live = getLiveStatus(exam);
+      if (live.live_ended && !user.is_admin) {
         return err('This live exam has ended. You can only access it in practice mode.', 403);
       }
     }
@@ -695,12 +711,6 @@ async function handleGetExamQuestions(examId, request, db) {
   
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
-  
-  const url = new URL(request.url);
-  const isPractice = url.searchParams.get('practice') === '1';
-  if (isPractice && !exam.allow_practice) {
-    return err('Practice mode is not available for this exam.', 403);
-  }
   
   const qs = await db.prepare(
     'SELECT id, exam_id, question_text, option_a, option_b, option_c, option_d, image_url, explanation FROM questions WHERE exam_id = ?'
@@ -723,12 +733,21 @@ async function handleSubmitExam(examId, request, db) {
     return err('This exam is currently closed.', 403);
   }
   
+  // ── FIXED: Practice mode check on submit ──
+  if (is_practice) {
+    if (!exam.allow_practice) {
+      return err('Practice mode is not available for this exam.', 403);
+    }
+    if (exam.live_deadline_hours > 0) {
+      const live = getLiveStatus(exam);
+      if (!live.live_ended && !user.is_admin) {
+        return err('Practice mode will be available after the live exam ends.', 403);
+      }
+    }
+  }
+  
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
-  
-  if (is_practice && !exam.allow_practice) {
-    return err('Practice mode is not available for this exam.', 403);
-  }
   
   const questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
   let score = 0;
@@ -768,6 +787,7 @@ async function handleSubmitExam(examId, request, db) {
   
   let attemptId = null;
   
+  // ── FIXED: Only store first attempt for non-practice, but always store practice ──
   if (!is_practice && !existingFirst) {
     const r1 = await db.prepare(
       `INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt, time_taken_seconds)
@@ -778,6 +798,13 @@ async function handleSubmitExam(examId, request, db) {
       `INSERT INTO exam_attempts (user_id, exam_id, score, total_questions, percentage, answers, time_taken_seconds) VALUES (?, ?, ?, ?, ?, ?, ?)`
     ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson, timeTaken).run();
     
+    attemptId = r1.id;
+  } else if (is_practice) {
+    // Practice — always store but marked as practice
+    const r1 = await db.prepare(
+      `INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt, time_taken_seconds)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
+    ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson, 1, 0, timeTaken).first();
     attemptId = r1.id;
   } else if (existingFirst) {
     attemptId = existingFirst.id;
