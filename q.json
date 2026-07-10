@@ -1,0 +1,12 @@
+[
+  {
+    "question": "Your question text here (or leave empty if only image)",
+    "image_url": "https://example.com/image.jpg (or leave empty if no image)",
+    "option_a": "Text for option A (or image URL like https://example.com/a.jpg)",
+    "option_b": "Text for option B (or image URL)",
+    "option_c": "Text for option C (or image URL)",
+    "option_d": "Text for option D (or image URL)",
+    "answer": "A",
+    "explanation": "Explanation text (or image URL like https://example.com/solution.jpg)"
+  }
+]
