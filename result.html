@@ -251,7 +251,13 @@ function renderExplanationContent(text){if(!text)return'';if(isImageURL(text))re
 async function apiFetch(path,opts={}){
   const token=getToken();
   const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};
-  try{const res=await fetch(API+path,{...opts,headers});const text=await res.text();if(!text||text.trim()==='')return{ok:false,data:{error:'Empty response'}};try{const data=JSON.parse(text);return{ok:res.ok,data}}catch(e){return{ok:false,data:{error:text.substring(0,200)}}}}catch(error){return{ok:false,data:{error:error.message||'Network error'}}}
+  try{
+    const res=await fetch(API+path,{...opts,headers});
+    const text=await res.text();
+    if(!text||text.trim()==='')return{ok:false,data:{error:'Empty response from server'}};
+    try{const data=JSON.parse(text);return{ok:res.ok,data}}
+    catch(e){return{ok:false,data:{error:text.substring(0,200)}}}
+  }catch(error){return{ok:false,data:{error:error.message||'Network error'}}}
 }
 
 const params=new URLSearchParams(location.search);
@@ -259,9 +265,8 @@ const examId=params.get('examId');
 const attemptId=params.get('attemptId');
 const isPractice=params.get('practice')==='1';
 
-if(!examId)window.location.href='dashboard.html';
-if(!attemptId&&!isPractice)window.location.href='dashboard.html';
-if(!getToken())window.location.href='/';
+if(!examId){window.location.href='dashboard.html'}
+if(!getToken()){window.location.href='/'}
 
 let attempt,questions,exam,userAnswers={},reviewFilter='all';
 let pendingCountdown=null;
@@ -285,11 +290,13 @@ function showPendingWithCountdown(msg,liveSeconds,examName){
 }
 
 async function loadResult(){
+  if(pendingCountdown)clearInterval(pendingCountdown);
+  
   try{
     document.getElementById('loadingState').style.display='flex';
     document.getElementById('resultWrap').style.display='none';
     
-    const result=await apiFetch('/exams/'+examId+'/result/'+attemptId);
+    const result=await apiFetch('/exams/'+examId+'/result/'+(attemptId||'0'));
     document.getElementById('loadingState').style.display='none';
     document.getElementById('resultWrap').style.display='block';
     
@@ -302,7 +309,10 @@ async function loadResult(){
     }
     
     const data=result.data;
-    if(!data.attempt||!data.questions){document.getElementById('resultWrap').innerHTML=`<div class="pending-card"><div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="pending-title">No Results Found</div><div class="pending-sub">We couldn't find your result.</div><a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a></div>`;return}
+    if(!data.attempt||!data.questions){
+      document.getElementById('resultWrap').innerHTML=`<div class="pending-card"><div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="pending-title">No Results Found</div><div class="pending-sub">We couldn't find your result.</div><a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a></div>`;
+      return;
+    }
     
     attempt=data.attempt;questions=data.questions||[];exam=data.exam;
     if(typeof attempt.answers==='string'){try{userAnswers=JSON.parse(attempt.answers||'{}')}catch(e){userAnswers={}}}else{userAnswers=attempt.answers||{}}
