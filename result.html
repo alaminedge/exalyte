@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -99,15 +98,20 @@ body{
 .lb-pct-val{font-family:var(--gs);font-size:1.5rem;font-weight:500;color:var(--blue)}
 .lb-pct-lbl{font-size:.6rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500}
 
+/* ── PENDING RESULT CARD ── */
 .pending-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:48px 28px;text-align:center;margin-bottom:20px}
 .pending-icon{width:56px;height:56px;border-radius:50%;background:var(--yel-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
 .pending-icon svg{width:24px;height:24px;stroke:#e37400;fill:none;stroke-width:2}
 .pending-title{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:#e37400;margin-bottom:6px}
 .pending-sub{font-size:.85rem;color:var(--t3);max-width:400px;margin:0 auto 20px;line-height:1.6}
 .pending-countdown{font-family:var(--gs);font-size:1.4rem;font-weight:500;color:#e37400;margin:8px 0}
-.pending-guide{text-align:left;max-width:320px;margin:16px auto 0;font-size:.8rem;color:var(--t3);line-height:1.7}
-.pending-guide span{display:flex;align-items:center;gap:6px;margin-bottom:6px}
-.pending-guide span svg{width:14px;height:14px;stroke:var(--blue);fill:none;flex-shrink:0}
+.pending-countdown-sub{font-size:.78rem;color:var(--t4);margin-bottom:20px}
+.pending-guide{text-align:left;max-width:340px;margin:20px auto 0;font-size:.8rem;color:var(--t3);line-height:1.7;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px}
+.pending-guide-title{font-weight:500;color:var(--t1);margin-bottom:8px;display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px}
+.pending-guide span{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px}
+.pending-guide span svg{width:14px;height:14px;stroke:var(--blue);fill:none;flex-shrink:0;margin-top:2px}
+.pending-guide span strong{color:var(--t1)}
+/* ────────────────────────── */
 
 .review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
 .review-head h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1)}
@@ -157,33 +161,33 @@ body{
 .footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
 
 @media(max-width:900px){
-.header{padding:0 16px}
-.header-nav{display:none}
-.hamburger{display:flex}
-.content{padding:24px 16px 80px}
-.score-card{padding:28px 20px}
-.score-ring-wrap{width:100px;height:100px}
-.score-ring-wrap svg{width:100px;height:100px}
-.ring-pct{font-size:1.4rem}
-.lb-card{padding:16px}
-.lb-badge{width:48px;height:48px}
-.lb-pct{text-align:left}
-.review-head{flex-direction:column;align-items:flex-start}
-.footer-inner{grid-template-columns:1fr 1fr;gap:28px}
+  .header{padding:0 16px}
+  .header-nav{display:none}
+  .hamburger{display:flex}
+  .content{padding:24px 16px 80px}
+  .score-card{padding:28px 20px}
+  .score-ring-wrap{width:100px;height:100px}
+  .score-ring-wrap svg{width:100px;height:100px}
+  .ring-pct{font-size:1.4rem}
+  .lb-card{padding:16px}
+  .lb-badge{width:48px;height:48px}
+  .lb-pct{text-align:left}
+  .review-head{flex-direction:column;align-items:flex-start}
+  .pending-card{padding:36px 20px}
+  .footer-inner{grid-template-columns:1fr 1fr;gap:28px}
 }
 @media(max-width:600px){
-.score-stats{grid-template-columns:1fr 1fr}
-.score-stats .sc-stat:last-child{grid-column:span 2}
-.result-actions .btn{flex:1;justify-content:center}
-.rv-header{padding:12px 14px}
-.rv-q{font-size:.78rem}
-.rv-body{padding:0 14px 14px}
-.rv-opt{font-size:.75rem;padding:6px 10px}
-.footer-inner{grid-template-columns:1fr;gap:20px}
-.footer-bottom{flex-direction:column;text-align:center}
+  .score-stats{grid-template-columns:1fr 1fr}
+  .score-stats .sc-stat:last-child{grid-column:span 2}
+  .result-actions .btn{flex:1;justify-content:center}
+  .rv-header{padding:12px 14px}
+  .rv-q{font-size:.78rem}
+  .rv-body{padding:0 14px 14px}
+  .rv-opt{font-size:.75rem;padding:6px 10px}
+  .footer-inner{grid-template-columns:1fr;gap:20px}
+  .footer-bottom{flex-direction:column;text-align:center}
 }
 </style>
-
 </head>
 <body>
 
@@ -241,7 +245,7 @@ function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 function formatCountdown(sec){if(sec<=0)return'0s';const h=Math.floor(sec/3600);const m=Math.floor((sec%3600)/60);const s=sec%60;const p=[];if(h>0)p.push(h+'h');if(m>0)p.push(m+'m');if(s>0||p.length===0)p.push(s+'s');return p.join(' ')}
 function formatTimeTaken(sec){if(!sec||sec<=0)return'';const m=Math.floor(sec/60);const s=Math.floor(sec%60);if(m>0)return m+'m '+s+'s';return s+'s'}
 function formatAvgTime(sec,total){if(!sec||!total||sec<=0||total<=0)return'';const a=sec/total;if(a<60)return Math.round(a)+'s/Q';return (a/60).toFixed(1)+'m/Q'}
-function isImageURL(str){if(!str)return false;const s=str.trim();return s.startsWith('http')&&(s.includes('.jpg')||s.includes('.jpeg')||s.includes('.png')||s.includes('.webp')||s.includes('.gif')||s.includes('ibb.co'))}
+function isImageURL(str){if(!str)return false;const s=str.trim();return s.startsWith('http')&&(s.includes('.jpg')||s.includes('.jpeg')||s.includes('.png')||s.includes('.webp')||s.includes('.gif')||s.includes('ibb.co')||s.includes('images.unsplash.com')||s.includes('i.imgur.com'))}
 function renderOptionContent(text){if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-opt-img" alt="Option" onerror="this.style.display=\'none\'">';return esc(text||'')}
 function renderExplanationContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-explanation-img" alt="Explanation" onerror="this.style.display=\'none\'">';return esc(text)}
 
@@ -280,14 +284,58 @@ function showError(msg){
   document.getElementById('resultWrap').innerHTML='<div class="pending-card"><div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="pending-title">Could not load result</div><div class="pending-sub">'+esc(msg)+'</div><a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a></div>';
 }
 
-function showPending(msg,liveSeconds){
-  var h='<div class="pending-card"><div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="pending-title">Results Pending</div><div class="pending-sub">'+esc(msg)+'</div>';
-  if(liveSeconds>0)h+='<div class="pending-countdown" id="pendingCountdown">'+formatCountdown(liveSeconds)+'</div>';
-  h+='<div class="pending-guide"><span><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Go to Dashboard and click View Result</span><span><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Or visit Exam History</span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Results auto-publish when live exam ends</span></div>';
-  h+='<a href="dashboard.html" class="btn btn-primary" style="margin-top:16px">Back to Dashboard</a></div>';
+// ── ENHANCED PENDING WITH COUNTDOWN + GUIDE ──
+function showPending(msg,liveSeconds,examName){
+  var h='<div class="pending-card">';
+  h+='<div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>';
+  h+='<div class="pending-title">Results Pending</div>';
+  
+  if(examName){
+    h+='<div class="pending-sub">'+esc(examName)+'</div>';
+  } else {
+    h+='<div class="pending-sub">'+esc(msg)+'</div>';
+  }
+  
+  if(liveSeconds>0){
+    h+='<div class="pending-countdown" id="pendingCountdown">'+formatCountdown(liveSeconds)+'</div>';
+    h+='<div class="pending-countdown-sub">until results are published</div>';
+  }
+  
+  h+='<div class="pending-guide">';
+  h+='<span class="pending-guide-title">How to check your result</span>';
+  h+='<span><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Go to <strong>Dashboard</strong> → click <strong>View Result</strong> on the exam card</span></span>';
+  h+='<span><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg><span>Or visit <strong>Exam History</strong> from the navigation menu</span></span>';
+  h+='<span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Results auto-publish when the live exam window ends</span></span>';
+  h+='</div>';
+  
+  h+='<a href="dashboard.html" class="btn btn-primary" style="margin-top:20px">Back to Dashboard</a>';
+  h+='</div>';
+  
   document.getElementById('resultWrap').innerHTML=h;
-  if(liveSeconds>0){var r=liveSeconds;pendingCountdown=setInterval(function(){r--;var el=document.getElementById('pendingCountdown');if(el){if(r<=0){el.textContent='Results available now';clearInterval(pendingCountdown)}else{el.textContent=formatCountdown(r)}}},1000)}
+  
+  if(liveSeconds>0){
+    var r=liveSeconds;
+    pendingCountdown=setInterval(function(){
+      r--;
+      var el=document.getElementById('pendingCountdown');
+      if(el){
+        if(r<=0){
+          el.innerHTML='<span style="color:var(--green)">Results available now!</span>';
+          clearInterval(pendingCountdown);
+          var refreshBtn=document.createElement('button');
+          refreshBtn.className='btn btn-primary';
+          refreshBtn.textContent='Refresh to View Results';
+          refreshBtn.style.marginTop='12px';
+          refreshBtn.onclick=function(){location.reload();};
+          el.parentNode.insertBefore(refreshBtn,el.nextSibling);
+        }else{
+          el.textContent=formatCountdown(r);
+        }
+      }
+    },1000);
+  }
 }
+// ─────────────────────────────────────
 
 function renderReview(){
   var filtered=questions.filter(function(q){var a=userAnswers[q.id];var g=(typeof a==='object'?a?.given:'')||(typeof a==='string'?a:'')||'';if(reviewFilter==='correct')return g===q.correct_answer;if(reviewFilter==='wrong')return g&&g!==q.correct_answer;if(reviewFilter==='skipped')return!g;return true});
@@ -312,7 +360,9 @@ async function loadResult(){
     
     if(!result.ok||result.data.pending){
       var msg=result.data?.message||result.data?.error||'Results will be available after publication.';
-      showPending(msg,result.data?.live_seconds_remaining||0);
+      var liveSeconds=result.data?.live_seconds_remaining||0;
+      var examName=result.data?.exam_name||'';
+      showPending(msg,liveSeconds,examName);
       return;
     }
     
@@ -346,6 +396,5 @@ async function loadResult(){
 
 loadResult();
 </script>
-
 </body>
 </html>
