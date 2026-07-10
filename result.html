@@ -43,7 +43,6 @@ body{
   transition:all var(--tr);
 }
 .header-nav a:hover{background:var(--hov);color:var(--t1)}
-
 .hamburger{
   display:none;background:none;border:none;cursor:pointer;
   color:var(--t3);padding:8px;border-radius:50%;
@@ -51,7 +50,6 @@ body{
 }
 .hamburger:hover{background:var(--hov)}
 .hamburger svg{width:22px;height:22px}
-
 .mobile-nav-dropdown{
   display:none;position:fixed;top:var(--hh);left:0;right:0;
   background:var(--surf);border-bottom:1px solid var(--border);
@@ -63,7 +61,6 @@ body{
   color:var(--t2);text-decoration:none;border-radius:var(--r);
 }
 .mobile-nav-dropdown a:hover{background:var(--hov)}
-
 .header-right{display:flex;align-items:center;gap:8px}
 .icon-btn{
   width:40px;height:40px;border:none;background:none;border-radius:50%;
@@ -112,6 +109,9 @@ body{
 .perf-bar{height:6px;background:var(--hov);border-radius:4px;max-width:360px;margin:0 auto 20px;overflow:hidden}
 .perf-fill{height:100%;border-radius:4px;width:0;transition:width 1.4s ease}
 .result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.time-info{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:4px;font-size:.75rem;color:var(--t3)}
+.time-info span{display:flex;align-items:center;gap:4px}
+.time-info svg{width:12px;height:12px;stroke:currentColor;fill:none}
 
 .lb-card{
   background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
@@ -153,7 +153,6 @@ body{
 }
 .chip:hover{border-color:var(--blue);color:var(--blue)}
 .chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
-
 .review-list{display:flex;flex-direction:column;gap:8px}
 .rv-card{background:var(--surf);border:2px solid var(--border);border-radius:var(--rl);overflow:hidden}
 .rv-card.rv-correct{border-color:rgba(30,142,62,.4)}
@@ -329,14 +328,12 @@ function logout(){localStorage.clear();window.location.href='/'}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function formatDate(iso){return iso?new Date(iso).toLocaleDateString():'—'}
 
-// Helper: check if a string is an image URL
 function isImageURL(str){
   if(!str)return false;
   const s=str.trim();
   return (s.startsWith('http')&&(s.includes('.jpg')||s.includes('.jpeg')||s.includes('.png')||s.includes('.webp')||s.includes('.gif')||s.includes('ibb.co')||s.includes('images.unsplash.com')||s.includes('i.imgur.com')));
 }
 
-// Render option content: text or image
 function renderOptionContent(text){
   if(isImageURL(text)){
     return`<img src="${esc(text)}" class="rv-opt-img" alt="Option" onerror="this.style.display='none'">`;
@@ -344,13 +341,27 @@ function renderOptionContent(text){
   return esc(text||'');
 }
 
-// Render explanation content: text or image
 function renderExplanationContent(text){
   if(!text)return'';
   if(isImageURL(text)){
     return`<img src="${esc(text)}" class="rv-explanation-img" alt="Explanation" onerror="this.style.display='none'">`;
   }
   return esc(text);
+}
+
+function formatTimeTaken(seconds){
+  if(!seconds||seconds<=0)return'';
+  const min=Math.floor(seconds/60);
+  const sec=Math.floor(seconds%60);
+  if(min>0)return min+'m '+sec+'s';
+  return sec+'s';
+}
+
+function formatAvgTime(seconds,total){
+  if(!seconds||!total||seconds<=0||total<=0)return'';
+  const avg=seconds/total;
+  if(avg<60)return Math.round(avg)+'s/Q';
+  return (avg/60).toFixed(1)+'m/Q';
 }
 
 async function apiFetch(path,opts={}){
@@ -369,17 +380,12 @@ const params=new URLSearchParams(location.search);
 const examId=params.get('examId');
 const attemptId=params.get('attemptId');
 const isPractice=params.get('practice')==='1';
-const urlScore=params.get('score');
-const urlCorrect=params.get('correct');
-const urlWrong=params.get('wrong');
-const urlSkipped=params.get('skipped');
 
 if(!examId)window.location.href='dashboard.html';
 if(!attemptId&&!isPractice)window.location.href='dashboard.html';
 if(!getToken())window.location.href='/';
 
 let attempt,questions,exam,userAnswers={},reviewFilter='all';
-let isUrlMode=false;
 
 const header=document.getElementById('header');
 let lastY=0,ticking=false;
@@ -403,18 +409,6 @@ function gradeInfo(pct){
 }
 
 async function loadResult(){
-  if(isPractice&&urlScore){
-    isUrlMode=true;
-    document.getElementById('loadingState').style.display='none';
-    document.getElementById('resultWrap').style.display='block';
-    try{
-      const{ok,data}=await apiFetch('/exams/'+examId+'/questions');
-      if(ok){questions=data.questions||[]}
-    }catch(e){}
-    showUrlPracticeResult();
-    return;
-  }
-  
   try{
     document.getElementById('loadingState').style.display='flex';
     document.getElementById('resultWrap').style.display='none';
@@ -477,6 +471,18 @@ async function loadResult(){
     
     const pct=attempt.percentage||0;
     const grade=gradeInfo(pct);
+    const timeTaken=attempt.time_taken_seconds||0;
+    const totalQuestions=questions.length;
+    
+    let timeHTML='';
+    if(timeTaken>0){
+      const timeMin=(timeTaken/60).toFixed(1);
+      timeHTML=`
+      <div class="time-info">
+        <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: ${timeMin} min / ${exam.time_limit} min</span>
+        <span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: ${formatAvgTime(timeTaken,totalQuestions)}</span>
+      </div>`;
+    }
     
     let html=`
     <div class="score-card">
@@ -497,6 +503,7 @@ async function loadResult(){
         <div class="sc-stat sc-wrong"><div class="sc-stat-val">${wrong}</div><div class="sc-stat-lbl">Wrong</div></div>
         <div class="sc-stat sc-skip"><div class="sc-stat-val">${skipped}</div><div class="sc-stat-lbl">Skipped</div></div>
       </div>
+      ${timeHTML}
       <div class="perf-bar"><div class="perf-fill" style="width:${Math.max(pct,2)}%;background:${grade.color}"></div></div>
       <div class="result-actions">
         <a href="dashboard.html" class="btn btn-outline"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
@@ -545,44 +552,6 @@ async function loadResult(){
         <a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a>
       </div>`;
   }
-}
-
-function showUrlPracticeResult(){
-  const score=parseInt(urlScore)||0;
-  const total=10;
-  const percentage=parseFloat(urlScore)||0;
-  const correct=parseInt(urlCorrect)||0;
-  const wrong=parseInt(urlWrong)||0;
-  const skipped=parseInt(urlSkipped)||0;
-  const grade=gradeInfo(percentage);
-  
-  let html=`
-  <div class="score-card">
-    <div class="score-ring-wrap">
-      <svg viewBox="0 0 120 120">
-        <circle class="ring-bg" cx="60" cy="60" r="54"/>
-        <circle class="ring-fill" cx="60" cy="60" r="54" stroke="${grade.color}" style="stroke-dasharray:339;stroke-dashoffset:${339-(percentage/100)*339}"/>
-      </svg>
-      <div class="ring-inner">
-        <div class="ring-pct">${percentage.toFixed(1)}%</div>
-        <div class="ring-lbl">Score</div>
-      </div>
-    </div>
-    <div class="score-grade" style="color:${grade.color}">${grade.label}</div>
-    <div class="score-exam">Practice Result</div>
-    <div class="score-stats">
-      <div class="sc-stat sc-correct"><div class="sc-stat-val">${correct}</div><div class="sc-stat-lbl">Correct</div></div>
-      <div class="sc-stat sc-wrong"><div class="sc-stat-val">${wrong}</div><div class="sc-stat-lbl">Wrong</div></div>
-      <div class="sc-stat sc-skip"><div class="sc-stat-val">${skipped}</div><div class="sc-stat-lbl">Skipped</div></div>
-    </div>
-    <div class="perf-bar"><div class="perf-fill" style="width:${Math.max(percentage,2)}%;background:${grade.color}"></div></div>
-    <div class="result-actions">
-      <a href="dashboard.html" class="btn btn-outline">Dashboard</a>
-      <a href="exam.html?id=${examId}&practice=1" class="btn btn-primary">Practice Again</a>
-    </div>
-  </div>`;
-  
-  document.getElementById('resultWrap').innerHTML=html;
 }
 
 function renderReview(){
