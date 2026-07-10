@@ -129,6 +129,7 @@ async function initDB(db) {
       publish_after_hours INTEGER DEFAULT 0,
       leaderboard_enabled INTEGER DEFAULT 1,
       is_closed INTEGER DEFAULT 0,
+      scheduled_at DATETIME,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE TABLE IF NOT EXISTS questions (
@@ -218,6 +219,7 @@ async function initDB(db) {
   try { await db.prepare(`ALTER TABLE users ADD COLUMN created_ip TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE users ADD COLUMN is_banned INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exams ADD COLUMN is_closed INTEGER DEFAULT 0`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE exams ADD COLUMN scheduled_at DATETIME`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exam_attempts ADD COLUMN time_taken_seconds INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exam_results_stored ADD COLUMN time_taken_seconds INTEGER DEFAULT 0`).run(); } catch (e) {}
 
@@ -645,9 +647,16 @@ async function handleGetExamQuestions(examId, request, db) {
   const exam = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   if (!exam) return err('Exam not found', 404);
   
-  // Block if exam is closed
   if (exam.is_closed && !user.is_admin) {
     return err('This exam is currently closed.', 403);
+  }
+  
+  // Check if exam is scheduled for future
+  if (exam.scheduled_at && !user.is_admin) {
+    const scheduledTime = new Date(exam.scheduled_at).getTime();
+    if (Date.now() < scheduledTime) {
+      return err('This exam is not yet available. It is scheduled for a future date.', 403);
+    }
   }
   
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
@@ -676,7 +685,6 @@ async function handleSubmitExam(examId, request, db) {
   const exam = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   if (!exam) return err('Exam not found', 404);
   
-  // Block if exam is closed
   if (exam.is_closed && !user.is_admin) {
     return err('This exam is currently closed.', 403);
   }
@@ -763,11 +771,20 @@ async function handleGetResult(examId, attemptId, request, db) {
   
   const live = getLiveStatus(exam);
   if (exam.live_deadline_hours > 0 && live.is_live) {
-    return json({ pending: true, message: 'Results will be available after the live exam window ends.', exam_name: exam.name });
+    return json({ pending: true, message: 'Results will be available after the live exam window ends.', exam_name: exam.name, live_seconds_remaining: live.live_seconds_remaining });
   }
   
   if (!isResultsPublished(exam)) {
-    return json({ pending: true, message: 'Results will be available after publication.', exam_name: exam.name });
+    const created = new Date(exam.created_at).getTime();
+    let remainingSeconds = 0;
+    if (exam.live_deadline_hours > 0) {
+      const liveEndsAt = created + exam.live_deadline_hours * 3600000;
+      remainingSeconds = Math.max(0, Math.floor((liveEndsAt - Date.now()) / 1000));
+    } else if (exam.publish_after_hours > 0) {
+      const publishTime = created + exam.publish_after_hours * 3600000;
+      remainingSeconds = Math.max(0, Math.floor((publishTime - Date.now()) / 1000));
+    }
+    return json({ pending: true, message: 'Results will be available after publication.', exam_name: exam.name, live_seconds_remaining: remainingSeconds });
   }
   
   if (attemptId == 0 || !attemptId) {
@@ -907,24 +924,26 @@ async function handleMarkNotificationRead(notifId, request, db) {
 // ============================================================
 
 async function handleAdminCreateExam(request, db) {
-  const { name, description, time_limit, is_premium, negative_marking, allow_practice, batch_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled } = await request.json();
+  const { name, description, time_limit, is_premium, negative_marking, allow_practice, batch_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled, scheduled_at } = await request.json();
   if (!name) return err('Name required');
   const r = await db.prepare(
-    `INSERT INTO exams (name, description, time_limit, is_premium, negative_marking, allow_practice, batch_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`
+    `INSERT INTO exams (name, description, time_limit, is_premium, negative_marking, allow_practice, batch_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled, scheduled_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`
   ).bind(name, description || '', time_limit || 30, is_premium ? 1 : 0, negative_marking || 0,
     allow_practice !== false ? 1 : 0, batch_id || null, live_deadline_hours || 0,
-    results_published ? 1 : 0, publish_after_hours || 0, leaderboard_enabled !== false ? 1 : 0).first();
+    results_published ? 1 : 0, publish_after_hours || 0, leaderboard_enabled !== false ? 1 : 0,
+    scheduled_at || null).first();
   return json(r, 201);
 }
 
 async function handleAdminUpdateExam(examId, request, db) {
-  const { name, description, time_limit, is_premium, negative_marking, allow_practice, batch_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled } = await request.json();
+  const { name, description, time_limit, is_premium, negative_marking, allow_practice, batch_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled, scheduled_at } = await request.json();
   await db.prepare(
-    `UPDATE exams SET name = ?, description = ?, time_limit = ?, is_premium = ?, negative_marking = ?, allow_practice = ?, batch_id = ?, live_deadline_hours = ?, results_published = ?, publish_after_hours = ?, leaderboard_enabled = ? WHERE id = ?`
+    `UPDATE exams SET name = ?, description = ?, time_limit = ?, is_premium = ?, negative_marking = ?, allow_practice = ?, batch_id = ?, live_deadline_hours = ?, results_published = ?, publish_after_hours = ?, leaderboard_enabled = ?, scheduled_at = ? WHERE id = ?`
   ).bind(name, description || '', time_limit || 30, is_premium ? 1 : 0, negative_marking || 0,
     allow_practice !== false ? 1 : 0, batch_id || null, live_deadline_hours || 0,
-    results_published ? 1 : 0, publish_after_hours || 0, leaderboard_enabled !== false ? 1 : 0, examId).run();
+    results_published ? 1 : 0, publish_after_hours || 0, leaderboard_enabled !== false ? 1 : 0,
+    scheduled_at || null, examId).run();
   const r = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   return json(r);
 }
