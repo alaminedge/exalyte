@@ -133,7 +133,9 @@ body{
   flex-wrap:wrap;gap:12px;
 }
 .live-exam-name{font-family:var(--gs);font-weight:500;color:var(--t1)}
+.live-exam-info{display:flex;flex-direction:column;gap:2px}
 .live-countdown{font-family:var(--gs);font-size:.9rem;font-weight:500;color:var(--red)}
+.live-ends-label{font-size:.68rem;color:var(--t4)}
 .btn-live{
   background:var(--red);color:#fff;border:none;padding:8px 20px;
   border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;
@@ -205,6 +207,16 @@ body{
   font-weight:500;cursor:pointer;transition:all var(--tr);
 }
 .btn-practice:hover{background:#e8f0fe;border-color:var(--blue)}
+
+/* Scheduled countdown banner inside exam card */
+.scheduled-info{
+  background:var(--yel-bg);border:1px solid rgba(249,171,0,.25);
+  border-radius:var(--r);padding:10px 14px;margin-top:10px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.scheduled-info svg{width:16px;height:16px;stroke:#e37400;fill:none;flex-shrink:0}
+.scheduled-countdown-text{font-family:var(--gs);font-size:.82rem;font-weight:500;color:#e37400}
+.scheduled-date-text{font-size:.7rem;color:var(--t3)}
 
 .batch-header{
   display:flex;align-items:center;gap:10px;padding:10px 4px;
@@ -560,6 +572,12 @@ function formatCountdown(sec){
   return p.join(' ');
 }
 
+function formatScheduledDate(iso){
+  if(!iso)return'';
+  const d=new Date(iso);
+  return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'})+' at '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+
 async function apiFetch(path,opts={}){
   const token=getToken();
   const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};
@@ -657,23 +675,30 @@ function updateStats(){
   document.getElementById('statResources').textContent=totalResources;
 }
 
+// ── LIVE STRIP WITH FULL COUNTDOWN ──
 function renderLiveStrip(){
   const live=allExams.filter(e=>e.is_live&&!e.stored_attempt);
   const strip=document.getElementById('liveStrip');
   if(!live.length){strip.classList.remove('show');return}
   strip.classList.add('show');
+  
   document.getElementById('liveList').innerHTML=live.map(e=>`
     <div class="live-exam">
-      <div><div class="live-exam-name">${esc(e.name)}</div><div class="live-countdown" id="cd_${e.id}">${formatCountdown(e.live_seconds_remaining)}</div></div>
+      <div class="live-exam-info">
+        <div class="live-exam-name">${esc(e.name)}</div>
+        <div class="live-countdown" id="cd_${e.id}">${formatCountdown(e.live_seconds_remaining)}</div>
+        <div class="live-ends-label">remaining — ends ${new Date(e.live_ends_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</div>
+      </div>
       <button class="btn-live" onclick="startExam(${e.id},false)">Take Live Exam</button>
     </div>`).join('');
+  
   live.forEach(e=>{
     let remaining=e.live_seconds_remaining;
     if(countdowns[e.id])clearInterval(countdowns[e.id]);
     countdowns[e.id]=setInterval(()=>{
       remaining--;
       const el=document.getElementById('cd_'+e.id);
-      if(el)el.textContent=formatCountdown(remaining);
+      if(el){el.textContent=formatCountdown(remaining)}
       if(remaining<=0){clearInterval(countdowns[e.id]);loadDashboard()}
     },1000);
   });
@@ -734,7 +759,6 @@ function renderExams(){
 
 // ── SCHEDULED COUNTDOWN RUNNER ──
 function runScheduledCountdowns(){
-  // Clear all existing intervals
   Object.keys(scheduledIntervals).forEach(id=>{
     clearInterval(scheduledIntervals[id]);
     delete scheduledIntervals[id];
@@ -742,8 +766,10 @@ function runScheduledCountdowns(){
   
   allExams.forEach(e=>{
     if(!isExamScheduled(e))return;
-    const el=document.getElementById('scd_'+e.id);
-    if(!el)return;
+    
+    // Update the countdown text
+    const cdEl=document.getElementById('scd_'+e.id);
+    if(!cdEl)return;
     
     const scheduledTime=new Date(e.scheduled_at).getTime();
     let remaining=Math.max(0,Math.floor((scheduledTime-Date.now())/1000));
@@ -772,15 +798,24 @@ function examCard(e){
   else if(isExamScheduled(e)){badgeCls='badge-scheduled';badgeText='Scheduled';}
   
   let scoreHtml='',actionHtml='';
+  let scheduledBanner='';
   
   if(e.is_closed){
     actionHtml='<button class="btn-take" disabled>Exam Closed</button>';
   }
-  // ── SCHEDULED EXAM ──
+  // ── SCHEDULED EXAM: countdown on button + scheduled info banner ──
   else if(isExamScheduled(e)){
     const scheduledTime=new Date(e.scheduled_at).getTime();
     const remaining=Math.max(0,Math.floor((scheduledTime-Date.now())/1000));
     actionHtml=`<button class="btn-take" disabled><span id="scd_${e.id}">Opens in ${formatCountdown(remaining)}</span></button>`;
+    scheduledBanner=`
+      <div class="scheduled-info">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <div>
+          <div class="scheduled-countdown-text" id="scdBanner_${e.id}">Opens in ${formatCountdown(remaining)}</div>
+          <div class="scheduled-date-text">Scheduled for ${formatScheduledDate(e.scheduled_at)}</div>
+        </div>
+      </div>`;
   }
   else if(e.stored_attempt){
     if(e.results_visible){
@@ -810,8 +845,8 @@ function examCard(e){
         <span class="meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${e.time_limit}m</span>
         <span class="meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>${e.question_count||0} Q</span>
         ${e.negative_marking>0?`<span class="meta-item" style="color:var(--red)"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>-${e.negative_marking}</span>`:''}
-        ${e.scheduled_at?`<span class="meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${new Date(e.scheduled_at).toLocaleDateString()}</span>`:''}
       </div>
+      ${scheduledBanner}
     </div>
     <div class="exam-actions">${scoreHtml}${actionHtml}</div>
   </div></div>`;
