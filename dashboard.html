@@ -37,293 +37,150 @@ body{
 .logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
 .logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
 .header-nav{display:flex;align-items:center;gap:4px}
-.header-nav a{
-  font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t3);
-  text-decoration:none;padding:8px 16px;border-radius:var(--r);
-  transition:all var(--tr);
-}
+.header-nav a{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t3);text-decoration:none;padding:8px 16px;border-radius:var(--r);transition:all var(--tr)}
 .header-nav a:hover{background:var(--hov);color:var(--t1)}
 .header-nav a.active{color:var(--blue);background:#e8f0fe}
-.hamburger{
-  display:none;background:none;border:none;cursor:pointer;
-  color:var(--t3);padding:8px;border-radius:50%;
-  align-items:center;justify-content:center;transition:background var(--tr);
-}
+.hamburger{display:none;background:none;border:none;cursor:pointer;color:var(--t3);padding:8px;border-radius:50%;align-items:center;justify-content:center;transition:background var(--tr)}
 .hamburger:hover{background:var(--hov)}
 .hamburger svg{width:22px;height:22px}
-.mobile-nav-dropdown{
-  display:none;position:fixed;top:var(--hh);left:0;right:0;
-  background:var(--surf);border-bottom:1px solid var(--border);
-  box-shadow:0 4px 16px rgba(0,0,0,.1);padding:8px 16px;z-index:999;
-}
+.mobile-nav-dropdown{display:none;position:fixed;top:var(--hh);left:0;right:0;background:var(--surf);border-bottom:1px solid var(--border);box-shadow:0 4px 16px rgba(0,0,0,.1);padding:8px 16px;z-index:999}
 .mobile-nav-dropdown.show{display:block}
-.mobile-nav-dropdown a{
-  display:block;padding:12px 16px;font-family:var(--gs);font-size:.9rem;
-  color:var(--t2);text-decoration:none;border-radius:var(--r);
-}
+.mobile-nav-dropdown a{display:block;padding:12px 16px;font-family:var(--gs);font-size:.9rem;color:var(--t2);text-decoration:none;border-radius:var(--r)}
 .mobile-nav-dropdown a:hover{background:var(--hov)}
 .mobile-nav-dropdown a.active{color:var(--blue);background:#e8f0fe}
 .header-right{display:flex;align-items:center;gap:8px}
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:8px 18px;font-family:var(--gs);font-size:.85rem;font-weight:500;
-  border:none;border-radius:var(--r);cursor:pointer;
-  transition:all var(--tr);text-decoration:none;white-space:nowrap;
-}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 18px;font-family:var(--gs);font-size:.85rem;font-weight:500;border:none;border-radius:var(--r);cursor:pointer;transition:all var(--tr);text-decoration:none;white-space:nowrap}
 .btn-primary{background:var(--blue);color:#fff}
 .btn-primary:hover{background:var(--blue-h);box-shadow:0 1px 2px rgba(60,64,67,.3),0 2px 6px rgba(60,64,67,.15)}
 .btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
 .btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
-.icon-btn{
-  width:40px;height:40px;border:none;background:none;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0;
-  position:relative;
-}
+.icon-btn{width:40px;height:40px;border:none;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0;position:relative}
 .icon-btn:hover{background:var(--hov)}
 .icon-btn svg{width:20px;height:20px}
-.icon-btn .badge{
-  position:absolute;top:2px;right:2px;min-width:18px;height:18px;
-  background:var(--red);color:#fff;border-radius:10px;
-  font-size:.65rem;font-weight:700;display:none;
-  align-items:center;justify-content:center;padding:0 5px;
-}
+.icon-btn .badge{position:absolute;top:2px;right:2px;min-width:18px;height:18px;background:var(--red);color:#fff;border-radius:10px;font-size:.65rem;font-weight:700;display:none;align-items:center;justify-content:center;padding:0 5px}
 .icon-btn .badge.show{display:flex}
-.avatar{
-  width:32px;height:32px;border-radius:50%;background:var(--blue);
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--gs);font-weight:500;font-size:13px;
-  color:#fff;cursor:pointer;flex-shrink:0;border:2px solid transparent;
-}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-weight:500;font-size:13px;color:#fff;cursor:pointer;flex-shrink:0;border:2px solid transparent}
 .avatar:hover{border-color:var(--border)}
 .main{flex:1;padding-top:var(--hh)}
 .content{max-width:1080px;margin:0 auto;padding:32px 24px 60px;width:100%}
 
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
-.stat-card{
-  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
-  padding:20px;transition:box-shadow var(--tr);cursor:default;
-}
+.stat-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:20px;transition:box-shadow var(--tr);cursor:default}
 .stat-card.clickable{cursor:pointer}
 .stat-card.clickable:hover{box-shadow:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15);border-color:var(--blue)}
-.stat-card-icon{
-  width:40px;height:40px;border-radius:50%;display:flex;
-  align-items:center;justify-content:center;margin-bottom:12px;
-}
+.stat-card-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
 .stat-card-icon svg{width:20px;height:20px}
 .stat-card-val{font-family:var(--gs);font-size:1.8rem;font-weight:500;color:var(--t1);line-height:1}
 .stat-card-lbl{font-size:.75rem;color:var(--t3);margin-top:4px}
 
-.live-strip{
-  background:var(--surf);border:1px solid var(--red);border-radius:var(--rl);
-  padding:20px;margin-bottom:24px;display:none;
-}
+.live-strip{background:var(--surf);border:1px solid var(--red);border-radius:var(--rl);padding:20px;margin-bottom:24px;display:none}
 .live-strip.show{display:block}
-.live-badge{
-  display:inline-flex;align-items:center;gap:6px;
-  background:var(--red);color:#fff;font-family:var(--gs);
-  font-size:.75rem;font-weight:500;padding:4px 12px;border-radius:20px;
-  margin-bottom:12px;
-}
+.live-badge{display:inline-flex;align-items:center;gap:6px;background:var(--red);color:#fff;font-family:var(--gs);font-size:.75rem;font-weight:500;padding:4px 12px;border-radius:20px;margin-bottom:12px}
 .live-dot{width:6px;height:6px;background:#fff;border-radius:50%;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.live-exam{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px;background:var(--bg);border-radius:var(--rl);
-  flex-wrap:wrap;gap:12px;
-}
+.live-exam{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);border-radius:var(--rl);flex-wrap:wrap;gap:12px}
 .live-exam-name{font-family:var(--gs);font-weight:500;color:var(--t1)}
 .live-countdown{font-family:var(--gs);font-size:.9rem;font-weight:500;color:var(--red)}
-.btn-live{
-  background:var(--red);color:#fff;border:none;padding:8px 20px;
-  border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;
-  cursor:pointer;transition:all var(--tr);
-}
+.btn-live{background:var(--red);color:#fff;border:none;padding:8px 20px;border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer;transition:all var(--tr)}
 .btn-live:hover{background:#c5221f}
 
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
 .section-header h2{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1)}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-.search-input{
-  flex:1;min-width:180px;padding:10px 16px;border:1px solid var(--border);
-  border-radius:var(--r);font-family:var(--rb);font-size:.875rem;
-  color:var(--t1);outline:none;background:var(--surf);transition:border var(--tr);
-}
+.search-input{flex:1;min-width:180px;padding:10px 16px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--rb);font-size:.875rem;color:var(--t1);outline:none;background:var(--surf);transition:border var(--tr)}
 .search-input:hover{border-color:var(--t3)}
 .search-input:focus{border:2px solid var(--blue);padding:9px 15px}
-.filter-chip{
-  padding:8px 18px;border:1px solid var(--border);border-radius:20px;
-  font-family:var(--gs);font-size:.8rem;font-weight:500;color:var(--t3);
-  background:var(--surf);cursor:pointer;transition:all var(--tr);
-}
+.filter-chip{padding:8px 18px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.8rem;font-weight:500;color:var(--t3);background:var(--surf);cursor:pointer;transition:all var(--tr)}
 .filter-chip:hover{border-color:var(--blue);color:var(--blue)}
 .filter-chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
 
-.exam-list{display:flex;flex-direction:column;gap:12px}
-.exam-card{
-  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
-  padding:20px;transition:box-shadow var(--tr);
-}
+.exam-list{display:flex;flex-direction:column;gap:14px}
+.exam-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:20px;transition:box-shadow var(--tr)}
 .exam-card:hover{box-shadow:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15)}
 .exam-card-inner{display:flex;gap:20px;flex-wrap:wrap}
 .exam-body{flex:1;min-width:0}
-.exam-badge{
-  display:inline-flex;align-items:center;gap:4px;padding:2px 10px;
-  border-radius:20px;font-family:var(--gs);font-size:.7rem;font-weight:500;
-  margin-bottom:8px;
-}
+.exam-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:20px;font-family:var(--gs);font-size:.7rem;font-weight:500;margin-bottom:8px}
 .badge-free{background:var(--grn-bg);color:var(--green)}
 .badge-premium{background:#f3e8fd;color:#9333ea}
 .badge-live{background:var(--red-bg);color:var(--red)}
 .badge-closed{background:var(--red-bg);color:var(--red)}
+.badge-scheduled{background:var(--yel-bg);color:#e37400}
 .exam-name{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1);margin-bottom:4px}
 .exam-desc{font-size:.8rem;color:var(--t3);margin-bottom:10px;line-height:1.5}
 .exam-meta{display:flex;gap:16px;flex-wrap:wrap}
 .meta-item{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--t3)}
 .meta-item svg{width:14px;height:14px;stroke:currentColor;fill:none}
 .exam-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0}
-.score-pill{
-  padding:4px 12px;border-radius:20px;font-family:var(--gs);
-  font-size:.8rem;font-weight:500;
-}
+.score-pill{padding:4px 12px;border-radius:20px;font-family:var(--gs);font-size:.8rem;font-weight:500}
 .score-pill.good{background:var(--grn-bg);color:var(--green)}
 .score-pill.pending{background:var(--yel-bg);color:#e37400}
-.btn-take{
-  background:var(--blue);color:#fff;border:none;padding:8px 20px;
-  border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;
-  cursor:pointer;transition:all var(--tr);text-decoration:none;display:inline-block;text-align:center;
-}
+.btn-take{background:var(--blue);color:#fff;border:none;padding:8px 20px;border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer;transition:all var(--tr);text-decoration:none;display:inline-block;text-align:center}
 .btn-take:hover{background:var(--blue-h)}
 .btn-take:disabled{background:var(--hov);color:var(--t4);cursor:not-allowed}
-.btn-practice{
-  background:transparent;color:var(--blue);border:1px solid var(--border);
-  padding:7px 18px;border-radius:var(--r);font-family:var(--gs);font-size:.75rem;
-  font-weight:500;cursor:pointer;transition:all var(--tr);
-}
+.btn-practice{background:transparent;color:var(--blue);border:1px solid var(--border);padding:7px 18px;border-radius:var(--r);font-family:var(--gs);font-size:.75rem;font-weight:500;cursor:pointer;transition:all var(--tr)}
 .btn-practice:hover{background:#e8f0fe;border-color:var(--blue)}
 
 .batch-group{margin-bottom:8px}
-.batch-header{
-  display:flex;align-items:center;gap:10px;padding:10px 4px;
-  cursor:pointer;user-select:none;
-}
-.batch-arrow{
-  width:18px;height:18px;stroke:var(--t3);fill:none;stroke-width:2;
-  transition:transform .2s;
-}
+.batch-header{display:flex;align-items:center;gap:10px;padding:10px 4px;cursor:pointer;user-select:none}
+.batch-arrow{width:18px;height:18px;stroke:var(--t3);fill:none;stroke-width:2;transition:transform .2s}
 .batch-group.collapsed .batch-arrow{transform:rotate(-90deg)}
 .batch-name{font-family:var(--gs);font-size:.9rem;font-weight:500;color:var(--t1)}
 .batch-count{font-size:.72rem;color:var(--t4);background:var(--hov);padding:2px 8px;border-radius:10px}
 .batch-group.collapsed .exams-list{display:none}
 
-.resources-section{
-  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
-  margin-top:40px;overflow:hidden;scroll-margin-top:80px;
-}
-.resources-header{
-  padding:16px 20px;background:var(--bg);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
-}
+.resources-section{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);margin-top:40px;overflow:hidden;scroll-margin-top:80px}
+.resources-header{padding:16px 20px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .resources-header svg{width:20px;height:20px;stroke:var(--blue)}
 .resources-header h2{font-family:var(--gs);font-size:.95rem;font-weight:500;color:var(--t1)}
 .resources-filter{margin-left:auto}
-.resources-filter select{
-  padding:6px 14px;border:1px solid var(--border);border-radius:var(--r);
-  font-family:var(--rb);font-size:.8rem;color:var(--t2);outline:none;
-  cursor:pointer;background:var(--surf);
-}
+.resources-filter select{padding:6px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--rb);font-size:.8rem;color:var(--t2);outline:none;cursor:pointer;background:var(--surf)}
 .resources-filter select:focus{border-color:var(--blue)}
 .resources-grid{padding:20px}
 .resource-group{margin-bottom:20px}
 .resource-group:last-child{margin-bottom:0}
-.resource-group-title{
-  display:flex;align-items:center;gap:8px;margin-bottom:10px;
-}
+.resource-group-title{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .resource-group-title svg{width:16px;height:16px;stroke:var(--blue)}
 .resource-group-name{font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t1)}
-.resource-group-type{
-  font-size:.6rem;padding:2px 8px;border-radius:10px;font-weight:500;
-}
+.resource-group-type{font-size:.6rem;padding:2px 8px;border-radius:10px;font-weight:500}
 .type-exam{background:#e8f0fe;color:var(--blue)}
 .type-batch{background:var(--yel-bg);color:#e37400}
 .resource-chips{display:flex;flex-wrap:wrap;gap:8px}
-.resource-chip{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:7px 14px;border:1px solid var(--border);border-radius:20px;
-  font-family:var(--gs);font-size:.78rem;font-weight:500;color:var(--t2);
-  text-decoration:none;transition:all var(--tr);
-}
+.resource-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.78rem;font-weight:500;color:var(--t2);text-decoration:none;transition:all var(--tr)}
 .resource-chip:hover{border-color:var(--blue);color:var(--blue);background:#e8f0fe}
 .resource-chip svg{width:12px;height:12px;stroke:currentColor}
 .resource-empty{text-align:center;padding:40px;color:var(--t3);font-size:.85rem}
 
-.modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;
-  display:none;align-items:center;justify-content:center;padding:20px;
-}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.open{display:flex}
-.modal{
-  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
-  width:100%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;
-  box-shadow:0 24px 50px rgba(0,0,0,.3);
-}
-.modal-header{
-  padding:16px 20px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  flex-shrink:0;
-}
+.modal{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);width:100%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 24px 50px rgba(0,0,0,.3)}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .modal-header h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1)}
-.modal-close{
-  width:32px;height:32px;border:none;background:none;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;color:var(--t3);transition:background var(--tr);
-}
+.modal-close{width:32px;height:32px;border:none;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);transition:background var(--tr)}
 .modal-close:hover{background:var(--hov)}
 .modal-close svg{width:18px;height:18px}
 .modal-body{flex:1;overflow-y:auto;padding:0}
-.notif-item{
-  padding:16px 20px;border-bottom:1px solid var(--border);
-  cursor:pointer;transition:background var(--tr);
-}
+.notif-item{padding:16px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background var(--tr)}
 .notif-item:hover{background:var(--hov)}
 .notif-item.unread{background:#e8f0fe;border-left:3px solid var(--blue)}
 .notif-item-title{font-family:var(--gs);font-size:.9rem;font-weight:500;color:var(--t1);margin-bottom:4px}
 .notif-item-body{font-size:.8rem;color:var(--t3);line-height:1.5;margin-bottom:4px}
 .notif-item-img{max-width:100%;max-height:160px;border-radius:var(--r);margin-bottom:6px;border:1px solid var(--border);object-fit:contain}
-.notif-item-link{
-  display:inline-flex;align-items:center;gap:4px;font-size:.75rem;
-  color:var(--blue);text-decoration:none;font-weight:500;
-}
+.notif-item-link{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;color:var(--blue);text-decoration:none;font-weight:500}
 .notif-item-link:hover{text-decoration:underline}
 .notif-item-link svg{width:12px;height:12px}
 .notif-item-meta{display:flex;align-items:center;gap:12px;margin-top:6px;flex-wrap:wrap}
-.notif-item-meta span{
-  display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--t4);
-}
+.notif-item-meta span{display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--t4)}
 .notif-item-meta span svg{width:11px;height:11px}
 .notif-empty{text-align:center;padding:48px 20px;color:var(--t3)}
 .notif-empty svg{width:40px;height:40px;stroke:var(--t4);margin-bottom:12px}
-.modal-footer-btn{
-  padding:12px 20px;border-top:1px solid var(--border);flex-shrink:0;
-  text-align:center;
-}
-.modal-footer-btn button{
-  background:none;border:none;color:var(--blue);font-family:var(--gs);
-  font-size:.8rem;font-weight:500;cursor:pointer;
-}
+.modal-footer-btn{padding:12px 20px;border-top:1px solid var(--border);flex-shrink:0;text-align:center}
+.modal-footer-btn button{background:none;border:none;color:var(--blue);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer}
 .modal-footer-btn button:hover{text-decoration:underline}
 
 .rank-section{margin-bottom:28px}
 .rank-grid{display:flex;flex-direction:column;gap:10px}
-.rank-item{
-  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
-  padding:14px 18px;display:flex;align-items:center;gap:14px;
-}
-.rank-pos{
-  width:44px;height:44px;border-radius:50%;display:flex;
-  align-items:center;justify-content:center;
-  font-family:var(--gs);font-size:1rem;font-weight:500;flex-shrink:0;
-}
+.rank-item{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:14px 18px;display:flex;align-items:center;gap:14px}
+.rank-pos{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:1rem;font-weight:500;flex-shrink:0}
 .rank-1{background:#fef7e0;color:#e37400}
 .rank-2{background:#f1f3f4;color:var(--t3)}
 .rank-3{background:#fce8e6;color:#c5221f}
@@ -338,39 +195,21 @@ body{
 .empty-state h3{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1);margin-bottom:6px}
 .empty-state p{font-size:.85rem}
 
-.skeleton{
-  background:linear-gradient(90deg,var(--hov)25%,#e8eaed 50%,var(--hov)75%);
-  background-size:200%100%;animation:shimmer 1.5s infinite;border-radius:var(--r);
-}
+.skeleton{background:linear-gradient(90deg,var(--hov)25%,#e8eaed 50%,var(--hov)75%);background-size:200%100%;animation:shimmer 1.5s infinite;border-radius:var(--r)}
 @keyframes shimmer{0%{background-position:200%0}100%{background-position:-200%0}}
 
 .footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
-.footer-inner{
-  max-width:1080px;margin:0 auto;padding:40px 24px 24px;
-  display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;
-}
+.footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
 .fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
 .fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
 .fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2}
 .fc a:hover{color:var(--blue);text-decoration:underline}
 .footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.footer-bottom{
-  max-width:1080px;margin:0 auto;padding:16px 24px;
-  border-top:1px solid var(--border);display:flex;
-  justify-content:space-between;align-items:center;
-  font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px;
-}
+.footer-bottom{max-width:1080px;margin:0 auto;padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px}
 .footer-links{display:flex;gap:20px}
 .footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
 .footer-links a:hover{text-decoration:underline;color:var(--blue)}
-.toast{
-  position:fixed;bottom:24px;left:24px;z-index:9999;
-  padding:14px 24px;border-radius:var(--r);background:#323232;
-  color:#f5f5f5;font-size:.875rem;
-  box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px rgba(0,0,0,.14),0 1px 18px rgba(0,0,0,.12);
-  transform:translateY(80px);opacity:0;
-  transition:all .25s cubic-bezier(0,0,.2,1);pointer-events:none;
-}
+.toast{position:fixed;bottom:24px;left:24px;z-index:9999;padding:14px 24px;border-radius:var(--r);background:#323232;color:#f5f5f5;font-size:.875rem;box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px rgba(0,0,0,.14),0 1px 18px rgba(0,0,0,.12);transform:translateY(80px);opacity:0;transition:all .25s cubic-bezier(0,0,.2,1);pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
 
 @media(max-width:900px){
@@ -401,9 +240,7 @@ body{
 <header class="header" id="header">
   <div class="header-left">
     <button class="hamburger" id="hamburger" onclick="toggleMobileNav()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <a href="/" class="logo-wrap">
       <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
@@ -435,45 +272,15 @@ body{
   <div class="content">
 
     <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-card-icon" style="background:#e8f0fe;color:var(--blue)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>
-        </div>
-        <div class="stat-card-val" id="statTotal">—</div>
-        <div class="stat-card-lbl">Available Exams</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-icon" style="background:var(--grn-bg);color:var(--green)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </div>
-        <div class="stat-card-val" id="statCompleted">—</div>
-        <div class="stat-card-lbl">Completed</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-icon" style="background:var(--yel-bg);color:#e37400">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-        </div>
-        <div class="stat-card-val" id="statBest">—</div>
-        <div class="stat-card-lbl">Best Score</div>
-      </div>
-      <div class="stat-card clickable" onclick="scrollToResources()">
-        <div class="stat-card-icon" style="background:#e8f0fe;color:var(--blue)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-        </div>
-        <div class="stat-card-val" id="statResources">—</div>
-        <div class="stat-card-lbl">Resources</div>
-      </div>
+      <div class="stat-card"><div class="stat-card-icon" style="background:#e8f0fe;color:var(--blue)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg></div><div class="stat-card-val" id="statTotal">—</div><div class="stat-card-lbl">Available Exams</div></div>
+      <div class="stat-card"><div class="stat-card-icon" style="background:var(--grn-bg);color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="stat-card-val" id="statCompleted">—</div><div class="stat-card-lbl">Completed</div></div>
+      <div class="stat-card"><div class="stat-card-icon" style="background:var(--yel-bg);color:#e37400"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div><div class="stat-card-val" id="statBest">—</div><div class="stat-card-lbl">Best Score</div></div>
+      <div class="stat-card clickable" onclick="scrollToResources()"><div class="stat-card-icon" style="background:#e8f0fe;color:var(--blue)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="stat-card-val" id="statResources">—</div><div class="stat-card-lbl">Resources</div></div>
     </div>
 
-    <div class="live-strip" id="liveStrip">
-      <div class="live-badge"><span class="live-dot"></span>Live Now</div>
-      <div id="liveList"></div>
-    </div>
+    <div class="live-strip" id="liveStrip"><div class="live-badge"><span class="live-dot"></span>Live Now</div><div id="liveList"></div></div>
 
-    <div class="rank-section" id="rankSection" style="display:none">
-      <div class="section-header"><h2>Your Rankings</h2></div>
-      <div class="rank-grid" id="rankGrid"></div>
-    </div>
+    <div class="rank-section" id="rankSection" style="display:none"><div class="section-header"><h2>Your Rankings</h2></div><div class="rank-grid" id="rankGrid"></div></div>
 
     <div class="section-header"><h2>All Examinations</h2></div>
     <div class="filters">
@@ -485,11 +292,7 @@ body{
       <button class="filter-chip" data-filter="completed" onclick="setFilter(this)">Completed</button>
     </div>
 
-    <div id="examsContainer">
-      <div class="skeleton" style="height:100px;margin-bottom:12px"></div>
-      <div class="skeleton" style="height:100px;margin-bottom:12px"></div>
-      <div class="skeleton" style="height:100px"></div>
-    </div>
+    <div id="examsContainer"><div class="skeleton" style="height:100px;margin-bottom:14px"></div><div class="skeleton" style="height:100px;margin-bottom:14px"></div><div class="skeleton" style="height:100px"></div></div>
 
     <div id="resourcesContainer"></div>
 
@@ -498,59 +301,32 @@ body{
 
 <div class="modal-overlay" id="notifModal">
   <div class="modal">
-    <div class="modal-header">
-      <h2>Notifications</h2>
-      <button class="modal-close" onclick="closeNotifModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
+    <div class="modal-header"><h2>Notifications</h2><button class="modal-close" onclick="closeNotifModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="modal-body" id="notifList"></div>
-    <div class="modal-footer-btn">
-      <button onclick="markAllRead()">Mark all as read</button>
-    </div>
+    <div class="modal-footer-btn"><button onclick="markAllRead()">Mark all as read</button></div>
   </div>
 </div>
 
 <footer class="footer">
   <div class="footer-inner">
-    <div class="fc">
-      <div class="footer-brand">
-        <img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'">
-        <span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t2)">Exalyte</span>
-      </div>
-      <p>A precision examination platform built for students who want to perform, not just prepare.</p>
-    </div>
-    <div class="fc">
-      <h4>Platform</h4>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="exam-history.html">Exam History</a>
-    </div>
-    <div class="fc">
-      <h4>Legal</h4>
-      <a href="privacy.html">Privacy Policy</a>
-      <a href="tos.html">Terms of Service</a>
-      <a href="contact.html">Contact</a>
-    </div>
+    <div class="fc"><div class="footer-brand"><img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'"><span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t2)">Exalyte</span></div><p>A precision examination platform built for students who want to perform, not just prepare.</p></div>
+    <div class="fc"><h4>Platform</h4><a href="dashboard.html">Dashboard</a><a href="exam-history.html">Exam History</a></div>
+    <div class="fc"><h4>Legal</h4><a href="privacy.html">Privacy Policy</a><a href="tos.html">Terms of Service</a><a href="contact.html">Contact</a></div>
   </div>
-  <div class="footer-bottom">
-    <span>&copy; 2025 Exalyte. All rights reserved.</span>
-    <div class="footer-links">
-      <a href="privacy.html">Privacy</a>
-      <a href="tos.html">Terms</a>
-    </div>
-  </div>
+  <div class="footer-bottom"><span>&copy; 2025 Exalyte. All rights reserved.</span><div class="footer-links"><a href="privacy.html">Privacy</a><a href="tos.html">Terms</a></div></div>
 </footer>
 
 <div class="toast" id="toast"></div>
 
 <script>
 const API = '/api';
-
 function getToken(){return localStorage.getItem('exalyte_token')}
 function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
 function logout(){localStorage.clear();window.location.href='/'}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function formatTime(sec){if(sec<=0)return'Ended';const m=Math.floor(sec/60);return m+'m'}
+function formatTime(sec){if(sec<=0)return'Ended';const m=Math.floor(sec/60);const s=sec%60;return m+'m '+(s<10?'0':'')+s+'s'}
+function formatTimeShort(sec){if(sec<=0)return'0s';const h=Math.floor(sec/3600);const m=Math.floor((sec%3600)/60);const s=sec%60;if(h>0)return h+'h '+m+'m';if(m>0)return m+'m '+s+'s';return s+'s'}
+function formatCountdown(sec){if(sec<=0)return'Available now';const h=Math.floor(sec/3600);const m=Math.floor((sec%3600)/60);const s=sec%60;const parts=[];if(h>0)parts.push(h+'h');if(m>0)parts.push(m+'m');if(s>0||parts.length===0)parts.push(s+'s');return parts.join(' ')}
 
 async function apiFetch(path,opts={}){
   const token=getToken();
@@ -561,70 +337,44 @@ async function apiFetch(path,opts={}){
 
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 
-let allExams=[],allBatchResources=[],currentFilter='all',countdowns={},currentResourceFilter='all';
+let allExams=[],allBatchResources=[],currentFilter='all',countdowns={},scheduledCountdowns={},currentResourceFilter='all';
 
 const header=document.getElementById('header');
 let lastY=0,ticking=false;
 window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(()=>{const y=window.scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;ticking=false});ticking=true}},{passive:true});
 
-function toggleMobileNav(){
-  document.getElementById('mobileNavDropdown').classList.toggle('show');
-}
-document.addEventListener('click',function(e){
-  const dd=document.getElementById('mobileNavDropdown');
-  const hb=document.getElementById('hamburger');
-  if(dd&&!dd.contains(e.target)&&!hb.contains(e.target))dd.classList.remove('show');
-});
-
+function toggleMobileNav(){document.getElementById('mobileNavDropdown').classList.toggle('show')}
+document.addEventListener('click',function(e){const dd=document.getElementById('mobileNavDropdown');const hb=document.getElementById('hamburger');if(dd&&!dd.contains(e.target)&&!hb.contains(e.target))dd.classList.remove('show')});
 document.getElementById('signOutBtn').addEventListener('click',logout);
 
-function scrollToResources(){
-  const el=document.getElementById('resourcesContainer');
-  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
-}
+function scrollToResources(){const el=document.getElementById('resourcesContainer');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})}
 
 async function loadDashboard(){
   if(!getToken()){window.location.href='/';return}
   const user=getUser();
   if(user?.is_admin){window.location.href='admin.html';return}
   document.getElementById('userAvatar').textContent=(user?.name||'S')[0].toUpperCase();
-  
   showSkeleton();
   const{ok,data}=await apiFetch('/exams');
   if(!ok){logout();return}
-  
   allExams=(data.exams||[]).filter(e=>e.accessible!==false);
   allBatchResources=data.batch_resources||[];
-  
-  updateStats();
-  renderLiveStrip();
-  renderRankings();
-  renderExams();
-  renderResourcesSection();
-  loadNotifBadge();
+  updateStats();renderLiveStrip();renderRankings();renderExams();renderResourcesSection();loadNotifBadge();
 }
 
 function showSkeleton(){
-  document.getElementById('examsContainer').innerHTML=`
-    <div class="skeleton" style="height:100px;margin-bottom:12px"></div>
-    <div class="skeleton" style="height:100px;margin-bottom:12px"></div>
-    <div class="skeleton" style="height:100px"></div>`;
-  document.getElementById('resourcesContainer').innerHTML=`
-    <div class="skeleton" style="height:160px;margin-top:40px"></div>`;
+  document.getElementById('examsContainer').innerHTML='<div class="skeleton" style="height:100px;margin-bottom:14px"></div><div class="skeleton" style="height:100px;margin-bottom:14px"></div><div class="skeleton" style="height:100px"></div>';
+  document.getElementById('resourcesContainer').innerHTML='<div class="skeleton" style="height:160px;margin-top:40px"></div>';
 }
 
 function updateStats(){
   const completed=allExams.filter(e=>e.stored_attempt).length;
   const visible=allExams.filter(e=>e.stored_attempt&&e.results_visible);
   const best=visible.length?Math.max(...visible.map(e=>e.stored_attempt.percentage)).toFixed(0)+'%':'—';
-  
   let totalResources=0;
-  const accessibleExams=allExams.filter(e=>e.accessible===true);
-  accessibleExams.forEach(e=>{if(e.exam_resources)totalResources+=e.exam_resources.length});
-  const accessibleBatchIds=new Set();
-  accessibleExams.forEach(e=>{if(e.batch_id)accessibleBatchIds.add(e.batch_id)});
-  allBatchResources.forEach(b=>{if(accessibleBatchIds.has(b.id))totalResources+=b.resources.length});
-  
+  allExams.filter(e=>e.accessible===true).forEach(e=>{if(e.exam_resources)totalResources+=e.exam_resources.length});
+  const ids=new Set();allExams.filter(e=>e.accessible===true).forEach(e=>{if(e.batch_id)ids.add(e.batch_id)});
+  allBatchResources.forEach(b=>{if(ids.has(b.id))totalResources+=b.resources.length});
   document.getElementById('statTotal').textContent=allExams.length;
   document.getElementById('statCompleted').textContent=completed;
   document.getElementById('statBest').textContent=best;
@@ -636,21 +386,8 @@ function renderLiveStrip(){
   const strip=document.getElementById('liveStrip');
   if(!live.length){strip.classList.remove('show');return}
   strip.classList.add('show');
-  document.getElementById('liveList').innerHTML=live.map(e=>`
-    <div class="live-exam">
-      <div><div class="live-exam-name">${esc(e.name)}</div><div class="live-countdown" id="cd_${e.id}">${formatTime(e.live_seconds_remaining)}</div></div>
-      <button class="btn-live" onclick="startExam(${e.id},false)">Take Live Exam</button>
-    </div>`).join('');
-  live.forEach(e=>{
-    let remaining=e.live_seconds_remaining;
-    if(countdowns[e.id])clearInterval(countdowns[e.id]);
-    countdowns[e.id]=setInterval(()=>{
-      remaining--;
-      const el=document.getElementById('cd_'+e.id);
-      if(el)el.textContent=formatTime(remaining);
-      if(remaining<=0){clearInterval(countdowns[e.id]);loadDashboard()}
-    },1000);
-  });
+  document.getElementById('liveList').innerHTML=live.map(e=>`<div class="live-exam"><div><div class="live-exam-name">${esc(e.name)}</div><div class="live-countdown" id="cd_${e.id}">${formatCountdown(e.live_seconds_remaining)}</div></div><button class="btn-live" onclick="startExam(${e.id},false)">Take Live Exam</button></div>`).join('');
+  live.forEach(e=>{let r=e.live_seconds_remaining;if(countdowns[e.id])clearInterval(countdowns[e.id]);countdowns[e.id]=setInterval(()=>{r--;const el=document.getElementById('cd_'+e.id);if(el)el.textContent=formatCountdown(r);if(r<=0){clearInterval(countdowns[e.id]);loadDashboard()}},1000)});
 }
 
 async function renderRankings(){
@@ -658,14 +395,7 @@ async function renderRankings(){
   if(!completed.length){document.getElementById('rankSection').style.display='none';return}
   document.getElementById('rankSection').style.display='block';
   const ranks=await Promise.all(completed.map(async e=>{const{data}=await apiFetch('/leaderboard/'+e.id);return{exam:e,lb:data}}));
-  document.getElementById('rankGrid').innerHTML=ranks.map(({exam,lb},idx)=>{
-    const rc=lb?.rank===1?'rank-1':lb?.rank===2?'rank-2':lb?.rank===3?'rank-3':'rank-n';
-    return`<div class="rank-item">
-      <div class="rank-pos ${rc}">#${lb?.rank||'—'}</div>
-      <div class="rank-info"><div class="rank-exam">${esc(exam.name)}</div><div class="rank-sub">${lb?.total_participants||0} participants</div></div>
-      <div class="rank-pct">${exam.stored_attempt?.percentage?.toFixed(0)||0}%</div>
-    </div>`;
-  }).join('');
+  document.getElementById('rankGrid').innerHTML=ranks.map(({exam,lb})=>{const rc=lb?.rank===1?'rank-1':lb?.rank===2?'rank-2':lb?.rank===3?'rank-3':'rank-n';return`<div class="rank-item"><div class="rank-pos ${rc}">#${lb?.rank||'—'}</div><div class="rank-info"><div class="rank-exam">${esc(exam.name)}</div><div class="rank-sub">${lb?.total_participants||0} participants</div></div><div class="rank-pct">${exam.stored_attempt?.percentage?.toFixed(0)||0}%</div></div>`}).join('');
 }
 
 function renderExams(){
@@ -678,177 +408,72 @@ function renderExams(){
     if(currentFilter==='completed')return!!e.stored_attempt;
     return true;
   });
-  if(!filtered.length){
-    document.getElementById('examsContainer').innerHTML=`
-      <div class="empty-state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-        <h3>No exams found</h3><p>Try different filters or search terms.</p></div>`;
-    return;
-  }
+  if(!filtered.length){document.getElementById('examsContainer').innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><h3>No exams found</h3><p>Try different filters.</p></div>';return}
   const grouped={};
   filtered.forEach(e=>{const key=e.batch_id?(e.batch_name||'Batch'):'__other__';if(!grouped[key])grouped[key]=[];grouped[key].push(e)});
   let html='';
-  Object.entries(grouped).forEach(([batchName,exams])=>{
-    const displayName=batchName==='__other__'?'Other Exams':batchName;
-    html+=`<div class="batch-group">
-      <div class="batch-header" onclick="this.parentElement.classList.toggle('collapsed')">
-        <svg class="batch-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-        <span class="batch-name">${esc(displayName)}</span><span class="batch-count">${exams.length}</span>
-      </div>
-      <div class="exams-list">${exams.map(examCard).join('')}</div>
-    </div>`;
-  });
+  Object.entries(grouped).forEach(([batchName,exams])=>{const d=batchName==='__other__'?'Other Exams':batchName;html+=`<div class="batch-group"><div class="batch-header" onclick="this.parentElement.classList.toggle('collapsed')"><svg class="batch-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg><span class="batch-name">${esc(d)}</span><span class="batch-count">${exams.length}</span></div><div class="exams-list">${exams.map(examCard).join('')}</div></div>`});
   document.getElementById('examsContainer').innerHTML=html;
+  startScheduledCountdowns();
+}
+
+function startScheduledCountdowns(){
+  allExams.forEach(e=>{if(e.scheduled_at&&!e.scheduled){const el=document.getElementById('scd_'+e.id);if(!el)return;const st=new Date(e.scheduled_at).getTime();let r=Math.max(0,Math.floor((st-Date.now())/1000));if(scheduledCountdowns[e.id])clearInterval(scheduledCountdowns[e.id]);scheduledCountdowns[e.id]=setInterval(()=>{r--;const el2=document.getElementById('scd_'+e.id);if(el2){if(r<=0){el2.textContent='Available now';clearInterval(scheduledCountdowns[e.id]);loadDashboard()}else{el2.textContent='Opens in '+formatCountdown(r)}}},1000)});
 }
 
 function examCard(e){
-  const badgeCls=e.is_live?'badge-live':(e.is_premium?'badge-premium':'badge-free');
-  const badgeText=e.is_live?'Live':(e.is_premium?'Premium':'Free');
+  let badgeCls=e.is_live?'badge-live':(e.is_premium?'badge-premium':'badge-free');
+  let badgeText=e.is_live?'Live':(e.is_premium?'Premium':'Free');
+  if(!e.scheduled&&e.scheduled_at){badgeCls='badge-scheduled';badgeText='Scheduled';}
   let scoreHtml='',actionHtml='';
   
-  if(e.is_closed){
-    actionHtml=`<button class="btn-take" disabled>Exam Closed</button>`;
-  }else if(e.stored_attempt){
-    if(e.results_visible){
-      scoreHtml=`<div class="score-pill good">${e.stored_attempt.percentage?.toFixed(0)||0}%</div>`;
-      actionHtml=`<button class="btn-take" onclick="window.location='result.html?examId=${e.id}&attemptId=${e.stored_attempt.id}'">View Result</button>`;
-      if(e.can_practice)actionHtml+=`<button class="btn-practice" onclick="startExam(${e.id},true)">Practice</button>`;
-    }else{
-      scoreHtml=`<div class="score-pill pending">Pending</div>`;
-      actionHtml=`<button class="btn-take" disabled>Awaiting Results</button>`;
-    }
-  }else{
-    if(e.is_live){
-      actionHtml=`<button class="btn-take" onclick="startExam(${e.id},false)">Take Live Exam</button>`;
-    }else if(e.live_ended&&e.live_deadline_hours>0){
-      actionHtml=`<button class="btn-take" onclick="startExam(${e.id},true)">Start Practice</button>`;
-    }else{
-      actionHtml=`<button class="btn-take" onclick="startExam(${e.id},false)">Start Exam</button>`;
-    }
+  if(e.is_closed){actionHtml='<button class="btn-take" disabled>Exam Closed</button>'}
+  else if(!e.scheduled&&e.scheduled_at){
+    const st=new Date(e.scheduled_at).getTime();
+    const remaining=Math.max(0,Math.floor((st-Date.now())/1000));
+    actionHtml=`<button class="btn-take" disabled><span id="scd_${e.id}">Opens in ${formatCountdown(remaining)}</span></button>`;
   }
-  
-  return`<div class="exam-card"><div class="exam-card-inner">
-    <div class="exam-body">
-      <span class="exam-badge ${badgeCls}">${badgeText}</span>
-      <div class="exam-name">${esc(e.name)}</div>
-      ${e.description?`<div class="exam-desc">${esc(e.description)}</div>`:''}
-      <div class="exam-meta">
-        <span class="meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${e.time_limit}m</span>
-        <span class="meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>${e.question_count||0} Q</span>
-        ${e.negative_marking>0?`<span class="meta-item" style="color:var(--red)"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>-${e.negative_marking}</span>`:''}
-      </div>
-    </div>
-    <div class="exam-actions">${scoreHtml}${actionHtml}</div>
-  </div></div>`;
+  else if(e.stored_attempt){
+    if(e.results_visible){scoreHtml=`<div class="score-pill good">${e.stored_attempt.percentage?.toFixed(0)||0}%</div>`;actionHtml=`<button class="btn-take" onclick="window.location='result.html?examId=${e.id}&attemptId=${e.stored_attempt.id}'">View Result</button>`;if(e.can_practice)actionHtml+=`<button class="btn-practice" onclick="startExam(${e.id},true)">Practice</button>`}
+    else{scoreHtml='<div class="score-pill pending">Pending</div>';actionHtml='<button class="btn-take" disabled>Awaiting Results</button>'}
+  }else{
+    if(e.is_live)actionHtml=`<button class="btn-take" onclick="startExam(${e.id},false)">Take Live Exam</button>`;
+    else if(e.live_ended&&e.live_deadline_hours>0)actionHtml=`<button class="btn-take" onclick="startExam(${e.id},true)">Start Practice</button>`;
+    else actionHtml=`<button class="btn-take" onclick="startExam(${e.id},false)">Start Exam</button>`;
+  }
+  return`<div class="exam-card"><div class="exam-card-inner"><div class="exam-body"><span class="exam-badge ${badgeCls}">${badgeText}</span><div class="exam-name">${esc(e.name)}</div>${e.description?`<div class="exam-desc">${esc(e.description)}</div>`:''}<div class="exam-meta"><span class="meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${e.time_limit}m</span><span class="meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>${e.question_count||0} Q</span>${e.negative_marking>0?`<span class="meta-item" style="color:var(--red)"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>-${e.negative_marking}</span>`:''}</div></div><div class="exam-actions">${scoreHtml}${actionHtml}</div></div></div>`;
 }
 
 function renderResourcesSection(){
-  const accessibleExams=allExams.filter(e=>e.accessible===true);
-  let examResourceGroups=[];
-  accessibleExams.forEach(exam=>{if(exam.exam_resources&&exam.exam_resources.length){examResourceGroups.push({id:exam.id,name:exam.name,type:'exam',typeLabel:'Exam',typeClass:'type-exam',resources:exam.exam_resources})}});
-  
-  const accessibleBatchIds=new Set();
-  accessibleExams.forEach(e=>{if(e.batch_id)accessibleBatchIds.add(e.batch_id)});
-  let batchResourceGroups=allBatchResources.filter(b=>accessibleBatchIds.has(b.id)).map(b=>({id:b.id,name:b.name,type:'batch',typeLabel:'Batch',typeClass:'type-batch',resources:b.resources}));
-  
-  let allGroups=[...batchResourceGroups,...examResourceGroups];
-  if(currentResourceFilter!=='all')allGroups=allGroups.filter(g=>g.id==currentResourceFilter);
-  
-  const totalResources=allGroups.reduce((s,g)=>s+g.resources.length,0);
-  let dropdownOpts='<option value="all"'+(currentResourceFilter==='all'?' selected':'')+'>All Accessible Content</option>';
-  [...batchResourceGroups,...examResourceGroups].forEach(g=>{dropdownOpts+=`<option value="${g.id}"${currentResourceFilter==g.id?' selected':''}>${esc(g.name)} (${g.typeLabel})</option>`});
-  
-  let html=`<div class="resources-section" id="resourcesSection">
-    <div class="resources-header">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      <h2>Study Materials</h2>
-      <div class="resources-filter"><select id="resourceFilterSelect" onchange="filterResources(this.value)">${dropdownOpts}</select></div>
-      <span style="font-size:.75rem;color:var(--t3)">${totalResources} resource${totalResources!==1?'s':''}</span>
-    </div>
-    <div class="resources-grid">`;
-  
-  if(!allGroups.length){
-    html+=`<div class="resource-empty">No study materials available for your accessible content.</div>`;
-  }else{
-    allGroups.forEach(group=>{
-      html+=`<div class="resource-group">
-        <div class="resource-group-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>
-          <span class="resource-group-name">${esc(group.name)}</span>
-          <span class="resource-group-type ${group.typeClass}">${group.typeLabel}</span>
-        </div>
-        <div class="resource-chips">
-          ${group.resources.map(r=>`<a href="${esc(r.link)}" target="_blank" rel="noopener noreferrer" class="resource-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>${esc(r.title)}</a>`).join('')}
-        </div>
-      </div>`;
-    });
-  }
-  html+=`</div></div>`;
-  document.getElementById('resourcesContainer').innerHTML=html;
+  const acc=allExams.filter(e=>e.accessible===true);
+  let eg=[];acc.forEach(e=>{if(e.exam_resources&&e.exam_resources.length)eg.push({id:e.id,name:e.name,type:'exam',typeLabel:'Exam',typeClass:'type-exam',resources:e.exam_resources})});
+  const bids=new Set();acc.forEach(e=>{if(e.batch_id)bids.add(e.batch_id)});
+  let bg=allBatchResources.filter(b=>bids.has(b.id)).map(b=>({id:b.id,name:b.name,type:'batch',typeLabel:'Batch',typeClass:'type-batch',resources:b.resources}));
+  let all=[...bg,...eg];if(currentResourceFilter!=='all')all=all.filter(g=>g.id==currentResourceFilter);
+  const tr=all.reduce((s,g)=>s+g.resources.length,0);
+  let dopts='<option value="all"'+(currentResourceFilter==='all'?' selected':'')+'>All Accessible Content</option>';
+  [...bg,...eg].forEach(g=>{dopts+=`<option value="${g.id}"${currentResourceFilter==g.id?' selected':''}>${esc(g.name)} (${g.typeLabel})</option>`});
+  let html=`<div class="resources-section" id="resourcesSection"><div class="resources-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><h2>Study Materials</h2><div class="resources-filter"><select id="resourceFilterSelect" onchange="filterResources(this.value)">${dopts}</select></div><span style="font-size:.75rem;color:var(--t3)">${tr} resource${tr!==1?'s':''}</span></div><div class="resources-grid">`;
+  if(!all.length)html+='<div class="resource-empty">No study materials available.</div>';
+  else all.forEach(g=>{html+=`<div class="resource-group"><div class="resource-group-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg><span class="resource-group-name">${esc(g.name)}</span><span class="resource-group-type ${g.typeClass}">${g.typeLabel}</span></div><div class="resource-chips">${g.resources.map(r=>`<a href="${esc(r.link)}" target="_blank" rel="noopener" class="resource-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>${esc(r.title)}</a>`).join('')}</div></div>`});
+  html+='</div></div>';document.getElementById('resourcesContainer').innerHTML=html;
 }
 
-function filterResources(value){currentResourceFilter=value;renderResourcesSection()}
-
-function setFilter(btn){
-  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-  btn.classList.add('active');
-  currentFilter=btn.dataset.filter;
-  renderExams();
-}
-
-function startExam(id,isPractice){
-  const exam=allExams.find(e=>e.id==id);
-  if(exam&&exam.live_ended&&exam.stored_attempt&&!isPractice){
-    window.location.href=`exam.html?id=${id}&practice=1`;
-    return;
-  }
-  window.location.href=`exam.html?id=${id}&practice=${isPractice?1:0}`;
-}
+function filterResources(v){currentResourceFilter=v;renderResourcesSection()}
+function setFilter(btn){document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));btn.classList.add('active');currentFilter=btn.dataset.filter;renderExams()}
+function startExam(id,isP){const e=allExams.find(x=>x.id==id);if(e&&e.live_ended&&e.stored_attempt&&!isP){window.location.href=`exam.html?id=${id}&practice=1`;return}window.location.href=`exam.html?id=${id}&practice=${isP?1:0}`}
 
 async function loadNotifBadge(){
-  try{
-    const{ok,data}=await apiFetch('/notifications');
-    if(!ok)return;
-    const badge=document.getElementById('notifBadge');
-    const count=data.unread_count||0;
-    if(count>0){badge.textContent=count;badge.classList.add('show')}
-    else{badge.classList.remove('show')}
-  }catch(e){}
+  try{const{ok,data}=await apiFetch('/notifications');if(!ok)return;const b=document.getElementById('notifBadge');const c=data.unread_count||0;if(c>0){b.textContent=c;b.classList.add('show')}else b.classList.remove('show')}catch(e){}
 }
-
 async function openNotifModal(){
   document.getElementById('notifModal').classList.add('open');
-  try{
-    const{ok,data}=await apiFetch('/notifications');
-    if(!ok)return;
-    const notifs=data.notifications||[];
-    const list=document.getElementById('notifList');
-    if(!notifs.length){
-      list.innerHTML=`<div class="notif-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><p>No notifications yet</p></div>`;
-      return;
-    }
-    list.innerHTML=notifs.map(n=>`
-      <div class="notif-item ${n.is_read?'':'unread'}" onclick="markRead(${n.id})">
-        <div class="notif-item-title">${esc(n.title)}</div>
-        ${n.body?`<div class="notif-item-body">${esc(n.body)}</div>`:''}
-        ${n.image_url?`<img src="${esc(n.image_url)}" class="notif-item-img" onerror="this.style.display='none'" alt="">`:''}
-        ${n.link_url?`<a href="${esc(n.link_url)}" target="_blank" rel="noopener" class="notif-item-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open</a>`:''}
-        <div class="notif-item-meta">
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${new Date(n.created_at).toLocaleDateString()}</span>
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${esc(n.creator_name)}</span>
-        </div>
-      </div>`).join('');
-  }catch(e){}
+  try{const{ok,data}=await apiFetch('/notifications');if(!ok)return;const n=data.notifications||[];const l=document.getElementById('notifList');if(!n.length){l.innerHTML='<div class="notif-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><p>No notifications yet</p></div>';return}
+    l.innerHTML=n.map(x=>`<div class="notif-item ${x.is_read?'':'unread'}" onclick="markRead(${x.id})"><div class="notif-item-title">${esc(x.title)}</div>${x.body?`<div class="notif-item-body">${esc(x.body)}</div>`:''}${x.image_url?`<img src="${esc(x.image_url)}" class="notif-item-img" onerror="this.style.display='none'" alt="">`:''}${x.link_url?`<a href="${esc(x.link_url)}" target="_blank" rel="noopener" class="notif-item-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open</a>`:''}<div class="notif-item-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${new Date(x.created_at).toLocaleDateString()}</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${esc(x.creator_name)}</span></div></div>`).join('')}catch(e){}
 }
-
 function closeNotifModal(){document.getElementById('notifModal').classList.remove('open');loadNotifBadge()}
 async function markRead(id){await apiFetch('/notifications/'+id+'/read',{method:'POST'});loadNotifBadge()}
-async function markAllRead(){
-  const{data}=await apiFetch('/notifications');
-  for(const n of(data.notifications||[])){if(!n.is_read)await apiFetch('/notifications/'+n.id+'/read',{method:'POST'})}
-  openNotifModal();loadNotifBadge();
-}
-
+async function markAllRead(){const{data}=await apiFetch('/notifications');for(const n of(data.notifications||[])){if(!n.is_read)await apiFetch('/notifications/'+n.id+'/read',{method:'POST'})}openNotifModal();loadNotifBadge()}
 document.getElementById('notifModal').addEventListener('click',function(e){if(e.target===this)closeNotifModal()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNotifModal()});
 
