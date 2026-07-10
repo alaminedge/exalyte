@@ -17,11 +17,12 @@
   --gs:'Google Sans','Roboto',system-ui,sans-serif;
   --rb:'Roboto',system-ui,sans-serif;
   --hh:64px;--r:4px;--rl:8px;--tr:.2s cubic-bezier(.4,0,.2,1);
+  --safe-bottom:env(safe-area-inset-bottom,20px);
 }
 body{
   font-family:var(--rb);background:var(--bg);color:var(--t2);
   -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
-  display:flex;flex-direction:column;
+  display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;
 }
 .header{
   position:fixed;top:0;left:0;right:0;height:var(--hh);
@@ -44,20 +45,20 @@ body{
 .hamburger svg{width:22px;height:22px}
 .mobile-nav-dropdown{display:none;position:fixed;top:var(--hh);left:0;right:0;background:var(--surf);border-bottom:1px solid var(--border);box-shadow:0 4px 16px rgba(0,0,0,.1);padding:8px 16px;z-index:999}
 .mobile-nav-dropdown.show{display:block}
-.mobile-nav-dropdown a{display:block;padding:12px 16px;font-family:var(--gs);font-size:.9rem;color:var(--t2);text-decoration:none;border-radius:var(--r)}
+.mobile-nav-dropdown a{display:block;padding:14px 16px;font-family:var(--gs);font-size:.9rem;color:var(--t2);text-decoration:none;border-radius:var(--r)}
 .mobile-nav-dropdown a:hover{background:var(--hov)}
 .mobile-nav-dropdown a.active{color:var(--blue);background:#e8f0fe}
 .header-right{display:flex;align-items:center;gap:8px}
-.icon-btn{width:40px;height:40px;border:none;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);transition:background var(--tr)}
+.icon-btn{width:44px;height:44px;border:none;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);transition:background var(--tr)}
 .icon-btn:hover{background:var(--hov)}
 .icon-btn svg{width:20px;height:20px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 22px;font-family:var(--gs);font-size:.85rem;font-weight:500;border:none;border-radius:var(--r);cursor:pointer;text-decoration:none;transition:all var(--tr)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 22px;font-family:var(--gs);font-size:.85rem;font-weight:500;border:none;border-radius:var(--r);cursor:pointer;text-decoration:none;transition:all var(--tr);min-height:44px}
 .btn-primary{background:var(--blue);color:#fff}
 .btn-primary:hover{background:var(--blue-h);box-shadow:0 1px 2px rgba(60,64,67,.3),0 2px 6px rgba(60,64,67,.15)}
 .btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
 .btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
 .main{flex:1;padding-top:var(--hh)}
-.content{max-width:860px;margin:0 auto;padding:32px 24px 60px;width:100%}
+.content{max-width:860px;margin:0 auto;padding:32px 24px 60px;width:100%;padding-bottom:calc(60px + var(--safe-bottom))}
 
 .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -70,35 +71,34 @@ body{
 .ring-fill{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:339;stroke-dashoffset:339;transition:stroke-dashoffset 1.4s ease}
 .ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .ring-pct{font-family:var(--gs);font-size:1.8rem;font-weight:500;color:var(--t1)}
-.ring-lbl{font-size:.6rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
+.ring-lbl{font-size:.62rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
 .score-grade{font-family:var(--gs);font-size:1.2rem;font-weight:500;margin-bottom:4px}
 .score-exam{font-size:.82rem;color:var(--t3);margin-bottom:20px}
 .score-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:360px;margin:0 auto 18px}
-.sc-stat{background:var(--bg);border-radius:var(--r);padding:12px 8px;text-align:center}
+.sc-stat{background:var(--bg);border-radius:var(--r);padding:14px 8px;text-align:center}
 .sc-stat-val{font-family:var(--gs);font-size:1.3rem;font-weight:500}
-.sc-stat-lbl{font-size:.6rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
+.sc-stat-lbl{font-size:.62rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
 .sc-correct .sc-stat-val{color:var(--green)}
 .sc-wrong .sc-stat-val{color:var(--red)}
 .sc-skip .sc-stat-val{color:var(--t3)}
 .perf-bar{height:6px;background:var(--hov);border-radius:4px;max-width:360px;margin:0 auto 20px;overflow:hidden}
 .perf-fill{height:100%;border-radius:4px;width:0;transition:width 1.4s ease}
 .result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.time-info{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:4px;font-size:.75rem;color:var(--t3)}
+.time-info{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:8px;font-size:.75rem;color:var(--t3)}
 .time-info span{display:flex;align-items:center;gap:4px}
-.time-info svg{width:12px;height:12px;stroke:currentColor;fill:none}
+.time-info svg{width:12px;height:12px;stroke:currentColor;fill:none;flex-shrink:0}
 
 .lb-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .lb-badge{width:56px;height:56px;border-radius:50%;background:var(--blue);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
 .lb-rank{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:#fff}
 .lb-lbl{font-size:.5rem;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px;font-weight:500}
-.lb-info{flex:1}
+.lb-info{flex:1;min-width:0}
 .lb-title{font-family:var(--gs);font-size:.88rem;font-weight:500;color:var(--t1)}
 .lb-sub{font-size:.76rem;color:var(--t3)}
 .lb-pct{text-align:right}
 .lb-pct-val{font-family:var(--gs);font-size:1.5rem;font-weight:500;color:var(--blue)}
 .lb-pct-lbl{font-size:.6rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500}
 
-/* ── PENDING RESULT CARD ── */
 .pending-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:48px 28px;text-align:center;margin-bottom:20px}
 .pending-icon{width:56px;height:56px;border-radius:50%;background:var(--yel-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
 .pending-icon svg{width:24px;height:24px;stroke:#e37400;fill:none;stroke-width:2}
@@ -111,20 +111,19 @@ body{
 .pending-guide span{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px}
 .pending-guide span svg{width:14px;height:14px;stroke:var(--blue);fill:none;flex-shrink:0;margin-top:2px}
 .pending-guide span strong{color:var(--t1)}
-/* ────────────────────────── */
 
 .review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
 .review-head h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1)}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{padding:5px 14px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.72rem;font-weight:500;color:var(--t3);background:var(--surf);cursor:pointer;transition:all var(--tr)}
+.chip{padding:7px 14px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.72rem;font-weight:500;color:var(--t3);background:var(--surf);cursor:pointer;transition:all var(--tr);min-height:36px;display:flex;align-items:center}
 .chip:hover{border-color:var(--blue);color:var(--blue)}
 .chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
 .review-list{display:flex;flex-direction:column;gap:8px}
 .rv-card{background:var(--surf);border:2px solid var(--border);border-radius:var(--rl);overflow:hidden}
 .rv-card.rv-correct{border-color:rgba(30,142,62,.4)}
 .rv-card.rv-wrong{border-color:rgba(217,48,37,.3)}
-.rv-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer}
-.rv-status{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rv-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;min-height:44px}
+.rv-status{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .rv-status svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5}
 .rv-correct .rv-status{background:var(--grn-bg);color:var(--green)}
 .rv-wrong .rv-status{background:var(--red-bg);color:var(--red)}
@@ -136,15 +135,15 @@ body{
 .rv-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);text-align:left}
 .rv-card.open .rv-body{display:block}
 .rv-opts{display:flex;flex-direction:column;gap:6px;margin-top:12px;text-align:left}
-.rv-opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:var(--r);background:var(--bg);border:1.5px solid var(--border);font-size:.8rem;color:var(--t2);line-height:1.4}
+.rv-opt{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;border-radius:var(--r);background:var(--bg);border:1.5px solid var(--border);font-size:.8rem;color:var(--t2);line-height:1.4}
 .rv-opt.rv-opt-correct{background:var(--grn-bg);border-color:rgba(30,142,62,.4);color:var(--green)}
 .rv-opt.rv-opt-wrong{background:var(--red-bg);border-color:rgba(217,48,37,.3);color:var(--red)}
-.rv-ol{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.7rem;font-weight:500;flex-shrink:0;color:var(--t3)}
+.rv-ol{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.72rem;font-weight:500;flex-shrink:0;color:var(--t3)}
 .rv-opt-correct .rv-ol{background:rgba(30,142,62,.2);color:var(--green)}
 .rv-opt-wrong .rv-ol{background:rgba(217,48,37,.15);color:var(--red)}
 .rv-opt-img{max-width:100%;max-height:120px;border-radius:var(--r);border:1px solid var(--border);object-fit:contain}
 .rv-ans-note{font-size:.68rem;font-weight:500;color:var(--t4);text-transform:uppercase;letter-spacing:.3px;margin-top:10px;text-align:left}
-.rv-explanation{margin-top:10px;padding:10px 14px;background:#e8f0fe;border:1px solid rgba(26,115,232,.2);border-radius:var(--r);font-size:.78rem;color:var(--blue);line-height:1.6;text-align:left}
+.rv-explanation{margin-top:10px;padding:12px 14px;background:#e8f0fe;border:1px solid rgba(26,115,232,.2);border-radius:var(--r);font-size:.78rem;color:var(--blue);line-height:1.6;text-align:left}
 .rv-explanation strong{color:var(--t1);display:block;margin-bottom:3px;font-size:.68rem;text-transform:uppercase}
 .rv-explanation-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:10px;border:1px solid var(--border);object-fit:contain}
 .empty-review{text-align:center;padding:40px;color:var(--t3);font-size:.82rem}
@@ -153,39 +152,41 @@ body{
 .footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
 .fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
 .fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
-.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2}
+.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2.2;padding:2px 0}
 .fc a:hover{color:var(--blue)}
 .footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.footer-bottom{max-width:1080px;margin:0 auto;padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px}
+.footer-bottom{max-width:1080px;margin:0 auto;padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px;padding-bottom:calc(16px + var(--safe-bottom))}
 .footer-links{display:flex;gap:20px}
 .footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
 
-@media(max-width:900px){
+@media(max-width:768px){
   .header{padding:0 16px}
   .header-nav{display:none}
   .hamburger{display:flex}
-  .content{padding:24px 16px 80px}
+  .content{padding:20px 16px 80px;padding-bottom:calc(80px + var(--safe-bottom))}
   .score-card{padding:28px 20px}
   .score-ring-wrap{width:100px;height:100px}
   .score-ring-wrap svg{width:100px;height:100px}
   .ring-pct{font-size:1.4rem}
-  .lb-card{padding:16px}
+  .lb-card{padding:16px;gap:12px}
   .lb-badge{width:48px;height:48px}
   .lb-pct{text-align:left}
   .review-head{flex-direction:column;align-items:flex-start}
   .pending-card{padding:36px 20px}
   .footer-inner{grid-template-columns:1fr 1fr;gap:28px}
 }
-@media(max-width:600px){
+@media(max-width:480px){
   .score-stats{grid-template-columns:1fr 1fr}
   .score-stats .sc-stat:last-child{grid-column:span 2}
   .result-actions .btn{flex:1;justify-content:center}
   .rv-header{padding:12px 14px}
   .rv-q{font-size:.78rem}
-  .rv-body{padding:0 14px 14px}
-  .rv-opt{font-size:.75rem;padding:6px 10px}
+  .rv-body{padding:0 12px 14px}
+  .rv-opt{font-size:.75rem;padding:8px 12px}
   .footer-inner{grid-template-columns:1fr;gap:20px}
   .footer-bottom{flex-direction:column;text-align:center}
+  .lb-pct-val{font-size:1.3rem}
+  .pending-countdown{font-size:1.2rem}
 }
 </style>
 </head>
@@ -193,7 +194,7 @@ body{
 
 <header class="header" id="header">
   <div class="header-left">
-    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()">
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
       </svg>
@@ -208,7 +209,7 @@ body{
     </nav>
   </div>
   <div class="header-right">
-    <button class="icon-btn" onclick="logout()" title="Sign out">
+    <button class="icon-btn" onclick="logout()" title="Sign out" aria-label="Sign out">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </button>
   </div>
@@ -246,8 +247,8 @@ function formatCountdown(sec){if(sec<=0)return'0s';const h=Math.floor(sec/3600);
 function formatTimeTaken(sec){if(!sec||sec<=0)return'';const m=Math.floor(sec/60);const s=Math.floor(sec%60);if(m>0)return m+'m '+s+'s';return s+'s'}
 function formatAvgTime(sec,total){if(!sec||!total||sec<=0||total<=0)return'';const a=sec/total;if(a<60)return Math.round(a)+'s/Q';return (a/60).toFixed(1)+'m/Q'}
 function isImageURL(str){if(!str)return false;const s=str.trim();return s.startsWith('http')&&(s.includes('.jpg')||s.includes('.jpeg')||s.includes('.png')||s.includes('.webp')||s.includes('.gif')||s.includes('ibb.co')||s.includes('images.unsplash.com')||s.includes('i.imgur.com'))}
-function renderOptionContent(text){if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-opt-img" alt="Option" onerror="this.style.display=\'none\'">';return esc(text||'')}
-function renderExplanationContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-explanation-img" alt="Explanation" onerror="this.style.display=\'none\'">';return esc(text)}
+function renderOptionContent(text){if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-opt-img" alt="Option" onerror="this.style.display=\'none\'" loading="lazy">';return esc(text||'')}
+function renderExplanationContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-explanation-img" alt="Explanation" onerror="this.style.display=\'none\'" loading="lazy">';return esc(text)}
 
 async function apiFetch(path,opts){
   opts=opts||{};
@@ -284,58 +285,21 @@ function showError(msg){
   document.getElementById('resultWrap').innerHTML='<div class="pending-card"><div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="pending-title">Could not load result</div><div class="pending-sub">'+esc(msg)+'</div><a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a></div>';
 }
 
-// ── ENHANCED PENDING WITH COUNTDOWN + GUIDE ──
 function showPending(msg,liveSeconds,examName){
   var h='<div class="pending-card">';
   h+='<div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>';
   h+='<div class="pending-title">Results Pending</div>';
-  
-  if(examName){
-    h+='<div class="pending-sub">'+esc(examName)+'</div>';
-  } else {
-    h+='<div class="pending-sub">'+esc(msg)+'</div>';
-  }
-  
-  if(liveSeconds>0){
-    h+='<div class="pending-countdown" id="pendingCountdown">'+formatCountdown(liveSeconds)+'</div>';
-    h+='<div class="pending-countdown-sub">until results are published</div>';
-  }
-  
-  h+='<div class="pending-guide">';
-  h+='<span class="pending-guide-title">How to check your result</span>';
-  h+='<span><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Go to <strong>Dashboard</strong> → click <strong>View Result</strong> on the exam card</span></span>';
-  h+='<span><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg><span>Or visit <strong>Exam History</strong> from the navigation menu</span></span>';
-  h+='<span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Results auto-publish when the live exam window ends</span></span>';
-  h+='</div>';
-  
-  h+='<a href="dashboard.html" class="btn btn-primary" style="margin-top:20px">Back to Dashboard</a>';
-  h+='</div>';
-  
+  if(examName)h+='<div class="pending-sub">'+esc(examName)+'</div>';
+  else h+='<div class="pending-sub">'+esc(msg)+'</div>';
+  if(liveSeconds>0){h+='<div class="pending-countdown" id="pendingCountdown">'+formatCountdown(liveSeconds)+'</div>';h+='<div class="pending-countdown-sub">until results are published</div>';}
+  h+='<div class="pending-guide"><span class="pending-guide-title">How to check your result</span>';
+  h+='<span><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Go to <strong>Dashboard</strong> → click <strong>View Result</strong></span></span>';
+  h+='<span><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg><span>Or visit <strong>Exam History</strong></span></span>';
+  h+='<span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Results auto-publish when live exam ends</span></span>';
+  h+='</div><a href="dashboard.html" class="btn btn-primary" style="margin-top:20px">Back to Dashboard</a></div>';
   document.getElementById('resultWrap').innerHTML=h;
-  
-  if(liveSeconds>0){
-    var r=liveSeconds;
-    pendingCountdown=setInterval(function(){
-      r--;
-      var el=document.getElementById('pendingCountdown');
-      if(el){
-        if(r<=0){
-          el.innerHTML='<span style="color:var(--green)">Results available now!</span>';
-          clearInterval(pendingCountdown);
-          var refreshBtn=document.createElement('button');
-          refreshBtn.className='btn btn-primary';
-          refreshBtn.textContent='Refresh to View Results';
-          refreshBtn.style.marginTop='12px';
-          refreshBtn.onclick=function(){location.reload();};
-          el.parentNode.insertBefore(refreshBtn,el.nextSibling);
-        }else{
-          el.textContent=formatCountdown(r);
-        }
-      }
-    },1000);
-  }
+  if(liveSeconds>0){var r=liveSeconds;pendingCountdown=setInterval(function(){r--;var el=document.getElementById('pendingCountdown');if(el){if(r<=0){el.innerHTML='<span style="color:var(--green)">Results available now!</span>';clearInterval(pendingCountdown);var refreshBtn=document.createElement('button');refreshBtn.className='btn btn-primary';refreshBtn.textContent='Refresh to View Results';refreshBtn.style.marginTop='12px';refreshBtn.onclick=function(){location.reload();};el.parentNode.insertBefore(refreshBtn,el.nextSibling)}else{el.textContent=formatCountdown(r)}}},1000)}
 }
-// ─────────────────────────────────────
 
 function renderReview(){
   var filtered=questions.filter(function(q){var a=userAnswers[q.id];var g=(typeof a==='object'?a?.given:'')||(typeof a==='string'?a:'')||'';if(reviewFilter==='correct')return g===q.correct_answer;if(reviewFilter==='wrong')return g&&g!==q.correct_answer;if(reviewFilter==='skipped')return!g;return true});
@@ -345,8 +309,8 @@ function renderReview(){
     var opts=['A','B','C','D'].map(function(l){var isC=l===q.correct_answer;var isY=l===g&&!isC;var oc=isC?'rv-opt-correct':isY?'rv-opt-wrong':'';var ot=q['option_'+l.toLowerCase()]||'';return'<div class="rv-opt '+oc+'"><div class="rv-ol">'+l+'</div><div style="flex:1;line-height:1.4">'+renderOptionContent(ot)+'</div></div>'}).join('');
     var note='';if(g&&g!==q.correct_answer)note='<div class="rv-ans-note">Your answer: '+g+' — Correct: '+q.correct_answer+'</div>';else if(!g)note='<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: '+q.correct_answer+'</div>';
     var exp='';if(q.explanation&&q.explanation.trim())exp='<div class="rv-explanation">'+renderExplanationContent(q.explanation)+'</div>';
-    var qImg=q.image_url?'<img src="'+esc(q.image_url)+'" class="rv-q-img" alt="" onerror="this.style.display=\'none\'">':'';
-    return'<div class="rv-card '+cls+'" id="rv'+q.id+'"><div class="rv-header" onclick="toggleReview(\''+q.id+'\')"><div class="rv-status"><svg viewBox="0 0 24 24">'+icons[st]+'</svg></div><div class="rv-q">'+esc(q.question_text||'')+qImg+'</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="rv-body"><div class="rv-opts">'+opts+'</div>'+note+exp+'</div></div>'}).join('');
+    var qImg=q.image_url?'<img src="'+esc(q.image_url)+'" class="rv-q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">':'';
+    return'<div class="rv-card '+cls+'" id="rv'+q.id+'"><div class="rv-header" onclick="toggleReview(\''+q.id+'\')" role="button" tabindex="0"><div class="rv-status"><svg viewBox="0 0 24 24">'+icons[st]+'</svg></div><div class="rv-q">'+esc(q.question_text||'')+qImg+'</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="rv-body"><div class="rv-opts">'+opts+'</div>'+note+exp+'</div></div>'}).join('');
 }
 
 function toggleReview(id){document.getElementById('rv'+id)?.classList.toggle('open')}
@@ -354,40 +318,20 @@ function setFilter(btn,filter){document.querySelectorAll('.chip').forEach(functi
 
 async function loadResult(){
   if(pendingCountdown)clearInterval(pendingCountdown);
-  
   try{
     var result=await apiFetch('/exams/'+examId+'/result/'+attemptId);
-    
-    if(!result.ok||result.data.pending){
-      var msg=result.data?.message||result.data?.error||'Results will be available after publication.';
-      var liveSeconds=result.data?.live_seconds_remaining||0;
-      var examName=result.data?.exam_name||'';
-      showPending(msg,liveSeconds,examName);
-      return;
-    }
-    
+    if(!result.ok||result.data.pending){var msg=result.data?.message||result.data?.error||'Results will be available after publication.';var liveSeconds=result.data?.live_seconds_remaining||0;var examName=result.data?.exam_name||'';showPending(msg,liveSeconds,examName);return}
     var data=result.data;
     if(!data.attempt||!data.questions){showError('No result data found');return}
-    
     attempt=data.attempt;questions=data.questions||[];exam=data.exam;
     if(typeof attempt.answers==='string'){try{userAnswers=JSON.parse(attempt.answers||'{}')}catch(e){userAnswers={}}}else{userAnswers=attempt.answers||{}}
-    
     var correct=0,wrong=0,skipped=0;
     questions.forEach(function(q){var a=userAnswers[q.id];if(!a||typeof a==='object'){var g=a?.given||'';if(!g)skipped++;else if(g===q.correct_answer)correct++;else wrong++}else if(typeof a==='string'){if(!a)skipped++;else if(a===q.correct_answer)correct++;else wrong++}else{skipped++}});
-    
     var pct=attempt.percentage||0;var grade=gradeInfo(pct);
     var timeTaken=attempt.time_taken_seconds||0;var totalQ=questions.length;
-    
-    var timeHTML='';
-    if(timeTaken>0){var tm=(timeTaken/60).toFixed(1);timeHTML='<div class="time-info"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: '+tm+' min / '+exam.time_limit+' min</span><span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: '+formatAvgTime(timeTaken,totalQ)+'</span></div>'}
-    
+    var timeHTML='';if(timeTaken>0){var tm=(timeTaken/60).toFixed(1);timeHTML='<div class="time-info"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: '+tm+' min / '+exam.time_limit+' min</span><span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: '+formatAvgTime(timeTaken,totalQ)+'</span></div>'}
     var html='<div class="score-card"><div class="score-ring-wrap"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-fill" cx="60" cy="60" r="54" stroke="'+grade.color+'" style="stroke-dasharray:339;stroke-dashoffset:'+(339-(pct/100)*339)+'"/></svg><div class="ring-inner"><div class="ring-pct">'+pct.toFixed(1)+'%</div><div class="ring-lbl">Score</div></div></div><div class="score-grade" style="color:'+grade.color+'">'+grade.label+'</div><div class="score-exam">'+esc(exam.name)+(attempt.is_practice?' — Practice':'')+'</div><div class="score-stats"><div class="sc-stat sc-correct"><div class="sc-stat-val">'+correct+'</div><div class="sc-stat-lbl">Correct</div></div><div class="sc-stat sc-wrong"><div class="sc-stat-val">'+wrong+'</div><div class="sc-stat-lbl">Wrong</div></div><div class="sc-stat sc-skip"><div class="sc-stat-val">'+skipped+'</div><div class="sc-stat-lbl">Skipped</div></div></div>'+timeHTML+'<div class="perf-bar"><div class="perf-fill" style="width:'+Math.max(pct,2)+'%;background:'+grade.color+'"></div></div><div class="result-actions"><a href="dashboard.html" class="btn btn-outline"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>'+(exam.allow_practice?'<a href="exam.html?id='+examId+'&practice=1" class="btn btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Mode</a>':'')+'</div></div>';
-    
-    try{
-      var lbRes=await apiFetch('/leaderboard/'+examId);
-      if(lbRes.ok&&lbRes.data?.rank&&!lbRes.data.disabled){var lb=lbRes.data;html+='<div class="lb-card"><div class="lb-badge"><div class="lb-rank">#'+lb.rank+'</div><div class="lb-lbl">Rank</div></div><div class="lb-info"><div class="lb-title">Your Leaderboard Position</div><div class="lb-sub">Out of '+lb.total_participants+' participant'+(lb.total_participants!==1?'s':'')+'</div></div><div class="lb-pct"><div class="lb-pct-val">Top '+lb.percentile+'%</div><div class="lb-pct-lbl">Percentile</div></div></div>'}
-    }catch(e){}
-    
+    try{var lbRes=await apiFetch('/leaderboard/'+examId);if(lbRes.ok&&lbRes.data?.rank&&!lbRes.data.disabled){var lb=lbRes.data;html+='<div class="lb-card"><div class="lb-badge"><div class="lb-rank">#'+lb.rank+'</div><div class="lb-lbl">Rank</div></div><div class="lb-info"><div class="lb-title">Your Leaderboard Position</div><div class="lb-sub">Out of '+lb.total_participants+' participant'+(lb.total_participants!==1?'s':'')+'</div></div><div class="lb-pct"><div class="lb-pct-val">Top '+lb.percentile+'%</div><div class="lb-pct-lbl">Percentile</div></div></div>'}}catch(e){}
     html+='<div class="review-head"><h2>Question Review</h2><div class="chips"><button class="chip active" data-f="all" onclick="setFilter(this,\'all\')">All</button><button class="chip" data-f="correct" onclick="setFilter(this,\'correct\')">Correct</button><button class="chip" data-f="wrong" onclick="setFilter(this,\'wrong\')">Wrong</button><button class="chip" data-f="skipped" onclick="setFilter(this,\'skipped\')">Skipped</button></div></div><div class="review-list" id="reviewList"></div>';
     document.getElementById('resultWrap').innerHTML=html;
     renderReview();
