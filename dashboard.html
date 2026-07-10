@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
 :root{
   --blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;
   --green:#1e8e3e;--grn-bg:#e6f4ea;--yellow:#f9ab00;--yel-bg:#fef7e0;
@@ -18,11 +18,12 @@ html{scroll-behavior:smooth}
   --gs:'Google Sans','Roboto',system-ui,sans-serif;
   --rb:'Roboto',system-ui,sans-serif;
   --hh:64px;--r:4px;--rl:8px;--tr:.2s cubic-bezier(.4,0,.2,1);
+  --safe-bottom:env(safe-area-inset-bottom,20px);
 }
 body{
   font-family:var(--rb);background:var(--bg);color:var(--t2);
   -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
-  display:flex;flex-direction:column;
+  display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;
 }
 .header{
   position:fixed;top:0;left:0;right:0;height:var(--hh);
@@ -58,7 +59,7 @@ body{
 }
 .mobile-nav-dropdown.show{display:block}
 .mobile-nav-dropdown a{
-  display:block;padding:12px 16px;font-family:var(--gs);font-size:.9rem;
+  display:block;padding:14px 16px;font-family:var(--gs);font-size:.9rem;
   color:var(--t2);text-decoration:none;border-radius:var(--r);
 }
 .mobile-nav-dropdown a:hover{background:var(--hov)}
@@ -66,16 +67,17 @@ body{
 .header-right{display:flex;align-items:center;gap:8px}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:8px 18px;font-family:var(--gs);font-size:.85rem;font-weight:500;
+  padding:10px 20px;font-family:var(--gs);font-size:.85rem;font-weight:500;
   border:none;border-radius:var(--r);cursor:pointer;
   transition:all var(--tr);text-decoration:none;white-space:nowrap;
+  min-height:44px;
 }
 .btn-primary{background:var(--blue);color:#fff}
 .btn-primary:hover{background:var(--blue-h);box-shadow:0 1px 2px rgba(60,64,67,.3),0 2px 6px rgba(60,64,67,.15)}
 .btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
 .btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
 .icon-btn{
-  width:40px;height:40px;border:none;background:none;border-radius:50%;
+  width:44px;height:44px;border:none;background:none;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0;
   position:relative;
@@ -90,14 +92,14 @@ body{
 }
 .icon-btn .badge.show{display:flex}
 .avatar{
-  width:32px;height:32px;border-radius:50%;background:var(--blue);
+  width:36px;height:36px;border-radius:50%;background:var(--blue);
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--gs);font-weight:500;font-size:13px;
+  font-family:var(--gs);font-weight:500;font-size:14px;
   color:#fff;cursor:pointer;flex-shrink:0;border:2px solid transparent;
 }
 .avatar:hover{border-color:var(--border)}
 .main{flex:1;padding-top:var(--hh)}
-.content{max-width:1080px;margin:0 auto;padding:32px 24px 60px;width:100%}
+.content{max-width:1080px;margin:0 auto;padding:32px 24px 60px;width:100%;padding-bottom:calc(60px + var(--safe-bottom))}
 
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
 .stat-card{
@@ -106,6 +108,7 @@ body{
 }
 .stat-card.clickable{cursor:pointer}
 .stat-card.clickable:hover{box-shadow:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15);border-color:var(--blue)}
+.stat-card.clickable:active{transform:scale(.98)}
 .stat-card-icon{
   width:40px;height:40px;border-radius:50%;display:flex;
   align-items:center;justify-content:center;margin-bottom:12px;
@@ -114,14 +117,13 @@ body{
 .stat-card-val{font-family:var(--gs);font-size:1.8rem;font-weight:500;color:var(--t1);line-height:1}
 .stat-card-lbl{font-size:.75rem;color:var(--t3);margin-top:4px}
 
-/* ── GOOGLE-STYLE LIVE STRIP ── */
 .live-strip{
   background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
   padding:0;margin-bottom:24px;display:none;overflow:hidden;
 }
 .live-strip.show{display:block}
 .live-strip-header{
-  display:flex;align-items:center;gap:10px;padding:16px 20px;
+  display:flex;align-items:center;gap:10px;padding:14px 20px;
   background:#fef7e0;border-bottom:1px solid rgba(249,171,0,.2);
 }
 .live-dot{width:8px;height:8px;background:#e37400;border-radius:50%;animation:pulse 1.5s infinite;flex-shrink:0}
@@ -130,7 +132,7 @@ body{
 .live-strip-count{font-size:.72rem;color:var(--t4);margin-left:auto}
 .live-exam-item{
   display:flex;align-items:center;justify-content:space-between;
-  padding:18px 20px;border-bottom:1px solid var(--border);
+  padding:16px 20px;border-bottom:1px solid var(--border);
   flex-wrap:wrap;gap:12px;transition:background var(--tr);
 }
 .live-exam-item:last-child{border-bottom:none}
@@ -141,27 +143,27 @@ body{
 .live-countdown-timer{font-family:var(--gs);font-size:.82rem;font-weight:500;color:#e37400}
 .live-ends-label{font-size:.7rem;color:var(--t4)}
 .btn-live{
-  background:var(--blue);color:#fff;border:none;padding:8px 20px;
+  background:var(--blue);color:#fff;border:none;padding:10px 22px;
   border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;
   cursor:pointer;transition:all var(--tr);white-space:nowrap;flex-shrink:0;
+  min-height:44px;
 }
 .btn-live:hover{background:var(--blue-h);box-shadow:0 1px 2px rgba(60,64,67,.3),0 2px 6px rgba(60,64,67,.15)}
 
-/* ── SCHEDULED EXAM STRIP (shows upcoming live exams) ── */
 .scheduled-strip{
   background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
   padding:0;margin-bottom:24px;display:none;overflow:hidden;
 }
 .scheduled-strip.show{display:block}
 .scheduled-strip-header{
-  display:flex;align-items:center;gap:10px;padding:16px 20px;
+  display:flex;align-items:center;gap:10px;padding:14px 20px;
   background:#e8f0fe;border-bottom:1px solid rgba(26,115,232,.15);
 }
 .scheduled-strip-dot{width:8px;height:8px;background:var(--blue);border-radius:50%;flex-shrink:0}
 .scheduled-strip-title{font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--blue)}
 .scheduled-exam-item{
   display:flex;align-items:center;justify-content:space-between;
-  padding:18px 20px;border-bottom:1px solid var(--border);
+  padding:16px 20px;border-bottom:1px solid var(--border);
   flex-wrap:wrap;gap:12px;transition:background var(--tr);
 }
 .scheduled-exam-item:last-child{border-bottom:none}
@@ -171,24 +173,27 @@ body{
 .scheduled-live-info{font-size:.7rem;color:var(--t3);margin-top:2px}
 .btn-scheduled-info{
   background:transparent;color:var(--blue);border:1px solid var(--border);
-  padding:8px 16px;border-radius:var(--r);font-family:var(--gs);font-size:.78rem;
+  padding:10px 16px;border-radius:var(--r);font-family:var(--gs);font-size:.78rem;
   font-weight:500;cursor:default;white-space:nowrap;flex-shrink:0;
+  min-height:44px;display:flex;align-items:center;
 }
 
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
 .section-header h2{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1)}
-.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
 .search-input{
-  flex:1;min-width:180px;padding:10px 16px;border:1px solid var(--border);
+  flex:1;min-width:180px;padding:12px 16px;border:1px solid var(--border);
   border-radius:var(--r);font-family:var(--rb);font-size:.875rem;
   color:var(--t1);outline:none;background:var(--surf);transition:border var(--tr);
+  min-height:44px;
 }
 .search-input:hover{border-color:var(--t3)}
-.search-input:focus{border:2px solid var(--blue);padding:9px 15px}
+.search-input:focus{border:2px solid var(--blue);padding:11px 15px}
 .filter-chip{
-  padding:8px 18px;border:1px solid var(--border);border-radius:20px;
+  padding:10px 18px;border:1px solid var(--border);border-radius:20px;
   font-family:var(--gs);font-size:.8rem;font-weight:500;color:var(--t3);
   background:var(--surf);cursor:pointer;transition:all var(--tr);
+  white-space:nowrap;min-height:40px;display:flex;align-items:center;
 }
 .filter-chip:hover{border-color:var(--blue);color:var(--blue)}
 .filter-chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
@@ -205,8 +210,8 @@ body{
 
 .exam-body{flex:1;min-width:0}
 .exam-badge{
-  display:inline-flex;align-items:center;gap:4px;padding:2px 10px;
-  border-radius:20px;font-family:var(--gs);font-size:.7rem;font-weight:500;
+  display:inline-flex;align-items:center;gap:4px;padding:3px 10px;
+  border-radius:20px;font-family:var(--gs);font-size:.72rem;font-weight:500;
   margin-bottom:8px;
 }
 .badge-free{background:var(--grn-bg);color:var(--green)}
@@ -218,7 +223,7 @@ body{
 .exam-desc{font-size:.8rem;color:var(--t3);margin-bottom:10px;line-height:1.5}
 .exam-meta{display:flex;gap:16px;flex-wrap:wrap}
 .meta-item{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--t3)}
-.meta-item svg{width:14px;height:14px;stroke:currentColor;fill:none}
+.meta-item svg{width:14px;height:14px;stroke:currentColor;fill:none;flex-shrink:0}
 .exam-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0}
 .score-pill{
   padding:4px 12px;border-radius:20px;font-family:var(--gs);
@@ -227,23 +232,24 @@ body{
 .score-pill.good{background:var(--grn-bg);color:var(--green)}
 .score-pill.pending{background:var(--yel-bg);color:#e37400}
 .btn-take{
-  background:var(--blue);color:#fff;border:none;padding:8px 20px;
+  background:var(--blue);color:#fff;border:none;padding:10px 22px;
   border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;
   cursor:pointer;transition:all var(--tr);text-decoration:none;display:inline-block;text-align:center;
+  min-height:44px;line-height:1.4;
 }
 .btn-take:hover{background:var(--blue-h)}
 .btn-take:disabled{background:var(--hov);color:var(--t4);cursor:not-allowed}
 .btn-practice{
   background:transparent;color:var(--blue);border:1px solid var(--border);
-  padding:7px 18px;border-radius:var(--r);font-family:var(--gs);font-size:.75rem;
+  padding:9px 18px;border-radius:var(--r);font-family:var(--gs);font-size:.75rem;
   font-weight:500;cursor:pointer;transition:all var(--tr);
+  min-height:44px;display:flex;align-items:center;
 }
 .btn-practice:hover{background:#e8f0fe;border-color:var(--blue)}
 
-/* Scheduled countdown banner inside exam card */
 .scheduled-info{
   background:var(--yel-bg);border:1px solid rgba(249,171,0,.25);
-  border-radius:var(--r);padding:10px 14px;margin-top:10px;
+  border-radius:var(--r);padding:12px 14px;margin-top:10px;
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;
 }
 .scheduled-info svg{width:16px;height:16px;stroke:#e37400;fill:none;flex-shrink:0}
@@ -251,12 +257,12 @@ body{
 .scheduled-date-text{font-size:.7rem;color:var(--t3)}
 
 .batch-header{
-  display:flex;align-items:center;gap:10px;padding:10px 4px;
-  cursor:pointer;user-select:none;
+  display:flex;align-items:center;gap:10px;padding:12px 4px;
+  cursor:pointer;user-select:none;min-height:44px;
 }
 .batch-arrow{
   width:18px;height:18px;stroke:var(--t3);fill:none;stroke-width:2;
-  transition:transform .2s;
+  transition:transform .2s;flex-shrink:0;
 }
 .batch-group.collapsed .batch-arrow{transform:rotate(-90deg)}
 .batch-name{font-family:var(--gs);font-size:.9rem;font-weight:500;color:var(--t1)}
@@ -271,37 +277,36 @@ body{
   padding:16px 20px;background:var(--bg);border-bottom:1px solid var(--border);
   display:flex;align-items:center;gap:12px;flex-wrap:wrap;
 }
-.resources-header svg{width:20px;height:20px;stroke:var(--blue)}
+.resources-header svg{width:20px;height:20px;stroke:var(--blue);flex-shrink:0}
 .resources-header h2{font-family:var(--gs);font-size:.95rem;font-weight:500;color:var(--t1)}
-.resources-filter{margin-left:auto}
 .resources-filter select{
-  padding:6px 14px;border:1px solid var(--border);border-radius:var(--r);
+  padding:8px 14px;border:1px solid var(--border);border-radius:var(--r);
   font-family:var(--rb);font-size:.8rem;color:var(--t2);outline:none;
-  cursor:pointer;background:var(--surf);
+  cursor:pointer;background:var(--surf);min-height:40px;
 }
 .resources-filter select:focus{border-color:var(--blue)}
 .resources-grid{padding:20px}
 .resource-group{margin-bottom:20px}
 .resource-group:last-child{margin-bottom:0}
 .resource-group-title{
-  display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;
 }
-.resource-group-title svg{width:16px;height:16px;stroke:var(--blue)}
+.resource-group-title svg{width:16px;height:16px;stroke:var(--blue);flex-shrink:0}
 .resource-group-name{font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t1)}
 .resource-group-type{
-  font-size:.6rem;padding:2px 8px;border-radius:10px;font-weight:500;
+  font-size:.62rem;padding:3px 8px;border-radius:10px;font-weight:500;
 }
 .type-exam{background:#e8f0fe;color:var(--blue)}
 .type-batch{background:var(--yel-bg);color:#e37400}
 .resource-chips{display:flex;flex-wrap:wrap;gap:8px}
 .resource-chip{
   display:inline-flex;align-items:center;gap:6px;
-  padding:7px 14px;border:1px solid var(--border);border-radius:20px;
+  padding:9px 16px;border:1px solid var(--border);border-radius:20px;
   font-family:var(--gs);font-size:.78rem;font-weight:500;color:var(--t2);
-  text-decoration:none;transition:all var(--tr);
+  text-decoration:none;transition:all var(--tr);min-height:40px;
 }
 .resource-chip:hover{border-color:var(--blue);color:var(--blue);background:#e8f0fe}
-.resource-chip svg{width:12px;height:12px;stroke:currentColor}
+.resource-chip svg{width:12px;height:12px;stroke:currentColor;flex-shrink:0}
 .resource-empty{text-align:center;padding:40px;color:var(--t3);font-size:.85rem}
 
 .modal-overlay{
@@ -321,13 +326,13 @@ body{
 }
 .modal-header h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1)}
 .modal-close{
-  width:32px;height:32px;border:none;background:none;border-radius:50%;
+  width:40px;height:40px;border:none;background:none;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;color:var(--t3);transition:background var(--tr);
 }
 .modal-close:hover{background:var(--hov)}
 .modal-close svg{width:18px;height:18px}
-.modal-body{flex:1;overflow-y:auto;padding:0}
+.modal-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0}
 .notif-item{
   padding:16px 20px;border-bottom:1px solid var(--border);
   cursor:pointer;transition:background var(--tr);
@@ -344,19 +349,16 @@ body{
 .notif-item-link:hover{text-decoration:underline}
 .notif-item-link svg{width:12px;height:12px}
 .notif-item-meta{display:flex;align-items:center;gap:12px;margin-top:6px;flex-wrap:wrap}
-.notif-item-meta span{
-  display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--t4);
-}
+.notif-item-meta span{display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--t4)}
 .notif-item-meta span svg{width:11px;height:11px}
 .notif-empty{text-align:center;padding:48px 20px;color:var(--t3)}
 .notif-empty svg{width:40px;height:40px;stroke:var(--t4);margin-bottom:12px}
 .modal-footer-btn{
-  padding:12px 20px;border-top:1px solid var(--border);flex-shrink:0;
-  text-align:center;
+  padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0;text-align:center;
 }
 .modal-footer-btn button{
   background:none;border:none;color:var(--blue);font-family:var(--gs);
-  font-size:.8rem;font-weight:500;cursor:pointer;
+  font-size:.8rem;font-weight:500;cursor:pointer;min-height:40px;
 }
 .modal-footer-btn button:hover{text-decoration:underline}
 
@@ -364,7 +366,7 @@ body{
 .rank-grid{display:flex;flex-direction:column;gap:10px}
 .rank-item{
   background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
-  padding:14px 18px;display:flex;align-items:center;gap:14px;
+  padding:16px 18px;display:flex;align-items:center;gap:14px;
 }
 .rank-pos{
   width:44px;height:44px;border-radius:50%;display:flex;
@@ -375,7 +377,7 @@ body{
 .rank-2{background:#f1f3f4;color:var(--t3)}
 .rank-3{background:#fce8e6;color:#c5221f}
 .rank-n{background:var(--bg);color:var(--t3)}
-.rank-info{flex:1}
+.rank-info{flex:1;min-width:0}
 .rank-exam{font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t1)}
 .rank-sub{font-size:.72rem;color:var(--t4);margin-top:2px}
 .rank-pct{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--blue)}
@@ -398,7 +400,7 @@ body{
 }
 .fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
 .fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
-.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2}
+.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2.2;padding:2px 0}
 .fc a:hover{color:var(--blue);text-decoration:underline}
 .footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .footer-bottom{
@@ -406,6 +408,7 @@ body{
   border-top:1px solid var(--border);display:flex;
   justify-content:space-between;align-items:center;
   font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px;
+  padding-bottom:calc(16px + var(--safe-bottom));
 }
 .footer-links{display:flex;gap:20px}
 .footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
@@ -417,30 +420,50 @@ body{
   box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px rgba(0,0,0,.14),0 1px 18px rgba(0,0,0,.12);
   transform:translateY(80px);opacity:0;
   transition:all .25s cubic-bezier(0,0,.2,1);pointer-events:none;
+  bottom:calc(24px + var(--safe-bottom));
 }
 .toast.show{transform:translateY(0);opacity:1}
 
-@media(max-width:900px){
+@media(max-width:1024px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
   .header{padding:0 16px}
   .header-nav{display:none}
   .hamburger{display:flex}
-  .content{padding:24px 16px 80px}
-  .stats-grid{grid-template-columns:1fr 1fr}
-  .exam-card-inner{flex-direction:column}
+  .content{padding:20px 16px 80px;padding-bottom:calc(80px + var(--safe-bottom))}
+  .stats-grid{grid-template-columns:1fr 1fr;gap:12px}
+  .stat-card{padding:16px}
+  .stat-card-val{font-size:1.5rem}
+  .exam-card{padding:20px}
+  .exam-card-inner{flex-direction:column;gap:16px}
   .exam-actions{flex-direction:row;width:100%}
   .exam-actions .btn-take,.exam-actions .btn-practice{flex:1;text-align:center}
   .live-exam-item,.scheduled-exam-item{flex-direction:column;align-items:flex-start}
   .btn-live,.btn-scheduled-info{width:100%;text-align:center;justify-content:center}
   .footer-inner{grid-template-columns:1fr 1fr;gap:28px}
   .modal{max-width:95vw;max-height:85vh}
+  .filters{gap:6px}
+  .filter-chip{padding:8px 14px;font-size:.75rem}
+  .section-header h2{font-size:1.1rem}
 }
-@media(max-width:600px){
-  .stats-grid{grid-template-columns:1fr 1fr}
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .stat-card{padding:14px}
+  .stat-card-icon{width:32px;height:32px;margin-bottom:8px}
+  .stat-card-val{font-size:1.3rem}
+  .stat-card-lbl{font-size:.68rem}
   .section-header{flex-direction:column;align-items:flex-start}
+  .section-header h2{font-size:1rem}
   .footer-inner{grid-template-columns:1fr;gap:20px}
   .footer-bottom{flex-direction:column;text-align:center}
   .resources-header{flex-direction:column;align-items:flex-start}
-  .resources-filter{margin-left:0}
+  .live-strip-header,.scheduled-strip-header{padding:12px 16px}
+  .live-exam-item,.scheduled-exam-item{padding:14px 16px}
+  .exam-card{padding:16px}
+  .scheduled-info{padding:10px 12px}
+  .rank-item{padding:14px;gap:10px}
+  .batch-header{padding:10px 2px}
 }
 </style>
 </head>
@@ -448,7 +471,7 @@ body{
 
 <header class="header" id="header">
   <div class="header-left">
-    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()">
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
       </svg>
@@ -463,11 +486,11 @@ body{
     </nav>
   </div>
   <div class="header-right">
-    <button class="icon-btn" id="notifBtn" title="Notifications" onclick="openNotifModal()">
+    <button class="icon-btn" id="notifBtn" title="Notifications" onclick="openNotifModal()" aria-label="Notifications">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
       <span class="badge" id="notifBadge">0</span>
     </button>
-    <button class="icon-btn" id="signOutBtn" title="Sign out">
+    <button class="icon-btn" id="signOutBtn" title="Sign out" aria-label="Sign out">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </button>
     <div class="avatar" id="userAvatar">S</div>
@@ -505,7 +528,6 @@ body{
       </div>
     </div>
 
-    <!-- LIVE NOW STRIP — Google-style -->
     <div class="live-strip" id="liveStrip">
       <div class="live-strip-header">
         <span class="live-dot"></span>
@@ -515,7 +537,6 @@ body{
       <div id="liveList"></div>
     </div>
 
-    <!-- UPCOMING LIVE STRIP — scheduled exams that will go live -->
     <div class="scheduled-strip" id="scheduledStrip">
       <div class="scheduled-strip-header">
         <span class="scheduled-strip-dot"></span>
@@ -531,7 +552,7 @@ body{
 
     <div class="section-header"><h2>All Examinations</h2></div>
     <div class="filters">
-      <input type="text" class="search-input" id="searchInput" placeholder="Search exams..." oninput="renderExams()">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search exams..." oninput="renderExams()" aria-label="Search exams">
       <button class="filter-chip active" data-filter="all" onclick="setFilter(this)">All</button>
       <button class="filter-chip" data-filter="free" onclick="setFilter(this)">Free</button>
       <button class="filter-chip" data-filter="premium" onclick="setFilter(this)">Premium</button>
@@ -555,7 +576,7 @@ body{
   <div class="modal">
     <div class="modal-header">
       <h2>Notifications</h2>
-      <button class="modal-close" onclick="closeNotifModal()">
+      <button class="modal-close" onclick="closeNotifModal()" aria-label="Close">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
@@ -673,7 +694,6 @@ function isExamScheduled(exam){
   return true;
 }
 
-// Check if exam has live_deadline_hours, is scheduled, and not yet live
 function isUpcomingLive(exam){
   if(!exam.live_deadline_hours||exam.live_deadline_hours===0)return false;
   if(exam.is_live)return false;
@@ -681,7 +701,7 @@ function isUpcomingLive(exam){
   if(exam.stored_attempt)return false;
   if(!exam.scheduled_at)return false;
   const scheduledTime=new Date(exam.scheduled_at).getTime();
-  if(Date.now()>=scheduledTime&&!exam.is_live)return false; // past scheduled but not live = broken state, skip
+  if(Date.now()>=scheduledTime&&!exam.is_live)return false;
   return true;
 }
 
@@ -739,7 +759,6 @@ function updateStats(){
   document.getElementById('statResources').textContent=totalResources;
 }
 
-// ── LIVE STRIP (exams currently live) ──
 function renderLiveStrip(){
   const live=allExams.filter(e=>e.is_live&&!e.stored_attempt);
   const strip=document.getElementById('liveStrip');
@@ -772,7 +791,6 @@ function renderLiveStrip(){
   });
 }
 
-// ── UPCOMING LIVE STRIP (scheduled exams that will go live) ──
 function renderUpcomingStrip(){
   const upcoming=allExams.filter(e=>isUpcomingLive(e));
   const strip=document.getElementById('scheduledStrip');
@@ -797,7 +815,6 @@ function renderUpcomingStrip(){
     </div>`;
   }).join('');
   
-  // Run countdowns for upcoming strip
   Object.keys(scheduledStripIntervals).forEach(id=>{clearInterval(scheduledStripIntervals[id]);delete scheduledStripIntervals[id]});
   upcoming.forEach(e=>{
     const scheduledTime=new Date(e.scheduled_at).getTime();
@@ -806,12 +823,8 @@ function renderUpcomingStrip(){
       remaining--;
       const el=document.getElementById('scd_strip_'+e.id);
       if(!el){clearInterval(scheduledStripIntervals[e.id]);return}
-      if(remaining<=0){
-        clearInterval(scheduledStripIntervals[e.id]);
-        loadDashboard(); // Refresh to move to live strip
-      }else{
-        el.textContent='Opens in '+formatCountdown(remaining);
-      }
+      if(remaining<=0){clearInterval(scheduledStripIntervals[e.id]);loadDashboard();}
+      else{el.textContent='Opens in '+formatCountdown(remaining);}
     },1000);
   });
 }
@@ -858,7 +871,7 @@ function renderExams(){
   Object.entries(grouped).forEach(([batchName,exams])=>{
     const displayName=batchName==='__other__'?'Other Exams':batchName;
     html+=`<div class="batch-group">
-      <div class="batch-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <div class="batch-header" onclick="this.parentElement.classList.toggle('collapsed')" role="button" tabindex="0" aria-expanded="true">
         <svg class="batch-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         <span class="batch-name">${esc(displayName)}</span><span class="batch-count">${exams.length}</span>
       </div>
@@ -877,23 +890,15 @@ function runScheduledCountdowns(){
   
   allExams.forEach(e=>{
     if(!isExamScheduled(e))return;
-    
     const scheduledTime=new Date(e.scheduled_at).getTime();
     let remaining=Math.max(0,Math.floor((scheduledTime-Date.now())/1000));
     
     scheduledIntervals[e.id]=setInterval(()=>{
       remaining--;
-      
-      // Update button text
       const btnEl=document.getElementById('scd_'+e.id);
-      // Update banner text
       const bannerEl=document.getElementById('scdBanner_'+e.id);
       
-      if(!btnEl&&!bannerEl){
-        clearInterval(scheduledIntervals[e.id]);
-        delete scheduledIntervals[e.id];
-        return;
-      }
+      if(!btnEl&&!bannerEl){clearInterval(scheduledIntervals[e.id]);delete scheduledIntervals[e.id];return;}
       
       if(remaining<=0){
         if(btnEl)btnEl.textContent='Available now';
@@ -926,7 +931,6 @@ function examCard(e){
     const scheduledTime=new Date(e.scheduled_at).getTime();
     const remaining=Math.max(0,Math.floor((scheduledTime-Date.now())/1000));
     actionHtml=`<button class="btn-take" disabled><span id="scd_${e.id}">Opens in ${formatCountdown(remaining)}</span></button>`;
-    // If it has live_deadline_hours, show additional info
     let liveInfo='';
     if(e.live_deadline_hours>0){
       const liveEnds=new Date(scheduledTime+e.live_deadline_hours*3600000);
@@ -941,12 +945,6 @@ function examCard(e){
           ${liveInfo}
         </div>
       </div>`;
-  }
-  else if(isUpcomingLive(e)){
-    // Shouldn't normally reach here (these go in the strip), but fallback
-    const scheduledTime=new Date(e.scheduled_at).getTime();
-    const remaining=Math.max(0,Math.floor((scheduledTime-Date.now())/1000));
-    actionHtml=`<button class="btn-take" disabled><span id="scd_${e.id}">Opens in ${formatCountdown(remaining)}</span></button>`;
   }
   else if(e.stored_attempt){
     if(e.results_visible){
@@ -1052,7 +1050,7 @@ async function loadNotifBadge(){
     if(!ok)return;
     const badge=document.getElementById('notifBadge');
     const count=data.unread_count||0;
-    if(count>0){badge.textContent=count;badge.classList.add('show')}
+    if(count>0){badge.textContent=count>99?'99+':count;badge.classList.add('show')}
     else{badge.classList.remove('show')}
   }catch(e){}
 }
@@ -1069,10 +1067,10 @@ async function openNotifModal(){
       return;
     }
     list.innerHTML=notifs.map(n=>`
-      <div class="notif-item ${n.is_read?'':'unread'}" onclick="markRead(${n.id})">
+      <div class="notif-item ${n.is_read?'':'unread'}" onclick="markRead(${n.id})" role="button" tabindex="0">
         <div class="notif-item-title">${esc(n.title)}</div>
         ${n.body?`<div class="notif-item-body">${esc(n.body)}</div>`:''}
-        ${n.image_url?`<img src="${esc(n.image_url)}" class="notif-item-img" onerror="this.style.display='none'" alt="">`:''}
+        ${n.image_url?`<img src="${esc(n.image_url)}" class="notif-item-img" onerror="this.style.display='none'" alt="" loading="lazy">`:''}
         ${n.link_url?`<a href="${esc(n.link_url)}" target="_blank" rel="noopener" class="notif-item-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open</a>`:''}
         <div class="notif-item-meta">
           <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${new Date(n.created_at).toLocaleDateString()}</span>
