@@ -159,7 +159,6 @@ body{
 .filter-chip:hover{border-color:var(--blue);color:var(--blue)}
 .filter-chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
 
-/* ── SPACING IMPROVEMENTS ── */
 .exam-list{display:flex;flex-direction:column;gap:20px}
 .batch-group{margin-bottom:20px}
 .batch-group:last-child{margin-bottom:0}
@@ -169,7 +168,6 @@ body{
 }
 .exam-card:hover{box-shadow:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15)}
 .exam-card-inner{display:flex;gap:24px;flex-wrap:wrap}
-/* ────────────────────────── */
 
 .exam-body{flex:1;min-width:0}
 .exam-badge{
@@ -550,8 +548,15 @@ function logout(){localStorage.clear();window.location.href='/'}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function formatCountdown(sec){
   if(sec<=0)return'Available now';
-  const h=Math.floor(sec/3600);const m=Math.floor((sec%3600)/60);const s=sec%60;
-  const p=[];if(h>0)p.push(h+'h');if(m>0)p.push(m+'m');if(s>0||p.length===0)p.push(s+'s');
+  const d=Math.floor(sec/86400);
+  const h=Math.floor((sec%86400)/3600);
+  const m=Math.floor((sec%3600)/60);
+  const s=sec%60;
+  const p=[];
+  if(d>0)p.push(d+'d');
+  if(h>0)p.push(h+'h');
+  if(m>0)p.push(m+'m');
+  if(s>0||p.length===0)p.push(s+'s');
   return p.join(' ');
 }
 
@@ -569,7 +574,8 @@ async function apiFetch(path,opts={}){
 
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 
-let allExams=[],allBatchResources=[],currentFilter='all',countdowns={},scheduledCountdowns={},currentResourceFilter='all';
+let allExams=[],allBatchResources=[],currentFilter='all',countdowns={},currentResourceFilter='all';
+let scheduledIntervals={};
 
 const header=document.getElementById('header');
 let lastY=0,ticking=false;
@@ -587,6 +593,15 @@ document.getElementById('signOutBtn').addEventListener('click',logout);
 function scrollToResources(){
   const el=document.getElementById('resourcesContainer');
   if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function isExamScheduled(exam){
+  if(!exam.scheduled_at)return false;
+  const scheduledTime=new Date(exam.scheduled_at).getTime();
+  if(Date.now()>=scheduledTime)return false;
+  if(exam.is_live)return false;
+  if(exam.stored_attempt)return false;
+  return true;
 }
 
 async function loadDashboard(){
@@ -686,7 +701,7 @@ function renderExams(){
     if(currentFilter==='free')return!e.is_premium;
     if(currentFilter==='premium')return e.is_premium;
     if(currentFilter==='live')return e.is_live;
-    if(currentFilter==='scheduled')return e.scheduled_at&&new Date(e.scheduled_at)>new Date()&&!e.is_live&&!e.stored_attempt;
+    if(currentFilter==='scheduled')return isExamScheduled(e);
     if(currentFilter==='completed')return!!e.stored_attempt;
     return true;
   });
@@ -717,16 +732,13 @@ function renderExams(){
   runScheduledCountdowns();
 }
 
-// ── SCHEDULED EXAM COUNTDOWN ──
-let scheduledIntervals={};
-
-function isExamScheduled(exam){
-  return exam.scheduled_at && new Date(exam.scheduled_at) > new Date() && !exam.is_live && !exam.stored_attempt;
-}
-
+// ── SCHEDULED COUNTDOWN RUNNER ──
 function runScheduledCountdowns(){
-  // Clear existing intervals
-  Object.keys(scheduledIntervals).forEach(id=>{clearInterval(scheduledIntervals[id]);delete scheduledIntervals[id]});
+  // Clear all existing intervals
+  Object.keys(scheduledIntervals).forEach(id=>{
+    clearInterval(scheduledIntervals[id]);
+    delete scheduledIntervals[id];
+  });
   
   allExams.forEach(e=>{
     if(!isExamScheduled(e))return;
@@ -739,10 +751,11 @@ function runScheduledCountdowns(){
     scheduledIntervals[e.id]=setInterval(()=>{
       remaining--;
       const el2=document.getElementById('scd_'+e.id);
-      if(!el2){clearInterval(scheduledIntervals[e.id]);return}
+      if(!el2){clearInterval(scheduledIntervals[e.id]);delete scheduledIntervals[e.id];return}
       if(remaining<=0){
         el2.textContent='Available now';
         clearInterval(scheduledIntervals[e.id]);
+        delete scheduledIntervals[e.id];
         setTimeout(()=>loadDashboard(),1500);
       }else{
         el2.textContent='Opens in '+formatCountdown(remaining);
@@ -750,22 +763,26 @@ function runScheduledCountdowns(){
     },1000);
   });
 }
+// ────────────────────────────────
 
 function examCard(e){
   let badgeCls=e.is_live?'badge-live':(e.is_premium?'badge-premium':'badge-free');
   let badgeText=e.is_live?'Live':(e.is_premium?'Premium':'Free');
-  if(e.is_closed){badgeCls='badge-closed';badgeText='Closed'}
-  else if(isExamScheduled(e)){badgeCls='badge-scheduled';badgeText='Scheduled'}
+  if(e.is_closed){badgeCls='badge-closed';badgeText='Closed';}
+  else if(isExamScheduled(e)){badgeCls='badge-scheduled';badgeText='Scheduled';}
   
   let scoreHtml='',actionHtml='';
   
   if(e.is_closed){
     actionHtml='<button class="btn-take" disabled>Exam Closed</button>';
-  }else if(isExamScheduled(e)){
+  }
+  // ── SCHEDULED EXAM ──
+  else if(isExamScheduled(e)){
     const scheduledTime=new Date(e.scheduled_at).getTime();
     const remaining=Math.max(0,Math.floor((scheduledTime-Date.now())/1000));
     actionHtml=`<button class="btn-take" disabled><span id="scd_${e.id}">Opens in ${formatCountdown(remaining)}</span></button>`;
-  }else if(e.stored_attempt){
+  }
+  else if(e.stored_attempt){
     if(e.results_visible){
       scoreHtml=`<div class="score-pill good">${e.stored_attempt.percentage?.toFixed(0)||0}%</div>`;
       actionHtml=`<button class="btn-take" onclick="window.location='result.html?examId=${e.id}&attemptId=${e.stored_attempt.id}'">View Result</button>`;
@@ -793,6 +810,7 @@ function examCard(e){
         <span class="meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${e.time_limit}m</span>
         <span class="meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>${e.question_count||0} Q</span>
         ${e.negative_marking>0?`<span class="meta-item" style="color:var(--red)"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>-${e.negative_marking}</span>`:''}
+        ${e.scheduled_at?`<span class="meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${new Date(e.scheduled_at).toLocaleDateString()}</span>`:''}
       </div>
     </div>
     <div class="exam-actions">${scoreHtml}${actionHtml}</div>
