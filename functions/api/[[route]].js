@@ -629,17 +629,18 @@ async function handleListExams(request, db) {
       stored_attempt = sa || null;
       accessible = await checkPremiumAccess(db, userId, exam.id, isAdmin);
       
-      // ── FIXED: Practice mode logic ──
+      // Practice mode logic
       if (exam.allow_practice && !exam.is_closed) {
         if (exam.live_deadline_hours > 0) {
-          // After live ends, ANYONE can practice (whether they participated or not)
+          // Live exam: practice available after live ends (anyone)
           can_practice = live.live_ended;
         } else {
-          // For non-live exams, practice available if student has an attempt
+          // Non-live exam: practice only after first attempt
           can_practice = !!stored_attempt;
         }
       }
       
+      // Results visibility
       if (exam.live_deadline_hours > 0 && live.is_live) {
         results_visible = false;
       } else {
@@ -686,25 +687,31 @@ async function handleGetExamQuestions(examId, request, db) {
   const url = new URL(request.url);
   const isPractice = url.searchParams.get('practice') === '1';
   
-  // ── FIXED: Practice mode access check ──
+  // Practice mode access check
   if (isPractice) {
-    // Admin can turn off practice anytime
     if (!exam.allow_practice) {
       return err('Practice mode is not available for this exam.', 403);
     }
-    // If live exam, practice only after live ends
     if (exam.live_deadline_hours > 0) {
       const live = getLiveStatus(exam);
       if (!live.live_ended && !user.is_admin) {
         return err('Practice mode will be available after the live exam ends.', 403);
       }
+    } else {
+      // Non-live: practice only after first attempt
+      const hasAttempt = await db.prepare(
+        'SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1'
+      ).bind(user.id, examId).first();
+      if (!hasAttempt && !user.is_admin) {
+        return err('You must take the exam first before practicing.', 403);
+      }
     }
   } else {
-    // Live exam — check if it has ended
+    // Real attempt: check if live exam has ended
     if (exam.live_deadline_hours > 0) {
       const live = getLiveStatus(exam);
       if (live.live_ended && !user.is_admin) {
-        return err('This live exam has ended. You can only access it in practice mode.', 403);
+        return err('This live exam has ended. You can practice it instead.', 403);
       }
     }
   }
@@ -733,7 +740,7 @@ async function handleSubmitExam(examId, request, db) {
     return err('This exam is currently closed.', 403);
   }
   
-  // ── FIXED: Practice mode check on submit ──
+  // Practice mode check
   if (is_practice) {
     if (!exam.allow_practice) {
       return err('Practice mode is not available for this exam.', 403);
@@ -742,6 +749,14 @@ async function handleSubmitExam(examId, request, db) {
       const live = getLiveStatus(exam);
       if (!live.live_ended && !user.is_admin) {
         return err('Practice mode will be available after the live exam ends.', 403);
+      }
+    } else {
+      // Non-live: practice only after first attempt
+      const hasAttempt = await db.prepare(
+        'SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1'
+      ).bind(user.id, examId).first();
+      if (!hasAttempt && !user.is_admin) {
+        return err('You must take the exam first before practicing.', 403);
       }
     }
   }
@@ -778,40 +793,45 @@ async function handleSubmitExam(examId, request, db) {
   }
   
   const percentage = total > 0 ? Math.round((score / total) * 10000) / 100 : 0;
-  const answersJson = JSON.stringify(detailedAnswers);
   const timeTaken = time_taken_seconds || 0;
   
+  // PRACTICE: Don't store anything, just return score
+  if (is_practice) {
+    return json({ 
+      attemptId: 0, 
+      score: Math.max(0, score), 
+      total, 
+      percentage,
+      correct: correctCount,
+      wrong: wrongCount,
+      skipped: skippedCount,
+      detailed: detailedAnswers,
+      time_taken_seconds: timeTaken,
+      is_practice: true
+    });
+  }
+  
+  // REAL ATTEMPT: Only store first attempt
   const existingFirst = await db.prepare(
     'SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1'
   ).bind(user.id, examId).first();
   
-  let attemptId = null;
-  
-  // ── FIXED: Only store first attempt for non-practice, but always store practice ──
-  if (!is_practice && !existingFirst) {
-    const r1 = await db.prepare(
-      `INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt, time_taken_seconds)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
-    ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson, 0, 1, timeTaken).first();
-    
-    await db.prepare(
-      `INSERT INTO exam_attempts (user_id, exam_id, score, total_questions, percentage, answers, time_taken_seconds) VALUES (?, ?, ?, ?, ?, ?, ?)`
-    ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson, timeTaken).run();
-    
-    attemptId = r1.id;
-  } else if (is_practice) {
-    // Practice — always store but marked as practice
-    const r1 = await db.prepare(
-      `INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt, time_taken_seconds)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
-    ).bind(user.id, examId, Math.max(0, score), total, percentage, answersJson, 1, 0, timeTaken).first();
-    attemptId = r1.id;
-  } else if (existingFirst) {
-    attemptId = existingFirst.id;
+  if (existingFirst) {
+    return err('You have already taken this exam.', 403);
   }
   
+  // Store the one and only real attempt
+  const r1 = await db.prepare(
+    `INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt, time_taken_seconds)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
+  ).bind(user.id, examId, Math.max(0, score), total, percentage, JSON.stringify(detailedAnswers), 0, 1, timeTaken).first();
+  
+  await db.prepare(
+    `INSERT INTO exam_attempts (user_id, exam_id, score, total_questions, percentage, answers, time_taken_seconds) VALUES (?, ?, ?, ?, ?, ?, ?)`
+  ).bind(user.id, examId, Math.max(0, score), total, percentage, JSON.stringify(detailedAnswers), timeTaken).run();
+  
   return json({ 
-    attemptId: attemptId || 0, 
+    attemptId: r1.id, 
     score: Math.max(0, score), 
     total, 
     percentage,
@@ -832,7 +852,12 @@ async function handleGetResult(examId, attemptId, request, db) {
   
   const live = getLiveStatus(exam);
   if (exam.live_deadline_hours > 0 && live.is_live) {
-    return json({ pending: true, message: 'Results will be available after the live exam window ends.', exam_name: exam.name, live_seconds_remaining: live.live_seconds_remaining });
+    return json({ 
+      pending: true, 
+      message: 'Results will be available after the live exam window ends.', 
+      exam_name: exam.name, 
+      live_seconds_remaining: live.live_seconds_remaining 
+    });
   }
   
   if (!isResultsPublished(exam)) {
@@ -845,7 +870,12 @@ async function handleGetResult(examId, attemptId, request, db) {
       const publishTime = startTime + exam.publish_after_hours * 3600000;
       remainingSeconds = Math.max(0, Math.floor((publishTime - Date.now()) / 1000));
     }
-    return json({ pending: true, message: 'Results will be available after publication.', exam_name: exam.name, live_seconds_remaining: remainingSeconds });
+    return json({ 
+      pending: true, 
+      message: 'Results will be available after publication.', 
+      exam_name: exam.name, 
+      live_seconds_remaining: remainingSeconds 
+    });
   }
   
   if (attemptId == 0 || !attemptId) {
