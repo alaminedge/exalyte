@@ -479,6 +479,7 @@ body{
       <button class="filter-chip" data-filter="free" onclick="setFilter(this)">Free</button>
       <button class="filter-chip" data-filter="premium" onclick="setFilter(this)">Premium</button>
       <button class="filter-chip" data-filter="live" onclick="setFilter(this)">Live</button>
+      <button class="filter-chip" data-filter="scheduled" onclick="setFilter(this)">Scheduled</button>
       <button class="filter-chip" data-filter="completed" onclick="setFilter(this)">Completed</button>
     </div>
 
@@ -685,6 +686,7 @@ function renderExams(){
     if(currentFilter==='free')return!e.is_premium;
     if(currentFilter==='premium')return e.is_premium;
     if(currentFilter==='live')return e.is_live;
+    if(currentFilter==='scheduled')return e.scheduled_at&&new Date(e.scheduled_at)>new Date()&&!e.is_live&&!e.stored_attempt;
     if(currentFilter==='completed')return!!e.stored_attempt;
     return true;
   });
@@ -712,46 +714,56 @@ function renderExams(){
     </div>`;
   });
   document.getElementById('examsContainer').innerHTML=html;
-  startScheduledCountdowns();
+  runScheduledCountdowns();
 }
 
-function startScheduledCountdowns(){
+// ── SCHEDULED EXAM COUNTDOWN ──
+let scheduledIntervals={};
+
+function isExamScheduled(exam){
+  return exam.scheduled_at && new Date(exam.scheduled_at) > new Date() && !exam.is_live && !exam.stored_attempt;
+}
+
+function runScheduledCountdowns(){
+  // Clear existing intervals
+  Object.keys(scheduledIntervals).forEach(id=>{clearInterval(scheduledIntervals[id]);delete scheduledIntervals[id]});
+  
   allExams.forEach(e=>{
-    if(e.scheduled_at&&!e.scheduled){
-      const el=document.getElementById('scd_'+e.id);
-      if(!el)return;
-      const st=new Date(e.scheduled_at).getTime();
-      let r=Math.max(0,Math.floor((st-Date.now())/1000));
-      if(scheduledCountdowns[e.id])clearInterval(scheduledCountdowns[e.id]);
-      scheduledCountdowns[e.id]=setInterval(()=>{
-        r--;
-        const el2=document.getElementById('scd_'+e.id);
-        if(el2){
-          if(r<=0){
-            el2.textContent='Available now';
-            clearInterval(scheduledCountdowns[e.id]);
-            loadDashboard();
-          }else{
-            el2.textContent='Opens in '+formatCountdown(r);
-          }
-        }
-      },1000);
-    }
+    if(!isExamScheduled(e))return;
+    const el=document.getElementById('scd_'+e.id);
+    if(!el)return;
+    
+    const scheduledTime=new Date(e.scheduled_at).getTime();
+    let remaining=Math.max(0,Math.floor((scheduledTime-Date.now())/1000));
+    
+    scheduledIntervals[e.id]=setInterval(()=>{
+      remaining--;
+      const el2=document.getElementById('scd_'+e.id);
+      if(!el2){clearInterval(scheduledIntervals[e.id]);return}
+      if(remaining<=0){
+        el2.textContent='Available now';
+        clearInterval(scheduledIntervals[e.id]);
+        setTimeout(()=>loadDashboard(),1500);
+      }else{
+        el2.textContent='Opens in '+formatCountdown(remaining);
+      }
+    },1000);
   });
 }
 
 function examCard(e){
   let badgeCls=e.is_live?'badge-live':(e.is_premium?'badge-premium':'badge-free');
   let badgeText=e.is_live?'Live':(e.is_premium?'Premium':'Free');
-  if(!e.scheduled&&e.scheduled_at){badgeCls='badge-scheduled';badgeText='Scheduled';}
+  if(e.is_closed){badgeCls='badge-closed';badgeText='Closed'}
+  else if(isExamScheduled(e)){badgeCls='badge-scheduled';badgeText='Scheduled'}
   
   let scoreHtml='',actionHtml='';
   
   if(e.is_closed){
     actionHtml='<button class="btn-take" disabled>Exam Closed</button>';
-  }else if(!e.scheduled&&e.scheduled_at){
-    const st=new Date(e.scheduled_at).getTime();
-    const remaining=Math.max(0,Math.floor((st-Date.now())/1000));
+  }else if(isExamScheduled(e)){
+    const scheduledTime=new Date(e.scheduled_at).getTime();
+    const remaining=Math.max(0,Math.floor((scheduledTime-Date.now())/1000));
     actionHtml=`<button class="btn-take" disabled><span id="scd_${e.id}">Opens in ${formatCountdown(remaining)}</span></button>`;
   }else if(e.stored_attempt){
     if(e.results_visible){
