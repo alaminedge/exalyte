@@ -213,14 +213,12 @@ body{
 
 <main class="main">
   <div class="content">
-
-    <div id="loadingState" class="loading-state">
-      <div class="spinner"></div>
-      <span>Loading your result...</span>
+    <div id="resultWrap">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <span>Loading your result...</span>
+      </div>
     </div>
-
-    <div id="resultWrap" style="display:none"></div>
-
   </div>
 </main>
 
@@ -236,35 +234,29 @@ body{
 <script>
 const API = '/api';
 function getToken(){return localStorage.getItem('exalyte_token')}
-function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
 function logout(){localStorage.clear();window.location.href='/'}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function formatDate(iso){return iso?new Date(iso).toLocaleDateString():'—'}
-function formatCountdown(sec){if(sec<=0)return'Available now';const h=Math.floor(sec/3600);const m=Math.floor((sec%3600)/60);const s=sec%60;const p=[];if(h>0)p.push(h+'h');if(m>0)p.push(m+'m');if(s>0||p.length===0)p.push(s+'s');return p.join(' ')}
+function formatCountdown(sec){if(sec<=0)return'0s';const h=Math.floor(sec/3600);const m=Math.floor((sec%3600)/60);const s=sec%60;const p=[];if(h>0)p.push(h+'h');if(m>0)p.push(m+'m');if(s>0||p.length===0)p.push(s+'s');return p.join(' ')}
 function formatTimeTaken(seconds){if(!seconds||seconds<=0)return'';const min=Math.floor(seconds/60);const sec=Math.floor(seconds%60);if(min>0)return min+'m '+sec+'s';return sec+'s'}
 function formatAvgTime(seconds,total){if(!seconds||!total||seconds<=0||total<=0)return'';const avg=seconds/total;if(avg<60)return Math.round(avg)+'s/Q';return (avg/60).toFixed(1)+'m/Q'}
-
-function isImageURL(str){if(!str)return false;const s=str.trim();return (s.startsWith('http')&&(s.includes('.jpg')||s.includes('.jpeg')||s.includes('.png')||s.includes('.webp')||s.includes('.gif')||s.includes('ibb.co')||s.includes('images.unsplash.com')||s.includes('i.imgur.com')))}
+function isImageURL(str){if(!str)return false;const s=str.trim();return (s.startsWith('http')&&(s.includes('.jpg')||s.includes('.jpeg')||s.includes('.png')||s.includes('.webp')||s.includes('.gif')||s.includes('ibb.co')))}
 function renderOptionContent(text){if(isImageURL(text))return`<img src="${esc(text)}" class="rv-opt-img" alt="Option" onerror="this.style.display='none'">`;return esc(text||'')}
 function renderExplanationContent(text){if(!text)return'';if(isImageURL(text))return`<img src="${esc(text)}" class="rv-explanation-img" alt="Explanation" onerror="this.style.display='none'">`;return esc(text)}
 
 async function apiFetch(path,opts={}){
   const token=getToken();
   const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};
-  try{
-    const res=await fetch(API+path,{...opts,headers});
-    const text=await res.text();
-    if(!text||text.trim()==='')return{ok:false,data:{error:'Empty response from server'}};
-    try{const data=JSON.parse(text);return{ok:res.ok,data}}
-    catch(e){return{ok:false,data:{error:text.substring(0,200)}}}
-  }catch(error){return{ok:false,data:{error:error.message||'Network error'}}}
+  const res=await fetch(API+path,{...opts,headers});
+  const text=await res.text();
+  if(!text||text.trim()==='')return{ok:false,data:{error:'Empty response'}};
+  try{return{ok:res.ok,data:JSON.parse(text)}}
+  catch(e){return{ok:false,data:{error:text.substring(0,200)}}}
 }
 
 const params=new URLSearchParams(location.search);
 const examId=params.get('examId');
 const attemptId=params.get('attemptId');
 
-// FIXED: Only redirect if both examId and attemptId are truly missing
 if(!examId){window.location.href='dashboard.html'}
 if(!getToken()){window.location.href='/'}
 
@@ -280,35 +272,35 @@ document.addEventListener('click',function(e){const dd=document.getElementById('
 
 function gradeInfo(pct){if(pct>=90)return{label:'Outstanding',color:'#1e8e3e'};if(pct>=80)return{label:'Excellent',color:'#1e8e3e'};if(pct>=60)return{label:'Good',color:'#1a73e8'};if(pct>=40)return{label:'Needs Work',color:'#f9ab00'};return{label:'Keep Trying',color:'#d93025'}}
 
-function showPendingWithCountdown(msg,liveSeconds){
-  let html=`<div class="pending-card"><div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="pending-title">Results Pending</div><div class="pending-sub">${esc(msg)}</div>`;
-  if(liveSeconds>0){html+=`<div class="pending-countdown" id="pendingCountdown">${formatCountdown(liveSeconds)}</div>`}
-  html+=`<div class="pending-guide"><span><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Go to Dashboard and click "View Result" on the exam card</span><span><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Or visit Exam History from the navigation menu</span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Results auto-publish when the live exam window ends</span></div>`;
-  html+=`<a href="dashboard.html" class="btn btn-primary" style="margin-top:16px">Back to Dashboard</a></div>`;
-  document.getElementById('resultWrap').innerHTML=html;
-  if(liveSeconds>0){let r=liveSeconds;pendingCountdown=setInterval(()=>{r--;const el=document.getElementById('pendingCountdown');if(el){if(r<=0){el.textContent='Results available now';clearInterval(pendingCountdown);const btn=document.querySelector('.pending-card .btn');if(btn){btn.textContent='Refresh';btn.onclick=()=>location.reload()}}else{el.textContent=formatCountdown(r)}}},1000)}}
+function showError(msg){
+  document.getElementById('resultWrap').innerHTML=`
+    <div class="pending-card">
+      <div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div class="pending-title">Could not load result</div>
+      <div class="pending-sub">${esc(msg)}</div>
+      <a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a>
+    </div>`;
 }
 
 async function loadResult(){
   if(pendingCountdown)clearInterval(pendingCountdown);
-  document.getElementById('loadingState').style.display='flex';
-  document.getElementById('resultWrap').style.display='none';
   
   try{
     const result=await apiFetch('/exams/'+examId+'/result/'+(attemptId||'0'));
-    document.getElementById('loadingState').style.display='none';
-    document.getElementById('resultWrap').style.display='block';
     
-    if(!result.ok||result.data.pending){
-      showPendingWithCountdown(result.data?.message||result.data?.error||'Results will be available after publication.',result.data?.live_seconds_remaining||0);
+    if(!result.ok){
+      if(result.data.pending){
+        const msg=result.data.message||result.data.error||'Results will be available after publication.';
+        const liveSeconds=result.data.live_seconds_remaining||0;
+        showPendingWithCountdown(msg,liveSeconds);
+        return;
+      }
+      showError(result.data.error||'Server returned an error');
       return;
     }
     
     const data=result.data;
-    if(!data.attempt||!data.questions){
-      document.getElementById('resultWrap').innerHTML=`<div class="pending-card"><div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="pending-title">No Results Found</div><div class="pending-sub">We couldn't find your result.</div><a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a></div>`;
-      return;
-    }
+    if(!data.attempt||!data.questions){showError('No result data found');return}
     
     attempt=data.attempt;questions=data.questions||[];exam=data.exam;
     if(typeof attempt.answers==='string'){try{userAnswers=JSON.parse(attempt.answers||'{}')}catch(e){userAnswers={}}}else{userAnswers=attempt.answers||{}}
@@ -328,7 +320,16 @@ async function loadResult(){
     
     html+=`<div class="review-head"><h2>Question Review</h2><div class="chips"><button class="chip active" data-f="all" onclick="setFilter(this,'all')">All</button><button class="chip" data-f="correct" onclick="setFilter(this,'correct')">Correct</button><button class="chip" data-f="wrong" onclick="setFilter(this,'wrong')">Wrong</button><button class="chip" data-f="skipped" onclick="setFilter(this,'skipped')">Skipped</button></div></div><div class="review-list" id="reviewList"></div>`;
     document.getElementById('resultWrap').innerHTML=html;renderReview();
-  }catch(e){document.getElementById('loadingState').style.display='none';document.getElementById('resultWrap').style.display='block';document.getElementById('resultWrap').innerHTML=`<div class="pending-card"><div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="pending-title">Something went wrong</div><div class="pending-sub">${esc(e.message||'Failed to load.')}</div><a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a></div>`}
+  }catch(e){showError(e.message||'Network error')}
+}
+
+function showPendingWithCountdown(msg,liveSeconds){
+  let html=`<div class="pending-card"><div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="pending-title">Results Pending</div><div class="pending-sub">${esc(msg)}</div>`;
+  if(liveSeconds>0){html+=`<div class="pending-countdown" id="pendingCountdown">${formatCountdown(liveSeconds)}</div>`}
+  html+=`<div class="pending-guide"><span><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Go to Dashboard and click "View Result" on the exam card</span><span><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Or visit Exam History from the navigation menu</span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Results auto-publish when the live exam window ends</span></div>`;
+  html+=`<a href="dashboard.html" class="btn btn-primary" style="margin-top:16px">Back to Dashboard</a></div>`;
+  document.getElementById('resultWrap').innerHTML=html;
+  if(liveSeconds>0){let r=liveSeconds;pendingCountdown=setInterval(()=>{r--;const el=document.getElementById('pendingCountdown');if(el){if(r<=0){el.textContent='Results available now';clearInterval(pendingCountdown)}else{el.textContent=formatCountdown(r)}}},1000)}}
 }
 
 function renderReview(){
