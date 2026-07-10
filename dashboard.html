@@ -877,23 +877,34 @@ function runScheduledCountdowns(){
   
   allExams.forEach(e=>{
     if(!isExamScheduled(e))return;
-    const cdEl=document.getElementById('scd_'+e.id);
-    if(!cdEl)return;
     
     const scheduledTime=new Date(e.scheduled_at).getTime();
     let remaining=Math.max(0,Math.floor((scheduledTime-Date.now())/1000));
     
     scheduledIntervals[e.id]=setInterval(()=>{
       remaining--;
-      const el2=document.getElementById('scd_'+e.id);
-      if(!el2){clearInterval(scheduledIntervals[e.id]);delete scheduledIntervals[e.id];return}
+      
+      // Update button text
+      const btnEl=document.getElementById('scd_'+e.id);
+      // Update banner text
+      const bannerEl=document.getElementById('scdBanner_'+e.id);
+      
+      if(!btnEl&&!bannerEl){
+        clearInterval(scheduledIntervals[e.id]);
+        delete scheduledIntervals[e.id];
+        return;
+      }
+      
       if(remaining<=0){
-        el2.textContent='Available now';
+        if(btnEl)btnEl.textContent='Available now';
+        if(bannerEl)bannerEl.textContent='Available now';
         clearInterval(scheduledIntervals[e.id]);
         delete scheduledIntervals[e.id];
         setTimeout(()=>loadDashboard(),1500);
       }else{
-        el2.textContent='Opens in '+formatCountdown(remaining);
+        const text='Opens in '+formatCountdown(remaining);
+        if(btnEl)btnEl.textContent=text;
+        if(bannerEl)bannerEl.textContent=text;
       }
     },1000);
   });
