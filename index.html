@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
 :root{
   --blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;
   --green:#1e8e3e;--grn-bg:#e6f4ea;--yellow:#f9ab00;--yel-bg:#fef7e0;
@@ -18,11 +18,12 @@ html{scroll-behavior:smooth}
   --gs:'Google Sans','Roboto',system-ui,sans-serif;
   --rb:'Roboto',system-ui,sans-serif;
   --hh:64px;--r:4px;--rl:12px;--tr:.2s cubic-bezier(.4,0,.2,1);
+  --safe-bottom:env(safe-area-inset-bottom,20px);
 }
 body{
   font-family:var(--rb);background:var(--bg);color:var(--t2);
   -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
-  display:flex;flex-direction:column;
+  display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;
 }
 .header{
   position:fixed;top:0;left:0;right:0;height:var(--hh);
@@ -39,9 +40,10 @@ body{
 .header-right{display:flex;align-items:center;gap:8px}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:8px 18px;font-family:var(--gs);font-size:.85rem;font-weight:500;
+  padding:10px 20px;font-family:var(--gs);font-size:.85rem;font-weight:500;
   border:none;border-radius:var(--r);cursor:pointer;
   transition:all var(--tr);text-decoration:none;white-space:nowrap;
+  min-height:44px;
 }
 .btn-primary{background:var(--blue);color:#fff}
 .btn-primary:hover{background:var(--blue-h);box-shadow:0 1px 2px rgba(60,64,67,.3),0 2px 6px rgba(60,64,67,.15)}
@@ -49,22 +51,21 @@ body{
 .btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
 .btn-lg{padding:14px 32px;font-size:1rem;border-radius:var(--rl)}
 .icon-btn{
-  width:40px;height:40px;border:none;background:none;border-radius:50%;
+  width:44px;height:44px;border:none;background:none;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0;
 }
 .icon-btn:hover{background:var(--hov)}
 .icon-btn svg{width:20px;height:20px}
 .avatar{
-  width:32px;height:32px;border-radius:50%;background:var(--blue);
+  width:36px;height:36px;border-radius:50%;background:var(--blue);
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--gs);font-weight:500;font-size:13px;
+  font-family:var(--gs);font-weight:500;font-size:14px;
   color:#fff;cursor:pointer;flex-shrink:0;border:2px solid transparent;
 }
 .avatar:hover{border-color:var(--border)}
 .main{flex:1;padding-top:var(--hh)}
 
-/* Hero */
 .hero{
   padding:72px 24px 48px;text-align:center;max-width:880px;margin:0 auto;
 }
@@ -81,7 +82,7 @@ body{
 }
 @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 .hero h1{
-  font-family:var(--gs);font-size:clamp(2.2rem,4vw,3.4rem);font-weight:500;
+  font-family:var(--gs);font-size:clamp(2rem,4vw,3.4rem);font-weight:500;
   color:var(--t1);margin-bottom:20px;letter-spacing:-1px;line-height:1.15;
 }
 .hero h1 span{color:var(--blue)}
@@ -90,7 +91,6 @@ body{
 }
 .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:56px}
 
-/* Feature images */
 .hero-visuals{
   display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;
   max-width:900px;margin:0 auto 64px;
@@ -109,7 +109,6 @@ body{
   color:#fff;font-family:var(--gs);font-size:.8rem;font-weight:500;
 }
 
-/* Metrics */
 .metrics-strip{
   background:var(--surf);border-top:1px solid var(--border);
   border-bottom:1px solid var(--border);
@@ -125,14 +124,13 @@ body{
 .metric-val{font-family:var(--gs);font-size:2rem;font-weight:500;color:var(--t1)}
 .metric-lbl{font-size:.8rem;color:var(--t3);margin-top:4px}
 
-/* Features */
 .section{max-width:1080px;margin:0 auto;padding:80px 24px}
 .section-eyebrow{
   font-size:.75rem;font-weight:500;text-transform:uppercase;
   letter-spacing:1px;color:var(--blue);margin-bottom:8px;
 }
 .section h2{
-  font-family:var(--gs);font-size:2rem;font-weight:500;color:var(--t1);
+  font-family:var(--gs);font-size:clamp(1.5rem,3vw,2rem);font-weight:500;color:var(--t1);
   margin-bottom:12px;letter-spacing:-0.3px;
 }
 .section .sub{
@@ -157,7 +155,6 @@ body{
 .g-card h3{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1);margin-bottom:8px}
 .g-card p{font-size:.875rem;color:var(--t3);line-height:1.55}
 
-/* Steps */
 .steps-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .step{
   background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
@@ -175,7 +172,6 @@ body{
 .step h3{font-family:var(--gs);font-size:.95rem;font-weight:500;color:var(--t1);margin-bottom:6px}
 .step p{font-size:.8rem;color:var(--t3);line-height:1.5}
 
-/* CTA */
 .cta-section{max-width:1080px;margin:0 auto;padding:0 24px 80px}
 .cta-inner{
   background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
@@ -188,13 +184,12 @@ body{
   pointer-events:none;
 }
 .cta-title{
-  font-family:var(--gs);font-size:clamp(1.6rem,3vw,2.2rem);
+  font-family:var(--gs);font-size:clamp(1.5rem,3vw,2.2rem);
   font-weight:500;color:var(--t1);margin-bottom:12px;
 }
 .cta-sub{font-size:1rem;color:var(--t3);margin-bottom:32px}
 .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 
-/* Modals */
 .modal-overlay{
   position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;
   display:none;align-items:center;justify-content:center;padding:20px;
@@ -218,6 +213,7 @@ body{
   width:100%;padding:12px 14px;border:1px solid var(--border);
   border-radius:var(--r);font-family:var(--rb);font-size:.95rem;
   color:var(--t1);background:var(--surf);outline:none;transition:border var(--tr);
+  min-height:44px;
 }
 .field-input:hover{border-color:var(--t3)}
 .field-input:focus{border:2px solid var(--blue);padding:11px 13px}
@@ -232,16 +228,15 @@ body{
   display:none;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
-.btn-full{width:100%;height:38px;justify-content:center}
+.btn-full{width:100%;height:auto;min-height:44px;justify-content:center}
 .btn-full:disabled{background:var(--hov);color:var(--t4);cursor:not-allowed;box-shadow:none}
 .modal-footer-link{text-align:center;margin-top:20px;font-size:.85rem;color:var(--t3)}
 .modal-footer-link button{
   background:none;border:none;color:var(--blue);cursor:pointer;
-  font-family:var(--rb);font-size:.85rem;font-weight:500;
+  font-family:var(--rb);font-size:.85rem;font-weight:500;min-height:40px;
 }
 .modal-footer-link button:hover{text-decoration:underline}
 
-/* Footer */
 .footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
 .footer-inner{
   max-width:1080px;margin:0 auto;padding:40px 24px 24px;
@@ -249,7 +244,7 @@ body{
 }
 .fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
 .fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
-.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2}
+.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2.2;padding:2px 0}
 .fc a:hover{color:var(--blue);text-decoration:underline}
 .footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .footer-bottom{
@@ -257,6 +252,7 @@ body{
   border-top:1px solid var(--border);display:flex;
   justify-content:space-between;align-items:center;
   font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px;
+  padding-bottom:calc(16px + var(--safe-bottom));
 }
 .footer-links{display:flex;gap:20px}
 .footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
@@ -272,30 +268,41 @@ body{
   box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px rgba(0,0,0,.14),0 1px 18px rgba(0,0,0,.12);
   transform:translateY(80px);opacity:0;
   transition:all .25s cubic-bezier(0,0,.2,1);pointer-events:none;
+  bottom:calc(24px + var(--safe-bottom));
 }
 .toast.show{transform:translateY(0);opacity:1}
 
 @media(max-width:900px){
-  .hero h1{font-size:2.2rem}
-  .hero-visuals{grid-template-columns:1fr;max-width:400px}
+  .header{padding:0 16px}
+  .hero{padding:60px 20px 36px}
+  .hero h1{font-size:2rem}
+  .hero p{font-size:1rem}
+  .hero-visuals{grid-template-columns:1fr;max-width:400px;margin:0 auto 48px}
   .card-grid{grid-template-columns:1fr;max-width:480px;margin:0 auto}
   .steps-row{grid-template-columns:1fr 1fr;max-width:480px;margin:0 auto}
   .metrics-inner{grid-template-columns:1fr 1fr}
   .metric-item:nth-child(2){border-right:none}
   .metric-item:nth-child(3){border-top:1px solid var(--border)}
-  .metric-item:nth-child(4){border-top:1px solid var(--border)}
+  .metric-item:nth-child(4){border-top:1px solid var(--border);border-right:none}
+  .section{padding:60px 20px}
+  .cta-inner{padding:48px 24px}
   .footer-inner{grid-template-columns:1fr 1fr;gap:28px}
 }
 @media(max-width:600px){
-  .hero h1{font-size:1.8rem}
-  .hero{padding:60px 20px 36px}
-  .section{padding:60px 20px}
-  .cta-inner{padding:48px 24px}
+  .hero h1{font-size:1.7rem}
+  .hero{padding:48px 20px 28px}
+  .hero-visuals{gap:12px}
+  .section{padding:48px 20px}
+  .section h2{font-size:1.4rem}
+  .cta-inner{padding:40px 20px}
   .steps-row{grid-template-columns:1fr;max-width:320px}
   .footer-inner{grid-template-columns:1fr;gap:20px}
   .footer-bottom{flex-direction:column;text-align:center}
   .modal{padding:28px 22px}
-  .hero-visuals{gap:12px}
+  .cta-actions .btn,.hero-actions .btn{width:100%;justify-content:center}
+  .metrics-inner{grid-template-columns:1fr 1fr}
+  .metric-val{font-size:1.5rem}
+  .metric-item{padding:24px 16px}
 }
 </style>
 </head>
@@ -313,7 +320,6 @@ body{
 
 <main class="main">
 
-  <!-- Hero -->
   <section class="hero">
     <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Trusted by students worldwide</div>
     <h1>The exam platform built for <span>serious</span> performance</h1>
@@ -335,7 +341,6 @@ body{
     </div>
   </section>
 
-  <!-- Metrics -->
   <div class="metrics-strip">
     <div class="metrics-inner">
       <div class="metric-item"><div class="metric-val">10K+</div><div class="metric-lbl">Practice questions</div></div>
@@ -345,7 +350,6 @@ body{
     </div>
   </div>
 
-  <!-- Features -->
   <section class="section" id="features">
     <div class="section-eyebrow">Platform Features</div>
     <h2>Everything you need to perform</h2>
@@ -384,7 +388,6 @@ body{
     </div>
   </section>
 
-  <!-- How it works -->
   <section class="section" id="how-it-works">
     <div class="section-eyebrow">Getting Started</div>
     <h2>Begin in under two minutes</h2>
@@ -413,7 +416,6 @@ body{
     </div>
   </section>
 
-  <!-- CTA -->
   <div class="cta-section">
     <div class="cta-inner">
       <h2 class="cta-title">Start preparing today</h2>
@@ -424,7 +426,6 @@ body{
 
 </main>
 
-<!-- Auth Modal -->
 <div class="modal-overlay" id="authModal">
   <div class="modal">
     <h2 id="authModalTitle">Sign in</h2>
@@ -441,7 +442,7 @@ body{
       </div>
       <div class="field">
         <label class="field-label" for="authPassword">Password</label>
-        <input type="password" class="field-input" id="authPassword" required placeholder="Your password">
+        <input type="password" class="field-input" id="authPassword" required placeholder="Your password" minlength="6">
       </div>
       <button type="submit" class="btn btn-primary btn-full" id="authSubmitBtn">
         <span id="authBtnText">Next</span>
@@ -454,7 +455,6 @@ body{
   </div>
 </div>
 
-<!-- Master Key Modal (Verify) -->
 <div class="modal-overlay" id="masterKeyModal">
   <div class="modal">
     <h2>Admin Verification</h2>
@@ -473,7 +473,6 @@ body{
   </div>
 </div>
 
-<!-- Master Key Setup Modal (First Time) -->
 <div class="modal-overlay" id="masterKeySetupModal">
   <div class="modal">
     <h2>Set Master Key</h2>
@@ -482,11 +481,11 @@ body{
     <form id="masterKeySetupForm" autocomplete="off">
       <div class="field">
         <label class="field-label" for="setupKeyInput">Master Key Phrase</label>
-        <input type="password" class="field-input" id="setupKeyInput" placeholder="Minimum 6 characters" required>
+        <input type="password" class="field-input" id="setupKeyInput" placeholder="Minimum 6 characters" required minlength="6">
       </div>
       <div class="field">
         <label class="field-label" for="setupKeyConfirm">Confirm Phrase</label>
-        <input type="password" class="field-input" id="setupKeyConfirm" placeholder="Re-enter your phrase" required>
+        <input type="password" class="field-input" id="setupKeyConfirm" placeholder="Re-enter your phrase" required minlength="6">
       </div>
       <button type="submit" class="btn btn-primary btn-full" id="masterKeySetupBtn">
         <span id="masterKeySetupBtnText">Set Master Key</span>
@@ -538,13 +537,12 @@ const token = localStorage.getItem('exalyte_token');
 const user = JSON.parse(localStorage.getItem('exalyte_user') || 'null');
 const loggedIn = !!(token && user);
 
-// Header scroll hide
 const header = document.getElementById('header');
 let lastY = 0, ticking = false;
-window.addEventListener('scroll', () => {
+window.addEventListener('scroll', function() {
   if (!ticking) {
-    requestAnimationFrame(() => {
-      const y = window.scrollY;
+    requestAnimationFrame(function() {
+      var y = window.scrollY;
       header.classList.toggle('hidden', y > lastY && y > 80);
       lastY = y;
       ticking = false;
@@ -554,51 +552,50 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 function toast(msg) {
-  const t = document.getElementById('toast');
+  var t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+  setTimeout(function() { t.classList.remove('show'); }, 3000);
 }
 
 function modalAlert(msg) {
-  const el = document.getElementById('modalAlert');
+  var el = document.getElementById('modalAlert');
   el.textContent = msg;
   el.className = 'alert alert-e';
 }
 
 function clearModalAlert() {
-  const el = document.getElementById('modalAlert');
+  var el = document.getElementById('modalAlert');
   el.className = 'alert';
   el.textContent = '';
 }
 
 function masterKeyAlert(msg) {
-  const el = document.getElementById('masterKeyAlert');
+  var el = document.getElementById('masterKeyAlert');
   el.textContent = msg;
   el.className = 'alert alert-e';
 }
 
 function clearMasterKeyAlert() {
-  const el = document.getElementById('masterKeyAlert');
+  var el = document.getElementById('masterKeyAlert');
   el.className = 'alert';
   el.textContent = '';
 }
 
 function masterKeySetupAlertFn(msg) {
-  const el = document.getElementById('masterKeySetupAlert');
+  var el = document.getElementById('masterKeySetupAlert');
   el.textContent = msg;
   el.className = 'alert alert-e';
 }
 
 function clearMasterKeySetupAlert() {
-  const el = document.getElementById('masterKeySetupAlert');
+  var el = document.getElementById('masterKeySetupAlert');
   el.className = 'alert';
   el.textContent = '';
 }
 
-// Simple device fingerprint
 function getFingerprint() {
-  const data = [
+  var data = [
     navigator.hardwareConcurrency || 'unknown',
     navigator.deviceMemory || 'unknown',
     screen.width + 'x' + screen.height,
@@ -607,17 +604,17 @@ function getFingerprint() {
     navigator.platform || 'unknown',
     !!navigator.webdriver
   ].join('|');
-  let hash = 0;
-  for (let i = 0; i < data.length; i++) {
-    const char = data.charCodeAt(i);
+  var hash = 0;
+  for (var i = 0; i < data.length; i++) {
+    var char = data.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
     hash |= 0;
   }
   return 'fp_' + Math.abs(hash).toString(36);
 }
 
-let authMode = 'login';
-let tempToken = null;
+var authMode = 'login';
+var tempToken = null;
 
 function openAuth(mode) {
   authMode = mode;
@@ -668,7 +665,7 @@ document.getElementById('authModal').addEventListener('click', function(e) {
   if (e.target === this) closeAuth();
 });
 
-document.addEventListener('keydown', e => {
+document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     closeAuth();
     closeMasterKeyModal();
@@ -682,42 +679,41 @@ document.getElementById('authForm').addEventListener('submit', async function(e)
   
   if (!navigator.onLine) { modalAlert('No internet connection.'); return; }
   
-  const email = document.getElementById('authEmail').value.trim();
-  const password = document.getElementById('authPassword').value;
+  var email = document.getElementById('authEmail').value.trim();
+  var password = document.getElementById('authPassword').value;
   
   if (!email || !password) { modalAlert('Please fill in all fields.'); return; }
   
   if (authMode === 'signup') {
-    const name = document.getElementById('authName').value.trim();
+    var name = document.getElementById('authName').value.trim();
     if (!name) { modalAlert('Please enter your name.'); return; }
     if (password.length < 6) { modalAlert('Password must be at least 6 characters.'); return; }
     setAuthLoading();
     try {
-      const fingerprint = getFingerprint();
-      const res = await fetch(API + '/auth/signup', {
+      var fingerprint = getFingerprint();
+      var res = await fetch(API + '/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, fingerprint })
+        body: JSON.stringify({ name: name, email: email, password: password, fingerprint: fingerprint })
       });
-      const data = await res.json();
+      var data = await res.json();
       if (!res.ok) { modalAlert(data.error || 'Signup failed.'); resetAuthBtn(); return; }
       localStorage.setItem('exalyte_token', data.token);
       localStorage.setItem('exalyte_user', JSON.stringify(data.user));
       toast('Account created successfully.');
-      setTimeout(() => { window.location.href = data.user.is_admin ? 'admin.html' : 'dashboard.html'; }, 400);
-    } catch { modalAlert('Network error. Please try again.'); resetAuthBtn(); }
+      setTimeout(function() { window.location.href = data.user.is_admin ? 'admin.html' : 'dashboard.html'; }, 400);
+    } catch(e) { modalAlert('Network error. Please try again.'); resetAuthBtn(); }
   } else {
     setAuthLoading();
     try {
-      const res = await fetch(API + '/auth/login', {
+      var res = await fetch(API + '/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email: email, password: password })
       });
-      const data = await res.json();
+      var data = await res.json();
       if (!res.ok) { modalAlert(data.error || 'Login failed.'); resetAuthBtn(); return; }
       
-      // Check if admin needs master key
       if (data.requires_master_key) {
         tempToken = data.temp_token;
         closeAuth();
@@ -725,7 +721,6 @@ document.getElementById('authForm').addEventListener('submit', async function(e)
         return;
       }
       
-      // Check if admin needs to set up master key
       if (data.setup_master_key) {
         tempToken = data.temp_token;
         closeAuth();
@@ -733,16 +728,14 @@ document.getElementById('authForm').addEventListener('submit', async function(e)
         return;
       }
       
-      // Normal login (non-admin)
       localStorage.setItem('exalyte_token', data.token);
       localStorage.setItem('exalyte_user', JSON.stringify(data.user));
       toast('Signed in successfully.');
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 400);
-    } catch { modalAlert('Network error. Please try again.'); resetAuthBtn(); }
+      setTimeout(function() { window.location.href = 'dashboard.html'; }, 400);
+    } catch(e) { modalAlert('Network error. Please try again.'); resetAuthBtn(); }
   }
 });
 
-// Master Key Verify Modal
 function openMasterKeyModal() {
   clearMasterKeyAlert();
   document.getElementById('masterKeyForm').reset();
@@ -764,29 +757,35 @@ document.getElementById('masterKeyForm').addEventListener('submit', async functi
   e.preventDefault();
   clearMasterKeyAlert();
   
-  const masterKey = document.getElementById('masterKeyInput').value;
+  var masterKey = document.getElementById('masterKeyInput').value;
   if (!masterKey) { masterKeyAlert('Please enter your master key.'); return; }
   
-  const btn = document.getElementById('masterKeySubmitBtn');
+  var btn = document.getElementById('masterKeySubmitBtn');
   btn.disabled = true;
   document.getElementById('masterKeySpinner').style.display = 'inline-block';
   document.getElementById('masterKeyBtnText').style.display = 'none';
   
   try {
-    const res = await fetch(API + '/auth/master-key/verify', {
+    var res = await fetch(API + '/auth/master-key/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ temp_token: tempToken, master_key: masterKey })
     });
-    const data = await res.json();
-    if (!res.ok) { masterKeyAlert(data.error || 'Verification failed.'); btn.disabled = false; document.getElementById('masterKeySpinner').style.display = 'none'; document.getElementById('masterKeyBtnText').style.display = 'inline'; return; }
+    var data = await res.json();
+    if (!res.ok) {
+      masterKeyAlert(data.error || 'Verification failed.');
+      btn.disabled = false;
+      document.getElementById('masterKeySpinner').style.display = 'none';
+      document.getElementById('masterKeyBtnText').style.display = 'inline';
+      return;
+    }
     
     localStorage.setItem('exalyte_token', data.token);
     localStorage.setItem('exalyte_user', JSON.stringify({ id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true }));
     toast('Admin access granted.');
     closeMasterKeyModal();
-    setTimeout(() => { window.location.href = 'admin.html'; }, 400);
-  } catch {
+    setTimeout(function() { window.location.href = 'admin.html'; }, 400);
+  } catch(e) {
     masterKeyAlert('Network error. Please try again.');
     btn.disabled = false;
     document.getElementById('masterKeySpinner').style.display = 'none';
@@ -794,7 +793,6 @@ document.getElementById('masterKeyForm').addEventListener('submit', async functi
   }
 });
 
-// Master Key Setup Modal
 function openMasterKeySetupModal() {
   clearMasterKeySetupAlert();
   document.getElementById('masterKeySetupForm').reset();
@@ -816,33 +814,39 @@ document.getElementById('masterKeySetupForm').addEventListener('submit', async f
   e.preventDefault();
   clearMasterKeySetupAlert();
   
-  const key = document.getElementById('setupKeyInput').value;
-  const confirm = document.getElementById('setupKeyConfirm').value;
+  var key = document.getElementById('setupKeyInput').value;
+  var confirm = document.getElementById('setupKeyConfirm').value;
   
   if (!key || !confirm) { masterKeySetupAlertFn('Please fill in both fields.'); return; }
   if (key.length < 6) { masterKeySetupAlertFn('Master key must be at least 6 characters.'); return; }
   if (key !== confirm) { masterKeySetupAlertFn('Phrases do not match.'); return; }
   
-  const btn = document.getElementById('masterKeySetupBtn');
+  var btn = document.getElementById('masterKeySetupBtn');
   btn.disabled = true;
   document.getElementById('masterKeySetupSpinner').style.display = 'inline-block';
   document.getElementById('masterKeySetupBtnText').style.display = 'none';
   
   try {
-    const res = await fetch(API + '/auth/master-key/set', {
+    var res = await fetch(API + '/auth/master-key/set', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ temp_token: tempToken, master_key: key })
     });
-    const data = await res.json();
-    if (!res.ok) { masterKeySetupAlertFn(data.error || 'Setup failed.'); btn.disabled = false; document.getElementById('masterKeySetupSpinner').style.display = 'none'; document.getElementById('masterKeySetupBtnText').style.display = 'inline'; return; }
+    var data = await res.json();
+    if (!res.ok) {
+      masterKeySetupAlertFn(data.error || 'Setup failed.');
+      btn.disabled = false;
+      document.getElementById('masterKeySetupSpinner').style.display = 'none';
+      document.getElementById('masterKeySetupBtnText').style.display = 'inline';
+      return;
+    }
     
     localStorage.setItem('exalyte_token', data.token);
     localStorage.setItem('exalyte_user', JSON.stringify({ id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true }));
     toast('Master key set. Admin access granted.');
     closeMasterKeySetupModal();
-    setTimeout(() => { window.location.href = 'admin.html'; }, 400);
-  } catch {
+    setTimeout(function() { window.location.href = 'admin.html'; }, 400);
+  } catch(e) {
     masterKeySetupAlertFn('Network error. Please try again.');
     btn.disabled = false;
     document.getElementById('masterKeySetupSpinner').style.display = 'none';
@@ -851,31 +855,31 @@ document.getElementById('masterKeySetupForm').addEventListener('submit', async f
 });
 
 function renderUI() {
-  const hr = document.getElementById('headerRight');
-  const heroActions = document.getElementById('heroActions');
-  const ctaActions = document.getElementById('ctaActions');
+  var hr = document.getElementById('headerRight');
+  var heroActions = document.getElementById('heroActions');
+  var ctaActions = document.getElementById('ctaActions');
   
   if (loggedIn) {
-    const initial = (user.name || 'U')[0].toUpperCase();
-    const dashboardUrl = user.is_admin ? 'admin.html' : 'dashboard.html';
-    hr.innerHTML = `
-      <button class="icon-btn" onclick="logout()" title="Sign out">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      </button>
-      <div class="avatar">${initial}</div>`;
+    var initial = (user.name || 'U')[0].toUpperCase();
+    var dashboardUrl = user.is_admin ? 'admin.html' : 'dashboard.html';
+    hr.innerHTML = 
+      '<button class="icon-btn" onclick="logout()" title="Sign out" aria-label="Sign out">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>' +
+      '</button>' +
+      '<div class="avatar">' + initial + '</div>';
     document.getElementById('heroSubtitle').textContent = 'Welcome back! Continue your preparation journey.';
-    heroActions.innerHTML = `<a href="${dashboardUrl}" class="btn btn-primary btn-lg">Go to Dashboard</a><a href="#features" class="btn btn-outline btn-lg">Learn more</a>`;
-    ctaActions.innerHTML = `<a href="${dashboardUrl}" class="btn btn-primary btn-lg">Go to Dashboard</a>`;
+    heroActions.innerHTML = '<a href="' + dashboardUrl + '" class="btn btn-primary btn-lg">Go to Dashboard</a><a href="#features" class="btn btn-outline btn-lg">Learn more</a>';
+    ctaActions.innerHTML = '<a href="' + dashboardUrl + '" class="btn btn-primary btn-lg">Go to Dashboard</a>';
   } else {
-    hr.innerHTML = `
-      <button class="btn btn-outline" onclick="openAuth('login')">Sign in</button>
-      <button class="btn btn-primary" onclick="openAuth('signup')">Create account</button>`;
-    heroActions.innerHTML = `
-      <button class="btn btn-primary btn-lg" onclick="openAuth('signup')">Create free account</button>
-      <button class="btn btn-outline btn-lg" onclick="openAuth('login')">Sign in</button>`;
-    ctaActions.innerHTML = `
-      <button class="btn btn-primary btn-lg" onclick="openAuth('signup')">Create free account</button>
-      <button class="btn btn-outline btn-lg" onclick="openAuth('login')">Sign in</button>`;
+    hr.innerHTML = 
+      '<button class="btn btn-outline" onclick="openAuth(\'login\')">Sign in</button>' +
+      '<button class="btn btn-primary" onclick="openAuth(\'signup\')">Create account</button>';
+    heroActions.innerHTML = 
+      '<button class="btn btn-primary btn-lg" onclick="openAuth(\'signup\')">Create free account</button>' +
+      '<button class="btn btn-outline btn-lg" onclick="openAuth(\'login\')">Sign in</button>';
+    ctaActions.innerHTML = 
+      '<button class="btn btn-primary btn-lg" onclick="openAuth(\'signup\')">Create free account</button>' +
+      '<button class="btn btn-outline btn-lg" onclick="openAuth(\'login\')">Sign in</button>';
   }
 }
 
