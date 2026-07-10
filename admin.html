@@ -168,6 +168,8 @@ tr:last-child td{border-bottom:none}
 .badge-banned{background:var(--red-bg);color:var(--red)}
 .badge-closed{background:var(--red-bg);color:var(--red)}
 .badge-open{background:var(--grn-bg);color:var(--green)}
+.badge-scheduled{background:var(--yel-bg);color:#e37400}
+.badge-live{background:var(--red-bg);color:var(--red)}
 
 .resource-list{margin-bottom:14px}
 .resource-item{
@@ -414,6 +416,7 @@ tr:last-child td{border-bottom:none}
       <div class="form-group"><label class="form-label">Negative Marking</label><input class="form-input" type="number" id="examNeg" value="0" step="0.25"></div>
       <div class="form-group"><label class="form-label">Batch</label><select class="form-select" id="examBatchSelect"></select></div>
       <div class="form-group"><label class="form-label">Live Deadline (hours, 0=none)</label><input class="form-input" type="number" id="examLive" value="0"></div>
+      <div class="form-group"><label class="form-label">Schedule Start (leave empty for immediate)</label><input class="form-input" type="datetime-local" id="examScheduledAt"></div>
     </div>
     <div class="form-group"><label class="form-check"><input type="checkbox" id="examPremium"> Premium Exam</label></div>
     <div class="form-group"><label class="form-check"><input type="checkbox" id="examPractice" checked> Allow Practice Mode</label></div>
@@ -524,7 +527,32 @@ async function loadDashboard(){
 async function loadExams(){
   const{data}=await apiFetch('/exams');
   allExams=(data.exams||[]);
-  document.getElementById('examsTable').innerHTML=`<table><thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Status</th><th>Questions</th><th>Actions</th></tr></thead><tbody>${allExams.map(e=>`<tr><td><strong>${esc(e.name)}</strong>${e.description?`<br><span style="font-size:.65rem;color:var(--t4)">${esc(e.description)}</span>`:''}</td><td>${esc(e.batch_name)||'—'}</td><td><span class="badge ${e.is_premium?'badge-premium':'badge-free'}">${e.is_premium?'Premium':'Free'}</span></td><td><span class="badge ${e.is_closed?'badge-closed':'badge-open'}">${e.is_closed?'Closed':'Open'}</span></td><td>${e.question_count||0}</td><td><button class="btn btn-outline btn-sm" onclick="openExamModal(${e.id})">Edit</button><button class="btn btn-outline btn-sm" style="color:${e.is_closed?'var(--green)':'var(--red)'}" onclick="toggleExam(${e.id})">${e.is_closed?'Open':'Close'}</button><button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id})">Delete</button></td></tr>`).join('')||'<tr><td colspan="6">No exams</td></tr>'}</tbody></table>`;
+  document.getElementById('examsTable').innerHTML=`<table><thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Status</th><th>Scheduled</th><th>Questions</th><th>Actions</th></tr></thead><tbody>${allExams.map(e=>{
+    let statusBadge = '';
+    if(e.is_closed) statusBadge = '<span class="badge badge-closed">Closed</span>';
+    else if(e.is_live) statusBadge = '<span class="badge badge-live">Live</span>';
+    else if(e.scheduled_at && new Date(e.scheduled_at) > new Date()) statusBadge = '<span class="badge badge-scheduled">Scheduled</span>';
+    else statusBadge = '<span class="badge badge-open">Open</span>';
+    
+    let scheduledDisplay = '—';
+    if(e.scheduled_at){
+      const d = new Date(e.scheduled_at);
+      scheduledDisplay = d.toLocaleString();
+    }
+    
+    return `<tr>
+      <td><strong>${esc(e.name)}</strong>${e.description?`<br><span style="font-size:.65rem;color:var(--t4)">${esc(e.description)}</span>`:''}</td>
+      <td>${esc(e.batch_name)||'—'}</td>
+      <td><span class="badge ${e.is_premium?'badge-premium':'badge-free'}">${e.is_premium?'Premium':'Free'}</span></td>
+      <td>${statusBadge}</td>
+      <td style="font-size:.72rem">${scheduledDisplay}</td>
+      <td>${e.question_count||0}</td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick="openExamModal(${e.id})">Edit</button>
+        <button class="btn btn-outline btn-sm" style="color:${e.is_closed?'var(--green)':'var(--red)'}" onclick="toggleExam(${e.id})">${e.is_closed?'Open':'Close'}</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id})">Delete</button>
+      </td></tr>`;
+  }).join('')||'<tr><td colspan="7">No exams</td></tr>'}</tbody></table>`;
   loadExamSelects();
 }
 
@@ -560,6 +588,13 @@ function openExamModal(id=null){
   document.getElementById('examTime').value=exam?.time_limit||30;
   document.getElementById('examNeg').value=exam?.negative_marking||0;
   document.getElementById('examLive').value=exam?.live_deadline_hours||0;
+  if(exam?.scheduled_at){
+    const d = new Date(exam.scheduled_at);
+    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0,16);
+    document.getElementById('examScheduledAt').value = local;
+  } else {
+    document.getElementById('examScheduledAt').value = '';
+  }
   document.getElementById('examPremium').checked=exam?.is_premium||false;
   document.getElementById('examPractice').checked=exam?.allow_practice!==false;
   document.getElementById('examLeaderboard').checked=exam?.leaderboard_enabled!==false;
@@ -569,6 +604,7 @@ function openExamModal(id=null){
 }
 
 async function saveExam(){
+  const scheduledVal = document.getElementById('examScheduledAt').value;
   const body={
     name:document.getElementById('examName').value.trim(),
     description:document.getElementById('examDesc').value,
@@ -576,6 +612,7 @@ async function saveExam(){
     negative_marking:parseFloat(document.getElementById('examNeg').value)||0,
     batch_id:document.getElementById('examBatchSelect').value||null,
     live_deadline_hours:parseInt(document.getElementById('examLive').value)||0,
+    scheduled_at: scheduledVal ? new Date(scheduledVal).toISOString() : null,
     is_premium:document.getElementById('examPremium').checked?1:0,
     allow_practice:document.getElementById('examPractice').checked?1:0,
     leaderboard_enabled:document.getElementById('examLeaderboard').checked?1:0
@@ -766,20 +803,12 @@ async function loadResults(){
   document.getElementById('resultsTable').innerHTML=`<div style="margin-bottom:8px">${downloadBtn}</div><table><thead><tr><th>Rank</th><th>User</th><th>Exam</th><th>Score</th><th>%</th><th>Time</th><th>Date</th></tr></thead><tbody>${results.map(r=>`<tr><td><strong>#${r.rank||'—'}</strong></td><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:.65rem;color:var(--t4)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><span style="color:${(r.percentage||0)>=80?'var(--green)':(r.percentage||0)>=50?'#e37400':'var(--red)'}">${(r.percentage||0).toFixed(1)}%</span></td><td>${formatTimeTaken(r.time_taken_seconds)}</td><td>${formatDate(r.submitted_at)}</td></tr>`).join('')||'<tr><td colspan="7">No results</td></tr>'}</tbody></table>`;
 }
 
- function downloadResults(examId){
+function downloadResults(examId){
   const token = getToken();
   const url = API + '/admin/results/' + examId + '/download';
-  
-  fetch(url, {
-    headers: { 'Authorization': 'Bearer ' + token }
-  })
-  .then(res => res.blob())
-  .then(blob => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'results.txt';
-    a.click();
-  });
+  fetch(url,{headers:{'Authorization':'Bearer '+token}})
+  .then(res=>res.blob())
+  .then(blob=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='results.txt';a.click()});
 }
 
 async function sendNotification(){
