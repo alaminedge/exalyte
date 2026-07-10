@@ -257,6 +257,9 @@ body{
 .result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .btn-primary{background:var(--blue);color:#fff;border:none;padding:10px 20px;border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer;transition:all var(--tr);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 .btn-primary:hover{background:var(--blue-h)}
+.time-info{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:4px;font-size:.75rem;color:var(--t3)}
+.time-info span{display:flex;align-items:center;gap:4px}
+.time-info svg{width:12px;height:12px;stroke:currentColor;fill:none}
 
 /* Review */
 .review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
@@ -504,6 +507,23 @@ function renderExplanationContent(text){
   return esc(text);
 }
 
+// Format seconds to min:sec display
+function formatTimeTaken(seconds){
+  if(!seconds||seconds<=0)return'';
+  const min=Math.floor(seconds/60);
+  const sec=Math.floor(seconds%60);
+  if(min>0)return min+'m '+sec+'s';
+  return sec+'s';
+}
+
+// Format avg time per question
+function formatAvgTime(seconds,total){
+  if(!seconds||!total||seconds<=0||total<=0)return'';
+  const avg=seconds/total;
+  if(avg<60)return Math.round(avg)+'s/Q';
+  return (avg/60).toFixed(1)+'m/Q';
+}
+
 async function apiFetch(path,opts={}){
   const token=getToken();
   const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};
@@ -520,6 +540,7 @@ if(!getToken())window.location.href='/';
 
 let questions=[],answers={},marked={},exam=null;
 let timeLeft=0,timerInt=null,tabLeaves=0;
+let examStartTime=0;
 
 let lastY=0,ticking=false;
 const header=document.getElementById('header');
@@ -572,6 +593,7 @@ async function startExam(){
     document.getElementById('mobileFooter').classList.add('show');
   }
   
+  examStartTime=Date.now();
   timeLeft=exam.time_limit*60;
   buildUI();
   startTimer();
@@ -706,6 +728,8 @@ async function showPracticeResult(data){
   const wrong=data.wrong||0;
   const skipped=data.skipped||0;
   const detailed=data.detailed||{};
+  const timeTaken=data.time_taken_seconds||0;
+  const totalQuestions=questions.length;
   
   let gradeColor='#1e8e3e',gradeLabel='Excellent';
   if(pct>=90){gradeColor='#1e8e3e';gradeLabel='Outstanding';}
@@ -717,6 +741,17 @@ async function showPracticeResult(data){
   document.getElementById('examUI').style.display='none';
   document.getElementById('floatingSubmit').style.display='none';
   document.getElementById('mobileFooter').classList.remove('show');
+  
+  let timeHTML='';
+  if(timeTaken>0){
+    const timeMin=(timeTaken/60).toFixed(1);
+    const avgSec=Math.round(timeTaken/totalQuestions);
+    timeHTML=`
+    <div class="time-info">
+      <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: ${timeMin} min / ${exam.time_limit} min</span>
+      <span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: ${formatAvgTime(timeTaken,totalQuestions)}</span>
+    </div>`;
+  }
   
   let html=`
   <div class="practice-result-page" id="practiceResultPage">
@@ -738,6 +773,7 @@ async function showPracticeResult(data){
         <div class="sc-stat sc-wrong"><div class="sc-stat-val">${wrong}</div><div class="sc-stat-lbl">Wrong</div></div>
         <div class="sc-stat sc-skip"><div class="sc-stat-val">${skipped}</div><div class="sc-stat-lbl">Skipped</div></div>
       </div>
+      ${timeHTML}
       <div class="perf-bar"><div class="perf-fill" style="width:${Math.max(pct,2)}%;background:${gradeColor}"></div></div>
       <div class="result-actions">
         <a href="dashboard.html" class="btn-secondary" style="text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
@@ -898,8 +934,12 @@ async function doSubmit(){
   document.getElementById('confirmSubmitBtn').disabled=true;
   document.getElementById('confirmSubmitBtn').textContent='Submitting...';
   
+  const timeTaken=Math.floor((Date.now()-examStartTime)/1000);
+  const totalTime=exam.time_limit*60;
+  const actualTime=Math.min(timeTaken,totalTime);
+  
   try{
-    const{ok,data}=await apiFetch('/exams/'+examId+'/submit',{method:'POST',body:JSON.stringify({answers,is_practice:isPrac})});
+    const{ok,data}=await apiFetch('/exams/'+examId+'/submit',{method:'POST',body:JSON.stringify({answers,is_practice:isPrac,time_taken_seconds:actualTime})});
     if(!ok){alert(data.error||'Submission failed');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now';return}
     
     if(isPrac){
