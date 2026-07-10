@@ -766,8 +766,20 @@ async function loadResults(){
   document.getElementById('resultsTable').innerHTML=`<div style="margin-bottom:8px">${downloadBtn}</div><table><thead><tr><th>Rank</th><th>User</th><th>Exam</th><th>Score</th><th>%</th><th>Time</th><th>Date</th></tr></thead><tbody>${results.map(r=>`<tr><td><strong>#${r.rank||'—'}</strong></td><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:.65rem;color:var(--t4)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><span style="color:${(r.percentage||0)>=80?'var(--green)':(r.percentage||0)>=50?'#e37400':'var(--red)'}">${(r.percentage||0).toFixed(1)}%</span></td><td>${formatTimeTaken(r.time_taken_seconds)}</td><td>${formatDate(r.submitted_at)}</td></tr>`).join('')||'<tr><td colspan="7">No results</td></tr>'}</tbody></table>`;
 }
 
-function downloadResults(examId){
-  window.open(API+'/admin/results/'+examId+'/download','_blank');
+ function downloadResults(examId){
+  const token = getToken();
+  const url = API + '/admin/results/' + examId + '/download';
+  
+  fetch(url, {
+    headers: { 'Authorization': 'Bearer ' + token }
+  })
+  .then(res => res.blob())
+  .then(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'results.txt';
+    a.click();
+  });
 }
 
 async function sendNotification(){
