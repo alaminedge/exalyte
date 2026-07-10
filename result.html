@@ -43,6 +43,7 @@ body{
   transition:all var(--tr);
 }
 .header-nav a:hover{background:var(--hov);color:var(--t1)}
+
 .hamburger{
   display:none;background:none;border:none;cursor:pointer;
   color:var(--t3);padding:8px;border-radius:50%;
@@ -50,6 +51,7 @@ body{
 }
 .hamburger:hover{background:var(--hov)}
 .hamburger svg{width:22px;height:22px}
+
 .mobile-nav-dropdown{
   display:none;position:fixed;top:var(--hh);left:0;right:0;
   background:var(--surf);border-bottom:1px solid var(--border);
@@ -61,6 +63,7 @@ body{
   color:var(--t2);text-decoration:none;border-radius:var(--r);
 }
 .mobile-nav-dropdown a:hover{background:var(--hov)}
+
 .header-right{display:flex;align-items:center;gap:8px}
 .icon-btn{
   width:40px;height:40px;border:none;background:none;border-radius:50%;
@@ -165,6 +168,7 @@ body{
 .rv-wrong .rv-status{background:var(--red-bg);color:var(--red)}
 .rv-skip .rv-status{background:var(--hov);color:var(--t3)}
 .rv-q{font-size:.84rem;color:var(--t2);flex:1;line-height:1.5}
+.rv-q-img{max-width:100%;max-height:140px;border-radius:var(--r);margin-top:6px;border:1px solid var(--border);object-fit:contain}
 .rv-arrow{width:16px;height:16px;stroke:var(--t3);fill:none;stroke-width:2;flex-shrink:0;transition:transform .2s}
 .rv-card.open .rv-arrow{transform:rotate(180deg)}
 .rv-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
@@ -184,6 +188,7 @@ body{
 }
 .rv-opt-correct .rv-ol{background:rgba(30,142,62,.2);color:var(--green)}
 .rv-opt-wrong .rv-ol{background:rgba(217,48,37,.15);color:var(--red)}
+.rv-opt-img{max-width:100%;max-height:120px;border-radius:var(--r);border:1px solid var(--border);object-fit:contain}
 .rv-ans-note{font-size:.68rem;font-weight:500;color:var(--t4);text-transform:uppercase;letter-spacing:.3px;margin-top:10px}
 .rv-explanation{
   margin-top:10px;padding:10px 14px;background:#e8f0fe;
@@ -191,6 +196,7 @@ body{
   font-size:.78rem;color:var(--blue);line-height:1.6;
 }
 .rv-explanation strong{color:var(--t1);display:block;margin-bottom:3px;font-size:.68rem;text-transform:uppercase;letter-spacing:.3px}
+.rv-explanation-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:10px;border:1px solid var(--border);object-fit:contain}
 .empty-review{text-align:center;padding:40px;color:var(--t3);font-size:.82rem}
 
 .footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
@@ -321,6 +327,31 @@ function getToken(){return localStorage.getItem('exalyte_token')}
 function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
 function logout(){localStorage.clear();window.location.href='/'}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function formatDate(iso){return iso?new Date(iso).toLocaleDateString():'—'}
+
+// Helper: check if a string is an image URL
+function isImageURL(str){
+  if(!str)return false;
+  const s=str.trim();
+  return (s.startsWith('http')&&(s.includes('.jpg')||s.includes('.jpeg')||s.includes('.png')||s.includes('.webp')||s.includes('.gif')||s.includes('ibb.co')||s.includes('images.unsplash.com')||s.includes('i.imgur.com')));
+}
+
+// Render option content: text or image
+function renderOptionContent(text){
+  if(isImageURL(text)){
+    return`<img src="${esc(text)}" class="rv-opt-img" alt="Option" onerror="this.style.display='none'">`;
+  }
+  return esc(text||'');
+}
+
+// Render explanation content: text or image
+function renderExplanationContent(text){
+  if(!text)return'';
+  if(isImageURL(text)){
+    return`<img src="${esc(text)}" class="rv-explanation-img" alt="Explanation" onerror="this.style.display='none'">`;
+  }
+  return esc(text);
+}
 
 async function apiFetch(path,opts={}){
   const token=getToken();
@@ -339,12 +370,9 @@ const examId=params.get('examId');
 const attemptId=params.get('attemptId');
 const isPractice=params.get('practice')==='1';
 const urlScore=params.get('score');
-const urlTotal=params.get('total');
-const urlPercentage=params.get('percentage');
 const urlCorrect=params.get('correct');
 const urlWrong=params.get('wrong');
 const urlSkipped=params.get('skipped');
-const urlAnswers=params.get('answers');
 
 if(!examId)window.location.href='dashboard.html';
 if(!attemptId&&!isPractice)window.location.href='dashboard.html';
@@ -374,128 +402,15 @@ function gradeInfo(pct){
   return{label:'Keep Trying',color:'#d93025'};
 }
 
-function showUrlPracticeResult(){
-  const score=parseInt(urlScore)||0;
-  const total=parseInt(urlTotal)||0;
-  const percentage=parseFloat(urlPercentage)||0;
-  const correct=parseInt(urlCorrect)||0;
-  const wrong=parseInt(urlWrong)||0;
-  const skipped=parseInt(urlSkipped)||0;
-  const grade=gradeInfo(percentage);
-  
-  let html=`
-  <div class="score-card">
-    <div class="score-ring-wrap">
-      <svg viewBox="0 0 120 120">
-        <circle class="ring-bg" cx="60" cy="60" r="54"/>
-        <circle class="ring-fill" id="scRing" cx="60" cy="60" r="54" stroke="${grade.color}" style="stroke-dasharray:339;stroke-dashoffset:${339-(percentage/100)*339}"/>
-      </svg>
-      <div class="ring-inner">
-        <div class="ring-pct">${percentage.toFixed(1)}%</div>
-        <div class="ring-lbl">Score</div>
-      </div>
-    </div>
-    <div class="score-grade" style="color:${grade.color}">${grade.label}</div>
-    <div class="score-exam">Practice Result</div>
-    <div class="score-stats">
-      <div class="sc-stat sc-correct"><div class="sc-stat-val">${correct}</div><div class="sc-stat-lbl">Correct</div></div>
-      <div class="sc-stat sc-wrong"><div class="sc-stat-val">${wrong}</div><div class="sc-stat-lbl">Wrong</div></div>
-      <div class="sc-stat sc-skip"><div class="sc-stat-val">${skipped}</div><div class="sc-stat-lbl">Skipped</div></div>
-    </div>
-    <div class="perf-bar"><div class="perf-fill" style="width:${Math.max(percentage,2)}%;background:${grade.color}"></div></div>
-    <div class="result-actions">
-      <a href="dashboard.html" class="btn btn-outline"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
-      <a href="exam.html?id=${examId}&practice=1" class="btn btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Again</a>
-    </div>
-  </div>`;
-  
-  html+=`
-  <div class="review-head">
-    <h2>Question Review</h2>
-    <div class="chips">
-      <button class="chip active" data-f="all" onclick="setFilter(this,'all')">All</button>
-      <button class="chip" data-f="correct" onclick="setFilter(this,'correct')">Correct</button>
-      <button class="chip" data-f="wrong" onclick="setFilter(this,'wrong')">Wrong</button>
-      <button class="chip" data-f="skipped" onclick="setFilter(this,'skipped')">Skipped</button>
-    </div>
-  </div>
-  <div class="review-list" id="reviewList"></div>`;
-  
-  document.getElementById('resultWrap').innerHTML=html;
-  renderPracticeReview();
-}
-
-function renderPracticeReview(){
-  let rawAnswers={};
-  try{rawAnswers=JSON.parse(urlAnswers||'{}')}catch(e){}
-  
-  const filtered=questions.filter(q=>{
-    const given=String(rawAnswers[q.id]||rawAnswers[String(q.id)]||'').trim().toUpperCase();
-    const correctAns=String(q.correct_answer||'').trim().toUpperCase();
-    if(reviewFilter==='correct')return given&&given===correctAns;
-    if(reviewFilter==='wrong')return given&&given!==correctAns;
-    if(reviewFilter==='skipped')return!given;
-    return true;
-  });
-  
-  if(!filtered.length){
-    document.getElementById('reviewList').innerHTML='<div class="empty-review">No questions in this filter.</div>';
-    return;
-  }
-  
-  const icons={
-    correct:'<polyline points="20 6 9 17 4 12"/>',
-    wrong:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
-    skipped:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
-  };
-  
-  document.getElementById('reviewList').innerHTML=filtered.map(q=>{
-    const given=String(rawAnswers[q.id]||rawAnswers[String(q.id)]||'').trim().toUpperCase();
-    const correctAns=String(q.correct_answer||'').trim().toUpperCase();
-    const st=!given?'skip':given===correctAns?'correct':'wrong';
-    const cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
-    const opts=['A','B','C','D'].map(l=>{
-      const isCorrect=l===correctAns;
-      const isYours=l===given&&!isCorrect;
-      const optCls=isCorrect?'rv-opt-correct':isYours?'rv-opt-wrong':'';
-      return`<div class="rv-opt ${optCls}"><div class="rv-ol">${l}</div><div style="flex:1;line-height:1.4">${esc(q['option_'+l.toLowerCase()])}</div></div>`;
-    }).join('');
-    
-    let note='';
-    if(given&&given!==correctAns)note=`<div class="rv-ans-note">Your answer: ${given} — Correct: ${correctAns}</div>`;
-    else if(!given)note=`<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: ${correctAns}</div>`;
-    
-    let exp='';
-    if(q.explanation&&q.explanation.trim()){
-      exp=`<div class="rv-explanation"><strong>Explanation</strong>${esc(q.explanation)}</div>`;
-    }
-    
-    return`<div class="rv-card ${cls}" id="rv${q.id}">
-      <div class="rv-header" onclick="toggleReview('${q.id}')">
-        <div class="rv-status"><svg viewBox="0 0 24 24">${icons[st]}</svg></div>
-        <div class="rv-q">${esc(q.question_text)}</div>
-        <svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>
-      <div class="rv-body">
-        ${q.image_url?`<img src="${esc(q.image_url)}" style="max-width:100%;max-height:140px;border-radius:var(--r);margin-bottom:10px;border:1px solid var(--border);object-fit:contain" alt="">`:''}
-        <div class="rv-opts">${opts}</div>
-        ${note}${exp}
-      </div>
-    </div>`;
-  }).join('');
-}
-
 async function loadResult(){
   if(isPractice&&urlScore){
     isUrlMode=true;
     document.getElementById('loadingState').style.display='none';
     document.getElementById('resultWrap').style.display='block';
-    
     try{
       const{ok,data}=await apiFetch('/exams/'+examId+'/questions');
       if(ok){questions=data.questions||[]}
     }catch(e){}
-    
     showUrlPracticeResult();
     return;
   }
@@ -632,6 +547,44 @@ async function loadResult(){
   }
 }
 
+function showUrlPracticeResult(){
+  const score=parseInt(urlScore)||0;
+  const total=10;
+  const percentage=parseFloat(urlScore)||0;
+  const correct=parseInt(urlCorrect)||0;
+  const wrong=parseInt(urlWrong)||0;
+  const skipped=parseInt(urlSkipped)||0;
+  const grade=gradeInfo(percentage);
+  
+  let html=`
+  <div class="score-card">
+    <div class="score-ring-wrap">
+      <svg viewBox="0 0 120 120">
+        <circle class="ring-bg" cx="60" cy="60" r="54"/>
+        <circle class="ring-fill" cx="60" cy="60" r="54" stroke="${grade.color}" style="stroke-dasharray:339;stroke-dashoffset:${339-(percentage/100)*339}"/>
+      </svg>
+      <div class="ring-inner">
+        <div class="ring-pct">${percentage.toFixed(1)}%</div>
+        <div class="ring-lbl">Score</div>
+      </div>
+    </div>
+    <div class="score-grade" style="color:${grade.color}">${grade.label}</div>
+    <div class="score-exam">Practice Result</div>
+    <div class="score-stats">
+      <div class="sc-stat sc-correct"><div class="sc-stat-val">${correct}</div><div class="sc-stat-lbl">Correct</div></div>
+      <div class="sc-stat sc-wrong"><div class="sc-stat-val">${wrong}</div><div class="sc-stat-lbl">Wrong</div></div>
+      <div class="sc-stat sc-skip"><div class="sc-stat-val">${skipped}</div><div class="sc-stat-lbl">Skipped</div></div>
+    </div>
+    <div class="perf-bar"><div class="perf-fill" style="width:${Math.max(percentage,2)}%;background:${grade.color}"></div></div>
+    <div class="result-actions">
+      <a href="dashboard.html" class="btn btn-outline">Dashboard</a>
+      <a href="exam.html?id=${examId}&practice=1" class="btn btn-primary">Practice Again</a>
+    </div>
+  </div>`;
+  
+  document.getElementById('resultWrap').innerHTML=html;
+}
+
 function renderReview(){
   const filtered=questions.filter(q=>{
     const ansData=userAnswers[q.id];
@@ -658,11 +611,13 @@ function renderReview(){
     const given=(typeof ansData==='object'?ansData?.given:'')||(typeof ansData==='string'?ansData:'')||'';
     const st=given===q.correct_answer?'correct':given?'wrong':'skip';
     const cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
+    
     const opts=['A','B','C','D'].map(l=>{
       const isCorrect=l===q.correct_answer;
       const isYours=l===given&&!isCorrect;
       const optCls=isCorrect?'rv-opt-correct':isYours?'rv-opt-wrong':'';
-      return`<div class="rv-opt ${optCls}"><div class="rv-ol">${l}</div><div style="flex:1;line-height:1.4">${esc(q['option_'+l.toLowerCase()])}</div></div>`;
+      const optText=q['option_'+l.toLowerCase()]||'';
+      return`<div class="rv-opt ${optCls}"><div class="rv-ol">${l}</div><div style="flex:1;line-height:1.4">${renderOptionContent(optText)}</div></div>`;
     }).join('');
     
     let note='';
@@ -671,17 +626,16 @@ function renderReview(){
     
     let exp='';
     if(q.explanation&&q.explanation.trim()){
-      exp=`<div class="rv-explanation"><strong>Explanation</strong>${esc(q.explanation)}</div>`;
+      exp=`<div class="rv-explanation">${renderExplanationContent(q.explanation)}</div>`;
     }
     
     return`<div class="rv-card ${cls}" id="rv${q.id}">
       <div class="rv-header" onclick="toggleReview('${q.id}')">
         <div class="rv-status"><svg viewBox="0 0 24 24">${icons[st]}</svg></div>
-        <div class="rv-q">${esc(q.question_text)}</div>
+        <div class="rv-q">${esc(q.question_text||'')}${q.image_url?`<img src="${esc(q.image_url)}" class="rv-q-img" alt="">`:''}</div>
         <svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
       <div class="rv-body">
-        ${q.image_url?`<img src="${esc(q.image_url)}" style="max-width:100%;max-height:140px;border-radius:var(--r);margin-bottom:10px;border:1px solid var(--border);object-fit:contain" alt="">`:''}
         <div class="rv-opts">${opts}</div>
         ${note}${exp}
       </div>
@@ -694,7 +648,7 @@ function setFilter(btn,filter){
   document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
   btn.classList.add('active');
   reviewFilter=filter;
-  if(isUrlMode){renderPracticeReview()}else{renderReview()}
+  renderReview();
 }
 
 loadResult();
