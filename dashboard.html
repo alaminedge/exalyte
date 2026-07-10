@@ -44,8 +44,6 @@ body{
 }
 .header-nav a:hover{background:var(--hov);color:var(--t1)}
 .header-nav a.active{color:var(--blue);background:#e8f0fe}
-
-/* Hamburger */
 .hamburger{
   display:none;background:none;border:none;cursor:pointer;
   color:var(--t3);padding:8px;border-radius:50%;
@@ -53,8 +51,6 @@ body{
 }
 .hamburger:hover{background:var(--hov)}
 .hamburger svg{width:22px;height:22px}
-
-/* Mobile nav dropdown */
 .mobile-nav-dropdown{
   display:none;position:fixed;top:var(--hh);left:0;right:0;
   background:var(--surf);border-bottom:1px solid var(--border);
@@ -67,7 +63,6 @@ body{
 }
 .mobile-nav-dropdown a:hover{background:var(--hov)}
 .mobile-nav-dropdown a.active{color:var(--blue);background:#e8f0fe}
-
 .header-right{display:flex;align-items:center;gap:8px}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
@@ -104,7 +99,6 @@ body{
 .main{flex:1;padding-top:var(--hh)}
 .content{max-width:1080px;margin:0 auto;padding:32px 24px 60px;width:100%}
 
-/* Stats */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
 .stat-card{
   background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
@@ -120,7 +114,6 @@ body{
 .stat-card-val{font-family:var(--gs);font-size:1.8rem;font-weight:500;color:var(--t1);line-height:1}
 .stat-card-lbl{font-size:.75rem;color:var(--t3);margin-top:4px}
 
-/* Live Strip */
 .live-strip{
   background:var(--surf);border:1px solid var(--red);border-radius:var(--rl);
   padding:20px;margin-bottom:24px;display:none;
@@ -148,7 +141,6 @@ body{
 }
 .btn-live:hover{background:#c5221f}
 
-/* Section header */
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
 .section-header h2{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1)}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
@@ -167,7 +159,6 @@ body{
 .filter-chip:hover{border-color:var(--blue);color:var(--blue)}
 .filter-chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
 
-/* Exam Cards */
 .exam-list{display:flex;flex-direction:column;gap:12px}
 .exam-card{
   background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
@@ -184,6 +175,7 @@ body{
 .badge-free{background:var(--grn-bg);color:var(--green)}
 .badge-premium{background:#f3e8fd;color:#9333ea}
 .badge-live{background:var(--red-bg);color:var(--red)}
+.badge-closed{background:var(--red-bg);color:var(--red)}
 .exam-name{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1);margin-bottom:4px}
 .exam-desc{font-size:.8rem;color:var(--t3);margin-bottom:10px;line-height:1.5}
 .exam-meta{display:flex;gap:16px;flex-wrap:wrap}
@@ -210,7 +202,6 @@ body{
 }
 .btn-practice:hover{background:#e8f0fe;border-color:var(--blue)}
 
-/* Batch group */
 .batch-group{margin-bottom:8px}
 .batch-header{
   display:flex;align-items:center;gap:10px;padding:10px 4px;
@@ -225,7 +216,6 @@ body{
 .batch-count{font-size:.72rem;color:var(--t4);background:var(--hov);padding:2px 8px;border-radius:10px}
 .batch-group.collapsed .exams-list{display:none}
 
-/* Resources */
 .resources-section{
   background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
   margin-top:40px;overflow:hidden;scroll-margin-top:80px;
@@ -267,7 +257,6 @@ body{
 .resource-chip svg{width:12px;height:12px;stroke:currentColor}
 .resource-empty{text-align:center;padding:40px;color:var(--t3);font-size:.85rem}
 
-/* Notifications Modal */
 .modal-overlay{
   position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;
   display:none;align-items:center;justify-content:center;padding:20px;
@@ -324,7 +313,6 @@ body{
 }
 .modal-footer-btn button:hover{text-decoration:underline}
 
-/* Rank section */
 .rank-section{margin-bottom:28px}
 .rank-grid{display:flex;flex-direction:column;gap:10px}
 .rank-item{
@@ -345,20 +333,17 @@ body{
 .rank-sub{font-size:.72rem;color:var(--t4);margin-top:2px}
 .rank-pct{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--blue)}
 
-/* Empty */
 .empty-state{text-align:center;padding:60px 20px;color:var(--t3)}
 .empty-state svg{width:48px;height:48px;stroke:var(--t4);margin-bottom:12px}
 .empty-state h3{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1);margin-bottom:6px}
 .empty-state p{font-size:.85rem}
 
-/* Skeleton */
 .skeleton{
   background:linear-gradient(90deg,var(--hov)25%,#e8eaed 50%,var(--hov)75%);
   background-size:200%100%;animation:shimmer 1.5s infinite;border-radius:var(--r);
 }
 @keyframes shimmer{0%{background-position:200%0}100%{background-position:-200%0}}
 
-/* Footer */
 .footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
 .footer-inner{
   max-width:1080px;margin:0 auto;padding:40px 24px 24px;
@@ -441,7 +426,6 @@ body{
   </div>
 </header>
 
-<!-- Mobile Nav Dropdown -->
 <div class="mobile-nav-dropdown" id="mobileNavDropdown">
   <a href="dashboard.html" class="active">Dashboard</a>
   <a href="exam-history.html">History</a>
@@ -450,7 +434,6 @@ body{
 <main class="main">
   <div class="content">
 
-    <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-card-icon" style="background:#e8f0fe;color:var(--blue)">
@@ -482,19 +465,16 @@ body{
       </div>
     </div>
 
-    <!-- Live Strip -->
     <div class="live-strip" id="liveStrip">
       <div class="live-badge"><span class="live-dot"></span>Live Now</div>
       <div id="liveList"></div>
     </div>
 
-    <!-- Rankings -->
     <div class="rank-section" id="rankSection" style="display:none">
       <div class="section-header"><h2>Your Rankings</h2></div>
       <div class="rank-grid" id="rankGrid"></div>
     </div>
 
-    <!-- Filters -->
     <div class="section-header"><h2>All Examinations</h2></div>
     <div class="filters">
       <input type="text" class="search-input" id="searchInput" placeholder="Search exams..." oninput="renderExams()">
@@ -505,20 +485,17 @@ body{
       <button class="filter-chip" data-filter="completed" onclick="setFilter(this)">Completed</button>
     </div>
 
-    <!-- Exams Container -->
     <div id="examsContainer">
       <div class="skeleton" style="height:100px;margin-bottom:12px"></div>
       <div class="skeleton" style="height:100px;margin-bottom:12px"></div>
       <div class="skeleton" style="height:100px"></div>
     </div>
 
-    <!-- Resources -->
     <div id="resourcesContainer"></div>
 
   </div>
 </main>
 
-<!-- Notifications Modal -->
 <div class="modal-overlay" id="notifModal">
   <div class="modal">
     <div class="modal-header">
@@ -586,12 +563,10 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 
 let allExams=[],allBatchResources=[],currentFilter='all',countdowns={},currentResourceFilter='all';
 
-// Header scroll
 const header=document.getElementById('header');
 let lastY=0,ticking=false;
 window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(()=>{const y=window.scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;ticking=false});ticking=true}},{passive:true});
 
-// Mobile nav
 function toggleMobileNav(){
   document.getElementById('mobileNavDropdown').classList.toggle('show');
 }
@@ -601,7 +576,6 @@ document.addEventListener('click',function(e){
   if(dd&&!dd.contains(e.target)&&!hb.contains(e.target))dd.classList.remove('show');
 });
 
-// Sign out
 document.getElementById('signOutBtn').addEventListener('click',logout);
 
 function scrollToResources(){
@@ -731,7 +705,10 @@ function examCard(e){
   const badgeCls=e.is_live?'badge-live':(e.is_premium?'badge-premium':'badge-free');
   const badgeText=e.is_live?'Live':(e.is_premium?'Premium':'Free');
   let scoreHtml='',actionHtml='';
-  if(e.stored_attempt){
+  
+  if(e.is_closed){
+    actionHtml=`<button class="btn-take" disabled>Exam Closed</button>`;
+  }else if(e.stored_attempt){
     if(e.results_visible){
       scoreHtml=`<div class="score-pill good">${e.stored_attempt.percentage?.toFixed(0)||0}%</div>`;
       actionHtml=`<button class="btn-take" onclick="window.location='result.html?examId=${e.id}&attemptId=${e.stored_attempt.id}'">View Result</button>`;
@@ -749,6 +726,7 @@ function examCard(e){
       actionHtml=`<button class="btn-take" onclick="startExam(${e.id},false)">Start Exam</button>`;
     }
   }
+  
   return`<div class="exam-card"><div class="exam-card-inner">
     <div class="exam-body">
       <span class="exam-badge ${badgeCls}">${badgeText}</span>
@@ -827,7 +805,6 @@ function startExam(id,isPractice){
   window.location.href=`exam.html?id=${id}&practice=${isPractice?1:0}`;
 }
 
-// Notifications
 async function loadNotifBadge(){
   try{
     const{ok,data}=await apiFetch('/notifications');
