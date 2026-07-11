@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
 :root{
   --blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;
   --green:#1e8e3e;--grn-bg:#e6f4ea;--yellow:#f9ab00;--yel-bg:#fef7e0;
@@ -18,11 +18,12 @@ html{scroll-behavior:smooth}
   --gs:'Google Sans','Roboto',system-ui,sans-serif;
   --rb:'Roboto',system-ui,sans-serif;
   --hh:64px;--r:4px;--rl:8px;--tr:.2s cubic-bezier(.4,0,.2,1);
+  --safe-bottom:env(safe-area-inset-bottom,20px);
 }
 body{
   font-family:var(--rb);background:var(--bg);color:var(--t2);
   -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
-  display:flex;flex-direction:column;overflow-x:hidden;
+  display:flex;flex-direction:column;overflow-x:hidden;-webkit-tap-highlight-color:transparent;
 }
 .header{
   position:fixed;top:0;left:0;right:0;height:var(--hh);
@@ -48,7 +49,7 @@ body{
 .timer-box svg{width:16px;height:16px;stroke:currentColor;fill:none}
 .timer-val{font-family:'Google Sans',monospace;font-weight:500;font-size:.9rem;min-width:50px}
 .icon-btn{
-  width:40px;height:40px;border:none;background:none;border-radius:50%;
+  width:44px;height:44px;border:none;background:none;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0;
 }
@@ -56,7 +57,6 @@ body{
 .icon-btn svg{width:20px;height:20px}
 .icon-btn.leave:hover{background:var(--red-bg);color:var(--red)}
 
-/* Agreement */
 .agreement-overlay{
   position:fixed;inset:0;z-index:500;background:var(--bg);
   display:flex;align-items:center;justify-content:center;padding:20px;
@@ -97,26 +97,22 @@ body{
 .btn-agree{
   width:100%;padding:14px;font-family:var(--gs);font-size:.92rem;font-weight:500;
   background:var(--blue);color:#fff;border:none;border-radius:var(--r);
-  cursor:pointer;transition:all var(--tr);
+  cursor:pointer;transition:all var(--tr);min-height:44px;
 }
 .btn-agree:hover{background:var(--blue-h)}
 .btn-agree:disabled{background:var(--hov);color:var(--t4);cursor:not-allowed}
 .btn-back{
   display:inline-flex;align-items:center;gap:6px;color:var(--t3);
   font-size:.82rem;background:none;border:none;cursor:pointer;
-  margin-bottom:14px;font-family:var(--rb);transition:color var(--tr);
+  margin-bottom:14px;font-family:var(--rb);transition:color var(--tr);min-height:40px;
 }
 .btn-back:hover{color:var(--t1)}
 .btn-back svg{width:14px;height:14px;stroke:currentColor;fill:none}
 
-/* Scheduled countdown */
 .scheduled-countdown-wrap{text-align:center;padding:24px 0}
 .scheduled-countdown-display{font-family:var(--gs);font-size:2rem;font-weight:500;color:#e37400;margin-bottom:8px}
 .scheduled-countdown-label{font-size:.8rem;color:var(--t4)}
-.scheduled-date-row{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--t3);justify-content:center}
-.scheduled-date-row svg{width:12px;height:12px;stroke:currentColor;fill:none}
 
-/* Exam UI */
 #examUI{display:none;flex-direction:column;min-height:calc(100vh - var(--hh))}
 .exam-stats-bar{
   display:flex;border-bottom:1px solid var(--border);
@@ -157,7 +153,7 @@ body{
 .option{
   display:flex;align-items:center;gap:12px;padding:10px 14px;
   background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);
-  cursor:pointer;transition:all .15s;
+  cursor:pointer;transition:all .15s;min-height:44px;
 }
 .option:hover:not(.selected):not(.locked){border-color:var(--blue);background:#e8f0fe}
 .option.selected{border-color:var(--blue);background:#e8f0fe}
@@ -174,14 +170,13 @@ body{
 .q-footer{display:flex;align-items:center;gap:8px;margin-top:12px}
 .btn-mark{
   background:none;border:1px solid var(--border);color:var(--t3);
-  padding:4px 12px;border-radius:20px;font-family:var(--gs);font-size:.7rem;
+  padding:6px 14px;border-radius:20px;font-family:var(--gs);font-size:.7rem;
   font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;
-  transition:all var(--tr);
+  transition:all var(--tr);min-height:36px;
 }
 .btn-mark:hover,.btn-mark.active{border-color:var(--blue);color:var(--blue);background:#e8f0fe}
 .btn-mark svg{width:12px;height:12px;stroke:currentColor;fill:none}
 
-/* Floating submit */
 .floating-submit{
   position:fixed;bottom:28px;right:28px;z-index:50;
   background:var(--blue);color:#fff;border:none;
@@ -189,29 +184,29 @@ body{
   font-family:var(--gs);font-size:.88rem;font-weight:500;
   cursor:pointer;display:flex;align-items:center;gap:8px;
   box-shadow:0 4px 20px rgba(26,115,232,.35);
-  transition:all var(--tr);
+  transition:all var(--tr);min-height:48px;
+  bottom:calc(28px + var(--safe-bottom));
 }
 .floating-submit:hover{background:var(--blue-h);transform:translateY(-2px);box-shadow:0 6px 24px rgba(26,115,232,.45)}
 .floating-submit svg{width:18px;height:18px;stroke:#fff;fill:none}
 
-/* Mobile submit */
 .exam-mobile-footer{
   display:none;background:var(--surf);border-top:1px solid var(--border);
   padding:12px 16px;align-items:center;
   position:fixed;bottom:0;left:0;right:0;z-index:30;
   box-shadow:0 -4px 20px rgba(0,0,0,.1);
+  padding-bottom:calc(12px + var(--safe-bottom));
 }
 .exam-mobile-footer.show{display:flex}
 .btn-mob-submit{
   flex:1;background:var(--blue);color:#fff;border:none;padding:14px;
   border-radius:var(--r);font-family:var(--gs);font-size:.9rem;font-weight:500;
   cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
-  transition:all var(--tr);
+  transition:all var(--tr);min-height:48px;
 }
 .btn-mob-submit:hover{background:var(--blue-h)}
 .btn-mob-submit svg{width:16px;height:16px;stroke:#fff;fill:none}
 
-/* Submit Modal */
 .modal-overlay{
   position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;
   display:none;align-items:center;justify-content:center;padding:20px;
@@ -232,18 +227,12 @@ body{
 .btn-secondary{
   background:var(--bg);border:1px solid var(--border);color:var(--t2);
   padding:10px 20px;border-radius:var(--r);font-family:var(--gs);font-size:.8rem;
-  font-weight:500;cursor:pointer;transition:all var(--tr);
+  font-weight:500;cursor:pointer;transition:all var(--tr);min-height:44px;
 }
 .btn-secondary:hover{background:var(--hov)}
 
-/* Practice Result Page */
-.practice-result-page{
-  padding:32px 24px 60px;max-width:860px;margin:0 auto;width:100%;
-}
-.score-card{
-  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
-  padding:36px 28px;text-align:center;margin-bottom:20px;
-}
+.practice-result-page{padding:32px 24px 60px;max-width:860px;margin:0 auto;width:100%;padding-bottom:calc(60px + var(--safe-bottom))}
+.score-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:36px 28px;text-align:center;margin-bottom:20px}
 .score-ring-wrap{width:120px;height:120px;margin:0 auto 16px;position:relative}
 .score-ring-wrap svg{transform:rotate(-90deg);width:120px;height:120px}
 .ring-bg{fill:none;stroke:var(--hov);stroke-width:8}
@@ -254,30 +243,25 @@ body{
 .score-grade{font-family:var(--gs);font-size:1.2rem;font-weight:500;margin-bottom:4px}
 .score-exam{font-size:.82rem;color:var(--t3);margin-bottom:20px}
 .score-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:360px;margin:0 auto 18px}
-.sc-stat{background:var(--bg);border-radius:var(--r);padding:12px 8px;text-align:center}
+.sc-stat{background:var(--bg);border-radius:var(--r);padding:14px 8px;text-align:center}
 .sc-stat-val{font-family:var(--gs);font-size:1.3rem;font-weight:500}
-.sc-stat-lbl{font-size:.6rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
+.sc-stat-lbl{font-size:.62rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
 .sc-correct .sc-stat-val{color:var(--green)}
 .sc-wrong .sc-stat-val{color:var(--red)}
 .sc-skip .sc-stat-val{color:var(--t3)}
 .perf-bar{height:6px;background:var(--hov);border-radius:4px;max-width:360px;margin:0 auto 20px;overflow:hidden}
 .perf-fill{height:100%;border-radius:4px;width:0;transition:width 1.4s ease}
 .result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.btn-primary{background:var(--blue);color:#fff;border:none;padding:10px 20px;border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer;transition:all var(--tr);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--blue);color:#fff;border:none;padding:10px 20px;border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer;transition:all var(--tr);text-decoration:none;display:inline-flex;align-items:center;gap:6px;min-height:44px}
 .btn-primary:hover{background:var(--blue-h)}
 .time-info{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:4px;font-size:.75rem;color:var(--t3)}
 .time-info span{display:flex;align-items:center;gap:4px}
 .time-info svg{width:12px;height:12px;stroke:currentColor;fill:none}
 
-/* Review */
 .review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
 .review-head h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1)}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{
-  padding:5px 14px;border:1px solid var(--border);border-radius:20px;
-  font-family:var(--gs);font-size:.72rem;font-weight:500;color:var(--t3);
-  background:var(--surf);cursor:pointer;transition:all var(--tr);
-}
+.chip{padding:5px 14px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.72rem;font-weight:500;color:var(--t3);background:var(--surf);cursor:pointer;transition:all var(--tr);min-height:36px;display:flex;align-items:center}
 .chip:hover{border-color:var(--blue);color:var(--blue)}
 .chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
 .review-list{display:flex;flex-direction:column;gap:8px}
@@ -285,11 +269,8 @@ body{
 .rv-card.rv-correct{border-color:rgba(30,142,62,.4)}
 .rv-card.rv-wrong{border-color:rgba(217,48,37,.3)}
 .rv-card.rv-skip{border-color:var(--border)}
-.rv-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none}
-.rv-status{
-  width:26px;height:26px;border-radius:50%;display:flex;
-  align-items:center;justify-content:center;flex-shrink:0;
-}
+.rv-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none;min-height:44px}
+.rv-status{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .rv-status svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5}
 .rv-correct .rv-status{background:var(--grn-bg);color:var(--green)}
 .rv-wrong .rv-status{background:var(--red-bg);color:var(--red)}
@@ -300,51 +281,30 @@ body{
 .rv-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
 .rv-card.open .rv-body{display:block}
 .rv-opts{display:flex;flex-direction:column;gap:6px;margin-top:12px;text-align:left}
-.rv-opt{
-  display:flex;align-items:flex-start;gap:8px;padding:8px 12px;
-  border-radius:var(--r);background:var(--bg);border:1.5px solid var(--border);
-  font-size:.8rem;color:var(--t2);line-height:1.4;
-}
+.rv-opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:var(--r);background:var(--bg);border:1.5px solid var(--border);font-size:.8rem;color:var(--t2);line-height:1.4}
 .rv-opt.rv-opt-correct{background:var(--grn-bg);border-color:rgba(30,142,62,.4);color:var(--green)}
 .rv-opt.rv-opt-wrong{background:var(--red-bg);border-color:rgba(217,48,37,.3);color:var(--red)}
-.rv-ol{
-  width:22px;height:22px;border-radius:50%;display:flex;
-  align-items:center;justify-content:center;
-  font-family:var(--gs);font-size:.7rem;font-weight:500;flex-shrink:0;color:var(--t3);
-}
+.rv-ol{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.7rem;font-weight:500;flex-shrink:0;color:var(--t3)}
 .rv-opt-correct .rv-ol{background:rgba(30,142,62,.2);color:var(--green)}
 .rv-opt-wrong .rv-ol{background:rgba(217,48,37,.15);color:var(--red)}
 .rv-ans-note{font-size:.68rem;font-weight:500;color:var(--t4);text-transform:uppercase;letter-spacing:.3px;margin-top:10px;text-align:left}
-.rv-explanation{
-  margin-top:10px;padding:10px 14px;background:#e8f0fe;
-  border:1px solid rgba(26,115,232,.2);border-radius:var(--r);
-  font-size:.78rem;color:var(--blue);line-height:1.6;text-align:left;
-}
+.rv-explanation{margin-top:10px;padding:10px 14px;background:#e8f0fe;border:1px solid rgba(26,115,232,.2);border-radius:var(--r);font-size:.78rem;color:var(--blue);line-height:1.6;text-align:left}
 .rv-explanation strong{color:var(--t1);display:block;margin-bottom:3px;font-size:.68rem;text-transform:uppercase;letter-spacing:.3px}
 .rv-explanation-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:10px;border:1px solid var(--border);object-fit:contain}
 
-/* Tab Warning */
 .tab-warn{
   position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;
   display:none;flex-direction:column;align-items:center;
   justify-content:center;text-align:center;padding:36px;
 }
 .tab-warn.show{display:flex}
-.warn-icon-wrap{
-  width:60px;height:60px;border-radius:50%;background:rgba(217,48,37,.18);
-  display:flex;align-items:center;justify-content:center;margin-bottom:16px;
-}
+.warn-icon-wrap{width:60px;height:60px;border-radius:50%;background:rgba(217,48,37,.18);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
 .warn-icon-wrap svg{width:28px;height:28px;stroke:var(--red);fill:none}
 .tab-warn h2{font-family:var(--gs);font-size:1.2rem;font-weight:500;color:#fff;margin-bottom:8px}
 .tab-warn p{color:rgba(255,255,255,.7);font-size:.85rem;max-width:380px;line-height:1.6}
-.btn-return{
-  background:var(--blue);color:#fff;border:none;padding:12px 32px;
-  border-radius:var(--r);font-family:var(--gs);font-size:.88rem;font-weight:500;
-  cursor:pointer;margin-top:12px;transition:all var(--tr);
-}
+.btn-return{background:var(--blue);color:#fff;border:none;padding:12px 32px;border-radius:var(--r);font-family:var(--gs);font-size:.88rem;font-weight:500;cursor:pointer;margin-top:12px;transition:all var(--tr);min-height:44px}
 .btn-return:hover{background:var(--blue-h)}
 
-/* Footer */
 .footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
 .footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
 .fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
@@ -352,7 +312,7 @@ body{
 .fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2}
 .fc a:hover{color:var(--blue);text-decoration:underline}
 .footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.footer-bottom{border-top:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px}
+.footer-bottom{border-top:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px;padding-bottom:calc(16px + var(--safe-bottom))}
 .footer-links{display:flex;gap:20px}
 .footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
 .footer-links a:hover{text-decoration:underline;color:var(--blue)}
@@ -401,10 +361,10 @@ body{
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span class="timer-val" id="timerVal">--:--</span>
     </div>
-    <button class="icon-btn" onclick="window.location.href='dashboard.html'" title="Dashboard">
+    <button class="icon-btn" onclick="window.location.href='dashboard.html'" title="Dashboard" aria-label="Dashboard">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
     </button>
-    <button class="icon-btn leave" onclick="logout()" title="Leave Exam">
+    <button class="icon-btn leave" onclick="logout()" title="Leave Exam" aria-label="Sign out">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </button>
   </div>
@@ -498,13 +458,13 @@ function isImageURL(str){
 }
 
 function renderOptionContent(text){
-  if(isImageURL(text))return`<img src="${esc(text)}" class="option-img" alt="Option" onerror="this.style.display='none'">`;
+  if(isImageURL(text))return'<img src="'+esc(text)+'" class="option-img" alt="Option" onerror="this.style.display=\'none\'" loading="lazy">';
   return esc(text||'');
 }
 
 function renderExplanationContent(text){
   if(!text)return'';
-  if(isImageURL(text))return`<img src="${esc(text)}" class="rv-explanation-img" alt="Explanation" onerror="this.style.display='none'">`;
+  if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-explanation-img" alt="Explanation" onerror="this.style.display=\'none\'" loading="lazy">';
   return esc(text);
 }
 
@@ -539,7 +499,7 @@ function formatCountdown(sec){
 
 async function apiFetch(path,opts={}){
   const token=getToken();
-  const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};
+  const headers={'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})};
   const res=await fetch(API+path,{...opts,headers});
   return{ok:res.ok,data:await res.json().catch(()=>({}))};
 }
@@ -568,16 +528,14 @@ async function loadAgreement(){
     exam=exams.find(e=>e.id==examId);
     if(!exam){window.location.href='dashboard.html';return}
     
-    // ── CHECK IF EXAM IS SCHEDULED FOR FUTURE ──
     if(exam.scheduled_at){
-      const scheduledTime = new Date(exam.scheduled_at).getTime();
-      const now = Date.now();
-      if(now < scheduledTime){
-        showScheduledCountdown(exam, scheduledTime);
+      const scheduledTime=new Date(exam.scheduled_at).getTime();
+      const now=Date.now();
+      if(now<scheduledTime){
+        showScheduledCountdown(exam,scheduledTime);
         return;
       }
     }
-    // ─────────────────────────────────────────────
     
     document.getElementById('agreeTitle').textContent=exam.name+(isPrac?' — Practice':'');
     const badge=document.getElementById('agreeTypeBadge');
@@ -587,72 +545,49 @@ async function loadAgreement(){
     
     if(exam.description){document.getElementById('agreeDesc').style.display='block';document.getElementById('agreeDesc').textContent=exam.description}
     
-    document.getElementById('agreeMeta').innerHTML=`
-      <span class="agree-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${exam.time_limit}m</span>
-      <span class="agree-meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>${exam.question_count||0} Q</span>
-      ${exam.negative_marking>0?`<span class="agree-meta-item" style="color:var(--red)"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>-${exam.negative_marking}</span>`:''}
-    `;
+    document.getElementById('agreeMeta').innerHTML=
+      '<span class="agree-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+exam.time_limit+'m</span>'+
+      '<span class="agree-meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>'+(exam.question_count||0)+' Q</span>'+
+      (exam.negative_marking>0?'<span class="agree-meta-item" style="color:var(--red)"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>-'+exam.negative_marking+'</span>':'');
+    
     if(!isPrac&&exam.live_deadline_hours>0)document.getElementById('tabRule').style.display='flex';
-    if(exam.negative_marking>0){document.getElementById('negRule').style.display='flex';document.getElementById('negRuleText').textContent=`Wrong answers deduct ${exam.negative_marking} mark${exam.negative_marking!==1?'s':''} each.`}
+    if(exam.negative_marking>0){document.getElementById('negRule').style.display='flex';document.getElementById('negRuleText').textContent='Wrong answers deduct '+exam.negative_marking+' mark'+(exam.negative_marking!==1?'s':'')+' each.'}
   }catch(e){window.location.href='dashboard.html'}
 }
 
-// ── SCHEDULED COUNTDOWN ON EXAM PAGE ──
-function showScheduledCountdown(examData, scheduledTime){
-  if(scheduledExamInterval) clearInterval(scheduledExamInterval);
+function showScheduledCountdown(examData,scheduledTime){
+  if(scheduledExamInterval)clearInterval(scheduledExamInterval);
+  const card=document.querySelector('.agree-card');
+  const remaining=Math.max(0,Math.floor((scheduledTime-Date.now())/1000));
   
-  const card = document.querySelector('.agree-card');
-  const remaining = Math.max(0, Math.floor((scheduledTime - Date.now()) / 1000));
+  card.innerHTML=
+    '<button class="btn-back" onclick="window.location.href=\'dashboard.html\'"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back to Dashboard</button>'+
+    '<div class="agree-logo"><img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:50%" onerror="this.style.display=\'none\'"><span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1)">Exalyte</span></div>'+
+    '<div class="agree-badge badge-scheduled-badge">Scheduled</div>'+
+    '<div class="agree-title">'+esc(examData.name)+'</div>'+
+    '<div class="agree-sub" style="display:block">This exam is scheduled for a future date. You cannot access it until the scheduled time.</div>'+
+    '<div class="scheduled-countdown-wrap"><div class="scheduled-countdown-display" id="scheduledExamCountdown">'+formatCountdown(remaining)+'</div><div class="scheduled-countdown-label">until exam opens</div></div>'+
+    '<div class="agree-meta" style="justify-content:center">'+
+      '<span class="agree-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+examData.time_limit+'m</span>'+
+      '<span class="agree-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'+new Date(examData.scheduled_at).toLocaleString()+'</span>'+
+    '</div>'+
+    '<button class="btn-agree" disabled id="scheduledAgreeBtn" style="background:var(--hov);color:var(--t4);cursor:not-allowed">'+formatCountdown(remaining)+' remaining</button>';
   
-  card.innerHTML = `
-    <button class="btn-back" onclick="window.location.href='dashboard.html'">
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back to Dashboard
-    </button>
-    <div class="agree-logo">
-      <img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:50%" onerror="this.style.display='none'">
-      <span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1)">Exalyte</span>
-    </div>
-    <div class="agree-badge badge-scheduled-badge">Scheduled</div>
-    <div class="agree-title">${esc(examData.name)}</div>
-    <div class="agree-sub" style="display:block">This exam is scheduled for a future date. You cannot access it until the scheduled time.</div>
-    <div class="scheduled-countdown-wrap">
-      <div class="scheduled-countdown-display" id="scheduledExamCountdown">${formatCountdown(remaining)}</div>
-      <div class="scheduled-countdown-label">until exam opens</div>
-    </div>
-    <div class="agree-meta" style="justify-content:center">
-      <span class="agree-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${examData.time_limit}m</span>
-      <span class="agree-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${new Date(examData.scheduled_at).toLocaleString()}</span>
-      ${examData.question_count ? `<span class="agree-meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>${examData.question_count} Q</span>` : ''}
-    </div>
-    <button class="btn-agree" disabled id="scheduledAgreeBtn" style="background:var(--hov);color:var(--t4);cursor:not-allowed">
-      ${formatCountdown(remaining)} remaining
-    </button>
-  `;
-  
-  let r = remaining;
-  scheduledExamInterval = setInterval(() => {
+  let r=remaining;
+  scheduledExamInterval=setInterval(()=>{
     r--;
-    const countdownEl = document.getElementById('scheduledExamCountdown');
-    const btnEl = document.getElementById('scheduledAgreeBtn');
-    
-    if(r <= 0){
-      if(countdownEl) countdownEl.textContent = 'Available now';
-      if(btnEl){
-        btnEl.textContent = 'Begin Exam';
-        btnEl.disabled = false;
-        btnEl.style.background = 'var(--blue)';
-        btnEl.style.color = '#fff';
-        btnEl.style.cursor = 'pointer';
-        btnEl.onclick = function(){ loadAgreement(); };
-      }
+    const countdownEl=document.getElementById('scheduledExamCountdown');
+    const btnEl=document.getElementById('scheduledAgreeBtn');
+    if(r<=0){
+      if(countdownEl)countdownEl.textContent='Available now';
+      if(btnEl){btnEl.textContent='Begin Exam';btnEl.disabled=false;btnEl.style.background='var(--blue)';btnEl.style.color='#fff';btnEl.style.cursor='pointer';btnEl.onclick=function(){loadAgreement();};}
       clearInterval(scheduledExamInterval);
-    } else {
-      if(countdownEl) countdownEl.textContent = formatCountdown(r);
-      if(btnEl) btnEl.textContent = formatCountdown(r) + ' remaining';
+    }else{
+      if(countdownEl)countdownEl.textContent=formatCountdown(r);
+      if(btnEl)btnEl.textContent=formatCountdown(r)+' remaining';
     }
-  }, 1000);
+  },1000);
 }
-// ─────────────────────────────────────
 
 function toggleAgree(){const cb=document.getElementById('agreeCheck');cb.checked=!cb.checked;document.getElementById('agreeBtn').disabled=!cb.checked}
 document.getElementById('agreeCheck').addEventListener('change',e=>{document.getElementById('agreeBtn').disabled=!e.target.checked});
@@ -677,7 +612,20 @@ async function startExam(){
   }
   
   examStartTime=Date.now();
-  timeLeft=exam.time_limit*60;
+  
+  // ── SET TIMER: min(exam_time, remaining_live_time) for live exams ──
+  if(!isPrac && exam.live_deadline_hours > 0){
+    const liveStart = exam.scheduled_at 
+      ? new Date(exam.scheduled_at).getTime() 
+      : new Date(exam.created_at).getTime();
+    const liveEnd = liveStart + exam.live_deadline_hours * 3600000;
+    const remainingLiveSec = Math.max(0, Math.floor((liveEnd - Date.now()) / 1000));
+    const examTimeSec = exam.time_limit * 60;
+    timeLeft = Math.min(examTimeSec, remainingLiveSec);
+  } else {
+    timeLeft = exam.time_limit * 60;
+  }
+  
   buildUI();
   startTimer();
   if(!isPrac&&exam.live_deadline_hours>0)setupTabDetection();
@@ -697,23 +645,22 @@ window.addEventListener('resize',()=>{
 });
 
 function buildUI(){
-  document.getElementById('questionsArea').innerHTML=questions.map((q,i)=>`
-    <div class="q-card" id="qc${q.id}">
-      <div class="q-top"><div class="q-num">${i+1}</div><div class="q-text">${esc(q.question_text||'')}</div></div>
-      ${q.image_url?`<img src="${esc(q.image_url)}" class="q-img" alt="" onerror="this.style.display='none'">`:''}
-      <div class="options" id="opts${q.id}">${['A','B','C','D'].map(l=>`
-        <div class="option" id="opt${q.id}${l}" onclick="pick(event,${q.id},'${l}')">
-          <div class="option-letter">${l}</div>
-          <div class="option-text">${renderOptionContent(q['option_'+l.toLowerCase()])}</div>
-        </div>`).join('')}
-      </div>
-      <div class="q-footer">
-        <button class="btn-mark" id="mark${q.id}" onclick="toggleMark(event,${q.id})">
-          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          Mark for review
-        </button>
-      </div>
-    </div>`).join('');
+  document.getElementById('questionsArea').innerHTML=questions.map((q,i)=>
+    '<div class="q-card" id="qc'+q.id+'">'+
+      '<div class="q-top"><div class="q-num">'+(i+1)+'</div><div class="q-text">'+esc(q.question_text||'')+'</div></div>'+
+      (q.image_url?'<img src="'+esc(q.image_url)+'" class="q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">':'')+
+      '<div class="options" id="opts'+q.id+'">'+['A','B','C','D'].map(l=>
+        '<div class="option" id="opt'+q.id+l+'" onclick="pick(event,'+q.id+',\''+l+'\')">'+
+          '<div class="option-letter">'+l+'</div>'+
+          '<div class="option-text">'+renderOptionContent(q['option_'+l.toLowerCase()])+'</div>'+
+        '</div>').join('')+
+      '</div>'+
+      '<div class="q-footer">'+
+        '<button class="btn-mark" id="mark'+q.id+'" onclick="toggleMark(event,'+q.id+')">'+
+          '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review'+
+        '</button>'+
+      '</div>'+
+    '</div>').join('');
   updateStats();
 }
 
@@ -732,7 +679,9 @@ function toggleMark(e,qId){
   marked[qId]=!marked[qId];
   const btn=document.getElementById('mark'+qId);
   btn?.classList.toggle('active',marked[qId]);
-  btn.innerHTML=marked[qId]?`<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>Marked`:`<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review`;
+  btn.innerHTML=marked[qId]?
+    '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>Marked':
+    '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review';
   updateStats();
 }
 
@@ -766,10 +715,38 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-function startTimer(){updateTimerDisplay();timerInt=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInt);doSubmit()}},1000)}
+// ── TIMER WITH LIVE AUTO-SUBMIT ──
+function startTimer(){
+  updateTimerDisplay();
+  timerInt=setInterval(()=>{
+    timeLeft--;
+    updateTimerDisplay();
+    
+    // Auto-submit when timer reaches 0
+    if(timeLeft<=0){
+      clearInterval(timerInt);
+      doSubmit();
+      return;
+    }
+    
+    // For live exams: auto-submit when live window ends
+    if(!isPrac && exam.live_deadline_hours > 0){
+      const liveStart = exam.scheduled_at 
+        ? new Date(exam.scheduled_at).getTime() 
+        : new Date(exam.created_at).getTime();
+      const liveEnd = liveStart + exam.live_deadline_hours * 3600000;
+      if(Date.now() >= liveEnd){
+        clearInterval(timerInt);
+        doSubmit();
+        return;
+      }
+    }
+  },1000);
+}
+
 function updateTimerDisplay(){
-  const m=Math.floor(timeLeft/60),s=timeLeft%60;
-  document.getElementById('timerVal').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const m=Math.floor(Math.max(0,timeLeft)/60),s=Math.max(0,timeLeft)%60;
+  document.getElementById('timerVal').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   const box=document.getElementById('timerBox');
   box.className='timer-box';
   if(timeLeft<60)box.classList.add('danger');
@@ -789,7 +766,7 @@ function handleLeave(){
     rb.style.display='none';
     setTimeout(()=>{document.getElementById('tabWarn').classList.remove('show');doSubmit()},2000);
   }else{
-    document.getElementById('warnCount').textContent=`Warning ${tabLeaves}/2. One more and the exam auto-submits.`;
+    document.getElementById('warnCount').textContent='Warning '+tabLeaves+'/2. One more and the exam auto-submits.';
     rb.style.display='block';
   }
 }
@@ -815,11 +792,11 @@ async function showPracticeResult(data){
   const totalQuestions=questions.length;
   
   let gradeColor='#1e8e3e',gradeLabel='Excellent';
-  if(pct>=90){gradeColor='#1e8e3e';gradeLabel='Outstanding';}
-  else if(pct>=80){gradeColor='#1e8e3e';gradeLabel='Excellent';}
-  else if(pct>=60){gradeColor='#1a73e8';gradeLabel='Good';}
-  else if(pct>=40){gradeColor='#f9ab00';gradeLabel='Needs Work';}
-  else{gradeColor='#d93025';gradeLabel='Keep Trying';}
+  if(pct>=90){gradeColor='#1e8e3e';gradeLabel='Outstanding'}
+  else if(pct>=80){gradeColor='#1e8e3e';gradeLabel='Excellent'}
+  else if(pct>=60){gradeColor='#1a73e8';gradeLabel='Good'}
+  else if(pct>=40){gradeColor='#f9ab00';gradeLabel='Needs Work'}
+  else{gradeColor='#d93025';gradeLabel='Keep Trying'}
   
   document.getElementById('examUI').style.display='none';
   document.getElementById('floatingSubmit').style.display='none';
@@ -829,73 +806,66 @@ async function showPracticeResult(data){
   let timeHTML='';
   if(timeTaken>0){
     const timeMin=(timeTaken/60).toFixed(1);
-    timeHTML=`
-    <div class="time-info">
-      <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: ${timeMin} min / ${exam.time_limit} min</span>
-      <span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: ${formatAvgTime(timeTaken,totalQuestions)}</span>
-    </div>`;
+    timeHTML=
+    '<div class="time-info">'+
+      '<span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: '+timeMin+' min / '+exam.time_limit+' min</span>'+
+      '<span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: '+formatAvgTime(timeTaken,totalQuestions)+'</span>'+
+    '</div>';
   }
   
-  let html=`
-  <div class="practice-result-page" id="practiceResultPage">
-    <div class="score-card">
-      <div class="score-ring-wrap">
-        <svg viewBox="0 0 120 120">
-          <circle class="ring-bg" cx="60" cy="60" r="54"/>
-          <circle class="ring-fill" cx="60" cy="60" r="54" stroke="${gradeColor}" style="stroke-dasharray:339;stroke-dashoffset:${339-(pct/100)*339}"/>
-        </svg>
-        <div class="ring-inner">
-          <div class="ring-pct">${pct.toFixed(1)}%</div>
-          <div class="ring-lbl">Score</div>
-        </div>
-      </div>
-      <div class="score-grade" style="color:${gradeColor}">${gradeLabel}</div>
-      <div class="score-exam">Practice Result</div>
-      <div class="score-stats">
-        <div class="sc-stat sc-correct"><div class="sc-stat-val">${correct}</div><div class="sc-stat-lbl">Correct</div></div>
-        <div class="sc-stat sc-wrong"><div class="sc-stat-val">${wrong}</div><div class="sc-stat-lbl">Wrong</div></div>
-        <div class="sc-stat sc-skip"><div class="sc-stat-val">${skipped}</div><div class="sc-stat-lbl">Skipped</div></div>
-      </div>
-      ${timeHTML}
-      <div class="perf-bar"><div class="perf-fill" style="width:${Math.max(pct,2)}%;background:${gradeColor}"></div></div>
-      <div class="result-actions">
-        <a href="dashboard.html" class="btn-secondary" style="text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
-        <a href="exam.html?id=${examId}&practice=1" class="btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Again</a>
-      </div>
-    </div>`;
+  let html=
+  '<div class="practice-result-page" id="practiceResultPage">'+
+    '<div class="score-card">'+
+      '<div class="score-ring-wrap">'+
+        '<svg viewBox="0 0 120 120">'+
+          '<circle class="ring-bg" cx="60" cy="60" r="54"/>'+
+          '<circle class="ring-fill" cx="60" cy="60" r="54" stroke="'+gradeColor+'" style="stroke-dasharray:339;stroke-dashoffset:'+(339-(pct/100)*339)+'"/>'+
+        '</svg>'+
+        '<div class="ring-inner"><div class="ring-pct">'+pct.toFixed(1)+'%</div><div class="ring-lbl">Score</div></div>'+
+      '</div>'+
+      '<div class="score-grade" style="color:'+gradeColor+'">'+gradeLabel+'</div>'+
+      '<div class="score-exam">Practice Result</div>'+
+      '<div class="score-stats">'+
+        '<div class="sc-stat sc-correct"><div class="sc-stat-val">'+correct+'</div><div class="sc-stat-lbl">Correct</div></div>'+
+        '<div class="sc-stat sc-wrong"><div class="sc-stat-val">'+wrong+'</div><div class="sc-stat-lbl">Wrong</div></div>'+
+        '<div class="sc-stat sc-skip"><div class="sc-stat-val">'+skipped+'</div><div class="sc-stat-lbl">Skipped</div></div>'+
+      '</div>'+
+      timeHTML+
+      '<div class="perf-bar"><div class="perf-fill" style="width:'+Math.max(pct,2)+'%;background:'+gradeColor+'"></div></div>'+
+      '<div class="result-actions">'+
+        '<a href="dashboard.html" class="btn-secondary" style="text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>'+
+        '<a href="exam.html?id='+examId+'&practice=1" class="btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Again</a>'+
+      '</div>'+
+    '</div>';
   
   if(questions.length>0){
-    html+=`
-    <div class="review-head">
-      <h2>Question Review</h2>
-      <div class="chips">
-        <button class="chip active" data-f="all" onclick="filterPracticeReview('all')">All</button>
-        <button class="chip" data-f="correct" onclick="filterPracticeReview('correct')">Correct</button>
-        <button class="chip" data-f="wrong" onclick="filterPracticeReview('wrong')">Wrong</button>
-        <button class="chip" data-f="skipped" onclick="filterPracticeReview('skipped')">Skipped</button>
-      </div>
-    </div>
-    <div class="review-list" id="practiceReviewList"></div>`;
+    html+=
+    '<div class="review-head"><h2>Question Review</h2>'+
+      '<div class="chips">'+
+        '<button class="chip active" data-f="all" onclick="filterPracticeReview(\'all\')">All</button>'+
+        '<button class="chip" data-f="correct" onclick="filterPracticeReview(\'correct\')">Correct</button>'+
+        '<button class="chip" data-f="wrong" onclick="filterPracticeReview(\'wrong\')">Wrong</button>'+
+        '<button class="chip" data-f="skipped" onclick="filterPracticeReview(\'skipped\')">Skipped</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="review-list" id="practiceReviewList"></div>';
   }
   
-  html+=`</div>
-  <footer class="footer">
-    <div class="footer-inner">
-      <div class="fc">
-        <div class="footer-brand"><img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'"><span style="font-family:'Google Sans',sans-serif;font-size:1rem;font-weight:500;color:#3c4043">Exalyte</span></div>
-        <p>A precision examination platform built for students who want to perform, not just prepare.</p>
-      </div>
-      <div class="fc"><h4>Platform</h4><a href="dashboard.html">Dashboard</a><a href="exam-history.html">Exam History</a></div>
-      <div class="fc"><h4>Legal</h4><a href="privacy.html">Privacy Policy</a><a href="tos.html">Terms of Service</a><a href="contact.html">Contact</a></div>
-    </div>
-    <div class="footer-bottom"><span>&copy; 2025 Exalyte — SciVerse Academy. All rights reserved.</span><div class="footer-links"><a href="privacy.html">Privacy</a><a href="tos.html">Terms</a></div></div>
-  </footer>`;
+  html+='</div>'+
+  '<footer class="footer">'+
+    '<div class="footer-inner">'+
+      '<div class="fc"><div class="footer-brand"><img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display=\'none\'"><span style="font-family:\'Google Sans\',sans-serif;font-size:1rem;font-weight:500;color:#3c4043">Exalyte</span></div><p>A precision examination platform built for students who want to perform, not just prepare.</p></div>'+
+      '<div class="fc"><h4>Platform</h4><a href="dashboard.html">Dashboard</a><a href="exam-history.html">Exam History</a></div>'+
+      '<div class="fc"><h4>Legal</h4><a href="privacy.html">Privacy Policy</a><a href="tos.html">Terms of Service</a><a href="contact.html">Contact</a></div>'+
+    '</div>'+
+    '<div class="footer-bottom"><span>&copy; 2025 Exalyte — SciVerse Academy. All rights reserved.</span><div class="footer-links"><a href="privacy.html">Privacy</a><a href="tos.html">Terms</a></div></div>'+
+  '</footer>';
   
   const main=document.querySelector('.main');
   if(!main){
     const m=document.createElement('div');m.className='main';m.style.flex='1';m.style.paddingTop='64px';m.innerHTML=html;
     document.body.insertBefore(m,document.querySelector('.modal-overlay'));
-  }else{main.innerHTML=html;main.style.paddingTop='64px';}
+  }else{main.innerHTML=html;main.style.paddingTop='64px'}
   
   window.scrollTo({top:0,behavior:'instant'});
   window._practiceQuestions=questions;
@@ -926,7 +896,7 @@ function renderPracticeReviewList(){
   
   const list=document.getElementById('practiceReviewList');
   if(!list)return;
-  if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:40px;color:#5f6368;font-size:.82rem">No questions in this filter.</div>';return;}
+  if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:40px;color:#5f6368;font-size:.82rem">No questions in this filter.</div>';return}
   
   list.innerHTML=filtered.map(q=>{
     const detail=detailed[q.id]||{};
@@ -943,20 +913,20 @@ function renderPracticeReviewList(){
       if(isCorrectOption)optCls='rv-opt-correct';
       else if(isYoursWrong)optCls='rv-opt-wrong';
       const optText=q['option_'+l.toLowerCase()]||'';
-      return`<div class="rv-opt ${optCls}"><div class="rv-ol">${l}</div><div style="flex:1;line-height:1.4">${renderOptionContent(optText)}</div></div>`;
+      return'<div class="rv-opt '+optCls+'"><div class="rv-ol">'+l+'</div><div style="flex:1;line-height:1.4">'+renderOptionContent(optText)+'</div></div>';
     }).join('');
     
     let note='';
-    if(given&&!isCorrect)note=`<div class="rv-ans-note">Your answer: ${given} — Correct: ${correctAns}</div>`;
-    else if(!given)note=`<div class="rv-ans-note" style="color:#5f6368">Not answered — Correct: ${correctAns}</div>`;
+    if(given&&!isCorrect)note='<div class="rv-ans-note">Your answer: '+given+' — Correct: '+correctAns+'</div>';
+    else if(!given)note='<div class="rv-ans-note" style="color:#5f6368">Not answered — Correct: '+correctAns+'</div>';
     
     let exp='';
-    if(q.explanation&&q.explanation.trim())exp=`<div class="rv-explanation">${renderExplanationContent(q.explanation)}</div>`;
+    if(q.explanation&&q.explanation.trim())exp='<div class="rv-explanation">'+renderExplanationContent(q.explanation)+'</div>';
     
-    return`<div class="rv-card ${cls}" onclick="this.classList.toggle('open')">
-      <div class="rv-header"><div class="rv-status"><svg viewBox="0 0 24 24">${icons[st]}</svg></div><div class="rv-q">${esc(q.question_text||'')}${q.image_url?`<br><img src="${esc(q.image_url)}" style="max-width:100%;max-height:140px;border-radius:4px;margin-top:6px;border:1px solid #dadce0;object-fit:contain" alt="">`:''}</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
-      <div class="rv-body"><div class="rv-opts">${opts}</div>${note}${exp}</div>
-    </div>`;
+    return'<div class="rv-card '+cls+'" onclick="this.classList.toggle(\'open\')">'+
+      '<div class="rv-header"><div class="rv-status"><svg viewBox="0 0 24 24">'+icons[st]+'</svg></div><div class="rv-q">'+esc(q.question_text||'')+(q.image_url?'<br><img src="'+esc(q.image_url)+'" style="max-width:100%;max-height:140px;border-radius:4px;margin-top:6px;border:1px solid #dadce0;object-fit:contain" alt="" loading="lazy">':'')+'</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>'+
+      '<div class="rv-body"><div class="rv-opts">'+opts+'</div>'+note+exp+'</div>'+
+    '</div>';
   }).join('');
 }
 
