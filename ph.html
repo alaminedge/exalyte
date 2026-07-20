@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physics Hunters · exam linker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f4f7fc;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    .card {
+      max-width: 680px;
+      width: 100%;
+      background: white;
+      border-radius: 2.5rem;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 20px 40px -12px rgba(0, 20, 40, 0.25);
+      transition: box-shadow 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(2px);
+    }
+
+    .card:hover {
+      box-shadow: 0 28px 48px -16px rgba(0, 40, 80, 0.3);
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #0b1a33;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .subhead {
+      font-size: 0.95rem;
+      color: #4a5b6e;
+      border-left: 3px solid #3b82f6;
+      padding-left: 0.9rem;
+      margin-bottom: 2rem;
+      font-weight: 400;
+      background: #f0f5ff;
+      border-radius: 0 12px 12px 0;
+      padding: 0.6rem 1rem;
+      display: inline-block;
+    }
+
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 2.2rem;
+      align-items: center;
+    }
+
+    .input-group label {
+      font-weight: 500;
+      color: #1e2b3c;
+      font-size: 1rem;
+      background: #eef3f9;
+      padding: 0.3rem 1rem 0.3rem 1.2rem;
+      border-radius: 40px;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .input-group label span {
+      font-weight: 300;
+      color: #3b5b7a;
+    }
+
+    .input-group input {
+      flex: 1 1 140px;
+      padding: 0.8rem 1.2rem;
+      border: 1px solid #d9e2ef;
+      border-radius: 60px;
+      font-size: 1rem;
+      font-weight: 500;
+      background: white;
+      transition: 0.2s;
+      color: #0b1a33;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
+      letter-spacing: 0.5px;
+    }
+
+    .input-group input:focus {
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
+      border-color: transparent;
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
+    }
+
+    .input-group input::placeholder {
+      color: #9aafc5;
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+
+    .input-group button {
+      background: #0b1a33;
+      border: none;
+      color: white;
+      font-weight: 500;
+      padding: 0.8rem 1.8rem;
+      border-radius: 60px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 6px 14px rgba(11, 26, 51, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.3px;
+      border: 1px solid #1f3450;
+    }
+
+    .input-group button:hover {
+      background: #1f3a5c;
+      transform: scale(1.02);
+      box-shadow: 0 10px 20px rgba(11, 26, 51, 0.25);
+    }
+
+    .input-group button:active {
+      transform: scale(0.97);
+      background: #09162b;
+    }
+
+    .link-grid {
+      background: #f8faff;
+      border-radius: 28px;
+      padding: 1.6rem 1.8rem;
+      border: 1px solid #e6edf7;
+      box-shadow: inset 0 1px 4px rgba(255,255,255,0.8);
+      margin-top: 0.2rem;
+    }
+
+    .link-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.9rem 0.6rem;
+      border-bottom: 1px solid #e1eaf3;
+      transition: background 0.1s;
+      border-radius: 14px;
+    }
+
+    .link-item:last-child {
+      border-bottom: none;
+    }
+
+    .link-item:hover {
+      background: #f0f6ff;
+    }
+
+    .link-icon {
+      width: 38px;
+      height: 38px;
+      background: #e7eefc;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: #1a3a5c;
+      flex-shrink: 0;
+    }
+
+    .link-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .link-label {
+      font-weight: 500;
+      color: #0e2238;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .link-label .badge {
+      background: #dce7f5;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.7rem;
+      border-radius: 30px;
+      color: #1f405f;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .link-url {
+      font-size: 0.85rem;
+      color: #356a9c;
+      word-break: break-all;
+      background: #ecf3fc;
+      padding: 0.3rem 0.8rem;
+      border-radius: 30px;
+      display: inline-block;
+      margin-top: 0.2rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      border: 1px solid #d6e3f5;
+      max-width: 100%;
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: thin;
+    }
+
+    .link-url::-webkit-scrollbar {
+      height: 3px;
+      background: #dbe3ef;
+      border-radius: 10px;
+    }
+
+    .link-url::-webkit-scrollbar-thumb {
+      background: #8aa3c7;
+      border-radius: 10px;
+    }
+
+    .link-action {
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .btn-link {
+      background: transparent;
+      border: 1px solid #b7cbdf;
+      color: #1b3d62;
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      letter-spacing: 0.3px;
+      background: white;
+    }
+
+    .btn-link:hover {
+      background: #0b1a33;
+      border-color: #0b1a33;
+      color: white;
+      box-shadow: 0 4px 10px rgba(11, 26, 51, 0.15);
+    }
+
+    .footer-hint {
+      margin-top: 1.8rem;
+      font-size: 0.8rem;
+      color: #5b7188;
+      text-align: center;
+      border-top: 1px dashed #dbe3ef;
+      padding-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.5rem;
+    }
+
+    .footer-hint span {
+      background: #eef4fa;
+      padding: 0.2rem 1rem;
+      border-radius: 40px;
+    }
+
+    .empty-state {
+      color: #4a6785;
+      padding: 1.2rem 0.2rem 0.8rem;
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .empty-state small {
+      font-size: 0.8rem;
+      background: #e3ecf6;
+      padding: 0.15rem 1rem;
+      border-radius: 50px;
+    }
+
+    @media (max-width: 500px) {
+      .card { padding: 1.8rem 1.2rem; }
+      .input-group { flex-direction: column; align-items: stretch; }
+      .input-group label { justify-content: center; }
+      .link-item { flex-wrap: wrap; }
+      .link-action { margin-left: 0; width: 100%; }
+      .btn-link { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card" role="main">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+      <h1>
+        <span>🔗</span> exam linker
+      </h1>
+      <span style="background: #dce7f5; padding: 0.2rem 1.2rem; border-radius: 40px; font-size: 0.75rem; font-weight: 500; color: #1c3f5e;">phyhunt.com</span>
+    </div>
+    <div class="subhead">
+      ⚡ enter any 3‑digit exam number · question &amp; solution
+    </div>
+
+    <div class="input-group">
+      <label for="examIdInput">
+        <span>📘</span> exam <span>#</span>
+      </label>
+      <input type="text" id="examIdInput" placeholder="e.g. 801" value="801" maxlength="6" inputmode="numeric">
+      <button id="generateBtn">⟳ Generate</button>
+    </div>
+
+    <div class="link-grid" id="linkContainer">
+      <!-- dynamic links will be injected here -->
+      <div id="linkList">
+        <div class="link-item">
+          <div class="link-icon">❓</div>
+          <div class="link-content">
+            <div class="link-label">
+              Question
+              <span class="badge">PDF</span>
+            </div>
+            <div class="link-url" id="questionLinkDisplay">https://phyhunt.com/exam/print/question/801/</div>
+          </div>
+          <div class="link-action">
+            <a href="#" id="questionAnchor" class="btn-link" target="_blank" rel="noopener">↗ open</a>
+          </div>
+        </div>
+        <div class="link-item">
+          <div class="link-icon">✅</div>
+          <div class="link-content">
+            <div class="link-label">
+              Solution
+              <span class="badge">PDF</span>
+            </div>
+            <div class="link-url" id="solutionLinkDisplay">https://phyhunt.com/exam/print/solution/801/</div>
+          </div>
+          <div class="link-action">
+            <a href="#" id="solutionAnchor" class="btn-link" target="_blank" rel="noopener">↗ open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-hint">
+      <span>🔢 three digits</span>
+      <span>🔄 default 801</span>
+      <span>📌 click generate or press ↵</span>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // DOM elements
+      const examInput = document.getElementById('examIdInput');
+      const generateBtn = document.getElementById('generateBtn');
+      const questionLinkDisplay = document.getElementById('questionLinkDisplay');
+      const solutionLinkDisplay = document.getElementById('solutionLinkDisplay');
+      const questionAnchor = document.getElementById('questionAnchor');
+      const solutionAnchor = document.getElementById('solutionAnchor');
+
+      // Helper: build clean exam id (digits only, max 6, but we keep 3-digits style)
+      function getSanitizedExamId(raw) {
+        // remove anything that's not a digit
+        let digits = raw.replace(/\D/g, '');
+        // if empty, fallback to '801'
+        if (digits.length === 0) digits = '801';
+        // we keep full digits, but UI hint says three digit, we don't truncate to 3
+        // but we want to keep up to 6 digits to be safe, but not enforce 3.
+        // we return the digits as is; if longer than 6, still show but user might expect.
+        // we limit to 9 digits to avoid extreme, but no strict.
+        return digits.slice(0, 9); 
+      }
+
+      // Update links and anchor hrefs
+      function updateLinks(examId) {
+        const cleanId = getSanitizedExamId(examId);
+        // Build URLs
+        const questionUrl = `https://phyhunt.com/exam/print/question/${cleanId}/`;
+        const solutionUrl = `https://phyhunt.com/exam/print/solution/${cleanId}/`;
+
+        // Update display spans
+        questionLinkDisplay.textContent = questionUrl;
+        solutionLinkDisplay.textContent = solutionUrl;
+
+        // Update anchor tags
+        questionAnchor.href = questionUrl;
+        solutionAnchor.href = solutionUrl;
+
+        // Also update the input value to the clean id (for consistency)
+        if (examInput.value !== cleanId) {
+          examInput.value = cleanId;
+        }
+      }
+
+      // Handle generate action
+      function handleGenerate() {
+        const rawValue = examInput.value.trim();
+        // if empty, set to '801'
+        if (rawValue === '') {
+          examInput.value = '801';
+          updateLinks('801');
+          return;
+        }
+        // extract digits
+        const digits = rawValue.replace(/\D/g, '');
+        if (digits === '') {
+          // if no digits at all, fallback
+          examInput.value = '801';
+          updateLinks('801');
+          return;
+        }
+        // update with cleaned digits (we keep all digits, but we can slice if too long)
+        const cleanId = digits.slice(0, 9);
+        examInput.value = cleanId;
+        updateLinks(cleanId);
+      }
+
+      // Event listeners
+      generateBtn.addEventListener('click', handleGenerate);
+
+      // Enter key on input
+      examInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleGenerate();
+        }
+      });
+
+      // Also trigger on blur? not necessary, but if user leaves input, we keep as is.
+      // But we can do a gentle sync on blur (optional)
+      examInput.addEventListener('blur', function() {
+        const raw = this.value.trim();
+        if (raw === '') {
+          this.value = '801';
+          updateLinks('801');
+          return;
+        }
+        const digits = raw.replace(/\D/g, '');
+        if (digits === '') {
+          this.value = '801';
+          updateLinks('801');
+        } else {
+          const clean = digits.slice(0, 9);
+          this.value = clean;
+          updateLinks(clean);
+        }
+      });
+
+      // Also on page load, ensure default 801 is shown
+      window.addEventListener('load', function() {
+        // set default 801 if empty or not matching
+        const currentVal = examInput.value.trim();
+        if (currentVal === '' || !/\d/.test(currentVal)) {
+          examInput.value = '801';
+          updateLinks('801');
+        } else {
+          // if it has some digits, clean it
+          const digits = currentVal.replace(/\D/g, '');
+          if (digits === '') {
+            examInput.value = '801';
+            updateLinks('801');
+          } else {
+            const clean = digits.slice(0, 9);
+            examInput.value = clean;
+            updateLinks(clean);
+          }
+        }
+      });
+
+      // initial call (also sets anchors)
+      // but we call after load to be safe, but we call now to set initial state.
+      // ensure input is set
+      if (examInput.value.trim() === '') {
+        examInput.value = '801';
+      }
+      // clean initial value
+      const initialRaw = examInput.value.trim();
+      const initialDigits = initialRaw.replace(/\D/g, '');
+      if (initialDigits === '') {
+        examInput.value = '801';
+        updateLinks('801');
+      } else {
+        const cleanInit = initialDigits.slice(0, 9);
+        examInput.value = cleanInit;
+        updateLinks(cleanInit);
+      }
+    })();
+  </script>
+</body>
+</html>
