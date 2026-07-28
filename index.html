@@ -137,6 +137,7 @@ body{
   font-size:.95rem;color:var(--t3);margin-bottom:48px;max-width:560px;line-height:1.6;
 }
 .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .g-card{
   background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
   padding:28px 24px;transition:box-shadow var(--tr);
@@ -155,22 +156,25 @@ body{
 .g-card h3{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1);margin-bottom:8px}
 .g-card p{font-size:.875rem;color:var(--t3);line-height:1.55}
 
-.steps-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.step{
+/* Updated step card styles */
+.step-card {
   background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
-  padding:28px 20px;text-align:center;
+  padding:28px 24px;transition:box-shadow var(--tr);
+  position: relative;
 }
-.step-num{
-  width:48px;height:48px;border-radius:50%;margin:0 auto 14px;
+.step-card:hover{box-shadow:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15)}
+.step-number {
+  width:44px;height:44px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--gs);font-size:1.2rem;font-weight:500;
+  font-family:var(--gs);font-size:1rem;font-weight:500;
+  margin-bottom:18px;
 }
 .num-blue{background:#e8f0fe;color:var(--blue)}
 .num-red{background:var(--red-bg);color:var(--red)}
 .num-green{background:var(--grn-bg);color:var(--green)}
 .num-yellow{background:var(--yel-bg);color:#e37400}
-.step h3{font-family:var(--gs);font-size:.95rem;font-weight:500;color:var(--t1);margin-bottom:6px}
-.step p{font-size:.8rem;color:var(--t3);line-height:1.5}
+.step-card h3{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1);margin-bottom:8px}
+.step-card p{font-size:.875rem;color:var(--t3);line-height:1.55}
 
 .cta-section{max-width:1080px;margin:0 auto;padding:0 24px 80px}
 .cta-inner{
@@ -279,7 +283,7 @@ body{
   .hero p{font-size:1rem}
   .hero-visuals{grid-template-columns:1fr;max-width:400px;margin:0 auto 48px}
   .card-grid{grid-template-columns:1fr;max-width:480px;margin:0 auto}
-  .steps-row{grid-template-columns:1fr 1fr;max-width:480px;margin:0 auto}
+  .card-grid-4{grid-template-columns:1fr 1fr;max-width:480px;margin:0 auto}
   .metrics-inner{grid-template-columns:1fr 1fr}
   .metric-item:nth-child(2){border-right:none}
   .metric-item:nth-child(3){border-top:1px solid var(--border)}
@@ -295,7 +299,7 @@ body{
   .section{padding:48px 20px}
   .section h2{font-size:1.4rem}
   .cta-inner{padding:40px 20px}
-  .steps-row{grid-template-columns:1fr;max-width:320px}
+  .card-grid-4{grid-template-columns:1fr;max-width:320px;margin:0 auto}
   .footer-inner{grid-template-columns:1fr;gap:20px}
   .footer-bottom{flex-direction:column;text-align:center}
   .modal{padding:28px 22px}
@@ -392,24 +396,24 @@ body{
     <div class="section-eyebrow">Getting Started</div>
     <h2>Begin in under two minutes</h2>
     <p class="sub">A clear path that keeps you focused on study, not on figuring out software.</p>
-    <div class="steps-row">
-      <div class="step">
-        <div class="step-num num-blue">1</div>
+    <div class="card-grid-4">
+      <div class="step-card">
+        <div class="step-number num-blue">1</div>
         <h3>Create your account</h3>
         <p>Sign up in under 30 seconds. No credit card needed — free forever.</p>
       </div>
-      <div class="step">
-        <div class="step-num num-red">2</div>
+      <div class="step-card">
+        <div class="step-number num-red">2</div>
         <h3>Choose an exam</h3>
         <p>Browse available papers — sit live exams under timed conditions or practice at your pace.</p>
       </div>
-      <div class="step">
-        <div class="step-num num-green">3</div>
+      <div class="step-card">
+        <div class="step-number num-green">3</div>
         <h3>Review your results</h3>
         <p>Detailed score breakdowns with explanations identify exactly where you need to improve.</p>
       </div>
-      <div class="step">
-        <div class="step-num num-yellow">4</div>
+      <div class="step-card">
+        <div class="step-number num-yellow">4</div>
         <h3>Track your progress</h3>
         <p>Your dashboard records every attempt and shows percentile trends over time.</p>
       </div>
@@ -426,6 +430,7 @@ body{
 
 </main>
 
+<!-- Rest of the HTML remains the same -->
 <div class="modal-overlay" id="authModal">
   <div class="modal">
     <h2 id="authModalTitle">Sign in</h2>
