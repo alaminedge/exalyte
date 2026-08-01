@@ -51,8 +51,12 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type,Authorization',
 };
 
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', ...CORS } });
+function json(data, status = 200, cacheSeconds = 0) {
+  const headers = { 'Content-Type': 'application/json', ...CORS };
+  if (cacheSeconds > 0) {
+    headers['Cache-Control'] = `public, max-age=${cacheSeconds}`;
+  }
+  return new Response(JSON.stringify(data), { status, headers });
 }
 
 function err(msg, status = 400) {
@@ -444,7 +448,7 @@ async function handleListBatches(db) {
     LEFT JOIN exams e ON e.batch_id = b.id
     GROUP BY b.id ORDER BY b.created_at DESC
   `).all();
-  return json(rows.results);
+  return json(rows.results, 200, 30);
 }
 
 async function handleCreateBatch(request, db) {
@@ -477,7 +481,7 @@ async function handleDeleteBatch(batchId, db) {
 
 async function handleGetBatchResources(batchId, db) {
   const resources = await db.prepare('SELECT id, title, link FROM batch_resources WHERE batch_id = ? ORDER BY created_at DESC').bind(batchId).all();
-  return json(resources.results);
+  return json(resources.results, 200, 30);
 }
 
 async function handleAddBatchResource(request, db) {
@@ -499,7 +503,7 @@ async function handleDeleteBatchResource(resourceId, db) {
 
 async function handleGetExamResources(examId, db) {
   const resources = await db.prepare('SELECT id, title, link FROM exam_resources WHERE exam_id = ? ORDER BY created_at DESC').bind(examId).all();
-  return json(resources.results);
+  return json(resources.results, 200, 30);
 }
 
 async function handleAddExamResource(request, db) {
@@ -629,18 +633,14 @@ async function handleListExams(request, db) {
       stored_attempt = sa || null;
       accessible = await checkPremiumAccess(db, userId, exam.id, isAdmin);
       
-      // Practice mode logic
       if (exam.allow_practice && !exam.is_closed) {
         if (exam.live_deadline_hours > 0) {
-          // Live exam: practice available after live ends (anyone)
           can_practice = live.live_ended;
         } else {
-          // Non-live exam: practice only after first attempt
           can_practice = !!stored_attempt;
         }
       }
       
-      // Results visibility
       if (exam.live_deadline_hours > 0 && live.is_live) {
         results_visible = false;
       } else {
@@ -662,7 +662,7 @@ async function handleListExams(request, db) {
     });
   }
   
-  return json({ exams: result, batch_resources: batchResourcesList });
+  return json({ exams: result, batch_resources: batchResourcesList }, 200, 15);
 }
 
 async function handleGetExamQuestions(examId, request, db) {
@@ -676,7 +676,6 @@ async function handleGetExamQuestions(examId, request, db) {
     return err('This exam is currently closed.', 403);
   }
   
-  // Check if exam is scheduled for future
   if (exam.scheduled_at && !user.is_admin) {
     const scheduledTime = new Date(exam.scheduled_at).getTime();
     if (Date.now() < scheduledTime) {
@@ -687,7 +686,6 @@ async function handleGetExamQuestions(examId, request, db) {
   const url = new URL(request.url);
   const isPractice = url.searchParams.get('practice') === '1';
   
-  // Practice mode access check
   if (isPractice) {
     if (!exam.allow_practice) {
       return err('Practice mode is not available for this exam.', 403);
@@ -698,7 +696,6 @@ async function handleGetExamQuestions(examId, request, db) {
         return err('Practice mode will be available after the live exam ends.', 403);
       }
     } else {
-      // Non-live: practice only after first attempt
       const hasAttempt = await db.prepare(
         'SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1'
       ).bind(user.id, examId).first();
@@ -707,7 +704,6 @@ async function handleGetExamQuestions(examId, request, db) {
       }
     }
   } else {
-    // Real attempt: check if live exam has ended
     if (exam.live_deadline_hours > 0) {
       const live = getLiveStatus(exam);
       if (live.live_ended && !user.is_admin) {
@@ -740,7 +736,6 @@ async function handleSubmitExam(examId, request, db) {
     return err('This exam is currently closed.', 403);
   }
   
-  // Practice mode check
   if (is_practice) {
     if (!exam.allow_practice) {
       return err('Practice mode is not available for this exam.', 403);
@@ -751,7 +746,6 @@ async function handleSubmitExam(examId, request, db) {
         return err('Practice mode will be available after the live exam ends.', 403);
       }
     } else {
-      // Non-live: practice only after first attempt
       const hasAttempt = await db.prepare(
         'SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1'
       ).bind(user.id, examId).first();
@@ -795,7 +789,6 @@ async function handleSubmitExam(examId, request, db) {
   const percentage = total > 0 ? Math.round((score / total) * 10000) / 100 : 0;
   const timeTaken = time_taken_seconds || 0;
   
-  // PRACTICE: Don't store anything, just return score
   if (is_practice) {
     return json({ 
       attemptId: 0, 
@@ -811,7 +804,6 @@ async function handleSubmitExam(examId, request, db) {
     });
   }
   
-  // REAL ATTEMPT: Only store first attempt
   const existingFirst = await db.prepare(
     'SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1'
   ).bind(user.id, examId).first();
@@ -820,7 +812,6 @@ async function handleSubmitExam(examId, request, db) {
     return err('You have already taken this exam.', 403);
   }
   
-  // Store the one and only real attempt
   const r1 = await db.prepare(
     `INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt, time_taken_seconds)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
@@ -909,11 +900,11 @@ async function handleLeaderboard(examId, request, db) {
   const exam = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   if (!exam) return err('Exam not found', 404);
   
-  if (!exam.leaderboard_enabled) return json({ disabled: true });
+  if (!exam.leaderboard_enabled) return json({ disabled: true }, 200, 30);
   
   if (exam.live_deadline_hours > 0) {
     const liveStatus = getLiveStatus(exam);
-    if (liveStatus.is_live) return json({ disabled: true, pending: true });
+    if (liveStatus.is_live) return json({ disabled: true, pending: true }, 200, 10);
   }
   
   const row = await db.prepare(`
@@ -926,9 +917,9 @@ async function handleLeaderboard(examId, request, db) {
     ) WHERE user_id = ?
   `).bind(examId, user.id).first();
   
-  if (!row) return json({ rank: null, total_participants: 0, percentile: null });
+  if (!row) return json({ rank: null, total_participants: 0, percentile: null }, 200, 30);
   const percentile = row.total_participants > 1 ? Math.round((1 - (row.rank - 1) / row.total_participants) * 100) : 100;
-  return json({ ...row, percentile, disabled: false });
+  return json({ ...row, percentile, disabled: false }, 200, 30);
 }
 
 async function handleHistory(request, db) {
@@ -976,7 +967,7 @@ async function handleHistory(request, db) {
     const percentile = lb && lb.total_participants > 1 ? Math.round((1 - (lb.rank - 1) / lb.total_participants) * 100) : null;
     result.push({ ...r, rank: lb?.rank || null, total_participants: lb?.total_participants || null, percentile, results_visible: published });
   }
-  return json(result);
+  return json(result, 200, 5);
 }
 
 // ============================================================
@@ -1001,7 +992,7 @@ async function handleListNotifications(request, db) {
     WHERE n.id NOT IN (SELECT notification_id FROM notification_reads WHERE user_id = ?)
   `).bind(user.id).first();
   
-  return json({ notifications: notifications.results, unread_count: unreadCount.count });
+  return json({ notifications: notifications.results, unread_count: unreadCount.count }, 200, 10);
 }
 
 async function handleMarkNotificationRead(notifId, request, db) {
@@ -1052,7 +1043,7 @@ async function handleAdminDeleteExam(examId, db) {
 
 async function handleAdminGetQuestions(examId, db) {
   const qs = await db.prepare('SELECT * FROM questions WHERE exam_id = ? ORDER BY id').bind(examId).all();
-  return json(qs.results);
+  return json(qs.results, 200, 10);
 }
 
 async function handleAdminDeleteAllQuestions(examId, db) {
@@ -1113,7 +1104,7 @@ async function handleAdminListUsers(db) {
     
     result.push({ ...user, premium_grants: grants.results });
   }
-  return json(result);
+  return json(result, 200, 15);
 }
 
 async function handleAdminGrantPremium(request, db, adminId) {
@@ -1254,7 +1245,7 @@ async function handleAdminResults(examId, db) {
        WHERE ers.is_first_attempt = 1 AND ers.is_practice = 0 
        ORDER BY ers.percentage DESC, ers.submitted_at ASC`;
   const rows = examId ? await db.prepare(query).bind(examId).all() : await db.prepare(query).all();
-  return json(rows.results);
+  return json(rows.results, 200, 10);
 }
 
 async function handleAdminDownloadResults(examId, db) {
@@ -1329,7 +1320,7 @@ async function handleAdminListNotifications(db) {
     JOIN users u ON n.created_by = u.id
     ORDER BY n.created_at DESC
   `).all();
-  return json(rows.results);
+  return json(rows.results, 200, 10);
 }
 
 async function handleAdminDeleteNotification(notifId, db) {
