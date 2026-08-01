@@ -205,6 +205,42 @@ tr:last-child td{border-bottom:none}
 }
 .revoke-btn:hover{opacity:1}
 
+.user-search-wrap{position:relative;margin-bottom:16px}
+.user-search-input{
+  width:100%;padding:10px 14px 10px 38px;border:1px solid var(--border);
+  border-radius:24px;font-family:var(--rb);font-size:.85rem;color:var(--t1);
+  outline:none;background:var(--surf);transition:border var(--tr);
+}
+.user-search-input:focus{border:2px solid var(--blue);padding:9px 13px 9px 37px}
+.user-search-icon{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  width:16px;height:16px;color:var(--t4);pointer-events:none;
+}
+.user-search-clear{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  width:26px;height:26px;border:none;background:none;border-radius:50%;
+  display:none;align-items:center;justify-content:center;cursor:pointer;color:var(--t4);
+}
+.user-search-clear:hover{background:var(--hov)}
+.user-search-clear svg{width:14px;height:14px}
+.user-search-results{
+  margin-top:8px;background:var(--surf);border:1px solid var(--border);
+  border-radius:var(--rl);overflow:hidden;display:none;
+}
+.user-search-results.show{display:block}
+.user-search-item{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 14px;border-bottom:1px solid var(--border);transition:background var(--tr);
+}
+.user-search-item:last-child{border-bottom:none}
+.user-search-item:hover{background:var(--hov)}
+.user-search-main{flex:1;min-width:0;cursor:pointer}
+.user-search-name{font-family:var(--gs);font-weight:500;font-size:.83rem;color:var(--t1);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.user-search-email{font-size:.72rem;color:var(--t4);margin-top:2px;word-break:break-all}
+.user-search-actions{display:flex;gap:6px;flex-shrink:0}
+.user-search-empty{padding:16px;text-align:center;color:var(--t3);font-size:.8rem}
+.user-search-hint{font-size:.68rem;color:var(--t4);margin-top:4px}
+
 .notif-card{
   background:var(--bg);border:1px solid var(--border);border-radius:var(--r);
   padding:14px 16px;margin-bottom:10px;
@@ -381,6 +417,14 @@ tr:last-child td{border-bottom:none}
 
     <!-- Users -->
     <div class="section" id="sec-users">
+      <div class="card"><div class="card-header"><span class="card-title">Find a User</span></div><div class="card-body">
+        <div class="user-search-wrap">
+          <svg class="user-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="user-search-input" id="userSearchInput" placeholder="Search by name or email — typos are OK" oninput="onUserSearchInput()" autocomplete="off">
+          <button class="user-search-clear" id="userSearchClear" onclick="clearUserSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="user-search-results" id="userSearchResults"></div>
+      </div></div>
       <div class="card"><div class="card-header"><span class="card-title">Registered Users</span></div><div class="card-body"><div class="table-wrap" id="usersTable"><div class="skeleton" style="height:40px"></div></div></div></div>
     </div>
 
@@ -755,6 +799,8 @@ async function loadUsers(){
     }
     return`<tr><td><strong>${esc(u.name)}</strong></td><td style="color:var(--t4);font-size:.75rem">${esc(u.email)}</td><td><span class="badge ${u.is_admin?'badge-admin':'badge-free'}">${u.is_admin?'Admin':'Student'}</span></td><td>${statusHtml}</td><td style="max-width:180px">${premiumHtml}</td><td>${actionHtml||'—'}</td></tr>`;
   }).join('')||'<tr><td colspan="6">No users</td></tr>'}</tbody></table>`;
+  const activeQuery=document.getElementById('userSearchInput')?.value;
+  if(activeQuery)renderUserSearchResults(activeQuery);
 }
 
 function openGrantModal(userId,userName){grantUserId=userId;document.getElementById('grantUserDisplay').textContent=userName;loadExamSelects();loadBatchSelects();toggleGrantScope();document.getElementById('grantModal').classList.add('open');}
@@ -793,6 +839,112 @@ async function executeAction(){
   pendingAction=null;pendingUserId=null;
 }
 async function unbanUser(userId){if(!confirm('Unban this user?'))return;const{ok,data}=await apiFetch(`/admin/users/${userId}/unban`,{method:'POST'});if(ok){toast(data.message||'User unbanned');loadUsers()}else toast(data.error||'Failed')}
+
+// ============================================================
+// FUZZY USER SEARCH (typo-tolerant, name or email)
+// ============================================================
+
+function levenshtein(a,b){
+  const m=a.length,n=b.length;
+  if(m===0)return n;
+  if(n===0)return m;
+  const dp=new Array(n+1);
+  for(let j=0;j<=n;j++)dp[j]=j;
+  for(let i=1;i<=m;i++){
+    let prev=dp[0];
+    dp[0]=i;
+    for(let j=1;j<=n;j++){
+      const tmp=dp[j];
+      dp[j]=a[i-1]===b[j-1]?prev:1+Math.min(prev,dp[j],dp[j-1]);
+      prev=tmp;
+    }
+  }
+  return dp[n];
+}
+
+function normalizeSearch(s){return(s||'').toLowerCase().trim().replace(/\s+/g,' ')}
+
+// Returns a match score (higher = better) or -1 for no match, comparing a query against one field.
+function fieldMatchScore(query,field){
+  if(!field)return -1;
+  const q=normalizeSearch(query),f=normalizeSearch(field);
+  if(!q)return -1;
+  if(f.startsWith(q))return 100;
+  if(f.includes(q))return 90-Math.min(20,f.length-q.length);
+  // typo-tolerant: compare against a same-length sliding window plus whole-string distance
+  let best=Infinity;
+  const qLen=q.length;
+  for(let i=0;i<=Math.max(0,f.length-1);i++){
+    const window=f.substr(i,qLen);
+    if(!window)continue;
+    const d=levenshtein(q,window);
+    if(d<best)best=d;
+  }
+  best=Math.min(best,levenshtein(q,f));
+  const threshold=qLen<=3?1:Math.ceil(qLen*0.34);
+  if(best<=threshold)return 60-best*8;
+  return -1;
+}
+
+function fuzzyUserSearch(query){
+  const q=normalizeSearch(query);
+  if(!q)return[];
+  return allUsers
+    .map(u=>{
+      const nameScore=fieldMatchScore(q,u.name);
+      const emailScore=fieldMatchScore(q,u.email);
+      return{...u,_score:Math.max(nameScore,emailScore)};
+    })
+    .filter(u=>u._score>=0)
+    .sort((a,b)=>b._score-a._score)
+    .slice(0,15);
+}
+
+let userSearchDebounce=null;
+function onUserSearchInput(){
+  clearTimeout(userSearchDebounce);
+  const val=document.getElementById('userSearchInput').value;
+  document.getElementById('userSearchClear').style.display=val?'flex':'none';
+  userSearchDebounce=setTimeout(()=>renderUserSearchResults(val),120);
+}
+
+function clearUserSearch(){
+  document.getElementById('userSearchInput').value='';
+  document.getElementById('userSearchClear').style.display='none';
+  const box=document.getElementById('userSearchResults');
+  box.classList.remove('show');box.innerHTML='';
+  document.getElementById('userSearchInput').focus();
+}
+
+function renderUserSearchResults(query){
+  const box=document.getElementById('userSearchResults');
+  if(!normalizeSearch(query)){box.classList.remove('show');box.innerHTML='';return}
+  const matches=fuzzyUserSearch(query);
+  if(!matches.length){
+    box.innerHTML='<div class="user-search-empty">No matching users found</div>';
+    box.classList.add('show');
+    return;
+  }
+  box.innerHTML=matches.map(u=>{
+    let statusBadge='';
+    if(u.is_banned)statusBadge='<span class="badge badge-banned">Banned</span>';
+    else if(u.is_admin)statusBadge='<span class="badge badge-admin">Admin</span>';
+    let actions=`<button class="btn btn-primary btn-xs" onclick="event.stopPropagation();openGrantModal(${u.id},'${esc(u.name)}')">Grant</button>`;
+    if(!u.is_admin){
+      if(u.is_banned)actions+=` <button class="btn btn-outline btn-xs" onclick="event.stopPropagation();unbanUser(${u.id})">Unban</button>`;
+      else actions+=` <button class="btn btn-outline btn-xs" style="color:#e37400;border-color:#e37400" onclick="event.stopPropagation();confirmBan(${u.id},'${esc(u.name)}')">Ban</button>`;
+      actions+=` <button class="btn btn-danger btn-xs" onclick="event.stopPropagation();confirmDelete(${u.id},'${esc(u.name)}')">Delete</button>`;
+    }
+    return`<div class="user-search-item">
+      <div class="user-search-main" onclick="openGrantModal(${u.id},'${esc(u.name)}')">
+        <div class="user-search-name">${esc(u.name)} ${statusBadge}</div>
+        <div class="user-search-email">${esc(u.email)}</div>
+      </div>
+      <div class="user-search-actions">${actions}</div>
+    </div>`;
+  }).join('');
+  box.classList.add('show');
+}
 
 async function loadResults(){
   const examId=document.getElementById('resultFilterExam').value;
