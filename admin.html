@@ -173,6 +173,19 @@ tr:last-child td{border-bottom:none}
 .badge-scheduled{background:var(--yel-bg);color:#e37400}
 .badge-live{background:var(--red-bg);color:var(--red)}
 
+/* Inline filter input */
+.inline-filter-wrap{position:relative;display:inline-flex;align-items:center}
+.inline-filter-input{
+  padding:7px 12px 7px 32px;border:1px solid var(--border);
+  border-radius:20px;font-size:.78rem;color:var(--t1);
+  outline:none;background:var(--surf);width:200px;transition:border var(--tr);
+}
+.inline-filter-input:focus{border-color:var(--blue)}
+.inline-filter-icon{
+  position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;color:var(--t4);pointer-events:none;
+}
+
 .resource-list{margin-bottom:14px}
 .resource-item{
   display:flex;align-items:center;justify-content:space-between;
@@ -416,8 +429,6 @@ tr:last-child td{border-bottom:none}
   color: var(--t3);
   font-size: .78rem;
 }
-
-/* Smaller variant */
 .searchable-select-sm .searchable-select-trigger {
   padding: 6px 10px;
   font-size: .75rem;
@@ -436,6 +447,7 @@ tr:last-child td{border-bottom:none}
   .form-grid{grid-template-columns:1fr}
   .resource-item{flex-direction:column;gap:8px;align-items:flex-start}
   .resource-actions{width:100%;justify-content:flex-end}
+  .inline-filter-input{width:140px}
 }
 @media(max-width:600px){
   .stats-grid{grid-template-columns:1fr}
@@ -497,12 +509,36 @@ tr:last-child td{border-bottom:none}
 
     <!-- Exams -->
     <div class="section" id="sec-exams">
-      <div class="card"><div class="card-header"><span class="card-title">All Examinations</span><button class="btn btn-primary btn-sm" onclick="openExamModal()">+ New Exam</button></div><div class="card-body"><div class="table-wrap" id="examsTable"><div class="skeleton" style="height:40px"></div></div></div></div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">All Examinations</span>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div class="inline-filter-wrap">
+              <svg class="inline-filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="inline-filter-input" id="examSearchInput" placeholder="Filter exams..." oninput="onExamSearchInput()" autocomplete="off">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openExamModal()">+ New Exam</button>
+          </div>
+        </div>
+        <div class="card-body"><div class="table-wrap" id="examsTable"><div class="skeleton" style="height:40px"></div></div></div>
+      </div>
     </div>
 
     <!-- Batches -->
     <div class="section" id="sec-batches">
-      <div class="card"><div class="card-header"><span class="card-title">Batches / Courses</span><button class="btn btn-primary btn-sm" onclick="openBatchModal()">+ New Batch</button></div><div class="card-body"><div class="table-wrap" id="batchesTable"><div class="skeleton" style="height:40px"></div></div></div></div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Batches / Courses</span>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div class="inline-filter-wrap">
+              <svg class="inline-filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="inline-filter-input" id="batchSearchInput" placeholder="Filter batches..." oninput="onBatchSearchInput()" autocomplete="off">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openBatchModal()">+ New Batch</button>
+          </div>
+        </div>
+        <div class="card-body"><div class="table-wrap" id="batchesTable"><div class="skeleton" style="height:40px"></div></div></div>
+      </div>
     </div>
 
     <!-- Questions -->
@@ -752,126 +788,6 @@ let currentResourceType='exam',currentResourceTargetId=null;
 let pendingAction=null,pendingUserId=null;
 
 // ============================================================
-// SEARCHABLE DROPDOWN SYSTEM
-// ============================================================
-
-// Maps wrapId -> { selectedValue, items, onChange callback, targetInputId }
-const searchableSelects = {};
-
-function registerSearchableSelect(wrapId, items, targetInputId, onChange, options = {}) {
-  searchableSelects[wrapId] = {
-    items: items,
-    selectedValue: options.defaultValue || '',
-    targetInputId: targetInputId,
-    onChange: onChange || (() => {}),
-    placeholder: options.placeholder || 'Select...'
-  };
-}
-
-function updateSearchableSelectUI(wrapId, filterQuery) {
-  const ss = searchableSelects[wrapId];
-  if (!ss) return;
-  
-  const listEl = document.getElementById(wrapId).querySelector('.searchable-select-list');
-  const triggerEl = document.getElementById(wrapId).querySelector('.searchable-select-trigger .placeholder');
-  
-  let filtered = ss.items;
-  if (filterQuery) {
-    const q = normalizeSearch(filterQuery);
-    filtered = ss.items.map(item => ({
-      ...item,
-      _score: Math.max(fieldMatchScore(q, item.label), fieldMatchScore(q, item.desc || ''))
-    })).filter(item => item._score >= 0).sort((a, b) => b._score - a._score);
-  }
-  
-  // Update trigger display
-  if (ss.selectedValue) {
-    const selected = ss.items.find(i => String(i.value) === String(ss.selectedValue));
-    if (selected) {
-      triggerEl.textContent = selected.label;
-      triggerEl.classList.remove('placeholder');
-    }
-  } else {
-    triggerEl.textContent = ss.placeholder;
-    triggerEl.classList.add('placeholder');
-  }
-  
-  // Update list
-  if (filtered.length === 0) {
-    listEl.innerHTML = '<div class="searchable-select-empty">No matches found</div>';
-  } else {
-    listEl.innerHTML = filtered.map(item => {
-      const isSelected = String(item.value) === String(ss.selectedValue);
-      return `<div class="searchable-select-option${isSelected ? ' selected' : ''}" data-value="${item.value}" onclick="selectSearchableOption('${wrapId}', '${item.value}')">
-        <span>${esc(item.label)}</span>
-        ${item.desc ? `<span class="opt-desc">${esc(item.desc)}</span>` : ''}
-      </div>`;
-    }).join('');
-  }
-}
-
-function toggleSearchableSelect(wrapId) {
-  const wrap = document.getElementById(wrapId);
-  const isOpen = wrap.classList.contains('open');
-  
-  // Close all others
-  document.querySelectorAll('.searchable-select.open').forEach(el => {
-    if (el.id !== wrapId) el.classList.remove('open');
-  });
-  
-  if (isOpen) {
-    wrap.classList.remove('open');
-  } else {
-    wrap.classList.add('open');
-    updateSearchableSelectUI(wrapId);
-    // Focus search input
-    const searchInput = wrap.querySelector('.searchable-select-search input');
-    if (searchInput) {
-      searchInput.value = '';
-      setTimeout(() => searchInput.focus(), 50);
-    }
-  }
-}
-
-function filterSearchableOptions(input) {
-  const wrap = input.closest('.searchable-select');
-  if (wrap) {
-    updateSearchableSelectUI(wrap.id, input.value);
-  }
-}
-
-function selectSearchableOption(wrapId, value) {
-  const ss = searchableSelects[wrapId];
-  if (!ss) return;
-  
-  ss.selectedValue = value;
-  
-  // Update hidden input
-  const targetInput = document.getElementById(ss.targetInputId);
-  if (targetInput) {
-    targetInput.value = value;
-    // Trigger change event
-    targetInput.dispatchEvent(new Event('change', { bubbles: true }));
-  }
-  
-  // Close dropdown
-  document.getElementById(wrapId).classList.remove('open');
-  
-  // Update UI
-  updateSearchableSelectUI(wrapId);
-  
-  // Call onChange
-  if (ss.onChange) ss.onChange(value);
-}
-
-// Global click handler to close dropdowns
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('.searchable-select')) {
-    document.querySelectorAll('.searchable-select.open').forEach(el => el.classList.remove('open'));
-  }
-});
-
-// ============================================================
 // FUZZY SEARCH HELPERS
 // ============================================================
 
@@ -930,39 +846,142 @@ function fuzzyUserSearch(query){
 }
 
 // ============================================================
+// SEARCHABLE DROPDOWN SYSTEM
+// ============================================================
+
+const searchableSelects = {};
+
+function registerSearchableSelect(wrapId, items, targetInputId, onChange, options = {}) {
+  searchableSelects[wrapId] = {
+    items: items,
+    selectedValue: options.defaultValue || '',
+    targetInputId: targetInputId,
+    onChange: onChange || (() => {}),
+    placeholder: options.placeholder || 'Select...'
+  };
+}
+
+function updateSearchableSelectUI(wrapId, filterQuery) {
+  const ss = searchableSelects[wrapId];
+  if (!ss) return;
+  
+  const listEl = document.getElementById(wrapId).querySelector('.searchable-select-list');
+  const triggerEl = document.getElementById(wrapId).querySelector('.searchable-select-trigger .placeholder');
+  
+  let filtered = ss.items;
+  if (filterQuery) {
+    const q = normalizeSearch(filterQuery);
+    filtered = ss.items.map(item => ({
+      ...item,
+      _score: Math.max(fieldMatchScore(q, item.label), fieldMatchScore(q, item.desc || ''))
+    })).filter(item => item._score >= 0).sort((a, b) => b._score - a._score);
+  }
+  
+  if (ss.selectedValue) {
+    const selected = ss.items.find(i => String(i.value) === String(ss.selectedValue));
+    if (selected) {
+      triggerEl.textContent = selected.label;
+      triggerEl.classList.remove('placeholder');
+    }
+  } else {
+    triggerEl.textContent = ss.placeholder;
+    triggerEl.classList.add('placeholder');
+  }
+  
+  if (filtered.length === 0) {
+    listEl.innerHTML = '<div class="searchable-select-empty">No matches found</div>';
+  } else {
+    listEl.innerHTML = filtered.map(item => {
+      const isSelected = String(item.value) === String(ss.selectedValue);
+      return `<div class="searchable-select-option${isSelected ? ' selected' : ''}" data-value="${item.value}" onclick="selectSearchableOption('${wrapId}', '${item.value}')">
+        <span>${esc(item.label)}</span>
+        ${item.desc ? `<span class="opt-desc">${esc(item.desc)}</span>` : ''}
+      </div>`;
+    }).join('');
+  }
+}
+
+function toggleSearchableSelect(wrapId) {
+  const wrap = document.getElementById(wrapId);
+  const isOpen = wrap.classList.contains('open');
+  
+  document.querySelectorAll('.searchable-select.open').forEach(el => {
+    if (el.id !== wrapId) el.classList.remove('open');
+  });
+  
+  if (isOpen) {
+    wrap.classList.remove('open');
+  } else {
+    wrap.classList.add('open');
+    updateSearchableSelectUI(wrapId);
+    const searchInput = wrap.querySelector('.searchable-select-search input');
+    if (searchInput) {
+      searchInput.value = '';
+      setTimeout(() => searchInput.focus(), 50);
+    }
+  }
+}
+
+function filterSearchableOptions(input) {
+  const wrap = input.closest('.searchable-select');
+  if (wrap) {
+    updateSearchableSelectUI(wrap.id, input.value);
+  }
+}
+
+function selectSearchableOption(wrapId, value) {
+  const ss = searchableSelects[wrapId];
+  if (!ss) return;
+  
+  ss.selectedValue = value;
+  
+  const targetInput = document.getElementById(ss.targetInputId);
+  if (targetInput) {
+    targetInput.value = value;
+    targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  
+  document.getElementById(wrapId).classList.remove('open');
+  updateSearchableSelectUI(wrapId);
+  
+  if (ss.onChange) ss.onChange(value);
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.searchable-select')) {
+    document.querySelectorAll('.searchable-select.open').forEach(el => el.classList.remove('open'));
+  }
+});
+
+// ============================================================
 // REBUILD ALL SEARCHABLE SELECTS
 // ============================================================
 
 function rebuildSearchableSelects() {
-  // Question exam select
   registerSearchableSelect('questionExamSelectWrap', 
     allExams.map(e => ({ value: e.id, label: e.name, desc: e.batch_name || '' })),
     'questionExamSelect',
     (val) => { if (val) loadQuestionsForExam(); }
   );
   
-  // Resource exam select
   registerSearchableSelect('resourceExamSelectWrap',
     allExams.map(e => ({ value: e.id, label: e.name, desc: e.batch_name || '' })),
     'resourceExamSelect',
     (val) => { if (val) loadResourcesForTarget(); }
   );
   
-  // Resource batch select
   registerSearchableSelect('resourceBatchSelectWrap',
     allBatches.map(b => ({ value: b.id, label: b.name, desc: `${b.exam_count || 0} exams` })),
     'resourceBatchSelect',
     (val) => { if (val) loadResourcesForTarget(); }
   );
   
-  // Result filter exam select (with "All Exams" option)
   registerSearchableSelect('resultFilterExamWrap',
     [{ value: '', label: 'All Exams', desc: '' }, ...allExams.map(e => ({ value: e.id, label: e.name, desc: e.batch_name || '' }))],
     'resultFilterExam',
     (val) => { loadResults(); }
   );
   
-  // Exam batch select (modal)
   registerSearchableSelect('examBatchSelectWrap',
     [{ value: '', label: 'No batch', desc: '' }, ...allBatches.map(b => ({ value: b.id, label: b.name, desc: `${b.exam_count || 0} exams` }))],
     'examBatchSelect',
@@ -970,19 +989,128 @@ function rebuildSearchableSelects() {
     { placeholder: 'Select batch (optional)' }
   );
   
-  // Grant exam select
   registerSearchableSelect('grantExamSelectWrap',
     allExams.map(e => ({ value: e.id, label: e.name, desc: e.is_premium ? 'Premium' : 'Free' })),
     'grantExam',
     () => {}
   );
   
-  // Grant batch select
   registerSearchableSelect('grantBatchSelectWrap',
     allBatches.map(b => ({ value: b.id, label: b.name, desc: `${b.exam_count || 0} exams` })),
     'grantBatch',
     () => {}
   );
+}
+
+// ============================================================
+// INLINE FILTERS FOR EXAMS & BATCHES
+// ============================================================
+
+let examSearchDebounce = null;
+let examSearchQuery = '';
+
+function onExamSearchInput() {
+  clearTimeout(examSearchDebounce);
+  examSearchQuery = document.getElementById('examSearchInput').value;
+  examSearchDebounce = setTimeout(() => renderFilteredExams(), 120);
+}
+
+function getFilteredExams() {
+  if (!examSearchQuery || !normalizeSearch(examSearchQuery)) return allExams;
+  const q = normalizeSearch(examSearchQuery);
+  return allExams
+    .map(e => ({
+      ...e,
+      _score: Math.max(
+        fieldMatchScore(q, e.name),
+        fieldMatchScore(q, e.description || ''),
+        fieldMatchScore(q, e.batch_name || '')
+      )
+    }))
+    .filter(e => e._score >= 0)
+    .sort((a, b) => b._score - a._score);
+}
+
+function renderFilteredExams() {
+  const exams = getFilteredExams();
+  const query = examSearchQuery;
+  
+  if (exams.length === 0) {
+    document.getElementById('examsTable').innerHTML = `<table><thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Status</th><th>Scheduled</th><th>Questions</th><th>Actions</th></tr></thead><tbody><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--t3)">${query ? `No exams matching "<strong>${esc(query)}</strong>"` : 'No exams yet'}</td></tr></tbody></table>`;
+    return;
+  }
+  
+  document.getElementById('examsTable').innerHTML = `<table><thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Status</th><th>Scheduled</th><th>Questions</th><th>Actions</th></tr></thead><tbody>${exams.map(e => {
+    let statusBadge = '';
+    if(e.is_closed) statusBadge = '<span class="badge badge-closed">Closed</span>';
+    else if(e.is_live) statusBadge = '<span class="badge badge-live">Live</span>';
+    else if(e.scheduled_at && new Date(e.scheduled_at) > new Date()) statusBadge = '<span class="badge badge-scheduled">Scheduled</span>';
+    else statusBadge = '<span class="badge badge-open">Open</span>';
+    
+    let scheduledDisplay = '—';
+    if(e.scheduled_at){
+      const d = new Date(e.scheduled_at);
+      scheduledDisplay = d.toLocaleString();
+    }
+    
+    return `<tr>
+      <td><strong>${esc(e.name)}</strong>${e.description?`<br><span style="font-size:.65rem;color:var(--t4)">${esc(e.description)}</span>`:''}</td>
+      <td>${esc(e.batch_name)||'—'}</td>
+      <td><span class="badge ${e.is_premium?'badge-premium':'badge-free'}">${e.is_premium?'Premium':'Free'}</span></td>
+      <td>${statusBadge}</td>
+      <td style="font-size:.72rem">${scheduledDisplay}</td>
+      <td>${e.question_count||0}</td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick="openExamModal(${e.id})">Edit</button>
+        <button class="btn btn-outline btn-sm" style="color:${e.is_closed?'var(--green)':'var(--red)'}" onclick="toggleExam(${e.id})">${e.is_closed?'Open':'Close'}</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id})">Delete</button>
+      </td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+
+let batchSearchDebounce = null;
+let batchSearchQuery = '';
+
+function onBatchSearchInput() {
+  clearTimeout(batchSearchDebounce);
+  batchSearchQuery = document.getElementById('batchSearchInput').value;
+  batchSearchDebounce = setTimeout(() => renderFilteredBatches(), 120);
+}
+
+function getFilteredBatches() {
+  if (!batchSearchQuery || !normalizeSearch(batchSearchQuery)) return allBatches;
+  const q = normalizeSearch(batchSearchQuery);
+  return allBatches
+    .map(b => ({
+      ...b,
+      _score: Math.max(
+        fieldMatchScore(q, b.name),
+        fieldMatchScore(q, b.description || '')
+      )
+    }))
+    .filter(b => b._score >= 0)
+    .sort((a, b) => b._score - a._score);
+}
+
+function renderFilteredBatches() {
+  const batches = getFilteredBatches();
+  const query = batchSearchQuery;
+  
+  if (batches.length === 0) {
+    document.getElementById('batchesTable').innerHTML = `<table><thead><tr><th>Name</th><th>Description</th><th>Exams</th><th>Actions</th></tr></thead><tbody><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--t3)">${query ? `No batches matching "<strong>${esc(query)}</strong>"` : 'No batches yet'}</td></tr></tbody></table>`;
+    return;
+  }
+  
+  document.getElementById('batchesTable').innerHTML = `<table><thead><tr><th>Name</th><th>Description</th><th>Exams</th><th>Actions</th></tr></thead><tbody>${batches.map(b => `
+    <tr>
+      <td><strong>${esc(b.name)}</strong></td>
+      <td>${esc(b.description)||'—'}</td>
+      <td><span class="badge badge-free">${b.exam_count||0} exams</span></td>
+      <td>
+        <button class="btn btn-outline btn-sm" onclick="openBatchModal(${b.id})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteBatch(${b.id})">Delete</button>
+      </td>
+    </tr>`).join('')}</tbody></table>`;
 }
 
 // ============================================================
@@ -1045,40 +1173,15 @@ async function loadDashboard(){
 async function loadExams(){
   const{data}=await apiFetch('/exams');
   allExams=(data.exams||[]);
-  document.getElementById('examsTable').innerHTML=`<table><thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Status</th><th>Scheduled</th><th>Questions</th><th>Actions</th></tr></thead><tbody>${allExams.map(e=>{
-    let statusBadge = '';
-    if(e.is_closed) statusBadge = '<span class="badge badge-closed">Closed</span>';
-    else if(e.is_live) statusBadge = '<span class="badge badge-live">Live</span>';
-    else if(e.scheduled_at && new Date(e.scheduled_at) > new Date()) statusBadge = '<span class="badge badge-scheduled">Scheduled</span>';
-    else statusBadge = '<span class="badge badge-open">Open</span>';
-    
-    let scheduledDisplay = '—';
-    if(e.scheduled_at){
-      const d = new Date(e.scheduled_at);
-      scheduledDisplay = d.toLocaleString();
-    }
-    
-    return `<tr>
-      <td><strong>${esc(e.name)}</strong>${e.description?`<br><span style="font-size:.65rem;color:var(--t4)">${esc(e.description)}</span>`:''}</td>
-      <td>${esc(e.batch_name)||'—'}</td>
-      <td><span class="badge ${e.is_premium?'badge-premium':'badge-free'}">${e.is_premium?'Premium':'Free'}</span></td>
-      <td>${statusBadge}</td>
-      <td style="font-size:.72rem">${scheduledDisplay}</td>
-      <td>${e.question_count||0}</td>
-      <td>
-        <button class="btn btn-outline btn-sm" onclick="openExamModal(${e.id})">Edit</button>
-        <button class="btn btn-outline btn-sm" style="color:${e.is_closed?'var(--green)':'var(--red)'}" onclick="toggleExam(${e.id})">${e.is_closed?'Open':'Close'}</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id})">Delete</button>
-      </td></tr>`;
-  }).join('')||'<tr><td colspan="7">No exams</td></tr>'}</tbody></table>`;
   rebuildSearchableSelects();
+  renderFilteredExams();
 }
 
 async function loadBatches(){
   const{data}=await apiFetch('/batches');
   allBatches=data||[];
-  document.getElementById('batchesTable').innerHTML=`<table><thead><tr><th>Name</th><th>Description</th><th>Exams</th><th>Actions</th></tr></thead><tbody>${allBatches.map(b=>`<tr><td><strong>${esc(b.name)}</strong></td><td>${esc(b.description)||'—'}</td><td>${b.exam_count||0}</td><td><button class="btn btn-outline btn-sm" onclick="openBatchModal(${b.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteBatch(${b.id})">Delete</button></td></tr>`).join('')||'<tr><td colspan="4">No batches</td></tr>'}</tbody></table>`;
   rebuildSearchableSelects();
+  renderFilteredBatches();
 }
 
 // ============================================================
@@ -1106,7 +1209,6 @@ function openExamModal(id=null){
   document.getElementById('examLeaderboard').checked=exam?.leaderboard_enabled!==false;
   document.getElementById('examBatchSelect').value = exam?.batch_id || '';
   
-  // Update searchable select
   if (searchableSelects['examBatchSelectWrap']) {
     searchableSelects['examBatchSelectWrap'].selectedValue = exam?.batch_id || '';
     updateSearchableSelectUI('examBatchSelectWrap');
