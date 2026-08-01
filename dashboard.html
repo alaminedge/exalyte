@@ -723,10 +723,12 @@ async function loadDashboard(){
     updateStats();
     renderLiveStrip();
     renderUpcomingStrip();
-    renderRankings();
     renderExams();
     renderResourcesSection();
     loadNotifBadge();
+    
+    // Fire-and-forget — rankings populate when ready
+    renderRankingsAsync();
   }catch(e){
     console.error('Dashboard load error:',e);
   }
@@ -829,19 +831,29 @@ function renderUpcomingStrip(){
   });
 }
 
-async function renderRankings(){
-  const completed=allExams.filter(e=>e.stored_attempt&&e.results_visible).slice(0,3);
-  if(!completed.length){document.getElementById('rankSection').style.display='none';return}
-  document.getElementById('rankSection').style.display='block';
-  const ranks=await Promise.all(completed.map(async e=>{const{data}=await apiFetch('/leaderboard/'+e.id);return{exam:e,lb:data}}));
-  document.getElementById('rankGrid').innerHTML=ranks.map(({exam,lb})=>{
-    const rc=lb?.rank===1?'rank-1':lb?.rank===2?'rank-2':lb?.rank===3?'rank-3':'rank-n';
-    return`<div class="rank-item">
-      <div class="rank-pos ${rc}">#${lb?.rank||'—'}</div>
-      <div class="rank-info"><div class="rank-exam">${esc(exam.name)}</div><div class="rank-sub">${lb?.total_participants||0} participants</div></div>
-      <div class="rank-pct">${exam.stored_attempt?.percentage?.toFixed(0)||0}%</div>
-    </div>`;
-  }).join('');
+// NEW: Non-blocking rankings — runs in background
+async function renderRankingsAsync(){
+  try{
+    const completed=allExams.filter(e=>e.stored_attempt&&e.results_visible).slice(0,3);
+    if(!completed.length){document.getElementById('rankSection').style.display='none';return}
+    document.getElementById('rankSection').style.display='block';
+    
+    // Fetch all leaderboards in parallel
+    const lbResults=await Promise.all(
+      completed.map(e=>apiFetch('/leaderboard/'+e.id))
+    );
+    
+    const ranks=completed.map((exam,i)=>({exam,lb:lbResults[i]?.data||{}}));
+    
+    document.getElementById('rankGrid').innerHTML=ranks.map(({exam,lb})=>{
+      const rc=lb?.rank===1?'rank-1':lb?.rank===2?'rank-2':lb?.rank===3?'rank-3':'rank-n';
+      return`<div class="rank-item">
+        <div class="rank-pos ${rc}">#${lb?.rank||'—'}</div>
+        <div class="rank-info"><div class="rank-exam">${esc(exam.name)}</div><div class="rank-sub">${lb?.total_participants||0} participants</div></div>
+        <div class="rank-pct">${exam.stored_attempt?.percentage?.toFixed(0)||0}%</div>
+      </div>`;
+    }).join('');
+  }catch(e){/* silent — rankings are non-critical */}
 }
 
 function renderExams(){
