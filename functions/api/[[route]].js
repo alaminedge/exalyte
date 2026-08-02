@@ -55,7 +55,7 @@ const CORS = {
 function json(data, status = 200, cacheSeconds = 0) {
   const headers = { 'Content-Type': 'application/json', ...CORS };
   if (cacheSeconds > 0) {
-    headers['Cache-Control'] = `public, max-age=${cacheSeconds}`;
+    headers['Cache-Control'] = `private, max-age=${cacheSeconds}`;
   }
   return new Response(JSON.stringify(data), { status, headers });
 }
