@@ -1,5 +1,6 @@
 // Exalyte API — Complete Backend for Cloudflare Pages
 // functions/api/[[route]].js
+// PATCHED FOR SPEED: cached DB init, batched queries for /exams and /admin/users, added indexes
 
 // ============================================================
 // CRYPTO HELPERS
@@ -85,8 +86,17 @@ async function requireAdmin(request, db) {
 // ============================================================
 // DATABASE INITIALIZATION
 // ============================================================
+// PATCH: dbInitialized flag avoids running ~15+ CREATE/ALTER/INDEX
+// statements against D1 on every single API request. This was the
+// single biggest source of latency — initDB() used to run in full
+// before every route handler, even for routes that don't touch
+// schema-sensitive tables. Now it only runs once per isolate.
+
+let dbInitialized = false;
 
 async function initDB(db) {
+  if (dbInitialized) return;
+
   const statements = [
     `CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
@@ -212,7 +222,18 @@ async function initDB(db) {
       title TEXT NOT NULL,
       link TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`
+    )`,
+    // ── PATCH: indexes to speed up the hottest queries ──
+    `CREATE INDEX IF NOT EXISTS idx_results_user_exam ON exam_results_stored(user_id, exam_id, is_practice, is_first_attempt)`,
+    `CREATE INDEX IF NOT EXISTS idx_results_exam_first ON exam_results_stored(exam_id, is_first_attempt, is_practice)`,
+    `CREATE INDEX IF NOT EXISTS idx_premium_user ON premium_access(user_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_premium_exam ON premium_access(exam_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_premium_batch ON premium_access(batch_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_questions_exam ON questions(exam_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_exams_batch ON exams(batch_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_notif_reads_user ON notification_reads(user_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_users_fp ON users(device_fingerprint)`,
+    `CREATE INDEX IF NOT EXISTS idx_users_ip ON users(created_ip)`
   ];
 
   for (const sql of statements) {
@@ -233,10 +254,12 @@ async function initDB(db) {
     await db.prepare('INSERT INTO users (name, email, password, is_admin) VALUES (?, ?, ?, 1)')
       .bind('Administrator', 'admin@exalyte.com', adminHash).run();
   }
+
+  dbInitialized = true;
 }
 
 // ============================================================
-// PREMIUM ACCESS CHECK
+// PREMIUM ACCESS CHECK (still used by single-exam routes)
 // ============================================================
 
 async function checkPremiumAccess(db, userId, examId, isAdmin) {
@@ -262,6 +285,18 @@ async function checkPremiumAccess(db, userId, examId, isAdmin) {
     if (batchGrant) return true;
   }
   
+  return false;
+}
+
+// PATCH: in-memory version of the premium check used inside handleListExams'
+// per-exam loop. Takes precomputed sets instead of re-querying D1 for every
+// exam on the page. This is what kills the N+1 pattern.
+function checkPremiumAccessFast(exam, isAdmin, hasAccountPremium, userPremiumExams, userPremiumBatches) {
+  if (isAdmin) return true;
+  if (!exam.is_premium) return true;
+  if (hasAccountPremium) return true;
+  if (userPremiumExams.has(exam.id)) return true;
+  if (exam.batch_id && userPremiumBatches.has(exam.batch_id)) return true;
   return false;
 }
 
@@ -522,6 +557,19 @@ async function handleDeleteExamResource(resourceId, db) {
 // ============================================================
 // EXAMS ROUTES
 // ============================================================
+// PATCH: this whole handler was the primary latency source on
+// dashboard load. Previously, for every exam returned it did:
+//   - 1 query for stored_attempt
+//   - checkPremiumAccess() -> up to 3 more queries (exam row again,
+//     user row, exam grant, batch grant)
+// That's up to 5 serial D1 round trips PER EXAM. With N exams,
+// dashboard load time scaled linearly with exam count.
+//
+// Now: attempts are fetched in ONE query up front and mapped by
+// exam_id; premium grants/account premium were already being
+// computed once earlier in this function (hasAccountPremium,
+// userPremiumBatches, userPremiumExams) — we just reuse them via
+// checkPremiumAccessFast() instead of re-querying per exam.
 
 async function handleListExams(request, db) {
   const user = await requireAuth(request);
@@ -572,6 +620,28 @@ async function handleListExams(request, db) {
     for (const g of examGrants.results) { userPremiumExams.add(g.exam_id); }
   }
 
+  // PATCH: fetch ALL of this user's first attempts in one query instead of
+  // one query per exam inside the loop below.
+  let userAttemptsMap = {};
+  if (userId) {
+    const attempts = await db.prepare(
+      `SELECT * FROM exam_results_stored WHERE user_id = ? AND is_practice = 0 AND is_first_attempt = 1`
+    ).bind(userId).all();
+    for (const a of attempts.results) {
+      userAttemptsMap[a.exam_id] = a;
+    }
+  }
+
+  // PATCH: batch resources reference batch exams for visibility checks.
+  // Precompute batch -> exams map once instead of querying per resource row.
+  let batchExamsMap = {};
+  for (const e of exams.results) {
+    if (e.batch_id) {
+      if (!batchExamsMap[e.batch_id]) batchExamsMap[e.batch_id] = [];
+      batchExamsMap[e.batch_id].push({ id: e.id, is_premium: e.is_premium });
+    }
+  }
+
   const examResourcesMap = {};
   for (const r of allExamResources.results) {
     const eid = r.exam_id;
@@ -595,9 +665,7 @@ async function handleListExams(request, db) {
   const batchResourcesMap = {};
   for (const r of allBatchResources.results) {
     const bid = r.batch_id;
-    const batchExams = await db.prepare(
-      'SELECT id, is_premium FROM exams WHERE batch_id = ?'
-    ).bind(bid).all();
+    const batchExams = batchExamsMap[bid] || [];
     
     let canSeeBatch = false;
     
@@ -605,8 +673,8 @@ async function handleListExams(request, db) {
       canSeeBatch = true;
     } else if (hasAccountPremium || userPremiumBatches.has(bid)) {
       canSeeBatch = true;
-    } else if (batchExams.results.length > 0) {
-      const allFree = batchExams.results.every(e => !e.is_premium);
+    } else if (batchExams.length > 0) {
+      const allFree = batchExams.every(e => !e.is_premium);
       if (allFree) {
         canSeeBatch = true;
       }
@@ -627,11 +695,8 @@ async function handleListExams(request, db) {
     let stored_attempt = null, accessible = false, can_practice = false, results_visible = false;
     
     if (userId) {
-      const sa = await db.prepare(
-        `SELECT * FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1 LIMIT 1`
-      ).bind(userId, exam.id).first();
-      stored_attempt = sa || null;
-      accessible = await checkPremiumAccess(db, userId, exam.id, isAdmin);
+      stored_attempt = userAttemptsMap[exam.id] || null;
+      accessible = checkPremiumAccessFast(exam, isAdmin, hasAccountPremium, userPremiumExams, userPremiumBatches);
       
       if (exam.allow_practice && !exam.is_closed) {
         if (exam.live_deadline_hours > 0) {
@@ -1084,26 +1149,36 @@ async function handleAdminBulkQuestions(request, db) {
   return json({ inserted: count });
 }
 
+// ============================================================
+// ADMIN USERS — PATCHED to avoid N+1 (1 grants query per user)
+// ============================================================
+// Previously: one SELECT ... FROM premium_access per user in a loop.
+// With 100 users that's 100 serial D1 calls. Now: 2 queries total
+// (users + all grants), grouped in memory by user_id.
+
 async function handleAdminListUsers(db) {
-  const users = await db.prepare(`
-    SELECT u.id, u.name, u.email, u.is_admin, u.is_banned, u.premium_until, u.created_at, u.device_fingerprint, u.created_ip
-    FROM users u
-    ORDER BY u.created_at DESC
-  `).all();
-  
-  const result = [];
-  for (const user of users.results) {
-    const grants = await db.prepare(`
+  const [usersRes, grantsRes] = await Promise.all([
+    db.prepare(`
+      SELECT u.id, u.name, u.email, u.is_admin, u.is_banned, u.premium_until, u.created_at, u.device_fingerprint, u.created_ip
+      FROM users u
+      ORDER BY u.created_at DESC
+    `).all(),
+    db.prepare(`
       SELECT pa.*, e.name as exam_name, b.name as batch_name
       FROM premium_access pa
       LEFT JOIN exams e ON pa.exam_id = e.id
       LEFT JOIN batches b ON pa.batch_id = b.id
-      WHERE pa.user_id = ?
       ORDER BY pa.granted_at DESC
-    `).bind(user.id).all();
-    
-    result.push({ ...user, premium_grants: grants.results });
+    `).all()
+  ]);
+
+  const grantsByUser = {};
+  for (const g of grantsRes.results) {
+    if (!grantsByUser[g.user_id]) grantsByUser[g.user_id] = [];
+    grantsByUser[g.user_id].push(g);
   }
+
+  const result = usersRes.results.map(u => ({ ...u, premium_grants: grantsByUser[u.id] || [] }));
   return json(result, 200, 15);
 }
 
