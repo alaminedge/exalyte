@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Study Target — Exalyte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+:root{
+  --blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;
+  --green:#1e8e3e;--grn-bg:#e6f4ea;--yellow:#f9ab00;--yel-bg:#fef7e0;
+  --bg:#f8f9fa;--surf:#ffffff;--hov:#f1f3f4;--border:#dadce0;
+  --t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
+  --gs:'Google Sans','Roboto',system-ui,sans-serif;
+  --rb:'Roboto',system-ui,sans-serif;
+  --hh:64px;--r:4px;--rl:12px;--tr:.2s cubic-bezier(.4,0,.2,1);
+  --safe-bottom:env(safe-area-inset-bottom,20px);
+}
+body{
+  font-family:var(--rb);background:var(--bg);color:var(--t2);
+  -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
+  display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;
+}
+
+/* Header */
+.header{
+  position:fixed;top:0;left:0;right:0;height:var(--hh);
+  background:var(--surf);border-bottom:1px solid var(--border);
+  z-index:1000;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;
+}
+.header-left{display:flex;align-items:center;gap:10px}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
+.header-right{display:flex;align-items:center;gap:8px}
+
+.main{flex:1;padding-top:var(--hh)}
+
+/* App Container */
+.app{width:min(100%,480px);margin:0 auto;padding:28px 20px 60px}
+
+/* Top Bar */
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}
+.eyebrow{
+  display:flex;align-items:center;gap:8px;
+  background:#e8f0fe;border:1px solid rgba(26,115,232,.2);
+  border-radius:100px;padding:5px 14px 5px 10px;
+  font-family:var(--gs);font-size:.72rem;font-weight:500;color:var(--blue);
+  margin-bottom:10px;width:fit-content;
+}
+.brand{font-family:var(--gs);font-size:1.6rem;font-weight:500;color:var(--t1);letter-spacing:-0.5px}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 20px;font-family:var(--gs);font-size:.85rem;font-weight:500;
+  border:none;border-radius:var(--r);cursor:pointer;
+  transition:all var(--tr);text-decoration:none;white-space:nowrap;
+  min-height:44px;
+}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-h);box-shadow:0 1px 2px rgba(60,64,67,.3),0 2px 6px rgba(60,64,67,.15)}
+.btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
+.btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
+.icon-btn{
+  width:40px;height:40px;border:1px solid var(--border);background:var(--surf);
+  color:var(--t3);border-radius:var(--r);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all var(--tr);
+}
+.icon-btn:hover{color:var(--blue);border-color:var(--blue);background:#e8f0fe}
+.icon-btn svg{width:18px;height:18px}
+
+/* Ring */
+.ring-wrap{display:flex;justify-content:center;margin-bottom:20px;position:relative}
+.ring-labels{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.ring-level{font-family:var(--gs);font-size:2rem;font-weight:500;color:var(--t1)}
+.ring-sub{font-size:.7rem;color:var(--t3);font-weight:500;letter-spacing:1px;text-transform:uppercase}
+
+/* Rank */
+.rank-block{text-align:center;margin-bottom:24px}
+.rank-name{font-family:var(--gs);color:var(--blue);font-weight:500;font-size:1.1rem}
+.rank-xp{color:var(--t3);font-size:.78rem;margin-top:4px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px}
+.stat{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  padding:16px 10px;text-align:center;transition:box-shadow var(--tr);
+}
+.stat:hover{box-shadow:0 1px 3px rgba(60,64,67,.15)}
+.stat-icon{display:flex;justify-content:center;margin-bottom:6px}
+.stat-icon svg{width:16px;height:16px}
+.stat-value{font-family:var(--gs);font-size:1.2rem;font-weight:500;color:var(--t1)}
+.stat-label{color:var(--t4);font-size:.65rem;font-weight:500;margin-top:4px;letter-spacing:.5px;text-transform:uppercase}
+
+/* Section Title */
+.section-title{
+  font-family:var(--gs);font-size:.75rem;font-weight:500;color:var(--t3);
+  letter-spacing:.5px;text-transform:uppercase;margin:24px 0 12px;
+}
+
+/* Week Grid */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:8px}
+.day{text-align:center}
+.day-box{
+  height:36px;border-radius:var(--r);background:var(--surf);
+  border:1px solid var(--border);
+}
+.day-box.today{border-color:var(--blue);border-width:2px}
+.day-name{color:var(--t4);font-size:.6rem;font-weight:500;margin-top:5px;text-transform:uppercase}
+
+/* Target Cards */
+.target{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  padding:14px 16px;display:flex;align-items:center;gap:12px;
+  margin-bottom:8px;transition:box-shadow var(--tr);
+}
+.target:hover{box-shadow:0 1px 3px rgba(60,64,67,.15)}
+.target.done{opacity:.55}
+.check{
+  width:26px;height:26px;flex:0 0 26px;border:2px solid var(--border);
+  border-radius:var(--r);background:transparent;
+  display:flex;justify-content:center;align-items:center;
+  color:var(--bg);cursor:pointer;transition:all var(--tr);
+}
+.check:hover{border-color:var(--green)}
+.target.done .check{background:var(--green);border-color:var(--green)}
+.check svg{width:14px;height:14px}
+.target-main{flex:1;min-width:0}
+.target-name{font-size:.9rem;font-weight:500;color:var(--t1);word-break:break-word}
+.target.done .target-name{text-decoration:line-through;color:var(--t3)}
+.target-meta{color:var(--t4);font-size:.7rem;margin-top:3px}
+.points{font-family:var(--gs);font-weight:500;font-size:.85rem;color:var(--blue)}
+.delete{
+  border:0;background:transparent;color:var(--t4);cursor:pointer;
+  display:flex;align-items:center;padding:4px;border-radius:var(--r);
+  transition:all var(--tr);
+}
+.delete:hover{color:var(--red);background:var(--red-bg)}
+.delete svg{width:16px;height:16px}
+
+/* Add Button */
+.add-btn{
+  width:100%;border:2px dashed var(--border);border-radius:var(--rl);
+  background:transparent;color:var(--blue);padding:16px;
+  font-family:var(--gs);font-size:.9rem;font-weight:500;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;transition:all var(--tr);margin-bottom:24px;
+}
+.add-btn:hover{border-color:var(--blue);background:#e8f0fe}
+.add-btn svg{width:18px;height:18px}
+
+/* Form */
+.form{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  padding:20px;margin-bottom:24px;display:none;
+}
+.form.show{display:block}
+.form-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.form-title{font-family:var(--gs);font-size:1.05rem;font-weight:500;color:var(--t1)}
+label{display:block;font-size:.72rem;font-weight:500;color:var(--t3);margin:14px 0 5px;letter-spacing:.3px;text-transform:uppercase}
+input,select{
+  width:100%;border:1px solid var(--border);background:var(--surf);
+  color:var(--t1);border-radius:var(--r);padding:10px 14px;
+  font-family:var(--rb);font-size:.9rem;outline:none;transition:border var(--tr);
+}
+input:hover,select:hover{border-color:var(--t3)}
+input:focus,select:focus{border:2px solid var(--blue);padding:9px 13px}
+
+/* Tiers */
+.tiers{display:flex;gap:8px;margin-top:4px}
+.tier-btn{
+  flex:1;padding:10px 0;border-radius:var(--r);border:2px solid var(--border);
+  background:transparent;color:var(--t2);font-family:var(--gs);font-size:.82rem;
+  font-weight:500;text-align:center;cursor:pointer;transition:all var(--tr);
+}
+.tier-btn .amt{display:block;font-size:.68rem;color:var(--t4);margin-top:3px;font-weight:400}
+.tier-btn.active[data-tier="easy"]{border-color:var(--green);background:var(--grn-bg);color:var(--green)}
+.tier-btn.active[data-tier="medium"]{border-color:#e37400;background:var(--yel-bg);color:#e37400}
+.tier-btn.active[data-tier="hard"]{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+
+.save-btn{
+  width:100%;border:0;border-radius:var(--r);padding:12px;font-weight:500;
+  font-family:var(--gs);font-size:.9rem;background:var(--blue);color:#fff;
+  cursor:pointer;margin-top:18px;transition:all var(--tr);
+}
+.save-btn:hover{background:var(--blue-h)}
+.save-btn:disabled{background:var(--hov);color:var(--t4);cursor:not-allowed}
+
+/* Empty State */
+.empty{
+  background:var(--surf);border:2px dashed var(--border);border-radius:var(--rl);
+  padding:28px 20px;color:var(--t3);font-size:.85rem;text-align:center;
+}
+
+/* Error */
+.error-msg{color:var(--red);font-size:.8rem;margin-bottom:12px;display:none}
+
+/* Backup Panel */
+.backup-panel{margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}
+.backup-row{display:flex;gap:8px}
+.backup-row button{
+  flex:1;background:var(--surf);color:var(--t2);border:1px solid var(--border);
+  border-radius:var(--r);padding:11px 12px;font-size:.82rem;font-weight:500;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  cursor:pointer;font-family:var(--gs);transition:all var(--tr);
+}
+.backup-row button:hover{border-color:var(--blue);background:#e8f0fe;color:var(--blue)}
+.storage-info{color:var(--t4);font-size:.72rem;margin-top:12px;line-height:1.6;text-align:center}
+
+/* Toast */
+.toast{
+  position:fixed;left:50%;bottom:30px;transform:translate(-50%,120px);
+  background:var(--surf);border:1px solid var(--blue);border-radius:var(--rl);
+  padding:14px 24px;min-width:220px;text-align:center;
+  box-shadow:0 4px 16px rgba(0,0,0,.12);transition:transform .3s ease;z-index:1000;
+}
+.toast.show{transform:translate(-50%,0)}
+.toast strong{display:block;color:var(--blue);font-family:var(--gs);font-size:1rem;font-weight:500}
+.toast span{color:var(--t3);font-size:.75rem;margin-top:2px}
+
+@media(max-width:600px){
+  .app{padding:20px 16px 60px}
+  .header{padding:0 16px}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <a href="/" class="logo-wrap">
+      <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
+      <span class="logo-text">Exalyte</span>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="btn btn-outline" onclick="window.location.href='/'">Home</button>
+  </div>
+</header>
+
+<main class="main">
+
+<div class="app">
+
+  <div class="topbar">
+    <div>
+      <div class="eyebrow" id="iconTargetEyebrow"></div>
+      <div class="brand">Study Target</div>
+    </div>
+    <button class="icon-btn" id="exportTopBtn" title="Export backup"></button>
+  </div>
+
+  <div class="ring-wrap">
+    <svg width="190" height="190" viewBox="0 0 190 190">
+      <circle cx="95" cy="95" r="90" fill="var(--surf)" />
+      <circle cx="95" cy="95" r="74" fill="none" stroke="#e8eaed" stroke-width="16" />
+      <circle cx="95" cy="95" r="56" fill="none" stroke="#f1f3f4" stroke-width="14" />
+      <circle cx="95" cy="95" r="40" fill="none" stroke="#e8f0fe" stroke-width="12" />
+      <circle cx="95" cy="95" r="26" fill="#1a73e8" opacity="0.85" />
+      <circle id="progressArc" cx="95" cy="95" r="74" fill="none" stroke="#1a73e8" stroke-width="8"
+        stroke-linecap="round" stroke-dasharray="0 465" transform="rotate(-90 95 95)"
+        style="transition: stroke-dasharray .5s ease;" />
+    </svg>
+    <div class="ring-labels">
+      <div class="ring-level" id="levelNum">1</div>
+      <div class="ring-sub">Level</div>
+    </div>
+  </div>
+
+  <div class="rank-block">
+    <div class="rank-name" id="rankName">Novice Archer</div>
+    <div class="rank-xp" id="xpText">0 / 100 XP to level 2</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-value" id="statTotalXp">0</div>
+      <div class="stat-label">Total XP</div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon" id="iconFlame"></div>
+      <div class="stat-value" id="statStreak">0d</div>
+      <div class="stat-label">Streak</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="statToday">0/0</div>
+      <div class="stat-label">Today</div>
+    </div>
+  </div>
+
+  <div class="section-title">This Week</div>
+  <div class="week" id="week"></div>
+
+  <div class="section-title">Today's Targets</div>
+  <div id="targetList"></div>
+
+  <button class="add-btn" id="openFormBtn"></button>
+
+  <div class="form" id="form">
+    <div class="form-head">
+      <div class="form-title">New Target</div>
+      <button class="icon-btn" id="closeFormBtn" style="width:32px;height:32px"></button>
+    </div>
+
+    <label for="targetText">What do you need to finish?</label>
+    <input id="targetText" placeholder="e.g. Finish 2 mock tests" maxlength="200">
+
+    <label>Weight (points on completion)</label>
+    <div class="tiers" id="tierButtons">
+      <button class="tier-btn active" data-tier="easy">Easy<span class="amt">+20</span></button>
+      <button class="tier-btn" data-tier="medium">Medium<span class="amt">+40</span></button>
+      <button class="tier-btn" data-tier="hard">Hard<span class="amt">+70</span></button>
+    </div>
+
+    <button class="save-btn" id="saveTargetBtn" disabled>Add to today's targets</button>
+  </div>
+
+  <div id="errorMsg" class="error-msg"></div>
+
+  <div class="backup-panel">
+    <div class="section-title">Your Data</div>
+    <div class="backup-row">
+      <button id="exportBtn"></button>
+      <button id="importBtn"></button>
+    </div>
+    <input type="file" id="importFile" accept=".json" style="display:none">
+    <div class="storage-info">Progress saves automatically. Export a backup file any time you want an extra copy.</div>
+  </div>
+
+</div>
+
+</main>
+
+<div class="toast" id="toast">
+  <strong id="toastTitle">+40 XP</strong>
+  <span id="toastText">Target completed</span>
+</div>
+
+<script>
+/* ============================================================
+   ICONS — inline SVG
+============================================================ */
+const ICON = {
+  target: (s=16) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="2"/></svg>`,
+  flame: (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="#d93025" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.4-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.15.43-2.3 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`,
+  plus: (s=16) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  check: (s=13) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  trash: (s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
+  x: (s=16) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  download: (s=15) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+  upload: (s=15) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
+};
+
+document.getElementById('iconTargetEyebrow').innerHTML = ICON.target(15) + 'Admission Test — Retake Prep';
+document.getElementById('exportTopBtn').innerHTML = ICON.download(16);
+document.getElementById('iconFlame').innerHTML = ICON.flame(14);
+document.getElementById('openFormBtn').innerHTML = ICON.plus(16) + 'Set a target for today';
+document.getElementById('closeFormBtn').innerHTML = ICON.x(16);
+document.getElementById('exportBtn').innerHTML = ICON.download(14) + 'Export backup';
+document.getElementById('importBtn').innerHTML = ICON.upload(14) + 'Import backup';
+
+/* ============================================================
+   CONFIG
+============================================================ */
+const STORAGE_KEY = 'study-target:days';
+const TIERS = {
+  easy:   { label: 'Easy',   points: 20 },
+  medium: { label: 'Medium', points: 40 },
+  hard:   { label: 'Hard',   points: 70 },
+};
+const RANKS = ['Novice Archer','Steady Hand','Sharp Eye','Marksman','Sharpshooter','Master Archer','Grandmaster'];
+
+function xpForLevel(level) { return 100 + (level - 1) * 55; }
+function levelFromXp(totalXp) {
+  let level = 1, remaining = totalXp;
+  while (remaining >= xpForLevel(level)) { remaining -= xpForLevel(level); level++; }
+  return { level, into: remaining, need: xpForLevel(level) };
+}
+function rankForLevel(level) { return RANKS[Math.min(RANKS.length - 1, Math.floor((level - 1) / 3))]; }
+function dateKey(d = new Date()) { return new Date(d).toISOString().slice(0, 10); }
+function lastNDays(n) {
+  const out = []; const c = new Date();
+  for (let i = 0; i < n; i++) { out.unshift(dateKey(c)); c.setDate(c.getDate() - 1); }
+  return out;
+}
+
+/* ============================================================
+   STATE — localStorage-based (standalone page, no backend)
+============================================================ */
+let byDay = {};
+let loaded = false;
+let selectedTier = 'easy';
+const today = dateKey();
+
+async function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) byDay = JSON.parse(raw);
+  } catch (e) {}
+  loaded = true;
+  render();
+}
+
+async function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(byDay));
+    showError('');
+  } catch (e) {
+    showError("Couldn't save — storage may be full.");
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.style.display = msg ? 'block' : 'none';
+  el.textContent = msg;
+}
+
+function todayEntry() {
+  if (!byDay[today]) byDay[today] = { targets: [], bonusAwarded: false };
+  return byDay[today];
+}
+
+/* ============================================================
+   TARGET ACTIONS
+============================================================ */
+function addTarget() {
+  const input = document.getElementById('targetText');
+  const text = input.value.trim();
+  if (!text) return;
+  todayEntry().targets.push({
+    id: Date.now(),
+    text,
+    tier: selectedTier,
+    points: TIERS[selectedTier].points,
+    completed: false,
+  });
+  saveState();
+  input.value = '';
+  selectedTier = 'easy';
+  document.querySelectorAll('.tier-btn').forEach(b => b.classList.toggle('active', b.dataset.tier === 'easy'));
+  closeForm();
+  render();
+}
+
+function toggleTarget(id) {
+  const entry = todayEntry();
+  const t = entry.targets.find(t => t.id === id);
+  if (!t || t.completed) return;
+  t.completed = true;
+  saveState();
+  showToast(`+${t.points} XP`, 'Target completed');
+  checkDayBonus();
+  render();
+}
+
+function deleteTarget(id) {
+  const entry = todayEntry();
+  const t = entry.targets.find(t => t.id === id);
+  if (!t || t.completed) return;
+  entry.targets = entry.targets.filter(t => t.id !== id);
+  saveState();
+  render();
+}
+
+function checkDayBonus() {
+  const entry = todayEntry();
+  if (entry.targets.length > 0 && entry.targets.every(t => t.completed) && !entry.bonusAwarded) {
+    entry.bonusAwarded = true;
+    saveState();
+    setTimeout(() => showToast('+50 BONUS XP', 'Every target finished today'), 900);
+    render();
+  }
+}
+
+/* ============================================================
+   DERIVED VALUES
+============================================================ */
+function computeTotalXp() {
+  let sum = 0;
+  Object.values(byDay).forEach(entry => {
+    entry.targets.forEach(t => { if (t.completed) sum += t.points; });
+    if (entry.bonusAwarded) sum += 50;
+  });
+  return sum;
+}
+function isCompletedDay(key) {
+  const entry = byDay[key];
+  return !!entry && entry.targets.length > 0 && entry.targets.every(t => t.completed);
+}
+function computeStreak() {
+  let streak = 0;
+  const cursor = new Date();
+  let key = dateKey(cursor);
+  if (!isCompletedDay(key)) { cursor.setDate(cursor.getDate() - 1); key = dateKey(cursor); }
+  while (isCompletedDay(key)) { streak++; cursor.setDate(cursor.getDate() - 1); key = dateKey(cursor); }
+  return streak;
+}
+
+/* ============================================================
+   RENDER
+============================================================ */
+function render() {
+  const totalXp = computeTotalXp();
+  const { level, into, need } = levelFromXp(totalXp);
+  document.getElementById('levelNum').textContent = level;
+  document.getElementById('rankName').textContent = rankForLevel(level);
+  document.getElementById('xpText').textContent = `${into} / ${need} XP to level ${level + 1}`;
+  document.getElementById('statTotalXp').textContent = totalXp;
+  document.getElementById('statStreak').textContent = `${computeStreak()}d`;
+
+  const C = 2 * Math.PI * 74;
+  const pct = Math.min(100, Math.round((into / need) * 100));
+  const dash = (pct / 100) * C;
+  document.getElementById('progressArc').setAttribute('stroke-dasharray', `${dash} ${C - dash}`);
+
+  const entry = todayEntry();
+  document.getElementById('statToday').textContent = `${entry.targets.filter(t=>t.completed).length}/${entry.targets.length}`;
+  renderWeek();
+  renderTargets(entry.targets);
+}
+
+function renderWeek() {
+  const container = document.getElementById('week');
+  container.innerHTML = '';
+  lastNDays(7).forEach(key => {
+    const entry = byDay[key];
+    const list = entry ? entry.targets : [];
+    const frac = list.length ? list.filter(t => t.completed).length / list.length : 0;
+    const day = document.createElement('div'); day.className = 'day';
+    const box = document.createElement('div');
+    box.className = 'day-box' + (key === today ? ' today' : '');
+    box.title = key;
+    box.style.background = frac === 0 ? '' : `rgba(26,115,232,${0.2 + frac * 0.8})`;
+    const label = document.createElement('div');
+    label.className = 'day-name';
+    label.textContent = new Date(key + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'narrow' });
+    day.appendChild(box); day.appendChild(label);
+    container.appendChild(day);
+  });
+}
+
+function renderTargets(targets) {
+  const container = document.getElementById('targetList');
+  container.innerHTML = '';
+  if (!loaded) { container.innerHTML = '<div class="empty">Loading…</div>'; return; }
+  if (!targets.length) { container.innerHTML = '<div class="empty">No targets set yet today. Add one below to get started.</div>'; return; }
+
+  targets.forEach(t => {
+    const el = document.createElement('div'); el.className = 'target' + (t.completed ? ' done' : '');
+    const check = document.createElement('button'); check.className = 'check';
+    check.innerHTML = t.completed ? ICON.check(13) : '';
+    check.disabled = t.completed;
+    check.addEventListener('click', () => toggleTarget(t.id));
+    const main = document.createElement('div'); main.className = 'target-main';
+    main.innerHTML = `<div class="target-name">${escapeHtml(t.text)}</div><div class="target-meta">${TIERS[t.tier].label}</div>`;
+    const points = document.createElement('div'); points.className = 'points'; points.textContent = `+${t.points}`;
+    const del = document.createElement('button'); del.className = 'delete';
+    del.innerHTML = ICON.trash(14);
+    del.addEventListener('click', () => deleteTarget(t.id));
+    el.appendChild(check); el.appendChild(main); el.appendChild(points); el.appendChild(del);
+    container.appendChild(el);
+  });
+}
+
+function escapeHtml(v) { return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
+
+/* ============================================================
+   TOAST
+============================================================ */
+let toastTimer;
+function showToast(title, text) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastText').textContent = text;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+/* ============================================================
+   FORM
+============================================================ */
+function openForm() { document.getElementById('form').classList.add('show'); document.getElementById('targetText').focus(); }
+function closeForm() { document.getElementById('form').classList.remove('show'); }
+document.getElementById('openFormBtn').addEventListener('click', openForm);
+document.getElementById('closeFormBtn').addEventListener('click', closeForm);
+document.getElementById('saveTargetBtn').addEventListener('click', addTarget);
+document.getElementById('targetText').addEventListener('input', e => { document.getElementById('saveTargetBtn').disabled = !e.target.value.trim(); });
+document.getElementById('targetText').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.value.trim()) addTarget(); if (e.key === 'Escape') closeForm(); });
+document.querySelectorAll('.tier-btn').forEach(btn => { btn.addEventListener('click', () => { selectedTier = btn.dataset.tier; document.querySelectorAll('.tier-btn').forEach(b => b.classList.toggle('active', b === btn)); }); });
+
+/* ============================================================
+   BACKUP
+============================================================ */
+function downloadBackup() {
+  try {
+    const backup = { app: 'Study Target', exportedAt: new Date().toISOString(), byDay };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `study-target-backup-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return true;
+  } catch (e) { return false; }
+}
+document.getElementById('exportBtn').addEventListener('click', () => { if (downloadBackup()) showToast('Backup Exported', 'Your study data was downloaded'); });
+document.getElementById('exportTopBtn').addEventListener('click', () => { if (downloadBackup()) showToast('Backup Exported', 'Your study data was downloaded'); });
+document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+document.getElementById('importFile').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!parsed.byDay) throw new Error('Invalid');
+      if (!confirm('Import this backup? Current data will be replaced.')) return;
+      byDay = parsed.byDay; saveState(); render();
+      showToast('Backup Restored', 'Your study data has been restored');
+    } catch (err) { alert('This file is not a valid Study Target backup.'); }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+
+/* ============================================================
+   START
+============================================================ */
+loadState();
+</script>
+
+</body>
+</html>
