@@ -18,14 +18,12 @@ html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
   --gs:'Google Sans','Roboto',system-ui,sans-serif;
   --rb:'Roboto',system-ui,sans-serif;
   --hh:64px;--r:4px;--rl:12px;--tr:.2s cubic-bezier(.4,0,.2,1);
-  --safe-bottom:env(safe-area-inset-bottom,20px);
 }
 body{
   font-family:var(--rb);background:var(--bg);color:var(--t2);
   -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
   display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;
 }
-
 .header{
   position:fixed;top:0;left:0;right:0;height:var(--hh);
   background:var(--surf);border-bottom:1px solid var(--border);
@@ -37,11 +35,8 @@ body{
 .logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
 .logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
 .header-right{display:flex;align-items:center;gap:8px}
-
 .main{flex:1;padding-top:var(--hh)}
-
 .app{width:min(100%,480px);margin:0 auto;padding:28px 20px 40px}
-
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
   padding:10px 20px;font-family:var(--gs);font-size:.85rem;font-weight:500;
@@ -50,7 +45,8 @@ body{
 }
 .btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
 .btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
-
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--border)}
+.btn-danger:hover{background:var(--red-bg);border-color:var(--red)}
 .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}
 .eyebrow{
   display:inline-flex;align-items:center;gap:8px;
@@ -69,16 +65,39 @@ body{
 .icon-btn:hover{color:var(--blue);border-color:var(--blue);background:#e8f0fe}
 .icon-btn svg{width:18px;height:18px}
 
-.ring-wrap{display:flex;justify-content:center;margin-bottom:20px;position:relative;width:190px;height:190px;margin-left:auto;margin-right:auto}
+/* RING — level number always fits inside */
+.ring-wrap{
+  display:flex;justify-content:center;margin-bottom:20px;
+  position:relative;width:190px;height:190px;margin-left:auto;margin-right:auto;
+}
 .ring-wrap svg{display:block;width:190px;height:190px}
-.ring-labels{position:absolute;top:69px;left:69px;right:69px;bottom:69px;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;overflow:hidden}
-.ring-level{font-family:var(--gs);font-weight:500;color:var(--t1);line-height:1;text-align:center;font-size:clamp(14px,5vw,32px);max-width:100%;word-break:break-all}
-.ring-sub{font-size:.65rem;color:var(--t3);font-weight:500;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.ring-labels{
+  position:absolute;
+  /* inner circle: center at 95,95 with r=26 → spans x:69-121, y:69-121 */
+  top:67px;left:67px;right:67px;bottom:67px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  pointer-events:none;overflow:hidden;
+}
+.ring-level{
+  font-family:var(--gs);font-weight:500;color:var(--t1);
+  line-height:1.1;text-align:center;
+  font-size:32px;
+  transition:font-size .3s ease;
+  white-space:nowrap;
+}
+/* Auto-applied classes for large numbers */
+.ring-level.lvl-sm{font-size:26px}
+.ring-level.lvl-md{font-size:20px}
+.ring-level.lvl-lg{font-size:16px}
+.ring-level.lvl-xl{font-size:13px}
+.ring-sub{
+  font-size:.65rem;color:var(--t3);font-weight:500;
+  letter-spacing:1px;text-transform:uppercase;margin-top:2px;
+}
 
 .rank-block{text-align:center;margin-bottom:24px}
 .rank-name{font-family:var(--gs);color:var(--blue);font-weight:500;font-size:1.1rem}
 .rank-xp{color:var(--t3);font-size:.78rem;margin-top:4px}
-
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px}
 .stat{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:16px 10px;text-align:center;transition:box-shadow var(--tr)}
 .stat:hover{box-shadow:0 1px 3px rgba(60,64,67,.15)}
@@ -86,10 +105,7 @@ body{
 .stat-icon svg{width:16px;height:16px}
 .stat-value{font-family:var(--gs);font-size:1.2rem;font-weight:500;color:var(--t1)}
 .stat-label{color:var(--t4);font-size:.65rem;font-weight:500;margin-top:4px;letter-spacing:.5px;text-transform:uppercase}
-
 .section-title{font-family:var(--gs);font-size:.75rem;font-weight:500;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin:24px 0 12px}
-
-/* Week Grid */
 .week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:8px}
 .day{text-align:center}
 .day-box{height:36px;border-radius:var(--r);background:var(--surf);border:1px solid var(--border);cursor:pointer;transition:all var(--tr)}
@@ -97,11 +113,8 @@ body{
 .day-box.today{border-color:var(--blue);border-width:2px}
 .day-box.selected{box-shadow:0 0 0 3px rgba(26,115,232,.35);border-color:var(--blue)}
 .day-name{color:var(--t4);font-size:.6rem;font-weight:500;margin-top:5px;text-transform:uppercase}
-
-/* Date Navigator */
 .date-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .date-nav-label{font-family:var(--gs);font-size:.9rem;font-weight:500;color:var(--t1)}
-.date-nav-arrows{display:flex;gap:4px}
 .nav-arrow{width:32px;height:32px;border:1px solid var(--border);background:var(--surf);border-radius:var(--r);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);transition:all var(--tr)}
 .nav-arrow:hover{color:var(--blue);border-color:var(--blue);background:#e8f0fe}
 .nav-arrow svg{width:14px;height:14px}
@@ -109,8 +122,6 @@ body{
 .nav-arrow:disabled:hover{color:var(--t3);border-color:var(--border);background:var(--surf)}
 .nav-today-btn{font-size:.7rem;font-family:var(--gs);font-weight:500;color:var(--blue);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:var(--r)}
 .nav-today-btn:hover{background:#e8f0fe}
-
-/* Targets */
 .target{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;transition:box-shadow var(--tr)}
 .target:hover{box-shadow:0 1px 3px rgba(60,64,67,.15)}
 .target.done{opacity:.55}
@@ -131,11 +142,9 @@ body{
 .action-btn.delete-btn{color:var(--t4)}
 .action-btn.delete-btn:hover{color:var(--red);background:var(--red-bg)}
 .action-btn svg{width:16px;height:16px}
-
 .add-btn{width:100%;border:2px dashed var(--border);border-radius:var(--rl);background:transparent;color:var(--blue);padding:16px;font-family:var(--gs);font-size:.9rem;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:all var(--tr);margin-bottom:24px}
 .add-btn:hover{border-color:var(--blue);background:#e8f0fe}
 .add-btn svg{width:18px;height:18px}
-
 .form-wrap{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:20px;margin-bottom:24px;display:none}
 .form-wrap.show{display:block}
 .form-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
@@ -144,26 +153,21 @@ body{
 .form-input{width:100%;border:1px solid var(--border);background:var(--surf);color:var(--t1);border-radius:var(--r);padding:10px 14px;font-family:var(--rb);font-size:.9rem;outline:none;transition:border var(--tr)}
 .form-input:hover{border-color:var(--t3)}
 .form-input:focus{border:2px solid var(--blue);padding:9px 13px}
-
 .tiers{display:flex;gap:8px;margin-top:4px}
 .tier-btn{flex:1;padding:10px 0;border-radius:var(--r);border:2px solid var(--border);background:transparent;color:var(--t2);font-family:var(--gs);font-size:.82rem;font-weight:500;text-align:center;cursor:pointer;transition:all var(--tr)}
 .tier-btn .tier-amt{display:block;font-size:.68rem;color:var(--t4);margin-top:3px;font-weight:400}
 .tier-btn.active.easy-tier{border-color:var(--green);background:var(--grn-bg);color:var(--green)}
 .tier-btn.active.medium-tier{border-color:#e37400;background:var(--yel-bg);color:#e37400}
 .tier-btn.active.hard-tier{border-color:var(--red);background:var(--red-bg);color:var(--red)}
-
 .save-btn{width:100%;border:0;border-radius:var(--r);padding:12px;font-weight:500;font-family:var(--gs);font-size:.9rem;background:var(--blue);color:#fff;cursor:pointer;margin-top:18px;transition:all var(--tr)}
 .save-btn:hover{background:var(--blue-h)}
 .save-btn:disabled{background:var(--hov);color:var(--t4);cursor:not-allowed}
 .cancel-btn{width:100%;border:1px solid var(--border);border-radius:var(--r);padding:11px;font-weight:500;font-family:var(--gs);font-size:.85rem;background:transparent;color:var(--t3);cursor:pointer;margin-top:8px;transition:all var(--tr)}
 .cancel-btn:hover{background:var(--hov);color:var(--t1)}
-
 .empty-state{background:var(--surf);border:2px dashed var(--border);border-radius:var(--rl);padding:28px 20px;color:var(--t3);font-size:.85rem;text-align:center}
 .past-day-badge{display:inline-flex;align-items:center;gap:4px;background:var(--yel-bg);color:#e37400;font-size:.65rem;font-weight:500;padding:3px 8px;border-radius:100px;margin-bottom:8px}
 .past-day-badge svg{width:12px;height:12px}
-
 .error-msg{color:var(--red);font-size:.8rem;margin-bottom:12px;display:none}
-
 .backup-panel{margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}
 .backup-row{display:flex;gap:8px}
 .backup-btn{flex:1;background:var(--surf);color:var(--t2);border:1px solid var(--border);border-radius:var(--r);padding:11px 12px;font-size:.82rem;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-family:var(--gs);transition:all var(--tr)}
@@ -171,11 +175,22 @@ body{
 .backup-btn svg{width:15px;height:15px;flex-shrink:0}
 .storage-info{color:var(--t4);font-size:.72rem;margin-top:12px;line-height:1.6;text-align:center}
 
+/* Confirm Dialog */
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
+.confirm-overlay.show{display:flex}
+.confirm-box{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:28px 24px;width:100%;max-width:380px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.2)}
+.confirm-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.confirm-icon.warn{background:var(--red-bg);color:var(--red)}
+.confirm-icon svg{width:22px;height:22px}
+.confirm-title{font-family:var(--gs);font-size:1.05rem;font-weight:500;color:var(--t1);margin-bottom:6px}
+.confirm-text{font-size:.85rem;color:var(--t3);margin-bottom:22px;line-height:1.5}
+.confirm-actions{display:flex;gap:10px;justify-content:center}
+.confirm-actions .btn{min-width:90px}
+
 .toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,120px);background:var(--surf);border:1px solid var(--blue);border-radius:var(--rl);padding:14px 24px;min-width:220px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.12);transition:transform .3s ease;z-index:1000}
 .toast.show{transform:translate(-50%,0)}
 .toast-title{display:block;color:var(--blue);font-family:var(--gs);font-size:1rem;font-weight:500}
 .toast-text{color:var(--t3);font-size:.75rem;margin-top:2px}
-
 .footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
 .footer-inner{max-width:1080px;margin:0 auto;padding:24px;text-align:center}
 .footer-brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px}
@@ -188,7 +203,19 @@ body{
 @media(max-width:600px){
   .app{padding:20px 16px 40px}
   .header{padding:0 16px}
-  .ring-level{font-size:clamp(14px,6vw,28px)}
+  .backup-row{flex-direction:column}
+  /* Mobile ring stays same size (190px) so text fits identically */
+}
+@media(max-width:380px){
+  .ring-wrap{width:160px;height:160px}
+  .ring-wrap svg{width:160px;height:160px}
+  .ring-labels{top:56px;left:56px;right:56px;bottom:56px}
+  .ring-level{font-size:26px}
+  .ring-level.lvl-sm{font-size:21px}
+  .ring-level.lvl-md{font-size:17px}
+  .ring-level.lvl-lg{font-size:14px}
+  .ring-level.lvl-xl{font-size:11px}
+  .ring-sub{font-size:.58rem}
 }
 </style>
 </head>
@@ -207,7 +234,6 @@ body{
 </header>
 
 <main class="main">
-
 <div class="app">
 
   <div class="topbar">
@@ -239,33 +265,22 @@ body{
   </div>
 
   <div class="stats">
-    <div class="stat">
-      <div class="stat-value" id="statTotalXp">0</div>
-      <div class="stat-label">Total XP</div>
-    </div>
-    <div class="stat">
-      <div class="stat-icon" id="iconFlame"></div>
-      <div class="stat-value" id="statStreak">0d</div>
-      <div class="stat-label">Streak</div>
-    </div>
-    <div class="stat">
-      <div class="stat-value" id="statToday">0/0</div>
-      <div class="stat-label">Today</div>
-    </div>
+    <div class="stat"><div class="stat-value" id="statTotalXp">0</div><div class="stat-label">Total XP</div></div>
+    <div class="stat"><div class="stat-icon" id="iconFlame"></div><div class="stat-value" id="statStreak">0d</div><div class="stat-label">Streak</div></div>
+    <div class="stat"><div class="stat-value" id="statToday">0/0</div><div class="stat-label">Today</div></div>
   </div>
 
   <div class="section-title">This Week</div>
   <div class="week" id="weekGrid"></div>
 
-  <!-- Date Navigator -->
   <div class="section-title" style="margin-top:20px">Targets For</div>
   <div class="date-nav">
-    <button class="nav-arrow" id="navPrev" title="Previous day"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <button class="nav-arrow" id="navPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
     <div>
       <div class="date-nav-label" id="dateNavLabel">Today</div>
       <button class="nav-today-btn" id="navTodayBtn" style="display:none">Jump to today</button>
     </div>
-    <button class="nav-arrow" id="navNext" title="Next day"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+    <button class="nav-arrow" id="navNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
   </div>
   <div id="viewDateBadge"></div>
   <div id="targetList"></div>
@@ -286,7 +301,7 @@ body{
       <button class="tier-btn hard-tier" data-tier="hard">Hard<span class="tier-amt">+70</span></button>
     </div>
     <input type="hidden" id="editingTargetId" value="">
-    <button class="save-btn" id="saveTargetBtn" disabled>Add to today's targets</button>
+    <button class="save-btn" id="saveTargetBtn" disabled>Add to targets</button>
     <button class="cancel-btn" id="cancelEditBtn" style="display:none" onclick="cancelEdit()">Cancel edit</button>
   </div>
 
@@ -299,12 +314,24 @@ body{
       <button class="backup-btn" id="importBtn"></button>
     </div>
     <input type="file" id="importFile" accept=".json" style="display:none">
-    <div class="storage-info">Progress saves automatically to your browser. Export a backup file any time you want an extra copy.</div>
+    <button class="backup-btn" id="resetBtn" style="margin-top:8px;width:100%;color:var(--red)">Reset all data</button>
+    <div class="storage-info" style="margin-top:10px">Progress saves automatically. Export a backup before resetting.</div>
   </div>
 
 </div>
-
 </main>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+    <div class="confirm-title" id="confirmTitle">Are you sure?</div>
+    <div class="confirm-text" id="confirmText">This action cannot be undone.</div>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" id="confirmCancel">Cancel</button>
+      <button class="btn btn-danger" id="confirmOk" style="background:var(--red);color:#fff;border:none">Confirm</button>
+    </div>
+  </div>
+</div>
 
 <footer class="footer">
   <div class="footer-inner">
@@ -314,10 +341,7 @@ body{
     </div>
     <p class="footer-copy">&copy; 2025 Exalyte. All rights reserved.</p>
     <div class="footer-links">
-      <a href="/">Home</a>
-      <a href="privacy.html">Privacy</a>
-      <a href="tos.html">Terms</a>
-      <a href="contact.html">Contact</a>
+      <a href="/">Home</a><a href="privacy.html">Privacy</a><a href="tos.html">Terms</a><a href="contact.html">Contact</a>
     </div>
   </div>
 </footer>
@@ -349,7 +373,7 @@ function $(id){ return document.getElementById(id); }
 $('eyebrowEl').innerHTML = I.target + 'Admission Test — Retake Prep';
 $('exportTopBtn').innerHTML = I.download;
 $('iconFlame').innerHTML = I.flame;
-$('openFormBtn').innerHTML = I.plus + 'Set a target for today';
+$('openFormBtn').innerHTML = I.plus + 'Set a target for this day';
 $('closeFormBtn').innerHTML = I.x;
 $('exportBtn').innerHTML = I.download + 'Export backup';
 $('importBtn').innerHTML = I.upload + 'Import backup';
@@ -369,23 +393,18 @@ var loaded = false;
 var selectedTier = 'easy';
 var editingId = null;
 var today = dateKey();
-var viewingDate = today; // Which date is currently being viewed
+var viewingDate = today;
 
-function entryForDate(key){
-  if(!byDay[key]) byDay[key] = { targets:[], bonusAwarded:false };
-  return byDay[key];
-}
+function entryForDate(key){ if(!byDay[key]) byDay[key]={targets:[],bonusAwarded:false}; return byDay[key]; }
 
 function loadState(){
   try { var raw=localStorage.getItem(STORAGE_KEY); if(raw) byDay=JSON.parse(raw); } catch(e){ byDay={}; }
-  loaded = true;
-  viewingDate = today;
-  render();
+  loaded=true; viewingDate=today; render();
 }
 
 function saveState(){
   try { localStorage.setItem(STORAGE_KEY,JSON.stringify(byDay)); $('errorMsg').style.display='none'; }
-  catch(e){ $('errorMsg').style.display='block'; $('errorMsg').textContent="Couldn't save — storage may be full. Try exporting a backup."; }
+  catch(e){ $('errorMsg').style.display='block'; $('errorMsg').textContent="Couldn't save — storage may be full."; }
 }
 
 function totalXp(){
@@ -393,198 +412,131 @@ function totalXp(){
   for(var key in byDay){ var entry=byDay[key]; for(var i=0;i<entry.targets.length;i++){ if(entry.targets[i].completed) sum+=entry.targets[i].points; } if(entry.bonusAwarded) sum+=50; }
   return sum;
 }
-
 function isCompletedDay(key){ var e=byDay[key]; if(!e||e.targets.length===0) return false; for(var i=0;i<e.targets.length;i++){ if(!e.targets[i].completed) return false; } return true; }
-
 function streakDays(){ var s=0,c=new Date(),k=dateKey(c); if(!isCompletedDay(k)){c.setDate(c.getDate()-1);k=dateKey(c);} while(isCompletedDay(k)){s++;c.setDate(c.getDate()-1);k=dateKey(c);} return s; }
 
+function goToDate(key){ viewingDate=key; render(); }
+function goPrevDay(){ var d=new Date(viewingDate+'T12:00:00'); d.setDate(d.getDate()-1); viewingDate=dateKey(d); render(); }
+function goNextDay(){ var d=new Date(viewingDate+'T12:00:00'); d.setDate(d.getDate()+1); if(dateKey(d)>today) return; viewingDate=dateKey(d); render(); }
+function goToday(){ viewingDate=today; render(); }
+
 /* ============================================================
-   DATE NAVIGATION
+   ABBREVIATE NUMBER — fits any level in the circle
 ============================================================ */
-function goToDate(key){
-  viewingDate = key;
-  render();
+function fmtLevel(num){
+  if (num < 1000) return String(num);           // 1-999 → "1", "50", "999"
+  if (num < 10000) return (num/1000).toFixed(1).replace(/\.0$/,'') + 'K';  // 1000-9999 → "1K", "1.5K", "9.9K"
+  if (num < 1000000) return Math.round(num/1000) + 'K';  // 10000-999999 → "10K", "500K"
+  return (num/1000000).toFixed(1).replace(/\.0$/,'') + 'M';  // 1000000+ → "1M", "2.5M"
 }
 
-function goPrevDay(){
-  var d = new Date(viewingDate + 'T12:00:00');
-  d.setDate(d.getDate() - 1);
-  viewingDate = dateKey(d);
-  render();
+function fitLevelClass(num){
+  var digits = String(num).length;
+  // Remove all classes first
+  var el = $('levelNum');
+  el.classList.remove('lvl-sm','lvl-md','lvl-lg','lvl-xl');
+  if (digits >= 7) el.classList.add('lvl-xl');       // 1,000,000+ → 13px
+  else if (digits >= 5) el.classList.add('lvl-lg');  // 10,000+ → 16px
+  else if (digits >= 4) el.classList.add('lvl-md');  // 1,000+ → 20px
+  else if (digits >= 3) el.classList.add('lvl-sm');  // 100+ → 26px
+  // 1-99 stays at default 32px
 }
 
-function goNextDay(){
-  var d = new Date(viewingDate + 'T12:00:00');
-  d.setDate(d.getDate() + 1);
-  // Don't allow future dates
-  if (viewingDate >= today) return;
-  viewingDate = dateKey(d);
-  render();
+/* ============================================================
+   CONFIRM DIALOG
+============================================================ */
+var confirmCallback = null;
+function showConfirm(title, text, callback){
+  $('confirmTitle').textContent = title;
+  $('confirmText').textContent = text;
+  confirmCallback = callback;
+  $('confirmOverlay').classList.add('show');
 }
-
-function goToday(){
-  viewingDate = today;
-  render();
-}
+function hideConfirm(){ $('confirmOverlay').classList.remove('show'); confirmCallback=null; }
+$('confirmCancel').addEventListener('click', hideConfirm);
+$('confirmOk').addEventListener('click', function(){ if(confirmCallback){ confirmCallback(); } hideConfirm(); });
+$('confirmOverlay').addEventListener('click', function(e){ if(e.target===this) hideConfirm(); });
 
 /* ============================================================
    RENDER
 ============================================================ */
 function render(){
-  var xp = totalXp();
-  var info = levelFromXp(xp);
-  var pct = Math.min(100,Math.round((info.into/info.need)*100));
-  var C = 2*Math.PI*74;
-  var dash = (pct/100)*C;
+  var xp=totalXp(), info=levelFromXp(xp), pct=Math.min(100,Math.round((info.into/info.need)*100));
+  var C=2*Math.PI*74, dash=(pct/100)*C;
 
-  $('levelNum').textContent = info.level;
-  $('rankName').textContent = rankForLevel(info.level);
-  $('xpText').textContent = info.into + ' / ' + info.need + ' XP to level ' + (info.level+1);
-  $('statTotalXp').textContent = xp;
-  $('statStreak').textContent = streakDays() + 'd';
-  $('progressArc').setAttribute('stroke-dasharray', dash + ' ' + (C-dash));
+  // Set level with abbreviation + auto-size class
+  $('levelNum').textContent = fmtLevel(info.level);
+  fitLevelClass(info.level);
 
-  // Today stat always shows today's data
-  var todayEntry = entryForDate(today);
-  var doneToday = 0;
-  for (var i=0; i<todayEntry.targets.length; i++){ if(todayEntry.targets[i].completed) doneToday++; }
-  $('statToday').textContent = doneToday + '/' + todayEntry.targets.length;
-
+  $('rankName').textContent=rankForLevel(info.level);
+  $('xpText').textContent=info.into+' / '+info.need+' XP to level '+(info.level+1);
+  $('statTotalXp').textContent=xp;
+  $('statStreak').textContent=streakDays()+'d';
+  $('progressArc').setAttribute('stroke-dasharray',dash+' '+(C-dash));
+  var te=entryForDate(today), doneToday=0;
+  for(var i=0;i<te.targets.length;i++){ if(te.targets[i].completed) doneToday++; }
+  $('statToday').textContent=doneToday+'/'+te.targets.length;
   renderWeek();
   renderDateNav();
   renderTargets(entryForDate(viewingDate).targets);
 }
 
 function renderWeek(){
-  var grid = $('weekGrid');
-  grid.innerHTML = '';
-  var days = lastNDays(7);
-  for (var i=0; i<days.length; i++){
-    var key = days[i];
-    var entry = byDay[key];
-    var list = entry ? entry.targets : [];
-    var frac = list.length ? (function(){ var c=0; for(var j=0;j<list.length;j++){ if(list[j].completed) c++; } return c/list.length; })() : 0;
-
-    var day = document.createElement('div');
-    day.className = 'day';
-
-    var box = document.createElement('div');
-    box.className = 'day-box';
-    if (key === today) box.classList.add('today');
-    if (key === viewingDate) box.classList.add('selected');
-    box.title = key;
-    if (frac > 0){ box.style.background = 'rgba(26,115,232,' + (0.2+frac*0.8) + ')'; box.style.borderColor = 'rgba(26,115,232,0.5)'; }
-    box.addEventListener('click', (function(k){ return function(){ goToDate(k); }; })(key));
-
-    var label = document.createElement('div');
-    label.className = 'day-name';
-    label.textContent = new Date(key+'T12:00:00').toLocaleDateString(undefined,{weekday:'narrow'});
-
-    day.appendChild(box);
-    day.appendChild(label);
-    grid.appendChild(day);
+  var grid=$('weekGrid'); grid.innerHTML='';
+  var days=lastNDays(7);
+  for(var i=0;i<days.length;i++){
+    var key=days[i], entry=byDay[key], list=entry?entry.targets:[];
+    var frac=list.length?(function(){var c=0;for(var j=0;j<list.length;j++){if(list[j].completed)c++;} return c/list.length;})():0;
+    var day=document.createElement('div'); day.className='day';
+    var box=document.createElement('div'); box.className='day-box';
+    if(key===today) box.classList.add('today');
+    if(key===viewingDate) box.classList.add('selected');
+    box.title=key;
+    if(frac>0){ box.style.background='rgba(26,115,232,'+(0.2+frac*0.8)+')'; box.style.borderColor='rgba(26,115,232,0.5)'; }
+    box.addEventListener('click',(function(k){return function(){goToDate(k);};})(key));
+    var label=document.createElement('div'); label.className='day-name';
+    label.textContent=new Date(key+'T12:00:00').toLocaleDateString(undefined,{weekday:'narrow'});
+    day.appendChild(box); day.appendChild(label); grid.appendChild(day);
   }
 }
 
 function renderDateNav(){
-  var isToday = viewingDate === today;
-  var d = new Date(viewingDate + 'T12:00:00');
-  var labelText;
-
-  if (isToday){
-    labelText = 'Today';
-  } else {
-    var diff = Math.floor((new Date(today+'T12:00:00') - d) / 86400000);
-    if (diff === 1) labelText = 'Yesterday';
-    else if (diff < 7) labelText = diff + ' days ago';
-    else labelText = d.toLocaleDateString(undefined, {weekday:'long', month:'short', day:'numeric'});
-  }
-
-  $('dateNavLabel').textContent = labelText;
-  $('navTodayBtn').style.display = isToday ? 'none' : 'block';
-  $('navNext').disabled = isToday;
-
-  // Show past day badge
-  var badge = $('viewDateBadge');
-  if (!isToday){
-    badge.innerHTML = '<span class="past-day-badge">' + I.clock + ' Viewing past day — ' + labelText + '</span>';
-  } else {
-    badge.innerHTML = '';
-  }
-
-  // Show/hide add button and form based on viewing date
-  $('openFormBtn').style.display = isToday ? 'flex' : 'none';
-  if (!isToday && $('formWrap').classList.contains('show')){
-    resetForm();
-  }
+  var isToday=viewingDate===today, d=new Date(viewingDate+'T12:00:00'), labelText;
+  if(isToday){ labelText='Today'; }
+  else { var diff=Math.floor((new Date(today+'T12:00:00')-d)/86400000); if(diff===1) labelText='Yesterday'; else if(diff<7) labelText=diff+' days ago'; else labelText=d.toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'}); }
+  $('dateNavLabel').textContent=labelText;
+  $('navTodayBtn').style.display=isToday?'none':'block';
+  $('navNext').disabled=isToday;
+  var badge=$('viewDateBadge');
+  if(!isToday){ badge.innerHTML='<span class="past-day-badge">'+I.clock+' Viewing past day — '+labelText+'</span>'; }
+  else { badge.innerHTML=''; }
+  $('openFormBtn').style.display='flex';
+  $('openFormBtn').innerHTML=I.plus+(isToday?'Set a target for today':'Set a target for '+labelText);
 }
 
 function renderTargets(targets){
-  var container = $('targetList');
-  container.innerHTML = '';
-
-  if (!loaded){
-    container.innerHTML = '<div class="empty-state">Loading…</div>';
-    return;
-  }
-
-  var isToday = viewingDate === today;
-
-  if (!targets.length){
-    container.innerHTML = '<div class="empty-state">' + (isToday ? 'No targets set yet today. Add one below to get started.' : 'No targets were set for this day.') + '</div>';
-    return;
-  }
-
-  for (var i=0; i<targets.length; i++){
-    var t = targets[i];
-    var el = document.createElement('div');
-    el.className = 'target' + (t.completed ? ' done' : '');
-
-    var check = document.createElement('button');
-    check.className = 'check';
-    check.innerHTML = t.completed ? I.check : '';
-    check.title = t.completed ? 'Uncheck' : 'Mark complete';
-    // Only allow toggle on today's targets
-    if (isToday){
-      check.addEventListener('click', (function(id){ return function(){ toggleTarget(id); }; })(t.id));
-    } else {
-      check.style.cursor = 'default';
-    }
-
-    var main = document.createElement('div');
-    main.className = 'target-main';
-    main.innerHTML = '<div class="target-name">' + esc(t.text) + '</div><div class="target-meta">' + TIERS[t.tier].label + '</div>';
-
-    var pts = document.createElement('div');
-    pts.className = 'points';
-    pts.textContent = '+' + t.points;
-
-    el.appendChild(check);
-    el.appendChild(main);
-    el.appendChild(pts);
-
-    // Only show edit/delete on today's targets
-    if (isToday){
-      var actions = document.createElement('div');
-      actions.className = 'target-actions';
-
-      var editBtn = document.createElement('button');
-      editBtn.className = 'action-btn edit-btn';
-      editBtn.innerHTML = I.edit;
-      editBtn.title = 'Edit target';
-      editBtn.addEventListener('click', (function(id){ return function(){ editTarget(id); }; })(t.id));
-
-      var delBtn = document.createElement('button');
-      delBtn.className = 'action-btn delete-btn';
-      delBtn.innerHTML = I.trash;
-      delBtn.title = 'Delete target';
-      delBtn.addEventListener('click', (function(id){ return function(){ deleteTarget(id); }; })(t.id));
-
-      actions.appendChild(editBtn);
-      actions.appendChild(delBtn);
-      el.appendChild(actions);
-    }
-
+  var container=$('targetList'); container.innerHTML='';
+  if(!loaded){ container.innerHTML='<div class="empty-state">Loading…</div>'; return; }
+  if(!targets.length){ container.innerHTML='<div class="empty-state">No targets set for this day. Add one below.</div>'; return; }
+  for(var i=0;i<targets.length;i++){
+    var t=targets[i];
+    var el=document.createElement('div'); el.className='target'+(t.completed?' done':'');
+    var check=document.createElement('button'); check.className='check';
+    check.innerHTML=t.completed?I.check:'';
+    check.title=t.completed?'Uncheck':'Mark complete';
+    check.addEventListener('click',(function(id){return function(){toggleTarget(id);};})(t.id));
+    var main=document.createElement('div'); main.className='target-main';
+    main.innerHTML='<div class="target-name">'+esc(t.text)+'</div><div class="target-meta">'+TIERS[t.tier].label+'</div>';
+    var pts=document.createElement('div'); pts.className='points'; pts.textContent='+'+t.points;
+    el.appendChild(check); el.appendChild(main); el.appendChild(pts);
+    var actions=document.createElement('div'); actions.className='target-actions';
+    var editBtn=document.createElement('button'); editBtn.className='action-btn edit-btn';
+    editBtn.innerHTML=I.edit; editBtn.title='Edit target';
+    editBtn.addEventListener('click',(function(id){return function(){editTarget(id);};})(t.id));
+    var delBtn=document.createElement('button'); delBtn.className='action-btn delete-btn';
+    delBtn.innerHTML=I.trash; delBtn.title='Delete target';
+    delBtn.addEventListener('click',(function(id){return function(){confirmDeleteTarget(id);};})(t.id));
+    actions.appendChild(editBtn); actions.appendChild(delBtn); el.appendChild(actions);
     container.appendChild(el);
   }
 }
@@ -592,98 +544,91 @@ function renderTargets(targets){
 function esc(v){ return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
 
 /* ============================================================
-   TARGET ACTIONS (today only)
+   TARGET ACTIONS
 ============================================================ */
 function addOrUpdateTarget(){
-  var text = $('targetText').value.trim();
-  if (!text) return;
-  var entry = entryForDate(today);
-
-  if (editingId !== null){
-    for (var i=0; i<entry.targets.length; i++){
-      if (entry.targets[i].id === editingId){
-        entry.targets[i].text = text;
-        entry.targets[i].tier = selectedTier;
-        entry.targets[i].points = TIERS[selectedTier].points;
-        break;
-      }
-    }
-    editingId = null;
-  } else {
-    entry.targets.push({ id:Date.now(), text:text, tier:selectedTier, points:TIERS[selectedTier].points, completed:false });
-  }
-  saveState();
-  resetForm();
-  render();
+  var text=$('targetText').value.trim(); if(!text) return;
+  var entry=entryForDate(viewingDate);
+  if(editingId!==null){
+    for(var i=0;i<entry.targets.length;i++){ if(entry.targets[i].id===editingId){ entry.targets[i].text=text; entry.targets[i].tier=selectedTier; entry.targets[i].points=TIERS[selectedTier].points; break; } }
+    editingId=null;
+  } else { entry.targets.push({id:Date.now(),text:text,tier:selectedTier,points:TIERS[selectedTier].points,completed:false}); }
+  saveState(); resetForm(); render();
 }
 
 function toggleTarget(id){
-  var entry = entryForDate(today);
-  var t = null;
-  for (var i=0; i<entry.targets.length; i++){ if (entry.targets[i].id===id){ t=entry.targets[i]; break; } }
-  if (!t) return;
-  if (t.completed){ t.completed=false; if(entry.bonusAwarded) entry.bonusAwarded=false; saveState(); showToast('-'+t.points+' XP','Target unchecked'); render(); }
-  else { t.completed=true; saveState(); showToast('+'+t.points+' XP','Target completed'); checkDayBonus(); render(); }
+  var entry=entryForDate(viewingDate), t=null;
+  for(var i=0;i<entry.targets.length;i++){ if(entry.targets[i].id===id){t=entry.targets[i];break;} }
+  if(!t) return;
+  if(t.completed){ t.completed=false; if(entry.bonusAwarded) entry.bonusAwarded=false; saveState(); showToast('-'+t.points+' XP','Target unchecked'); render(); }
+  else { t.completed=true; saveState(); showToast('+'+t.points+' XP','Target completed'); checkDayBonus(viewingDate); render(); }
+}
+
+function confirmDeleteTarget(id){
+  showConfirm('Delete Target', 'Remove this target? This cannot be undone.', function(){
+    deleteTarget(id);
+  });
 }
 
 function deleteTarget(id){
-  var entry = entryForDate(today);
-  var t = null;
-  for (var i=0; i<entry.targets.length; i++){ if (entry.targets[i].id===id){ t=entry.targets[i]; break; } }
-  if (!t) return;
-  var wasCompleted = t.completed;
-  entry.targets = entry.targets.filter(function(x){ return x.id!==id; });
-  if (entry.bonusAwarded){ var allDone=entry.targets.length>0; for(var i=0;i<entry.targets.length;i++){ if(!entry.targets[i].completed){allDone=false;break;} } if(!allDone) entry.bonusAwarded=false; }
+  var entry=entryForDate(viewingDate), t=null;
+  for(var i=0;i<entry.targets.length;i++){ if(entry.targets[i].id===id){t=entry.targets[i];break;} }
+  if(!t) return;
+  var wasCompleted=t.completed;
+  entry.targets=entry.targets.filter(function(x){return x.id!==id;});
+  if(entry.bonusAwarded){ var allDone=entry.targets.length>0; for(var i=0;i<entry.targets.length;i++){ if(!entry.targets[i].completed){allDone=false;break;} } if(!allDone) entry.bonusAwarded=false; }
   saveState();
-  if (wasCompleted) showToast('-'+t.points+' XP','Completed target removed');
+  if(wasCompleted) showToast('-'+t.points+' XP','Completed target removed');
   render();
 }
 
 function editTarget(id){
-  var entry = entryForDate(today);
-  var t = null;
-  for (var i=0; i<entry.targets.length; i++){ if (entry.targets[i].id===id){ t=entry.targets[i]; break; } }
-  if (!t) return;
-  editingId = t.id;
-  $('targetText').value = t.text;
-  selectedTier = t.tier;
-  $('saveTargetBtn').disabled = false;
-  var btns = document.querySelectorAll('.tier-btn');
-  for (var i=0; i<btns.length; i++){ btns[i].classList.toggle('active', btns[i].dataset.tier===t.tier); }
-  $('formTitle').textContent = 'Edit Target';
-  $('saveTargetBtn').textContent = 'Save changes';
-  $('cancelEditBtn').style.display = 'block';
-  $('formWrap').classList.add('show');
-  $('targetText').focus();
+  var entry=entryForDate(viewingDate), t=null;
+  for(var i=0;i<entry.targets.length;i++){ if(entry.targets[i].id===id){t=entry.targets[i];break;} }
+  if(!t) return;
+  editingId=t.id; $('targetText').value=t.text; selectedTier=t.tier; $('saveTargetBtn').disabled=false;
+  var btns=document.querySelectorAll('.tier-btn');
+  for(var i=0;i<btns.length;i++){ btns[i].classList.toggle('active',btns[i].dataset.tier===t.tier); }
+  $('formTitle').textContent='Edit Target'; $('saveTargetBtn').textContent='Save changes';
+  $('cancelEditBtn').style.display='block'; $('formWrap').classList.add('show'); $('targetText').focus();
 }
 
 function cancelEdit(){ editingId=null; resetForm(); }
 
 function resetForm(){
-  editingId = null;
-  $('targetText').value = '';
-  selectedTier = 'easy';
-  $('saveTargetBtn').disabled = true;
-  $('formTitle').textContent = 'New Target';
-  $('saveTargetBtn').textContent = "Add to today's targets";
-  $('cancelEditBtn').style.display = 'none';
-  var btns = document.querySelectorAll('.tier-btn');
-  for (var i=0; i<btns.length; i++){ btns[i].classList.toggle('active', btns[i].dataset.tier==='easy'); }
+  editingId=null; $('targetText').value=''; selectedTier='easy'; $('saveTargetBtn').disabled=true;
+  $('formTitle').textContent='New Target'; $('saveTargetBtn').textContent='Add to targets';
+  $('cancelEditBtn').style.display='none';
+  var btns=document.querySelectorAll('.tier-btn');
+  for(var i=0;i<btns.length;i++){ btns[i].classList.toggle('active',btns[i].dataset.tier==='easy'); }
   $('formWrap').classList.remove('show');
 }
 
-function checkDayBonus(){
-  var entry = entryForDate(today);
-  var allDone = entry.targets.length > 0;
-  for (var i=0; i<entry.targets.length; i++){ if (!entry.targets[i].completed){ allDone=false; break; } }
-  if (allDone && !entry.bonusAwarded){ entry.bonusAwarded=true; saveState(); setTimeout(function(){ showToast('+50 BONUS XP','Every target finished today'); },900); render(); }
+function checkDayBonus(key){
+  var entry=entryForDate(key);
+  var allDone=entry.targets.length>0;
+  for(var i=0;i<entry.targets.length;i++){ if(!entry.targets[i].completed){allDone=false;break;} }
+  if(allDone&&!entry.bonusAwarded){ entry.bonusAwarded=true; saveState(); setTimeout(function(){showToast('+50 BONUS XP','Every target finished');},900); render(); }
+}
+
+/* ============================================================
+   RESET ALL DATA
+============================================================ */
+function confirmResetAll(){
+  showConfirm('Reset All Data', 'This will permanently delete ALL your study data across every day. Export a backup first if you want to keep anything.', function(){
+    byDay = {};
+    saveState();
+    viewingDate = today;
+    render();
+    showToast('Data Reset', 'All study data has been cleared');
+  });
 }
 
 /* ============================================================
    TOAST
 ============================================================ */
 var toastTimer;
-function showToast(title,text){ $('toastTitle').textContent=title; $('toastText').textContent=text; $('toast').classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(function(){ $('toast').classList.remove('show'); },2500); }
+function showToast(title,text){ $('toastTitle').textContent=title; $('toastText').textContent=text; $('toast').classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(function(){$('toast').classList.remove('show');},2500); }
 
 /* ============================================================
    FORM EVENTS
@@ -692,57 +637,50 @@ function openForm(){ resetForm(); $('formWrap').classList.add('show'); $('target
 $('openFormBtn').addEventListener('click', openForm);
 $('closeFormBtn').addEventListener('click', function(){ resetForm(); });
 $('saveTargetBtn').addEventListener('click', addOrUpdateTarget);
-$('targetText').addEventListener('input', function(){ $('saveTargetBtn').disabled = !this.value.trim(); });
+$('targetText').addEventListener('input', function(){ $('saveTargetBtn').disabled=!this.value.trim(); });
 $('targetText').addEventListener('keydown', function(e){ if(e.key==='Enter'&&this.value.trim()) addOrUpdateTarget(); if(e.key==='Escape') resetForm(); });
-var tierBtns = document.querySelectorAll('.tier-btn');
-for (var i=0; i<tierBtns.length; i++){ tierBtns[i].addEventListener('click', function(){ selectedTier=this.dataset.tier; for(var j=0;j<tierBtns.length;j++){ tierBtns[j].classList.toggle('active',tierBtns[j]===this); } }); }
+var tierBtns=document.querySelectorAll('.tier-btn');
+for(var i=0;i<tierBtns.length;i++){ tierBtns[i].addEventListener('click',function(){ selectedTier=this.dataset.tier; for(var j=0;j<tierBtns.length;j++){tierBtns[j].classList.toggle('active',tierBtns[j]===this);} }); }
 
-/* ============================================================
-   DATE NAV EVENTS
-============================================================ */
 $('navPrev').addEventListener('click', goPrevDay);
 $('navNext').addEventListener('click', goNextDay);
 $('navTodayBtn').addEventListener('click', goToday);
+$('resetBtn').addEventListener('click', confirmResetAll);
 
 /* ============================================================
    BACKUP
 ============================================================ */
 function downloadBackup(){
-  try {
-    var backup = { app:'Exalyte Study Target', exportedAt:new Date().toISOString(), byDay:byDay };
-    var blob = new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a'); a.href=url; a.download='study-target-backup-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function(){ URL.revokeObjectURL(url); },1000);
+  try{
+    var backup={app:'Exalyte Study Target',exportedAt:new Date().toISOString(),byDay:byDay};
+    var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+    var url=URL.createObjectURL(blob); var a=document.createElement('a');
+    a.href=url; a.download='study-target-backup-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){URL.revokeObjectURL(url);},1000);
     return true;
-  } catch(e){ return false; }
+  }catch(e){return false;}
 }
-$('exportBtn').addEventListener('click', function(){ if(downloadBackup()) showToast('Backup Exported','Your study data was downloaded'); });
-$('exportTopBtn').addEventListener('click', function(){ if(downloadBackup()) showToast('Backup Exported','Your study data was downloaded'); });
-$('importBtn').addEventListener('click', function(){ $('importFile').click(); });
-$('importFile').addEventListener('change', function(e){
-  var file = e.target.files[0]; if(!file) return;
-  var reader = new FileReader();
-  reader.onload = function(ev){
-    try {
-      var parsed = JSON.parse(ev.target.result);
-      if(!parsed.byDay) throw new Error('Invalid');
-      if(!confirm('Import this backup? Current data will be replaced.')) return;
-      byDay = parsed.byDay; saveState(); render(); showToast('Backup Restored','Your study data has been restored');
-    } catch(err){ alert('This file is not a valid Study Target backup.'); }
-    e.target.value = '';
-  };
-  reader.readAsText(file);
+$('exportBtn').addEventListener('click',function(){if(downloadBackup()) showToast('Backup Exported','Your study data was downloaded');});
+$('exportTopBtn').addEventListener('click',function(){if(downloadBackup()) showToast('Backup Exported','Your study data was downloaded');});
+$('importBtn').addEventListener('click',function(){$('importFile').click();});
+$('importFile').addEventListener('change',function(e){
+  var file=e.target.files[0]; if(!file) return;
+  showConfirm('Import Backup','This will replace ALL current data with the backup file. Continue?',function(){
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      try{
+        var parsed=JSON.parse(ev.target.result);
+        if(!parsed.byDay) throw new Error('Invalid');
+        byDay=parsed.byDay; saveState(); render(); showToast('Backup Restored','Your study data has been restored');
+      }catch(err){alert('This file is not a valid Study Target backup.');}
+    };
+    reader.readAsText(file);
+  });
+  e.target.value='';
 });
 
-/* ============================================================
-   START
-============================================================ */
 loadState();
-
 })();
 </script>
-
 </body>
 </html>
