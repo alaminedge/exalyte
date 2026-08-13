@@ -50,13 +50,6 @@ body{
 .btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
 .btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
 .btn-lg{padding:14px 32px;font-size:1rem;border-radius:var(--rl)}
-.icon-btn{
-  width:44px;height:44px;border:none;background:none;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0;
-}
-.icon-btn:hover{background:var(--hov)}
-.icon-btn svg{width:20px;height:20px}
 .main{flex:1;padding-top:var(--hh)}
 
 .hero-viewport{
@@ -177,19 +170,6 @@ body{
   text-align:center;margin-bottom:4px;
 }
 .modal .subtitle{font-size:.85rem;color:var(--t3);text-align:center;margin-bottom:28px}
-.field{margin-bottom:18px}
-.field-label{
-  display:block;font-size:.75rem;font-weight:500;color:var(--t3);
-  margin-bottom:4px;letter-spacing:.3px;
-}
-.field-input{
-  width:100%;padding:12px 14px;border:1px solid var(--border);
-  border-radius:var(--r);font-family:var(--rb);font-size:.95rem;
-  color:var(--t1);background:var(--surf);outline:none;transition:border var(--tr);
-  min-height:44px;
-}
-.field-input:hover{border-color:var(--t3)}
-.field-input:focus{border:2px solid var(--blue);padding:11px 13px}
 .alert{
   padding:10px 14px;border-radius:var(--r);font-size:.8rem;
   margin-bottom:16px;display:none;
@@ -210,11 +190,6 @@ body{
 .google-btn:hover{background:var(--hov);box-shadow:0 1px 2px rgba(60,64,67,.15)}
 .google-btn:disabled{opacity:.6;cursor:not-allowed;box-shadow:none}
 .google-btn svg{width:18px;height:18px;flex-shrink:0}
-.auth-divider{
-  display:flex;align-items:center;gap:12px;margin-bottom:18px;
-  color:var(--t4);font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;
-}
-.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
 
 .footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
 .footer-inner{
@@ -281,14 +256,6 @@ body{
   .metrics-inner{grid-template-columns:1fr 1fr}
   .metric-val{font-size:1.5rem}
   .metric-item{padding:20px 16px}
-}
-@media(max-width:600px) and (max-height:700px){
-  .hero{padding:24px 20px 20px}
-  .hero-eyebrow{margin-bottom:14px}
-  .hero h1{font-size:1.5rem;margin-bottom:12px}
-  .hero p{font-size:.95rem;margin-bottom:20px}
-  .metric-item{padding:14px 16px}
-  .metric-val{font-size:1.25rem}
 }
 </style>
 </head>
@@ -452,16 +419,12 @@ body{
 
 <div class="toast" id="toast"></div>
 
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<!-- Supabase Auth -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAfmwmzKw20_VcmPByx37ulAejgE067OcM",
-    authDomain: "exalyte-4eb0b.firebaseapp.com",
-    projectId: "exalyte-4eb0b"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const firebaseAuth = firebase.auth();
+  const SUPABASE_URL = 'https://edcaxkqmtsqnijxefhvz.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_aJBTFJwEC0Daj76xb9KG0A_PS_STUFj';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 </script>
 
 <script>
@@ -510,7 +473,7 @@ document.getElementById('authModal').addEventListener('click', function(e) {
 });
 
 // ============================================================
-// GOOGLE VERIFICATION — Redirect flow, stays on page silently
+// SUPABASE GOOGLE VERIFICATION — Silent, stays on page
 // ============================================================
 async function handleGoogleClick() {
   clearModalAlert();
@@ -520,45 +483,69 @@ async function handleGoogleClick() {
   document.getElementById('googleSpinner').style.display = 'inline-block';
 
   try {
-    var provider = new firebase.auth.GoogleAuthProvider();
-    await firebaseAuth.signInWithRedirect(provider);
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/'
+      }
+    });
+
+    if (error) {
+      console.error('Supabase OAuth error:', error);
+      resetGoogleBtn();
+      modalAlert('Verification failed. Please try again.');
+      return;
+    }
+
+    // Redirect happens — Supabase will redirect back to /
+    // No further code runs here
+
   } catch (e) {
-    console.error('Google verification error:', e);
+    console.error('Verification error:', e);
     resetGoogleBtn();
     modalAlert('Verification failed. Please try again.');
   }
 }
 
-// Handle Google Redirect Result — SILENT verification, NO UI change
-firebaseAuth.getRedirectResult().then(function(result) {
-  if (result && result.user) {
-    var credential = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
-    var idToken = credential ? credential.idToken : null;
+// Handle Supabase OAuth callback on page load — SILENT verification
+(async function checkSupabaseSession() {
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
     
-    if (idToken) {
-      // Send to backend for verification only — no localStorage, no UI update
-      fetch(API + '/auth/google', {
+    if (session && session.user) {
+      console.log('Supabase verification complete:', session.user.email);
+      
+      // Silently verified — send to backend if needed, but NO UI change
+      const accessToken = session.access_token;
+      const userEmail = session.user.email;
+      const userName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'Google User';
+      const googleId = session.user.id;
+      
+      // Send to YOUR backend (optional — for D1 storage)
+      fetch(API + '/auth/supabase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ google_token: idToken })
+        body: JSON.stringify({ 
+          email: userEmail, 
+          name: userName, 
+          google_id: googleId 
+        })
       })
       .then(function(res) { return res.json(); })
       .then(function(data) {
-        // Silently verified — do nothing, stay on page exactly as-is
-        console.log('Google verification complete:', data.user ? data.user.email : 'verified');
+        console.log('Backend verification:', data);
       })
       .catch(function(err) {
-        console.error('Verification error:', err);
+        console.error('Backend error:', err);
       });
     }
+  } catch (e) {
+    console.log('No Supabase session:', e.message);
   }
-}).catch(function(error) {
-  // No redirect result or cancelled — just stay on page
-  console.log('No redirect result:', error.code);
-});
+})();
 
 // ============================================================
-// RENDER UI — Always shows "Sign in" / "Create account" buttons
+// RENDER UI — Always shows "Sign in" / "Get started"
 // ============================================================
 function renderUI() {
   var hr = document.getElementById('headerRight');
