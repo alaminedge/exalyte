@@ -688,7 +688,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ============================================================
-// GOOGLE SIGN-IN — CRITICAL FIX: Use credentialFromResult
+// GOOGLE SIGN-IN — Using Redirect (fixes COOP blocking)
 // ============================================================
 async function handleGoogleClick() {
   clearModalAlert();
@@ -699,64 +699,54 @@ async function handleGoogleClick() {
 
   try {
     var provider = new firebase.auth.GoogleAuthProvider();
-    var result = await firebaseAuth.signInWithPopup(provider);
-    
-    // CRITICAL: Get RAW Google OAuth ID token (not Firebase-wrapped token)
-    var credential = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
-    var idToken = credential ? credential.idToken : null;
-    
-    if (!idToken) {
-      throw new Error('No Google ID token received');
-    }
-
-    var res = await fetch(API + '/auth/google', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ google_token: idToken })
-    });
-    var data = await res.json();
-
-    if (!res.ok) {
-      modalAlert(data.error || 'Google sign-in failed.');
-      btn.disabled = false;
-      document.getElementById('googleBtnText').style.display = 'inline';
-      document.getElementById('googleSpinner').style.display = 'none';
-      return;
-    }
-
-    localStorage.setItem('exalyte_token', data.token);
-    localStorage.setItem('exalyte_user', JSON.stringify(data.user));
-
-    if (authMode === 'signup' && data.isNewUser) {
-      document.getElementById('authDivider').style.display = 'none';
-      document.getElementById('googleHint').style.display = 'none';
-      btn.style.display = 'none';
-      document.getElementById('emailFieldWrap').style.display = 'block';
-      document.getElementById('passwordFieldWrap').style.display = 'block';
-      document.getElementById('authSubmitBtn').style.display = 'flex';
-      document.getElementById('authEmail').value = data.user.email;
-      document.getElementById('authEmail').disabled = true;
-      document.getElementById('authPassword').value = '';
-      document.getElementById('authBtnText').textContent = 'Set password & continue';
-      document.getElementById('skipWrap').style.display = 'block';
-      document.getElementById('authSwitch').style.display = 'none';
-      toast('Google account verified.');
-      document.getElementById('authPassword').focus();
-    } else {
-      toast('Signed in successfully.');
-      setTimeout(function() {
-        window.location.href = data.user.is_admin ? 'admin.html' : 'dashboard.html';
-      }, 400);
-    }
+    await firebaseAuth.signInWithRedirect(provider);
+    // Page will redirect to Google, then come back
   } catch (e) {
     console.error('Google sign-in error:', e);
     btn.disabled = false;
     document.getElementById('googleBtnText').style.display = 'inline';
     document.getElementById('googleSpinner').style.display = 'none';
-    if (e && e.code === 'auth/popup-closed-by-user') return;
     modalAlert('Google sign-in failed. Please try again.');
   }
 }
+
+// Handle Google Redirect Result when page loads
+firebaseAuth.getRedirectResult().then(function(result) {
+  if (result && result.user) {
+    var credential = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
+    var idToken = credential ? credential.idToken : null;
+    
+    if (idToken) {
+      fetch(API + '/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ google_token: idToken })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (!data.token) {
+          modalAlert(data.error || 'Sign-in failed.');
+          return;
+        }
+        localStorage.setItem('exalyte_token', data.token);
+        localStorage.setItem('exalyte_user', JSON.stringify(data.user));
+        
+        if (data.requires_master_key) {
+          localStorage.setItem('exalyte_temp_token', data.temp_token);
+          window.location.href = '/';
+          return;
+        }
+        
+        window.location.href = data.user.is_admin ? 'admin.html' : 'dashboard.html';
+      })
+      .catch(function(err) {
+        console.error('Backend error:', err);
+      });
+    }
+  }
+}).catch(function(error) {
+  console.log('Redirect result:', error.code);
+});
 
 function skipPasswordSetup() {
   var u = JSON.parse(localStorage.getItem('exalyte_user') || 'null');
