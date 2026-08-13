@@ -1,7 +1,6 @@
 // Exalyte API — Complete Backend for Cloudflare Pages
 // functions/api/[[route]].js
-// PATCHED FOR SPEED: cached DB init, batched queries, added indexes
-// UPDATED: Google Auth endpoint + Set Password endpoint
+// PATCHED: Google Auth via tokeninfo endpoint + Admin email/password unrestricted
 
 // ============================================================
 // CRYPTO HELPERS
@@ -330,38 +329,28 @@ function isResultsPublished(exam) {
 }
 
 // ============================================================
-// GOOGLE AUTH
+// GOOGLE AUTH (simplified — uses tokeninfo endpoint)
 // ============================================================
 
-async function verifyGoogleTokenRS256(idToken) {
+async function verifyGoogleToken(idToken) {
   try {
-    const certsRes = await fetch('https://www.googleapis.com/oauth2/v3/certs');
-    if (!certsRes.ok) return null;
-    const certs = await certsRes.json();
-    const [headerB64, payloadB64, signatureB64] = idToken.split('.');
-    const header = JSON.parse(atob(headerB64.replace(/-/g, '+').replace(/_/g, '/')));
-    const cert = certs.keys.find(k => k.kid === header.kid);
-    if (!cert || !cert.x5c) return null;
-    const pem = `-----BEGIN CERTIFICATE-----\n${cert.x5c[0]}\n-----END CERTIFICATE-----`;
-    const binaryDer = Uint8Array.from(atob(pem.replace(/-----.*?-----/g, '').replace(/\n/g, '')), c => c.charCodeAt(0));
-    const cryptoKey = await crypto.subtle.importKey('spki', binaryDer, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
-    const signatureBytes = Uint8Array.from(atob(signatureB64.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
-    const dataBytes = new TextEncoder().encode(headerB64 + '.' + payloadB64);
-    const valid = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', cryptoKey, signatureBytes, dataBytes);
-    if (!valid) return null;
-    const payload = JSON.parse(atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/')));
-    if (payload.iss !== 'https://accounts.google.com' && payload.iss !== 'accounts.google.com') return null;
-    if (payload.exp < Math.floor(Date.now() / 1000)) return null;
-    return payload;
-  } catch (e) { return null; }
+    const res = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(idToken));
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    return null;
+  }
 }
 
 async function handleGoogleAuth(request, db) {
-  const { google_token } = await request.json();
+  let body;
+  try { body = await request.json(); } catch (e) { return err('Invalid request body'); }
+
+  const { google_token } = body;
   if (!google_token) return err('Google token required');
 
-  const googleUser = await verifyGoogleTokenRS256(google_token);
-  if (!googleUser) return err('Invalid Google token', 401);
+  const googleUser = await verifyGoogleToken(google_token);
+  if (!googleUser || !googleUser.sub) return err('Invalid Google token', 401);
 
   const email = googleUser.email;
   const name = googleUser.name || 'Google User';
@@ -376,12 +365,10 @@ async function handleGoogleAuth(request, db) {
   let isNewUser = false;
 
   if (!user) {
-    // Check account limits for new users
     const countByIP = await db.prepare('SELECT COUNT(*) as count FROM users WHERE created_ip = ?').bind(clientIP).first();
     if ((countByIP?.count || 0) >= 2) {
       return err('Maximum 2 accounts allowed per network.', 403);
     }
-
     user = await db.prepare(
       `INSERT INTO users (name, email, password, is_admin, is_banned, google_id, device_fingerprint, created_ip)
        VALUES (?, ?, NULL, 0, 0, ?, '', ?) RETURNING id, name, email, is_admin, is_banned, password, google_id`
@@ -461,10 +448,11 @@ async function handleLogin(request, db) {
   const { email, password } = await request.json();
   if (!email || !password) return err('Email and password required');
   const hash = await sha256(password);
-  const user = await db.prepare('SELECT id, name, email, is_admin, is_banned FROM users WHERE email = ? AND password = ?')
+  const user = await db.prepare('SELECT * FROM users WHERE email = ? AND password = ?')
     .bind(email.toLowerCase(), hash).first();
   if (!user) return err('Invalid credentials', 401);
   if (user.is_banned) return err('Account suspended. Contact support for assistance.', 403);
+  
   if (user.is_admin) {
     const masterKeyRow = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('master_key_hash').first();
     const hasMasterKey = masterKeyRow && masterKeyRow.value;
@@ -476,6 +464,7 @@ async function handleLogin(request, db) {
       return json({ setup_master_key: true, temp_token: tempToken, user: { id: user.id, name: user.name, email: user.email, is_admin: true } });
     }
   }
+  
   const token = await signJWT({ id: user.id, email: user.email, is_admin: user.is_admin });
   return json({ token, user: { id: user.id, name: user.name, email: user.email, is_admin: user.is_admin } });
 }
