@@ -500,7 +500,7 @@ async function loadAgreement(){
       }
     }
     
-    if(exam.has_sections&&exam.section_config&&!isPrac){
+    if(exam.has_sections&&exam.section_config){
       try{
         sectionConfig=JSON.parse(exam.section_config);
         renderSectionSelection();
@@ -647,7 +647,7 @@ async function startExam(){
   document.getElementById('agreeBtn').textContent='Loading...';
   try{
     let res;
-    if(sectionConfig&&!isPrac){
+    if(sectionConfig){
       res=await apiFetch('/exams/'+examId+'/questions',{method:'POST',body:JSON.stringify({sections:selectedSections})});
     }else{
       res=await apiFetch('/exams/'+examId+'/questions?practice='+(isPrac?'1':'0'));
@@ -819,7 +819,7 @@ async function doSubmit(){
   
   try{
     const submitBody={answers,is_practice:isPrac,time_taken_seconds:actualTime};
-    if(sectionConfig&&!isPrac)submitBody.selected_sections=selectedSections;
+    if(sectionConfig)submitBody.selected_sections=selectedSections;
     
     const{ok,data}=await apiFetch('/exams/'+examId+'/submit',{method:'POST',body:JSON.stringify(submitBody)});
     if(!ok){alert(data.error||'Submission failed');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now';return}
@@ -961,7 +961,7 @@ function renderPracticeReviewList(){
     else if(!given)note='<div class="rv-ans-note" style="color:#5f6368">Not answered — Correct: '+correctAns+'</div>';
     
     let exp='';
-    if(q.explanation&&q.explanation.trim())exp='<div class="rv-explanation">'+renderExplanationContent(q.explanation)+'</div>';
+    if(q.explanation&&q.explanation.trim())exp='<div class="rv-explanation"><strong>Explanation</strong>'+renderExplanationContent(q.explanation)+'</div>';
     
     return'<div class="rv-card '+cls+'" onclick="this.classList.toggle(\'open\')">'+
       '<div class="rv-header"><div class="rv-status"><svg viewBox="0 0 24 24">'+icons[st]+'</svg></div><div class="rv-q">'+esc(q.question_text||'')+(q.image_url?'<br><img src="'+esc(q.image_url)+'" style="max-width:100%;max-height:140px;border-radius:4px;margin-top:6px;border:1px solid #dadce0;object-fit:contain" alt="" loading="lazy">':'')+'</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>'+
@@ -982,5 +982,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSubmit()});
 
 loadAgreement();
 </script>
+</body>
+</html>
+
 </body>
 </html>
