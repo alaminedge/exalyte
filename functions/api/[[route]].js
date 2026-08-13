@@ -1,6 +1,6 @@
 // Exalyte API — Complete Backend for Cloudflare Pages
 // functions/api/[[route]].js
-// PATCHED: Google Auth via tokeninfo endpoint + Admin email/password unrestricted
+// PATCHED v2: fixed initDB crash risk on google_id index + added Google token audience check
 
 // ============================================================
 // CRYPTO HELPERS
@@ -92,6 +92,12 @@ let dbInitialized = false;
 async function initDB(db) {
   if (dbInitialized) return;
 
+  // NOTE: idx_users_google was deliberately removed from this array.
+  // It references users.google_id, which on a pre-existing production
+  // database might not exist yet until the ALTER TABLE below runs.
+  // Creating it here — inside an un-guarded loop — could throw and
+  // abort initDB entirely, breaking EVERY route (including plain
+  // email/password login) on any request that hits a cold isolate.
   const statements = [
     `CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
@@ -228,14 +234,16 @@ async function initDB(db) {
     `CREATE INDEX IF NOT EXISTS idx_exams_batch ON exams(batch_id)`,
     `CREATE INDEX IF NOT EXISTS idx_notif_reads_user ON notification_reads(user_id)`,
     `CREATE INDEX IF NOT EXISTS idx_users_fp ON users(device_fingerprint)`,
-    `CREATE INDEX IF NOT EXISTS idx_users_ip ON users(created_ip)`,
-    `CREATE INDEX IF NOT EXISTS idx_users_google ON users(google_id)`
+    `CREATE INDEX IF NOT EXISTS idx_users_ip ON users(created_ip)`
   ];
 
   for (const sql of statements) {
     await db.prepare(sql).run();
   }
 
+  // Each of these is independently guarded so a failure in one
+  // (e.g. column already exists, or an unexpected schema state)
+  // can never take down the rest of initDB or the request.
   try { await db.prepare(`ALTER TABLE users ADD COLUMN device_fingerprint TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE users ADD COLUMN created_ip TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE users ADD COLUMN is_banned INTEGER DEFAULT 0`).run(); } catch (e) {}
@@ -244,6 +252,10 @@ async function initDB(db) {
   try { await db.prepare(`ALTER TABLE exams ADD COLUMN scheduled_at DATETIME`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exam_attempts ADD COLUMN time_taken_seconds INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exam_results_stored ADD COLUMN time_taken_seconds INTEGER DEFAULT 0`).run(); } catch (e) {}
+
+  // Moved here, AFTER the google_id column is guaranteed to exist,
+  // and independently guarded so it can never abort initDB.
+  try { await db.prepare(`CREATE INDEX IF NOT EXISTS idx_users_google ON users(google_id)`).run(); } catch (e) {}
 
   const adminHash = await sha256('Admin@2024');
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind('admin@exalyte.com').first();
@@ -329,14 +341,33 @@ function isResultsPublished(exam) {
 }
 
 // ============================================================
-// GOOGLE AUTH (simplified — uses tokeninfo endpoint)
+// GOOGLE AUTH
 // ============================================================
+
+// IMPORTANT: idToken passed here must be the raw Google OAuth ID token
+// (from firebase.auth.GoogleAuthProvider.credentialFromResult(result).idToken),
+// NOT the Firebase-wrapped token from result.user.getIdToken(). The
+// tokeninfo endpoint below cannot verify Firebase-issued tokens.
+//
+// Set this to your actual Google OAuth Web Client ID (Firebase console →
+// Project settings → General → your Web app → look for the
+// "Web client ID" under the Google sign-in provider, or in
+// Google Cloud Console → APIs & Services → Credentials).
+const GOOGLE_OAUTH_CLIENT_ID = 'REPLACE_WITH_YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com';
 
 async function verifyGoogleToken(idToken) {
   try {
     const res = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(idToken));
     if (!res.ok) return null;
-    return await res.json();
+    const data = await res.json();
+    // Reject tokens that weren't issued for this app — without this
+    // check, a valid Google ID token from ANY app would authenticate
+    // successfully against your backend.
+    if (GOOGLE_OAUTH_CLIENT_ID !== 'REPLACE_WITH_YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com'
+        && data.aud !== GOOGLE_OAUTH_CLIENT_ID) {
+      return null;
+    }
+    return data;
   } catch (e) {
     return null;
   }
@@ -1237,209 +1268,223 @@ async function handleAdminPublishResults(examId, db) {
 export async function onRequest(context) {
   const { request, env } = context;
   const db = env.DB;
-  
+
   if (request.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: CORS });
   }
-  
-  await initDB(db);
-  
+
+  // If initDB throws for any reason, return JSON (not an unhandled
+  // exception that Cloudflare turns into an HTML error page) so the
+  // frontend can always parse the response and show the real cause.
+  try {
+    await initDB(db);
+  } catch (e) {
+    return err('Database initialization failed: ' + (e && e.message ? e.message : String(e)), 500);
+  }
+
   const url = new URL(request.url);
   let path = url.pathname.replace(/^\/api/, '').replace(/\/$/, '') || '/';
   const method = request.method;
-  
-  // AUTH ROUTES
-  if (path === '/auth/signup' && method === 'POST') return handleSignup(request, db);
-  if (path === '/auth/login' && method === 'POST') return handleLogin(request, db);
-  if (path === '/auth/google' && method === 'POST') return handleGoogleAuth(request, db);
-  if (path === '/auth/set-password' && method === 'POST') return handleSetPassword(request, db);
-  if (path === '/auth/master-key/status' && method === 'POST') return handleMasterKeyStatus(db);
-  if (path === '/auth/master-key/set' && method === 'POST') return handleMasterKeySet(request, db);
-  if (path === '/auth/master-key/verify' && method === 'POST') return handleMasterKeyVerify(request, db);
-  
-  // PUBLIC ROUTES
-  if (path === '/batches' && method === 'GET') return handleListBatches(db);
-  if (path === '/exams' && method === 'GET') return handleListExams(request, db);
-  
-  // USER ROUTES
-  if (path === '/history' && method === 'GET') return handleHistory(request, db);
-  
-  const examQuestions = path.match(/^\/exams\/(\d+)\/questions$/);
-  if (examQuestions && method === 'GET') return handleGetExamQuestions(examQuestions[1], request, db);
-  
-  const examSubmit = path.match(/^\/exams\/(\d+)\/submit$/);
-  if (examSubmit && method === 'POST') return handleSubmitExam(examSubmit[1], request, db);
-  
-  const examResult = path.match(/^\/exams\/(\d+)\/result\/(\d+)$/);
-  if (examResult && method === 'GET') return handleGetResult(examResult[1], examResult[2], request, db);
-  
-  const leaderboard = path.match(/^\/leaderboard\/(\d+)$/);
-  if (leaderboard && method === 'GET') return handleLeaderboard(leaderboard[1], request, db);
-  
-  if (path === '/notifications' && method === 'GET') return handleListNotifications(request, db);
-  const markRead = path.match(/^\/notifications\/(\d+)\/read$/);
-  if (markRead && method === 'POST') return handleMarkNotificationRead(markRead[1], request, db);
-  
-  // ADMIN ROUTES
-  const admin = await requireAdmin(request, db);
-  
-  if (path === '/admin/batches' && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleCreateBatch(request, db);
+
+  try {
+    // AUTH ROUTES
+    if (path === '/auth/signup' && method === 'POST') return await handleSignup(request, db);
+    if (path === '/auth/login' && method === 'POST') return await handleLogin(request, db);
+    if (path === '/auth/google' && method === 'POST') return await handleGoogleAuth(request, db);
+    if (path === '/auth/set-password' && method === 'POST') return await handleSetPassword(request, db);
+    if (path === '/auth/master-key/status' && method === 'POST') return await handleMasterKeyStatus(db);
+    if (path === '/auth/master-key/set' && method === 'POST') return await handleMasterKeySet(request, db);
+    if (path === '/auth/master-key/verify' && method === 'POST') return await handleMasterKeyVerify(request, db);
+
+    // PUBLIC ROUTES
+    if (path === '/batches' && method === 'GET') return await handleListBatches(db);
+    if (path === '/exams' && method === 'GET') return await handleListExams(request, db);
+
+    // USER ROUTES
+    if (path === '/history' && method === 'GET') return await handleHistory(request, db);
+
+    const examQuestions = path.match(/^\/exams\/(\d+)\/questions$/);
+    if (examQuestions && method === 'GET') return await handleGetExamQuestions(examQuestions[1], request, db);
+
+    const examSubmit = path.match(/^\/exams\/(\d+)\/submit$/);
+    if (examSubmit && method === 'POST') return await handleSubmitExam(examSubmit[1], request, db);
+
+    const examResult = path.match(/^\/exams\/(\d+)\/result\/(\d+)$/);
+    if (examResult && method === 'GET') return await handleGetResult(examResult[1], examResult[2], request, db);
+
+    const leaderboard = path.match(/^\/leaderboard\/(\d+)$/);
+    if (leaderboard && method === 'GET') return await handleLeaderboard(leaderboard[1], request, db);
+
+    if (path === '/notifications' && method === 'GET') return await handleListNotifications(request, db);
+    const markRead = path.match(/^\/notifications\/(\d+)\/read$/);
+    if (markRead && method === 'POST') return await handleMarkNotificationRead(markRead[1], request, db);
+
+    // ADMIN ROUTES
+    const admin = await requireAdmin(request, db);
+
+    if (path === '/admin/batches' && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return await handleCreateBatch(request, db);
+    }
+    const adminBatch = path.match(/^\/admin\/batches\/(\d+)$/);
+    if (adminBatch && method === 'PUT') {
+      if (!admin) return err('Admin required', 403);
+      return await handleUpdateBatch(adminBatch[1], request, db);
+    }
+    if (adminBatch && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return await handleDeleteBatch(adminBatch[1], db);
+    }
+
+    const adminBatchResources = path.match(/^\/admin\/batches\/(\d+)\/resources$/);
+    if (adminBatchResources && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return await handleGetBatchResources(adminBatchResources[1], db);
+    }
+    if (path === '/admin/batch-resources' && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAddBatchResource(request, db);
+    }
+    const adminBatchResource = path.match(/^\/admin\/batch-resources\/(\d+)$/);
+    if (adminBatchResource && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return await handleDeleteBatchResource(adminBatchResource[1], db);
+    }
+
+    const adminExamResources = path.match(/^\/admin\/exams\/(\d+)\/resources$/);
+    if (adminExamResources && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return await handleGetExamResources(adminExamResources[1], db);
+    }
+    if (path === '/admin/resources' && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAddExamResource(request, db);
+    }
+    const adminExamResource = path.match(/^\/admin\/resources\/(\d+)$/);
+    if (adminExamResource && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return await handleDeleteExamResource(adminExamResource[1], db);
+    }
+
+    if (path === '/admin/exams' && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminCreateExam(request, db);
+    }
+    const adminExam = path.match(/^\/admin\/exams\/(\d+)$/);
+    if (adminExam && method === 'PUT') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminUpdateExam(adminExam[1], request, db);
+    }
+    if (adminExam && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminDeleteExam(adminExam[1], db);
+    }
+
+    const adminToggleExam = path.match(/^\/admin\/exams\/(\d+)\/toggle$/);
+    if (adminToggleExam && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminToggleExam(adminToggleExam[1], request, db);
+    }
+
+    const adminDownloadResults = path.match(/^\/admin\/results\/(\d+)\/download$/);
+    if (adminDownloadResults && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminDownloadResults(adminDownloadResults[1], db);
+    }
+
+    if (path === '/admin/questions/bulk' && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminBulkQuestions(request, db);
+    }
+    const adminQs = path.match(/^\/admin\/questions\/(\d+)$/);
+    if (adminQs && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminGetQuestions(adminQs[1], db);
+    }
+    if (adminQs && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminDeleteAllQuestions(adminQs[1], db);
+    }
+    const adminSingleQ = path.match(/^\/admin\/questions\/single\/(\d+)$/);
+    if (adminSingleQ && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminDeleteQuestion(adminSingleQ[1], db);
+    }
+
+    if (path === '/admin/users' && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminListUsers(db);
+    }
+    if (path === '/admin/grant-premium' && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminGrantPremium(request, db, admin.id);
+    }
+    if (path === '/admin/revoke-premium' && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminRevokePremium(request, db);
+    }
+    if (path === '/admin/revoke-account-premium' && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminRevokeAccountPremium(request, db);
+    }
+
+    const adminBanUser = path.match(/^\/admin\/users\/(\d+)\/ban$/);
+    if (adminBanUser && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminBanUser(adminBanUser[1], request, db, admin.id);
+    }
+
+    const adminUnbanUser = path.match(/^\/admin\/users\/(\d+)\/unban$/);
+    if (adminUnbanUser && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminUnbanUser(adminUnbanUser[1], request, db);
+    }
+
+    const adminDeleteUser = path.match(/^\/admin\/users\/(\d+)\/delete$/);
+    if (adminDeleteUser && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminDeleteUser(adminDeleteUser[1], request, db, admin.id);
+    }
+
+    if (path === '/admin/results' && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminResults(null, db);
+    }
+    const adminResults = path.match(/^\/admin\/results\/(\d+)$/);
+    if (adminResults && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminResults(adminResults[1], db);
+    }
+    if (adminResults && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminDeleteResult(adminResults[1], db);
+    }
+
+    if (path === '/admin/notifications' && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminCreateNotification(request, db, admin.id);
+    }
+    if (path === '/admin/notifications' && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminListNotifications(db);
+    }
+    const adminNotif = path.match(/^\/admin\/notifications\/(\d+)$/);
+    if (adminNotif && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminDeleteNotification(adminNotif[1], db);
+    }
+
+    const adminPublish = path.match(/^\/admin\/exams\/(\d+)\/publish$/);
+    if (adminPublish && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return await handleAdminPublishResults(adminPublish[1], db);
+    }
+
+    return err('Not found', 404);
+  } catch (e) {
+    // Catch-all: guarantees every route always returns valid JSON,
+    // never an unhandled-exception HTML page that breaks res.json()
+    // on the frontend and shows up as a generic "Network error".
+    return err('Server error: ' + (e && e.message ? e.message : String(e)), 500);
   }
-  const adminBatch = path.match(/^\/admin\/batches\/(\d+)$/);
-  if (adminBatch && method === 'PUT') {
-    if (!admin) return err('Admin required', 403);
-    return handleUpdateBatch(adminBatch[1], request, db);
-  }
-  if (adminBatch && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleDeleteBatch(adminBatch[1], db);
-  }
-  
-  const adminBatchResources = path.match(/^\/admin\/batches\/(\d+)\/resources$/);
-  if (adminBatchResources && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleGetBatchResources(adminBatchResources[1], db);
-  }
-  if (path === '/admin/batch-resources' && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAddBatchResource(request, db);
-  }
-  const adminBatchResource = path.match(/^\/admin\/batch-resources\/(\d+)$/);
-  if (adminBatchResource && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleDeleteBatchResource(adminBatchResource[1], db);
-  }
-  
-  const adminExamResources = path.match(/^\/admin\/exams\/(\d+)\/resources$/);
-  if (adminExamResources && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleGetExamResources(adminExamResources[1], db);
-  }
-  if (path === '/admin/resources' && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAddExamResource(request, db);
-  }
-  const adminExamResource = path.match(/^\/admin\/resources\/(\d+)$/);
-  if (adminExamResource && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleDeleteExamResource(adminExamResource[1], db);
-  }
-  
-  if (path === '/admin/exams' && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminCreateExam(request, db);
-  }
-  const adminExam = path.match(/^\/admin\/exams\/(\d+)$/);
-  if (adminExam && method === 'PUT') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminUpdateExam(adminExam[1], request, db);
-  }
-  if (adminExam && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminDeleteExam(adminExam[1], db);
-  }
-  
-  const adminToggleExam = path.match(/^\/admin\/exams\/(\d+)\/toggle$/);
-  if (adminToggleExam && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminToggleExam(adminToggleExam[1], request, db);
-  }
-  
-  const adminDownloadResults = path.match(/^\/admin\/results\/(\d+)\/download$/);
-  if (adminDownloadResults && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminDownloadResults(adminDownloadResults[1], db);
-  }
-  
-  if (path === '/admin/questions/bulk' && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminBulkQuestions(request, db);
-  }
-  const adminQs = path.match(/^\/admin\/questions\/(\d+)$/);
-  if (adminQs && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminGetQuestions(adminQs[1], db);
-  }
-  if (adminQs && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminDeleteAllQuestions(adminQs[1], db);
-  }
-  const adminSingleQ = path.match(/^\/admin\/questions\/single\/(\d+)$/);
-  if (adminSingleQ && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminDeleteQuestion(adminSingleQ[1], db);
-  }
-  
-  if (path === '/admin/users' && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminListUsers(db);
-  }
-  if (path === '/admin/grant-premium' && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminGrantPremium(request, db, admin.id);
-  }
-  if (path === '/admin/revoke-premium' && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminRevokePremium(request, db);
-  }
-  if (path === '/admin/revoke-account-premium' && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminRevokeAccountPremium(request, db);
-  }
-  
-  const adminBanUser = path.match(/^\/admin\/users\/(\d+)\/ban$/);
-  if (adminBanUser && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminBanUser(adminBanUser[1], request, db, admin.id);
-  }
-  
-  const adminUnbanUser = path.match(/^\/admin\/users\/(\d+)\/unban$/);
-  if (adminUnbanUser && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminUnbanUser(adminUnbanUser[1], request, db);
-  }
-  
-  const adminDeleteUser = path.match(/^\/admin\/users\/(\d+)\/delete$/);
-  if (adminDeleteUser && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminDeleteUser(adminDeleteUser[1], request, db, admin.id);
-  }
-  
-  if (path === '/admin/results' && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminResults(null, db);
-  }
-  const adminResults = path.match(/^\/admin\/results\/(\d+)$/);
-  if (adminResults && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminResults(adminResults[1], db);
-  }
-  if (adminResults && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminDeleteResult(adminResults[1], db);
-  }
-  
-  if (path === '/admin/notifications' && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminCreateNotification(request, db, admin.id);
-  }
-  if (path === '/admin/notifications' && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminListNotifications(db);
-  }
-  const adminNotif = path.match(/^\/admin\/notifications\/(\d+)$/);
-  if (adminNotif && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminDeleteNotification(adminNotif[1], db);
-  }
-  
-  const adminPublish = path.match(/^\/admin\/exams\/(\d+)\/publish$/);
-  if (adminPublish && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminPublishResults(adminPublish[1], db);
-  }
-  
-  return err('Not found', 404);
 }
