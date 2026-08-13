@@ -481,7 +481,7 @@ async function handleDeleteExamResource(resourceId, db) {
 }
 
 // ============================================================
-// EXAMS ROUTES
+// EXAMS ROUTES — WITH SECTIONAL QUESTION COUNT CALCULATION
 // ============================================================
 
 async function handleListExams(request, db) {
@@ -489,7 +489,75 @@ async function handleListExams(request, db) {
   const userId = user ? user.id : null;
   const isAdmin = user ? user.is_admin : false;
 
-  const exams = await db.prepare(`SELECT e.*, b.name as batch_name, (SELECT COUNT(*) FROM questions q WHERE q.exam_id = e.id) as question_count FROM exams e LEFT JOIN batches b ON e.batch_id = b.id ORDER BY e.created_at DESC`).all();
+  const exams = await db.prepare(`SELECT e.*, b.name as batch_name, (SELECT COUNT(*) FROM questions q WHERE q.exam_id = e.id) as total_questions_in_db FROM exams e LEFT JOIN batches b ON e.batch_id = b.id ORDER BY e.created_at DESC`).all();
+
+  // ✅ CALCULATE ACTUAL ATTEMPTABLE QUESTIONS FOR SECTIONAL EXAMS
+  for (const exam of exams.results) {
+    if (exam.has_sections && exam.section_config) {
+      try {
+        const config = JSON.parse(exam.section_config);
+        const maxOptional = config.max_optional || 2;
+        const minCompulsory = config.min_from_compulsory || 1;
+        
+        // Count required sections (always included)
+        const requiredSections = config.required || [];
+        const requiredCount = requiredSections.reduce((sum, s) => sum + (s.count || 0), 0);
+        
+        // Get optional sections
+        const compulsoryGroup = config.compulsory_group || [];
+        const normalGroup = config.normal_group || [];
+        
+        let optionalCount = 0;
+        
+        if (compulsoryGroup.length > 0) {
+          // Must select at least minCompulsory from compulsory group
+          const sortedCompulsory = [...compulsoryGroup].sort((a, b) => (b.count || 0) - (a.count || 0));
+          const selectedCompulsory = sortedCompulsory.slice(0, Math.min(minCompulsory, maxOptional));
+          const compulsoryCount = selectedCompulsory.reduce((sum, s) => sum + (s.count || 0), 0);
+          
+          const remainingSlots = maxOptional - selectedCompulsory.length;
+          
+          if (remainingSlots > 0) {
+            // Can select remaining from rest of compulsory + all normal
+            const remainingOptional = [
+              ...sortedCompulsory.slice(minCompulsory),
+              ...normalGroup
+            ].sort((a, b) => (b.count || 0) - (a.count || 0));
+            
+            const selectedRemaining = remainingOptional.slice(0, remainingSlots);
+            const remainingCount = selectedRemaining.reduce((sum, s) => sum + (s.count || 0), 0);
+            
+            optionalCount = compulsoryCount + remainingCount;
+          } else {
+            optionalCount = compulsoryCount;
+          }
+        } else {
+          // No compulsory group, just pick maxOptional from normal
+          const sortedNormal = [...normalGroup].sort((a, b) => (b.count || 0) - (a.count || 0));
+          const selectedNormal = sortedNormal.slice(0, maxOptional);
+          optionalCount = selectedNormal.reduce((sum, s) => sum + (s.count || 0), 0);
+        }
+        
+        // Set question_count to actual attemptable questions
+        exam.question_count = requiredCount + optionalCount;
+        exam.is_sectional = true;
+        exam.section_summary = {
+          required: requiredCount,
+          optional: optionalCount,
+          total_attemptable: requiredCount + optionalCount,
+          max_optional: maxOptional,
+          min_compulsory: minCompulsory
+        };
+      } catch(e) {
+        // If parsing fails, use total count
+        exam.question_count = exam.total_questions_in_db || 0;
+        exam.is_sectional = false;
+      }
+    } else {
+      // Non-sectional exam - use total count
+      exam.question_count = exam.total_questions_in_db || 0;
+    }
+  }
 
   const allExamResources = await db.prepare(`SELECT er.*, e.id as exam_id, e.is_premium, e.batch_id FROM exam_resources er JOIN exams e ON er.exam_id = e.id ORDER BY er.created_at DESC`).all();
 
@@ -566,7 +634,17 @@ async function handleListExams(request, db) {
       if (exam.live_deadline_hours > 0 && live.is_live) results_visible = false;
       else results_visible = isResultsPublished(exam);
     }
-    result.push({ ...exam, ...live, stored_attempt, accessible, can_practice, results_visible, exam_resources: examResourcesMap[exam.id] || [], batch_id: exam.batch_id, batch_name: exam.batch_name });
+    result.push({ 
+      ...exam, 
+      ...live, 
+      stored_attempt, 
+      accessible, 
+      can_practice, 
+      results_visible, 
+      exam_resources: examResourcesMap[exam.id] || [], 
+      batch_id: exam.batch_id, 
+      batch_name: exam.batch_name 
+    });
   }
   
   return json({ exams: result, batch_resources: batchResourcesList }, 200, 15);
