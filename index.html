@@ -50,6 +50,20 @@ body{
 .btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
 .btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
 .btn-lg{padding:14px 32px;font-size:1rem;border-radius:var(--rl)}
+.icon-btn{
+  width:44px;height:44px;border:none;background:none;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0;
+}
+.icon-btn:hover{background:var(--hov)}
+.icon-btn svg{width:20px;height:20px}
+.avatar{
+  width:36px;height:36px;border-radius:50%;background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--gs);font-weight:500;font-size:14px;
+  color:#fff;cursor:pointer;flex-shrink:0;border:2px solid transparent;
+}
+.avatar:hover{border-color:var(--border)}
 .main{flex:1;padding-top:var(--hh)}
 
 .hero-viewport{
@@ -127,6 +141,7 @@ body{
 .g-card h3{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1);margin-bottom:8px}
 .g-card p{font-size:.875rem;color:var(--t3);line-height:1.55}
 
+/* Updated step card styles to match feature cards exactly */
 .step-number {
   width:44px;height:44px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
@@ -170,6 +185,19 @@ body{
   text-align:center;margin-bottom:4px;
 }
 .modal .subtitle{font-size:.85rem;color:var(--t3);text-align:center;margin-bottom:28px}
+.field{margin-bottom:18px}
+.field-label{
+  display:block;font-size:.75rem;font-weight:500;color:var(--t3);
+  margin-bottom:4px;letter-spacing:.3px;
+}
+.field-input{
+  width:100%;padding:12px 14px;border:1px solid var(--border);
+  border-radius:var(--r);font-family:var(--rb);font-size:.95rem;
+  color:var(--t1);background:var(--surf);outline:none;transition:border var(--tr);
+  min-height:44px;
+}
+.field-input:hover{border-color:var(--t3)}
+.field-input:focus{border:2px solid var(--blue);padding:11px 13px}
 .alert{
   padding:10px 14px;border-radius:var(--r);font-size:.8rem;
   margin-bottom:16px;display:none;
@@ -183,13 +211,12 @@ body{
 @keyframes spin{to{transform:rotate(360deg)}}
 .btn-full{width:100%;height:auto;min-height:44px;justify-content:center}
 .btn-full:disabled{background:var(--hov);color:var(--t4);cursor:not-allowed;box-shadow:none}
-.google-btn{
-  background:var(--surf);color:var(--t2);border:1px solid var(--border);
-  gap:10px;margin-bottom:18px;
+.modal-footer-link{text-align:center;margin-top:20px;font-size:.85rem;color:var(--t3)}
+.modal-footer-link button{
+  background:none;border:none;color:var(--blue);cursor:pointer;
+  font-family:var(--rb);font-size:.85rem;font-weight:500;min-height:40px;
 }
-.google-btn:hover{background:var(--hov);box-shadow:0 1px 2px rgba(60,64,67,.15)}
-.google-btn:disabled{opacity:.6;cursor:not-allowed;box-shadow:none}
-.google-btn svg{width:18px;height:18px;flex-shrink:0}
+.modal-footer-link button:hover{text-decoration:underline}
 
 .footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
 .footer-inner{
@@ -256,6 +283,14 @@ body{
   .metrics-inner{grid-template-columns:1fr 1fr}
   .metric-val{font-size:1.5rem}
   .metric-item{padding:20px 16px}
+}
+@media(max-width:600px) and (max-height:700px){
+  .hero{padding:24px 20px 20px}
+  .hero-eyebrow{margin-bottom:14px}
+  .hero h1{font-size:1.5rem;margin-bottom:12px}
+  .hero p{font-size:.95rem;margin-bottom:20px}
+  .metric-item{padding:14px 16px}
+  .metric-val{font-size:1.25rem}
 }
 </style>
 </head>
@@ -369,17 +404,70 @@ body{
 
 <div class="modal-overlay" id="authModal">
   <div class="modal">
-    <h2>Verify with Google</h2>
-    <p class="subtitle">Confirm your identity to continue</p>
+    <h2 id="authModalTitle">Sign in</h2>
+    <p class="subtitle" id="authModalSub">to continue to <strong>Exalyte</strong></p>
     <div class="alert" id="modalAlert"></div>
+    <form id="authForm" autocomplete="off">
+      <div class="field" id="nameField" style="display:none">
+        <label class="field-label" for="authName">Full name</label>
+        <input type="text" class="field-input" id="authName" placeholder="Your name">
+      </div>
+      <div class="field">
+        <label class="field-label" for="authEmail">Email address</label>
+        <input type="email" class="field-input" id="authEmail" required placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label class="field-label" for="authPassword">Password</label>
+        <input type="password" class="field-input" id="authPassword" required placeholder="Your password" minlength="6">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="authSubmitBtn">
+        <span id="authBtnText">Next</span>
+        <span class="spinner-inline" id="authSpinner"></span>
+      </button>
+    </form>
+    <div class="modal-footer-link" id="authSwitch">
+      Don't have an account? <button onclick="switchAuthMode('signup')">Create one</button>
+    </div>
+  </div>
+</div>
 
-    <button type="button" class="btn btn-outline btn-full google-btn" id="googleBtn" onclick="handleGoogleClick()">
-      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 01-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
-      <span id="googleBtnText">Continue with Google</span>
-      <span class="spinner-inline" id="googleSpinner"></span>
-    </button>
+<div class="modal-overlay" id="masterKeyModal">
+  <div class="modal">
+    <h2>Admin Verification</h2>
+    <p class="subtitle">Enter your master key to access the admin panel</p>
+    <div class="alert" id="masterKeyAlert"></div>
+    <form id="masterKeyForm" autocomplete="off">
+      <div class="field">
+        <label class="field-label" for="masterKeyInput">Master Key</label>
+        <input type="password" class="field-input" id="masterKeyInput" placeholder="Enter your secret phrase" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="masterKeySubmitBtn">
+        <span id="masterKeyBtnText">Verify</span>
+        <span class="spinner-inline" id="masterKeySpinner"></span>
+      </button>
+    </form>
+  </div>
+</div>
 
-    <p style="text-align:center;font-size:.75rem;color:var(--t4);margin-top:12px">You'll stay on this page after verification.</p>
+<div class="modal-overlay" id="masterKeySetupModal">
+  <div class="modal">
+    <h2>Set Master Key</h2>
+    <p class="subtitle">Create a secret phrase to protect admin access. Keep it safe — you'll need it every time you log in.</p>
+    <div class="alert" id="masterKeySetupAlert"></div>
+    <form id="masterKeySetupForm" autocomplete="off">
+      <div class="field">
+        <label class="field-label" for="setupKeyInput">Master Key Phrase</label>
+        <input type="password" class="field-input" id="setupKeyInput" placeholder="Minimum 6 characters" required minlength="6">
+      </div>
+      <div class="field">
+        <label class="field-label" for="setupKeyConfirm">Confirm Phrase</label>
+        <input type="password" class="field-input" id="setupKeyConfirm" placeholder="Re-enter your phrase" required minlength="6">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="masterKeySetupBtn">
+        <span id="masterKeySetupBtnText">Set Master Key</span>
+        <span class="spinner-inline" id="masterKeySetupSpinner"></span>
+      </button>
+    </form>
   </div>
 </div>
 
@@ -419,16 +507,25 @@ body{
 
 <div class="toast" id="toast"></div>
 
-<!-- Supabase Auth -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = 'https://edcaxkqmtsqnijxefhvz.supabase.co';
-  const SUPABASE_ANON_KEY = 'sb_publishable_aJBTFJwEC0Daj76xb9KG0A_PS_STUFj';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-</script>
-
 <script>
 const API = '/api';
+const token = localStorage.getItem('exalyte_token');
+const user = JSON.parse(localStorage.getItem('exalyte_user') || 'null');
+const loggedIn = !!(token && user);
+
+const header = document.getElementById('header');
+let lastY = 0, ticking = false;
+window.addEventListener('scroll', function() {
+  if (!ticking) {
+    requestAnimationFrame(function() {
+      var y = window.scrollY;
+      header.classList.toggle('hidden', y > lastY && y > 80);
+      lastY = y;
+      ticking = false;
+    });
+    ticking = true;
+  }
+}, { passive: true });
 
 function toast(msg) {
   var t = document.getElementById('toast');
@@ -449,121 +546,326 @@ function clearModalAlert() {
   el.textContent = '';
 }
 
-function openAuth() {
+function masterKeyAlert(msg) {
+  var el = document.getElementById('masterKeyAlert');
+  el.textContent = msg;
+  el.className = 'alert alert-e';
+}
+
+function clearMasterKeyAlert() {
+  var el = document.getElementById('masterKeyAlert');
+  el.className = 'alert';
+  el.textContent = '';
+}
+
+function masterKeySetupAlertFn(msg) {
+  var el = document.getElementById('masterKeySetupAlert');
+  el.textContent = msg;
+  el.className = 'alert alert-e';
+}
+
+function clearMasterKeySetupAlert() {
+  var el = document.getElementById('masterKeySetupAlert');
+  el.className = 'alert';
+  el.textContent = '';
+}
+
+function getFingerprint() {
+  var data = [
+    navigator.hardwareConcurrency || 'unknown',
+    navigator.deviceMemory || 'unknown',
+    screen.width + 'x' + screen.height,
+    new Date().getTimezoneOffset(),
+    navigator.language,
+    navigator.platform || 'unknown',
+    !!navigator.webdriver
+  ].join('|');
+  var hash = 0;
+  for (var i = 0; i < data.length; i++) {
+    var char = data.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  return 'fp_' + Math.abs(hash).toString(36);
+}
+
+var authMode = 'login';
+var tempToken = null;
+
+function openAuth(mode) {
+  authMode = mode;
   document.getElementById('authModal').classList.add('open');
-  clearModalAlert();
-  resetGoogleBtn();
+  switchAuthMode(mode);
+  document.getElementById('authEmail').focus();
 }
 
 function closeAuth() {
   document.getElementById('authModal').classList.remove('open');
   clearModalAlert();
-  resetGoogleBtn();
+  document.getElementById('authForm').reset();
 }
 
-function resetGoogleBtn() {
-  var btn = document.getElementById('googleBtn');
-  btn.disabled = false;
-  document.getElementById('googleBtnText').style.display = 'inline';
-  document.getElementById('googleSpinner').style.display = 'none';
+function switchAuthMode(mode) {
+  authMode = mode;
+  clearModalAlert();
+  document.getElementById('authForm').reset();
+  
+  if (mode === 'signup') {
+    document.getElementById('authModalTitle').textContent = 'Create account';
+    document.getElementById('authModalSub').innerHTML = 'Free forever — no credit card needed';
+    document.getElementById('nameField').style.display = 'block';
+    document.getElementById('authBtnText').textContent = 'Create account';
+    document.getElementById('authSwitch').innerHTML = 'Already have an account? <button onclick="switchAuthMode(\'login\')">Sign in</button>';
+  } else {
+    document.getElementById('authModalTitle').textContent = 'Sign in';
+    document.getElementById('authModalSub').innerHTML = 'to continue to <strong>Exalyte</strong>';
+    document.getElementById('nameField').style.display = 'none';
+    document.getElementById('authBtnText').textContent = 'Next';
+    document.getElementById('authSwitch').innerHTML = 'Don\'t have an account? <button onclick="switchAuthMode(\'signup\')">Create one</button>';
+  }
+}
+
+function resetAuthBtn() {
+  document.getElementById('authSubmitBtn').disabled = false;
+  document.getElementById('authSpinner').style.display = 'none';
+  document.getElementById('authBtnText').style.display = 'inline';
+}
+
+function setAuthLoading() {
+  document.getElementById('authSubmitBtn').disabled = true;
+  document.getElementById('authSpinner').style.display = 'inline-block';
+  document.getElementById('authBtnText').style.display = 'none';
 }
 
 document.getElementById('authModal').addEventListener('click', function(e) {
   if (e.target === this) closeAuth();
 });
 
-// ============================================================
-// SUPABASE GOOGLE VERIFICATION — Silent, stays on page
-// ============================================================
-async function handleGoogleClick() {
-  clearModalAlert();
-  var btn = document.getElementById('googleBtn');
-  btn.disabled = true;
-  document.getElementById('googleBtnText').style.display = 'none';
-  document.getElementById('googleSpinner').style.display = 'inline-block';
-
-  try {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin + '/'
-      }
-    });
-
-    if (error) {
-      console.error('Supabase OAuth error:', error);
-      resetGoogleBtn();
-      modalAlert('Verification failed. Please try again.');
-      return;
-    }
-
-    // Redirect happens — Supabase will redirect back to /
-    // No further code runs here
-
-  } catch (e) {
-    console.error('Verification error:', e);
-    resetGoogleBtn();
-    modalAlert('Verification failed. Please try again.');
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeAuth();
+    closeMasterKeyModal();
+    closeMasterKeySetupModal();
   }
-}
+});
 
-// Handle Supabase OAuth callback on page load — SILENT verification
-(async function checkSupabaseSession() {
-  try {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    
-    if (session && session.user) {
-      console.log('Supabase verification complete:', session.user.email);
-      
-      // Silently verified — send to backend if needed, but NO UI change
-      const accessToken = session.access_token;
-      const userEmail = session.user.email;
-      const userName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'Google User';
-      const googleId = session.user.id;
-      
-      // Send to YOUR backend (optional — for D1 storage)
-      fetch(API + '/auth/supabase', {
+document.getElementById('authForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  clearModalAlert();
+  
+  if (!navigator.onLine) { modalAlert('No internet connection.'); return; }
+  
+  var email = document.getElementById('authEmail').value.trim();
+  var password = document.getElementById('authPassword').value;
+  
+  if (!email || !password) { modalAlert('Please fill in all fields.'); return; }
+  
+  if (authMode === 'signup') {
+    var name = document.getElementById('authName').value.trim();
+    if (!name) { modalAlert('Please enter your name.'); return; }
+    if (password.length < 6) { modalAlert('Password must be at least 6 characters.'); return; }
+    setAuthLoading();
+    try {
+      var fingerprint = getFingerprint();
+      var res = await fetch(API + '/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email: userEmail, 
-          name: userName, 
-          google_id: googleId 
-        })
-      })
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
-        console.log('Backend verification:', data);
-      })
-      .catch(function(err) {
-        console.error('Backend error:', err);
+        body: JSON.stringify({ name: name, email: email, password: password, fingerprint: fingerprint })
       });
-    }
-  } catch (e) {
-    console.log('No Supabase session:', e.message);
+      var data = await res.json();
+      if (!res.ok) { modalAlert(data.error || 'Signup failed.'); resetAuthBtn(); return; }
+      localStorage.setItem('exalyte_token', data.token);
+      localStorage.setItem('exalyte_user', JSON.stringify(data.user));
+      toast('Account created successfully.');
+      setTimeout(function() { window.location.href = data.user.is_admin ? 'admin.html' : 'dashboard.html'; }, 400);
+    } catch(e) { modalAlert('Network error. Please try again.'); resetAuthBtn(); }
+  } else {
+    setAuthLoading();
+    try {
+      var res = await fetch(API + '/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: password })
+      });
+      var data = await res.json();
+      if (!res.ok) { modalAlert(data.error || 'Login failed.'); resetAuthBtn(); return; }
+      
+      if (data.requires_master_key) {
+        tempToken = data.temp_token;
+        closeAuth();
+        openMasterKeyModal();
+        return;
+      }
+      
+      if (data.setup_master_key) {
+        tempToken = data.temp_token;
+        closeAuth();
+        openMasterKeySetupModal();
+        return;
+      }
+      
+      localStorage.setItem('exalyte_token', data.token);
+      localStorage.setItem('exalyte_user', JSON.stringify(data.user));
+      toast('Signed in successfully.');
+      setTimeout(function() { window.location.href = 'dashboard.html'; }, 400);
+    } catch(e) { modalAlert('Network error. Please try again.'); resetAuthBtn(); }
   }
-})();
+});
 
-// ============================================================
-// RENDER UI — Always shows "Sign in" / "Get started"
-// ============================================================
+function openMasterKeyModal() {
+  clearMasterKeyAlert();
+  document.getElementById('masterKeyForm').reset();
+  document.getElementById('masterKeyModal').classList.add('open');
+  document.getElementById('masterKeyInput').focus();
+}
+
+function closeMasterKeyModal() {
+  document.getElementById('masterKeyModal').classList.remove('open');
+  clearMasterKeyAlert();
+  document.getElementById('masterKeyForm').reset();
+}
+
+document.getElementById('masterKeyModal').addEventListener('click', function(e) {
+  if (e.target === this) closeMasterKeyModal();
+});
+
+document.getElementById('masterKeyForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  clearMasterKeyAlert();
+  
+  var masterKey = document.getElementById('masterKeyInput').value;
+  if (!masterKey) { masterKeyAlert('Please enter your master key.'); return; }
+  
+  var btn = document.getElementById('masterKeySubmitBtn');
+  btn.disabled = true;
+  document.getElementById('masterKeySpinner').style.display = 'inline-block';
+  document.getElementById('masterKeyBtnText').style.display = 'none';
+  
+  try {
+    var res = await fetch(API + '/auth/master-key/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ temp_token: tempToken, master_key: masterKey })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      masterKeyAlert(data.error || 'Verification failed.');
+      btn.disabled = false;
+      document.getElementById('masterKeySpinner').style.display = 'none';
+      document.getElementById('masterKeyBtnText').style.display = 'inline';
+      return;
+    }
+    
+    localStorage.setItem('exalyte_token', data.token);
+    localStorage.setItem('exalyte_user', JSON.stringify({ id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true }));
+    toast('Admin access granted.');
+    closeMasterKeyModal();
+    setTimeout(function() { window.location.href = 'admin.html'; }, 400);
+  } catch(e) {
+    masterKeyAlert('Network error. Please try again.');
+    btn.disabled = false;
+    document.getElementById('masterKeySpinner').style.display = 'none';
+    document.getElementById('masterKeyBtnText').style.display = 'inline';
+  }
+});
+
+function openMasterKeySetupModal() {
+  clearMasterKeySetupAlert();
+  document.getElementById('masterKeySetupForm').reset();
+  document.getElementById('masterKeySetupModal').classList.add('open');
+  document.getElementById('setupKeyInput').focus();
+}
+
+function closeMasterKeySetupModal() {
+  document.getElementById('masterKeySetupModal').classList.remove('open');
+  clearMasterKeySetupAlert();
+  document.getElementById('masterKeySetupForm').reset();
+}
+
+document.getElementById('masterKeySetupModal').addEventListener('click', function(e) {
+  if (e.target === this) closeMasterKeySetupModal();
+});
+
+document.getElementById('masterKeySetupForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  clearMasterKeySetupAlert();
+  
+  var key = document.getElementById('setupKeyInput').value;
+  var confirm = document.getElementById('setupKeyConfirm').value;
+  
+  if (!key || !confirm) { masterKeySetupAlertFn('Please fill in both fields.'); return; }
+  if (key.length < 6) { masterKeySetupAlertFn('Master key must be at least 6 characters.'); return; }
+  if (key !== confirm) { masterKeySetupAlertFn('Phrases do not match.'); return; }
+  
+  var btn = document.getElementById('masterKeySetupBtn');
+  btn.disabled = true;
+  document.getElementById('masterKeySetupSpinner').style.display = 'inline-block';
+  document.getElementById('masterKeySetupBtnText').style.display = 'none';
+  
+  try {
+    var res = await fetch(API + '/auth/master-key/set', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ temp_token: tempToken, master_key: key })
+    });
+    var data = await res.json();
+    if (!res.ok) {
+      masterKeySetupAlertFn(data.error || 'Setup failed.');
+      btn.disabled = false;
+      document.getElementById('masterKeySetupSpinner').style.display = 'none';
+      document.getElementById('masterKeySetupBtnText').style.display = 'inline';
+      return;
+    }
+    
+    localStorage.setItem('exalyte_token', data.token);
+    localStorage.setItem('exalyte_user', JSON.stringify({ id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true }));
+    toast('Master key set. Admin access granted.');
+    closeMasterKeySetupModal();
+    setTimeout(function() { window.location.href = 'admin.html'; }, 400);
+  } catch(e) {
+    masterKeySetupAlertFn('Network error. Please try again.');
+    btn.disabled = false;
+    document.getElementById('masterKeySetupSpinner').style.display = 'none';
+    document.getElementById('masterKeySetupBtnText').style.display = 'inline';
+  }
+});
+
 function renderUI() {
   var hr = document.getElementById('headerRight');
   var heroActions = document.getElementById('heroActions');
   var ctaActions = document.getElementById('ctaActions');
+  
+  if (loggedIn) {
+    var initial = (user.name || 'U')[0].toUpperCase();
+    var dashboardUrl = user.is_admin ? 'admin.html' : 'dashboard.html';
+    hr.innerHTML = 
+      '<button class="icon-btn" onclick="logout()" title="Sign out" aria-label="Sign out">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>' +
+      '</button>' +
+      '<div class="avatar">' + initial + '</div>';
+    document.getElementById('heroSubtitle').textContent = 'Welcome back! Continue your preparation journey.';
+    heroActions.innerHTML = '<a href="' + dashboardUrl + '" class="btn btn-primary btn-lg">Go to Dashboard</a><a href="#features" class="btn btn-outline btn-lg">Learn more</a>';
+    ctaActions.innerHTML = '<a href="' + dashboardUrl + '" class="btn btn-primary btn-lg">Go to Dashboard</a>';
+  } else {
+    hr.innerHTML = 
+      '<button class="btn btn-outline" onclick="openAuth(\'login\')">Sign in</button>' +
+      '<button class="btn btn-primary" onclick="openAuth(\'signup\')">Create account</button>';
+    heroActions.innerHTML = 
+      '<button class="btn btn-primary btn-lg" onclick="openAuth(\'signup\')">Create free account</button>' +
+      '<button class="btn btn-outline btn-lg" onclick="openAuth(\'login\')">Sign in</button>';
+    ctaActions.innerHTML = 
+      '<button class="btn btn-primary btn-lg" onclick="openAuth(\'signup\')">Create free account</button>' +
+      '<button class="btn btn-outline btn-lg" onclick="openAuth(\'login\')">Sign in</button>';
+  }
+}
 
-  hr.innerHTML =
-    '<button class="btn btn-outline" onclick="openAuth()">Sign in</button>' +
-    '<button class="btn btn-primary" onclick="openAuth()">Get started</button>';
-  heroActions.innerHTML =
-    '<button class="btn btn-primary btn-lg" onclick="openAuth()">Create free account</button>' +
-    '<button class="btn btn-outline btn-lg" onclick="openAuth()">Sign in</button>';
-  ctaActions.innerHTML =
-    '<button class="btn btn-primary btn-lg" onclick="openAuth()">Create free account</button>' +
-    '<button class="btn btn-outline btn-lg" onclick="openAuth()">Sign in</button>';
+function logout() {
+  localStorage.removeItem('exalyte_token');
+  localStorage.removeItem('exalyte_user');
+  window.location.href = '/';
 }
 
 renderUI();
 </script>
 </body>
-</html>
+  </html>
