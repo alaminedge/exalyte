@@ -481,10 +481,6 @@ async function handleDeleteExamResource(resourceId, db) {
 }
 
 // ============================================================
-// END OF PART 1 — PART 2 CONTINUES BELOW
-// =======================================================BELOW
-
-// ============================================================
 // EXAMS ROUTES
 // ============================================================
 
@@ -643,9 +639,14 @@ async function handleSubmitExam(examId, request, db) {
 
   // FETCH ONLY SELECTED SECTIONS FOR GRADING (both practice and real)
   let questions;
+  let validSections = [];
+  
   if (exam.has_sections && selected_sections && selected_sections.length > 0) {
-    const placeholders = selected_sections.map(() => '?').join(',');
-    questions = await db.prepare(`SELECT * FROM questions WHERE exam_id = ? AND section IN (${placeholders})`).bind(examId, ...selected_sections).all();
+    validSections = selected_sections;
+    const placeholders = validSections.map(() => '?').join(',');
+    questions = await db.prepare(`SELECT * FROM questions WHERE exam_id = ? AND section IN (${placeholders})`).bind(examId, ...validSections).all();
+  } else if (exam.has_sections) {
+    return err('Section selection required', 400);
   } else {
     questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
   }
@@ -672,21 +673,46 @@ async function handleSubmitExam(examId, request, db) {
   const timeTaken = time_taken_seconds || 0;
 
   if (is_practice) {
-    return json({ attemptId: 0, score: Math.max(0, score), total, max_score: maxScore, percentage, correct: correctCount, wrong: wrongCount, skipped: skippedCount, detailed: detailedAnswers, time_taken_seconds: timeTaken, is_practice: true });
+    return json({ 
+      attemptId: 0, 
+      score: Math.max(0, score), 
+      total, 
+      max_score: maxScore, 
+      percentage, 
+      correct: correctCount, 
+      wrong: wrongCount, 
+      skipped: skippedCount, 
+      detailed: detailedAnswers, 
+      time_taken_seconds: timeTaken, 
+      is_practice: true,
+      selected_sections: validSections
+    });
   }
 
   const existingFirst = await db.prepare('SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1').bind(user.id, examId).first();
   if (existingFirst) return err('You have already taken this exam.', 403);
 
-  const r1 = await db.prepare(`INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt, time_taken_seconds, selected_sections) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`).bind(user.id, examId, Math.max(0, score), total, percentage, JSON.stringify(detailedAnswers), 0, 1, timeTaken, JSON.stringify(selected_sections || [])).first();
+  const r1 = await db.prepare(`INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt, time_taken_seconds, selected_sections) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`).bind(user.id, examId, Math.max(0, score), total, percentage, JSON.stringify(detailedAnswers), 0, 1, timeTaken, JSON.stringify(validSections)).first();
 
   await db.prepare(`INSERT INTO exam_attempts (user_id, exam_id, score, total_questions, percentage, answers, time_taken_seconds) VALUES (?, ?, ?, ?, ?, ?, ?)`).bind(user.id, examId, Math.max(0, score), total, percentage, JSON.stringify(detailedAnswers), timeTaken).run();
 
-  return json({ attemptId: r1.id, score: Math.max(0, score), total, max_score: maxScore, percentage, correct: correctCount, wrong: wrongCount, skipped: skippedCount, detailed: detailedAnswers, time_taken_seconds: timeTaken });
+  return json({ 
+    attemptId: r1.id, 
+    score: Math.max(0, score), 
+    total, 
+    max_score: maxScore, 
+    percentage, 
+    correct: correctCount, 
+    wrong: wrongCount, 
+    skipped: skippedCount, 
+    detailed: detailedAnswers, 
+    time_taken_seconds: timeTaken,
+    selected_sections: validSections
+  });
 }
 
 // ============================================================
-// GET RESULT
+// GET RESULT — FILTERS BY SELECTED SECTIONS
 // ============================================================
 
 async function handleGetResult(examId, attemptId, request, db) {
@@ -695,16 +721,97 @@ async function handleGetResult(examId, attemptId, request, db) {
   const exam = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   if (!exam) return err('Exam not found', 404);
   const live = getLiveStatus(exam);
-  if (exam.live_deadline_hours > 0 && live.is_live) return json({ pending: true, message: 'Results available after live window ends.' });
-  if (!isResultsPublished(exam)) return json({ pending: true, message: 'Results available after publication.' });
+  if (exam.live_deadline_hours > 0 && live.is_live) {
+    return json({ 
+      pending: true, 
+      message: 'Results available after live window ends.',
+      live_seconds_remaining: live.live_seconds_remaining,
+      exam_name: exam.name
+    });
+  }
+  if (!isResultsPublished(exam)) {
+    return json({ 
+      pending: true, 
+      message: 'Results available after publication.',
+      exam_name: exam.name
+    });
+  }
+  
+  // Practice mode - no stored attempt
   if (attemptId == 0 || !attemptId) {
     const questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
-    return json({ attempt: { id: 0, score: 0, total_questions: questions.results.length, percentage: 0, answers: '{}', is_practice: 1 }, questions: questions.results, exam, results_published: true });
+    return json({ 
+      attempt: { 
+        id: 0, 
+        score: 0, 
+        total_questions: questions.results.length, 
+        percentage: 0, 
+        answers: '{}', 
+        is_practice: 1 
+      }, 
+      questions: questions.results, 
+      exam, 
+      results_published: true 
+    });
   }
-  const attempt = await db.prepare('SELECT * FROM exam_results_stored WHERE id = ? AND user_id = ? AND exam_id = ?').bind(attemptId, user.id, examId).first();
+  
+  // Real exam - get stored attempt
+  const attempt = await db.prepare(
+    'SELECT * FROM exam_results_stored WHERE id = ? AND user_id = ? AND exam_id = ?'
+  ).bind(attemptId, user.id, examId).first();
+  
   if (!attempt) return err('Result not found', 404);
-  const questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
-  return json({ attempt: { ...attempt, answers: JSON.parse(attempt.answers || '{}') }, questions: questions.results, exam, results_published: true });
+  
+  // Parse selected sections from attempt
+  let selectedSections = [];
+  try {
+    selectedSections = JSON.parse(attempt.selected_sections || '[]');
+  } catch(e) {
+    selectedSections = [];
+  }
+  
+  // Fetch only questions from selected sections
+  let questions;
+  if (exam.has_sections && selectedSections.length > 0) {
+    const placeholders = selectedSections.map(() => '?').join(',');
+    questions = await db.prepare(
+      `SELECT * FROM questions 
+       WHERE exam_id = ? AND section IN (${placeholders})
+       ORDER BY section_order, id`
+    ).bind(examId, ...selectedSections).all();
+  } else {
+    // Non-sectional exam or no sections stored
+    questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
+  }
+  
+  // Filter answers to only include selected questions
+  const questionIds = new Set(questions.results.map(q => q.id));
+  let storedAnswers = {};
+  try {
+    storedAnswers = JSON.parse(attempt.answers || '{}');
+  } catch(e) {
+    storedAnswers = {};
+  }
+  
+  const filteredAnswers = {};
+  for (const [qId, answer] of Object.entries(storedAnswers)) {
+    const numericId = parseInt(qId);
+    if (questionIds.has(numericId)) {
+      filteredAnswers[numericId] = answer;
+    }
+  }
+  
+  return json({ 
+    attempt: { 
+      ...attempt, 
+      answers: filteredAnswers,
+      selected_sections: selectedSections,
+      total_questions: questions.results.length
+    }, 
+    questions: questions.results, 
+    exam, 
+    results_published: true 
+  });
 }
 
 // ============================================================
