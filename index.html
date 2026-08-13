@@ -537,10 +537,7 @@ body{
   const firebaseConfig = {
     apiKey: "AIzaSyAfmwmzKw20_VcmPByx37ulAejgE067OcM",
     authDomain: "exalyte-4eb0b.firebaseapp.com",
-    projectId: "exalyte-4eb0b",
-    storageBucket: "exalyte-4eb0b.firebasestorage.app",
-    messagingSenderId: "745936394546",
-    appId: "1:745936394546:web:f7be9b33932cb5336f9f2b"
+    projectId: "exalyte-4eb0b"
   };
   firebase.initializeApp(firebaseConfig);
   const firebaseAuth = firebase.auth();
@@ -609,26 +606,8 @@ function clearMasterKeySetupAlert() {
   el.textContent = '';
 }
 
-function getFingerprint() {
-  var data = [
-    navigator.hardwareConcurrency || 'unknown',
-    navigator.deviceMemory || 'unknown',
-    screen.width + 'x' + screen.height,
-    new Date().getTimezoneOffset(),
-    navigator.language,
-    navigator.platform || 'unknown',
-    !!navigator.webdriver
-  ].join('|');
-  var hash = 0;
-  for (var i = 0; i < data.length; i++) {
-    var char = data.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash |= 0;
-  }
-  return 'fp_' + Math.abs(hash).toString(36);
-}
-
 var authMode = 'login';
+var tempToken = null;
 
 function openAuth(mode) {
   authMode = mode;
@@ -709,7 +688,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ============================================================
-// GOOGLE SIGN-IN (identity proof only — all account data in D1)
+// GOOGLE SIGN-IN — CRITICAL FIX: Use credentialFromResult
 // ============================================================
 async function handleGoogleClick() {
   clearModalAlert();
@@ -721,7 +700,14 @@ async function handleGoogleClick() {
   try {
     var provider = new firebase.auth.GoogleAuthProvider();
     var result = await firebaseAuth.signInWithPopup(provider);
-    var idToken = await result.user.getIdToken();
+    
+    // CRITICAL: Get RAW Google OAuth ID token (not Firebase-wrapped token)
+    var credential = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
+    var idToken = credential ? credential.idToken : null;
+    
+    if (!idToken) {
+      throw new Error('No Google ID token received');
+    }
 
     var res = await fetch(API + '/auth/google', {
       method: 'POST',
@@ -763,6 +749,7 @@ async function handleGoogleClick() {
       }, 400);
     }
   } catch (e) {
+    console.error('Google sign-in error:', e);
     btn.disabled = false;
     document.getElementById('googleBtnText').style.display = 'inline';
     document.getElementById('googleSpinner').style.display = 'none';
@@ -842,8 +829,6 @@ document.getElementById('authForm').addEventListener('submit', async function(e)
   } catch(e) { modalAlert('Network error. Please try again.'); resetAuthBtn(); }
 });
 
-var tempToken = null;
-
 function openMasterKeyModal() {
   clearMasterKeyAlert();
   document.getElementById('masterKeyForm').reset();
@@ -864,15 +849,12 @@ document.getElementById('masterKeyModal').addEventListener('click', function(e) 
 document.getElementById('masterKeyForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   clearMasterKeyAlert();
-
   var masterKey = document.getElementById('masterKeyInput').value;
   if (!masterKey) { masterKeyAlert('Please enter your master key.'); return; }
-
   var btn = document.getElementById('masterKeySubmitBtn');
   btn.disabled = true;
   document.getElementById('masterKeySpinner').style.display = 'inline-block';
   document.getElementById('masterKeyBtnText').style.display = 'none';
-
   try {
     var res = await fetch(API + '/auth/master-key/verify', {
       method: 'POST',
@@ -887,7 +869,6 @@ document.getElementById('masterKeyForm').addEventListener('submit', async functi
       document.getElementById('masterKeyBtnText').style.display = 'inline';
       return;
     }
-
     localStorage.setItem('exalyte_token', data.token);
     localStorage.setItem('exalyte_user', JSON.stringify({ id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true }));
     toast('Admin access granted.');
@@ -921,19 +902,15 @@ document.getElementById('masterKeySetupModal').addEventListener('click', functio
 document.getElementById('masterKeySetupForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   clearMasterKeySetupAlert();
-
   var key = document.getElementById('setupKeyInput').value;
   var confirm = document.getElementById('setupKeyConfirm').value;
-
   if (!key || !confirm) { masterKeySetupAlertFn('Please fill in both fields.'); return; }
   if (key.length < 6) { masterKeySetupAlertFn('Master key must be at least 6 characters.'); return; }
   if (key !== confirm) { masterKeySetupAlertFn('Phrases do not match.'); return; }
-
   var btn = document.getElementById('masterKeySetupBtn');
   btn.disabled = true;
   document.getElementById('masterKeySetupSpinner').style.display = 'inline-block';
   document.getElementById('masterKeySetupBtnText').style.display = 'none';
-
   try {
     var res = await fetch(API + '/auth/master-key/set', {
       method: 'POST',
@@ -948,7 +925,6 @@ document.getElementById('masterKeySetupForm').addEventListener('submit', async f
       document.getElementById('masterKeySetupBtnText').style.display = 'inline';
       return;
     }
-
     localStorage.setItem('exalyte_token', data.token);
     localStorage.setItem('exalyte_user', JSON.stringify({ id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true }));
     toast('Master key set. Admin access granted.');
@@ -994,6 +970,7 @@ function renderUI() {
 function logout() {
   localStorage.removeItem('exalyte_token');
   localStorage.removeItem('exalyte_user');
+  firebaseAuth.signOut();
   window.location.href = '/';
 }
 
