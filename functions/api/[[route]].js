@@ -363,7 +363,7 @@ async function verifyGoogleToken(idToken) {
     // Reject tokens that weren't issued for this app — without this
     // check, a valid Google ID token from ANY app would authenticate
     // successfully against your backend.
-    if (GOOGLE_OAUTH_CLIENT_ID !== 'REPLACE_WITH_YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com'
+    if (GOOGLE_OAUTH_CLIENT_ID !== '745936394546-oq5tcj5qid0aaod1nk0ukauk1jsv58c1.apps.googleusercontent.com'
         && data.aud !== GOOGLE_OAUTH_CLIENT_ID) {
       return null;
     }
