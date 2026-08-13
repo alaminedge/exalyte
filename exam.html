@@ -30,9 +30,7 @@ body{
   background:var(--surf);border-bottom:1px solid var(--border);
   z-index:1000;display:flex;align-items:center;
   justify-content:space-between;padding:0 24px;
-  transition:transform .25s ease;
 }
-.header.hidden{transform:translateY(-100%)}
 .header-left{display:flex;align-items:center;gap:12px}
 .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
 .logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
@@ -47,16 +45,14 @@ body{
 .timer-box.warning{border-color:var(--yellow);background:var(--yel-bg);color:#e37400}
 .timer-box.danger{border-color:var(--red);background:var(--red-bg);color:var(--red)}
 .timer-box svg{width:16px;height:16px;stroke:currentColor;fill:none}
-.timer-val{font-family:'Google Sans',monospace;font-weight:500;font-size:.9rem;min-width:50px}
+.timer-val{font-family:var(--gs);font-weight:500;font-size:.9rem;min-width:50px}
 .icon-btn{
-  width:44px;height:44px;border:none;background:none;border-radius:50%;
+  width:40px;height:40px;border:none;background:none;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0;
 }
 .icon-btn:hover{background:var(--hov)}
 .icon-btn svg{width:20px;height:20px}
-.icon-btn.leave:hover{background:var(--red-bg);color:var(--red)}
-
 .agreement-overlay{
   position:fixed;inset:0;z-index:500;background:var(--bg);
   display:flex;align-items:center;justify-content:center;padding:20px;
@@ -66,62 +62,46 @@ body{
   background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
   max-width:560px;width:100%;padding:36px 32px;
 }
-.agree-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
-.agree-badge{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:4px 12px;border-radius:20px;font-family:var(--gs);
-  font-size:.72rem;font-weight:500;margin-bottom:14px;
-}
+.agree-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-family:var(--gs);font-size:.72rem;font-weight:500;margin-bottom:14px}
 .badge-blue{background:#e8f0fe;color:var(--blue)}
 .badge-red{background:var(--red-bg);color:var(--red)}
-.badge-scheduled-badge{background:var(--yel-bg);color:#e37400;border:1px solid rgba(249,171,0,.3)}
 .agree-title{font-family:var(--gs);font-size:1.4rem;font-weight:500;color:var(--t1);margin-bottom:6px}
 .agree-sub{font-size:.85rem;color:var(--t3);margin-bottom:20px}
-.agree-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;justify-content:flex-start}
-.agree-meta-item{
-  display:flex;align-items:center;gap:5px;font-size:.72rem;
-  color:var(--t3);padding:4px 10px;border:1px solid var(--border);
-  border-radius:20px;
-}
+.agree-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.agree-meta-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--t3);padding:4px 10px;border:1px solid var(--border);border-radius:20px}
 .agree-meta-item svg{width:12px;height:12px;stroke:currentColor;fill:none}
 .agree-rules{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
 .agree-rule{display:flex;align-items:flex-start;gap:10px;font-size:.82rem;color:var(--t2);line-height:1.5}
 .agree-rule svg{width:16px;height:16px;stroke:var(--blue);fill:none;flex-shrink:0;margin-top:1px}
-.agree-check{
-  display:flex;align-items:flex-start;gap:10px;padding:14px;
-  background:var(--bg);border:1px solid var(--border);border-radius:var(--r);
-  margin-bottom:20px;cursor:pointer;
-}
+.agree-check{display:flex;align-items:flex-start;gap:10px;padding:14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:20px;cursor:pointer}
 .agree-check input[type=checkbox]{width:18px;height:18px;accent-color:var(--blue);cursor:pointer;flex-shrink:0;margin-top:1px}
 .agree-check label{font-size:.85rem;color:var(--t2);cursor:pointer;line-height:1.5}
-.btn-agree{
-  width:100%;padding:14px;font-family:var(--gs);font-size:.92rem;font-weight:500;
-  background:var(--blue);color:#fff;border:none;border-radius:var(--r);
-  cursor:pointer;transition:all var(--tr);min-height:44px;
-}
+.btn-agree{width:100%;padding:14px;font-family:var(--gs);font-size:.92rem;font-weight:500;background:var(--blue);color:#fff;border:none;border-radius:var(--r);cursor:pointer;transition:all var(--tr);min-height:44px}
 .btn-agree:hover{background:var(--blue-h)}
 .btn-agree:disabled{background:var(--hov);color:var(--t4);cursor:not-allowed}
-.btn-back{
-  display:inline-flex;align-items:center;gap:6px;color:var(--t3);
-  font-size:.82rem;background:none;border:none;cursor:pointer;
-  margin-bottom:14px;font-family:var(--rb);transition:color var(--tr);min-height:40px;
-}
+.btn-back{display:inline-flex;align-items:center;gap:6px;color:var(--t3);font-size:.82rem;background:none;border:none;cursor:pointer;margin-bottom:14px;font-family:var(--rb)}
 .btn-back:hover{color:var(--t1)}
 .btn-back svg{width:14px;height:14px;stroke:currentColor;fill:none}
 
-.scheduled-countdown-wrap{text-align:center;padding:24px 0}
-.scheduled-countdown-display{font-family:var(--gs);font-size:2rem;font-weight:500;color:#e37400;margin-bottom:8px}
-.scheduled-countdown-label{font-size:.8rem;color:var(--t4)}
+/* Section Selection */
+.section-select-wrap{margin-bottom:20px}
+.section-select-title{font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t1);margin-bottom:12px}
+.section-checkbox{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;cursor:pointer;transition:all var(--tr)}
+.section-checkbox:hover{border-color:var(--blue);background:#e8f0fe}
+.section-checkbox.selected{border-color:var(--blue);background:#e8f0fe}
+.section-checkbox input[type=checkbox]{width:18px;height:18px;accent-color:var(--blue);cursor:pointer;flex-shrink:0}
+.section-checkbox .sec-name{font-size:.82rem;font-weight:500;color:var(--t1);flex:1}
+.section-checkbox .sec-count{font-size:.7rem;color:var(--t4)}
+.section-checkbox .sec-badge{font-size:.65rem;font-weight:500;padding:2px 8px;border-radius:20px;flex-shrink:0}
+.sec-required{background:var(--red-bg);color:var(--red)}
+.sec-optional{background:var(--grn-bg);color:var(--green)}
+.sec-compulsory{background:var(--yel-bg);color:#e37400}
+.section-rules-info{font-size:.75rem;color:var(--t3);margin-top:8px;line-height:1.5}
+.section-rules-info strong{color:var(--blue)}
 
 #examUI{display:none;flex-direction:column;min-height:calc(100vh - var(--hh))}
-.exam-stats-bar{
-  display:flex;border-bottom:1px solid var(--border);
-  background:var(--surf);flex-shrink:0;
-}
-.stat-chip{
-  flex:1;text-align:center;padding:10px 8px;font-size:.68rem;
-  font-weight:500;color:var(--t3);border-right:1px solid var(--border);
-}
+.exam-stats-bar{display:flex;border-bottom:1px solid var(--border);background:var(--surf);flex-shrink:0}
+.stat-chip{flex:1;text-align:center;padding:10px 8px;font-size:.68rem;font-weight:500;color:var(--t3);border-right:1px solid var(--border)}
 .stat-chip:last-child{border-right:none}
 .stat-chip strong{display:block;font-family:var(--gs);font-size:.9rem;font-weight:500;margin-bottom:1px}
 .stat-chip.answered strong{color:var(--green)}
@@ -129,93 +109,50 @@ body{
 .stat-chip.marked strong{color:var(--blue)}
 .prog-wrap{height:3px;background:var(--hov);flex-shrink:0}
 .prog-fill{height:100%;background:var(--blue);transition:width .3s}
-.questions-area{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+.questions-area{flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:14px}
 .questions-area::-webkit-scrollbar{width:4px}
 .questions-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.q-card{
-  background:var(--surf);border:2px solid var(--border);border-radius:var(--rl);
-  padding:18px;transition:border-color var(--tr);scroll-margin-top:20px;
-}
+.q-card{background:var(--surf);border:2px solid var(--border);border-radius:var(--rl);padding:18px;transition:border-color var(--tr);scroll-margin-top:20px}
 .q-card.active{border-color:var(--blue)}
 .q-card.answered{border-color:rgba(30,142,62,.4)}
 .q-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
-.q-num{
-  min-width:28px;height:28px;border-radius:50%;display:flex;
-  align-items:center;justify-content:center;
-  font-family:var(--gs);font-size:.7rem;font-weight:500;
-  background:var(--hov);color:var(--t3);flex-shrink:0;
-}
+.q-num{min-width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.7rem;font-weight:500;background:var(--hov);color:var(--t3);flex-shrink:0}
 .q-card.answered .q-num{background:var(--grn-bg);color:var(--green)}
 .q-card.active .q-num{background:#e8f0fe;color:var(--blue)}
 .q-text{font-size:.9rem;color:var(--t1);line-height:1.6;font-weight:400}
+.q-section{display:inline-block;font-size:.65rem;background:#e8f0fe;color:var(--blue);padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle}
 .q-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-bottom:12px;border:1px solid var(--border);object-fit:contain}
 .options{display:flex;flex-direction:column;gap:8px}
-.option{
-  display:flex;align-items:center;gap:12px;padding:10px 14px;
-  background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);
-  cursor:pointer;transition:all .15s;min-height:44px;
-}
+.option{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);cursor:pointer;transition:all .15s;min-height:44px}
 .option:hover:not(.selected):not(.locked){border-color:var(--blue);background:#e8f0fe}
 .option.selected{border-color:var(--blue);background:#e8f0fe}
 .option.locked{cursor:default;opacity:.7}
-.option-letter{
-  width:26px;height:26px;border-radius:50%;display:flex;
-  align-items:center;justify-content:center;
-  font-family:var(--gs);font-size:.72rem;font-weight:500;
-  background:var(--surf);color:var(--t3);flex-shrink:0;transition:all .15s;
-}
+.option-letter{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.72rem;font-weight:500;background:var(--surf);color:var(--t3);flex-shrink:0;transition:all .15s}
 .option.selected .option-letter{background:var(--blue);color:#fff}
 .option-text{font-size:.82rem;color:var(--t2);line-height:1.4;flex:1}
 .option-img{max-width:100%;max-height:160px;border-radius:var(--r);border:1px solid var(--border);object-fit:contain}
 .q-footer{display:flex;align-items:center;gap:8px;margin-top:12px}
-.btn-mark{
-  background:none;border:1px solid var(--border);color:var(--t3);
-  padding:6px 14px;border-radius:20px;font-family:var(--gs);font-size:.7rem;
-  font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;
-  transition:all var(--tr);min-height:36px;
-}
+.btn-mark{background:none;border:1px solid var(--border);color:var(--t3);padding:6px 14px;border-radius:20px;font-family:var(--gs);font-size:.7rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all var(--tr);min-height:36px}
 .btn-mark:hover,.btn-mark.active{border-color:var(--blue);color:var(--blue);background:#e8f0fe}
 .btn-mark svg{width:12px;height:12px;stroke:currentColor;fill:none}
 
+/* FLOATING SUBMIT — BOTTOM RIGHT ON ALL DEVICES */
 .floating-submit{
-  position:fixed;bottom:28px;right:28px;z-index:50;
+  position:fixed;bottom:24px;right:24px;z-index:50;
   background:var(--blue);color:#fff;border:none;
   padding:14px 28px;border-radius:28px;
   font-family:var(--gs);font-size:.88rem;font-weight:500;
   cursor:pointer;display:flex;align-items:center;gap:8px;
   box-shadow:0 4px 20px rgba(26,115,232,.35);
   transition:all var(--tr);min-height:48px;
-  bottom:calc(28px + var(--safe-bottom));
+  bottom:calc(24px + var(--safe-bottom));
 }
 .floating-submit:hover{background:var(--blue-h);transform:translateY(-2px);box-shadow:0 6px 24px rgba(26,115,232,.45)}
 .floating-submit svg{width:18px;height:18px;stroke:#fff;fill:none}
 
-.exam-mobile-footer{
-  display:none;background:var(--surf);border-top:1px solid var(--border);
-  padding:12px 16px;align-items:center;
-  position:fixed;bottom:0;left:0;right:0;z-index:30;
-  box-shadow:0 -4px 20px rgba(0,0,0,.1);
-  padding-bottom:calc(12px + var(--safe-bottom));
-}
-.exam-mobile-footer.show{display:flex}
-.btn-mob-submit{
-  flex:1;background:var(--blue);color:#fff;border:none;padding:14px;
-  border-radius:var(--r);font-family:var(--gs);font-size:.9rem;font-weight:500;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
-  transition:all var(--tr);min-height:48px;
-}
-.btn-mob-submit:hover{background:var(--blue-h)}
-.btn-mob-submit svg{width:16px;height:16px;stroke:#fff;fill:none}
-
-.modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;
-  display:none;align-items:center;justify-content:center;padding:20px;
-}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.open{display:flex}
-.modal{
-  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
-  width:100%;max-width:400px;padding:28px 24px;box-shadow:0 24px 50px rgba(0,0,0,.3);
-}
+.modal{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);width:100%;max-width:400px;padding:28px 24px;box-shadow:0 24px 50px rgba(0,0,0,.3)}
 .modal h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1);margin-bottom:4px}
 .modal .subtitle{font-size:.8rem;color:var(--t3);margin-bottom:20px;line-height:1.5}
 .submit-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
@@ -224,79 +161,11 @@ body{
 .sub-stat .l{font-size:.6rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
 .sub-stat.warn .n{color:#e37400}
 .modal-footer{display:flex;gap:10px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border)}
-.btn-secondary{
-  background:var(--bg);border:1px solid var(--border);color:var(--t2);
-  padding:10px 20px;border-radius:var(--r);font-family:var(--gs);font-size:.8rem;
-  font-weight:500;cursor:pointer;transition:all var(--tr);min-height:44px;
-}
+.btn-secondary{background:var(--bg);border:1px solid var(--border);color:var(--t2);padding:10px 20px;border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer;transition:all var(--tr);min-height:44px}
 .btn-secondary:hover{background:var(--hov)}
-
-.practice-result-page{padding:32px 24px 60px;max-width:860px;margin:0 auto;width:100%;padding-bottom:calc(60px + var(--safe-bottom))}
-.score-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:36px 28px;text-align:center;margin-bottom:20px}
-.score-ring-wrap{width:120px;height:120px;margin:0 auto 16px;position:relative}
-.score-ring-wrap svg{transform:rotate(-90deg);width:120px;height:120px}
-.ring-bg{fill:none;stroke:var(--hov);stroke-width:8}
-.ring-fill{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:339;stroke-dashoffset:339;transition:stroke-dashoffset 1.4s ease}
-.ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.ring-pct{font-family:var(--gs);font-size:1.8rem;font-weight:500;color:var(--t1)}
-.ring-lbl{font-size:.6rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
-.score-grade{font-family:var(--gs);font-size:1.2rem;font-weight:500;margin-bottom:4px}
-.score-exam{font-size:.82rem;color:var(--t3);margin-bottom:20px}
-.score-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:360px;margin:0 auto 18px}
-.sc-stat{background:var(--bg);border-radius:var(--r);padding:14px 8px;text-align:center}
-.sc-stat-val{font-family:var(--gs);font-size:1.3rem;font-weight:500}
-.sc-stat-lbl{font-size:.62rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
-.sc-correct .sc-stat-val{color:var(--green)}
-.sc-wrong .sc-stat-val{color:var(--red)}
-.sc-skip .sc-stat-val{color:var(--t3)}
-.perf-bar{height:6px;background:var(--hov);border-radius:4px;max-width:360px;margin:0 auto 20px;overflow:hidden}
-.perf-fill{height:100%;border-radius:4px;width:0;transition:width 1.4s ease}
-.result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.btn-primary{background:var(--blue);color:#fff;border:none;padding:10px 20px;border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer;transition:all var(--tr);text-decoration:none;display:inline-flex;align-items:center;gap:6px;min-height:44px}
+.btn-primary{background:var(--blue);color:#fff;border:none;padding:10px 20px;border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer;transition:all var(--tr);min-height:44px}
 .btn-primary:hover{background:var(--blue-h)}
-.time-info{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:4px;font-size:.75rem;color:var(--t3)}
-.time-info span{display:flex;align-items:center;gap:4px}
-.time-info svg{width:12px;height:12px;stroke:currentColor;fill:none}
-
-.review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
-.review-head h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1)}
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{padding:5px 14px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.72rem;font-weight:500;color:var(--t3);background:var(--surf);cursor:pointer;transition:all var(--tr);min-height:36px;display:flex;align-items:center}
-.chip:hover{border-color:var(--blue);color:var(--blue)}
-.chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
-.review-list{display:flex;flex-direction:column;gap:8px}
-.rv-card{background:var(--surf);border:2px solid var(--border);border-radius:var(--rl);overflow:hidden}
-.rv-card.rv-correct{border-color:rgba(30,142,62,.4)}
-.rv-card.rv-wrong{border-color:rgba(217,48,37,.3)}
-.rv-card.rv-skip{border-color:var(--border)}
-.rv-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none;min-height:44px}
-.rv-status{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.rv-status svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5}
-.rv-correct .rv-status{background:var(--grn-bg);color:var(--green)}
-.rv-wrong .rv-status{background:var(--red-bg);color:var(--red)}
-.rv-skip .rv-status{background:var(--hov);color:var(--t3)}
-.rv-q{font-size:.84rem;color:var(--t2);flex:1;line-height:1.5;text-align:left}
-.rv-arrow{width:16px;height:16px;stroke:var(--t3);fill:none;stroke-width:2;flex-shrink:0;transition:transform .2s}
-.rv-card.open .rv-arrow{transform:rotate(180deg)}
-.rv-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
-.rv-card.open .rv-body{display:block}
-.rv-opts{display:flex;flex-direction:column;gap:6px;margin-top:12px;text-align:left}
-.rv-opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:var(--r);background:var(--bg);border:1.5px solid var(--border);font-size:.8rem;color:var(--t2);line-height:1.4}
-.rv-opt.rv-opt-correct{background:var(--grn-bg);border-color:rgba(30,142,62,.4);color:var(--green)}
-.rv-opt.rv-opt-wrong{background:var(--red-bg);border-color:rgba(217,48,37,.3);color:var(--red)}
-.rv-ol{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.7rem;font-weight:500;flex-shrink:0;color:var(--t3)}
-.rv-opt-correct .rv-ol{background:rgba(30,142,62,.2);color:var(--green)}
-.rv-opt-wrong .rv-ol{background:rgba(217,48,37,.15);color:var(--red)}
-.rv-ans-note{font-size:.68rem;font-weight:500;color:var(--t4);text-transform:uppercase;letter-spacing:.3px;margin-top:10px;text-align:left}
-.rv-explanation{margin-top:10px;padding:10px 14px;background:#e8f0fe;border:1px solid rgba(26,115,232,.2);border-radius:var(--r);font-size:.78rem;color:var(--blue);line-height:1.6;text-align:left}
-.rv-explanation strong{color:var(--t1);display:block;margin-bottom:3px;font-size:.68rem;text-transform:uppercase;letter-spacing:.3px}
-.rv-explanation-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:10px;border:1px solid var(--border);object-fit:contain}
-
-.tab-warn{
-  position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;
-  display:none;flex-direction:column;align-items:center;
-  justify-content:center;text-align:center;padding:36px;
-}
+.tab-warn{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:36px}
 .tab-warn.show{display:flex}
 .warn-icon-wrap{width:60px;height:60px;border-radius:50%;background:rgba(217,48,37,.18);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
 .warn-icon-wrap svg{width:28px;height:28px;stroke:var(--red);fill:none}
@@ -305,51 +174,30 @@ body{
 .btn-return{background:var(--blue);color:#fff;border:none;padding:12px 32px;border-radius:var(--r);font-family:var(--gs);font-size:.88rem;font-weight:500;cursor:pointer;margin-top:12px;transition:all var(--tr);min-height:44px}
 .btn-return:hover{background:var(--blue-h)}
 
-.footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
-.footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
-.fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
-.fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
-.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2}
-.fc a:hover{color:var(--blue);text-decoration:underline}
-.footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.footer-bottom{border-top:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px;padding-bottom:calc(16px + var(--safe-bottom))}
-.footer-links{display:flex;gap:20px}
-.footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
-.footer-links a:hover{text-decoration:underline;color:var(--blue)}
-
 @media(max-width:900px){
-  .header{padding:0 16px}
-  .floating-submit{display:none}
-  .exam-mobile-footer.show{display:flex}
-  .questions-area{padding:14px;padding-bottom:90px}
+  .header{padding:0 12px}
+  .timer-box{padding:4px 8px;font-size:.75rem}
+  .timer-val{font-size:.78rem;min-width:40px}
+  .questions-area{padding:12px 12px 90px}
   .q-card{padding:14px}
   .agree-card{padding:28px 20px}
-  .timer-box{padding:4px 10px;font-size:.78rem}
-  .practice-result-page{padding:24px 16px 80px}
-  .score-card{padding:28px 20px}
-  .score-ring-wrap{width:100px;height:100px}
-  .score-ring-wrap svg{width:100px;height:100px}
-  .ring-pct{font-size:1.4rem}
-  .footer-inner{grid-template-columns:1fr 1fr;gap:28px}
+  /* Floating submit stays bottom-right on mobile too */
+  .floating-submit{bottom:calc(16px + var(--safe-bottom));right:16px;padding:12px 20px;font-size:.8rem;border-radius:24px}
 }
 @media(max-width:600px){
   .agree-title{font-size:1.2rem}
   .modal{padding:20px 16px}
-  .submit-stats{grid-template-columns:1fr 1fr}
-  .option{padding:8px 12px}
+  .option{padding:8px 10px}
   .option-text{font-size:.78rem}
   .q-text{font-size:.82rem}
-  .score-stats{grid-template-columns:1fr 1fr}
-  .score-stats .sc-stat:last-child{grid-column:span 2}
-  .result-actions .btn{flex:1;justify-content:center}
-  .footer-inner{grid-template-columns:1fr;gap:20px}
-  .footer-bottom{flex-direction:column;text-align:center}
+  .floating-submit{bottom:calc(12px + var(--safe-bottom));right:12px;padding:10px 16px;font-size:.75rem;gap:4px}
+  .floating-submit svg{width:14px;height:14px}
 }
 </style>
 </head>
 <body>
 
-<header class="header" id="header">
+<header class="header">
   <div class="header-left">
     <a href="/" class="logo-wrap">
       <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
@@ -361,11 +209,8 @@ body{
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span class="timer-val" id="timerVal">--:--</span>
     </div>
-    <button class="icon-btn" onclick="window.location.href='dashboard.html'" title="Dashboard" aria-label="Dashboard">
+    <button class="icon-btn" onclick="window.location.href='dashboard.html'" title="Dashboard">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-    </button>
-    <button class="icon-btn leave" onclick="logout()" title="Leave Exam" aria-label="Sign out">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </button>
   </div>
 </header>
@@ -375,7 +220,7 @@ body{
     <button class="btn-back" onclick="window.location.href='dashboard.html'">
       <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back to Dashboard
     </button>
-    <div class="agree-logo">
+    <div class="agree-logo" style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
       <img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:50%" onerror="this.style.display='none'">
       <span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1)">Exalyte</span>
     </div>
@@ -383,6 +228,13 @@ body{
     <div class="agree-title" id="agreeTitle">Loading...</div>
     <div class="agree-sub" id="agreeDesc" style="display:none"></div>
     <div class="agree-meta" id="agreeMeta"></div>
+    
+    <div id="sectionSelection" style="display:none">
+      <div class="section-select-title">Select Sections to Attempt</div>
+      <div id="sectionsCheckboxList"></div>
+      <div class="section-rules-info" id="sectionRulesInfo"></div>
+    </div>
+    
     <div class="agree-rules" id="agreeRules">
       <div class="agree-rule"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>The timer starts immediately. You cannot pause it.</span></div>
       <div class="agree-rule" id="tabRule" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span>Do not switch tabs or windows. You get 2 warnings then auto-submit.</span></div>
@@ -407,17 +259,11 @@ body{
   <div class="questions-area" id="questionsArea"></div>
 </div>
 
-<button class="floating-submit" id="floatingSubmit" onclick="openSubmit()">
+<!-- FLOATING SUBMIT — BOTTOM RIGHT, ALWAYS VISIBLE -->
+<button class="floating-submit" id="floatingSubmit" onclick="openSubmit()" style="display:none">
   <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
   Submit Exam
 </button>
-
-<div class="exam-mobile-footer" id="mobileFooter">
-  <button class="btn-mob-submit" onclick="openSubmit()">
-    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-    Submit Exam
-  </button>
-</div>
 
 <div class="modal-overlay" id="submitModal">
   <div class="modal">
@@ -438,7 +284,7 @@ body{
 <div class="tab-warn" id="tabWarn">
   <div class="warn-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
   <h2>You Left The Exam</h2>
-  <p id="warnMsg">Switching tabs during a live exam is not allowed.</p>
+  <p>Switching tabs during a live exam is not allowed.</p>
   <p id="warnCount" style="color:var(--red);font-weight:500;font-size:.85rem;margin-top:4px"></p>
   <button class="btn-return" id="returnBtn" onclick="dismissWarn()">Return to Exam</button>
 </div>
@@ -462,39 +308,12 @@ function renderOptionContent(text){
   return esc(text||'');
 }
 
-function renderExplanationContent(text){
-  if(!text)return'';
-  if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-explanation-img" alt="Explanation" onerror="this.style.display=\'none\'" loading="lazy">';
-  return esc(text);
-}
-
 function formatTimeTaken(seconds){
   if(!seconds||seconds<=0)return'';
   const min=Math.floor(seconds/60);
   const sec=Math.floor(seconds%60);
   if(min>0)return min+'m '+sec+'s';
   return sec+'s';
-}
-
-function formatAvgTime(seconds,total){
-  if(!seconds||!total||seconds<=0||total<=0)return'';
-  const avg=seconds/total;
-  if(avg<60)return Math.round(avg)+'s/Q';
-  return (avg/60).toFixed(1)+'m/Q';
-}
-
-function formatCountdown(sec){
-  if(sec<=0)return'0s';
-  const d=Math.floor(sec/86400);
-  const h=Math.floor((sec%86400)/3600);
-  const m=Math.floor((sec%3600)/60);
-  const s=sec%60;
-  const p=[];
-  if(d>0)p.push(d+'d');
-  if(h>0)p.push(h+'h');
-  if(m>0)p.push(m+'m');
-  if(s>0||p.length===0)p.push(s+'s');
-  return p.join(' ');
 }
 
 async function apiFetch(path,opts={}){
@@ -514,11 +333,8 @@ if(!getToken())window.location.href='/';
 let questions=[],answers={},marked={},exam=null;
 let timeLeft=0,timerInt=null,tabLeaves=0;
 let examStartTime=0;
-let scheduledExamInterval=null;
-
-let lastY=0,ticking=false;
-const header=document.getElementById('header');
-window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(()=>{const y=window.scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;ticking=false});ticking=true}},{passive:true});
+let sectionConfig=null;
+let selectedSections=[];
 
 async function loadAgreement(){
   try{
@@ -528,13 +344,11 @@ async function loadAgreement(){
     exam=exams.find(e=>e.id==examId);
     if(!exam){window.location.href='dashboard.html';return}
     
-    if(exam.scheduled_at){
-      const scheduledTime=new Date(exam.scheduled_at).getTime();
-      const now=Date.now();
-      if(now<scheduledTime){
-        showScheduledCountdown(exam,scheduledTime);
-        return;
-      }
+    if(exam.has_sections && exam.section_config){
+      try{
+        sectionConfig = JSON.parse(exam.section_config);
+        renderSectionSelection();
+      }catch(e){sectionConfig=null}
     }
     
     document.getElementById('agreeTitle').textContent=exam.name+(isPrac?' — Practice':'');
@@ -555,48 +369,89 @@ async function loadAgreement(){
   }catch(e){window.location.href='dashboard.html'}
 }
 
-function showScheduledCountdown(examData,scheduledTime){
-  if(scheduledExamInterval)clearInterval(scheduledExamInterval);
-  const card=document.querySelector('.agree-card');
-  const remaining=Math.max(0,Math.floor((scheduledTime-Date.now())/1000));
+function renderSectionSelection(){
+  const sectionWrap = document.getElementById('sectionSelection');
+  const checkboxList = document.getElementById('sectionsCheckboxList');
+  const rulesInfo = document.getElementById('sectionRulesInfo');
   
-  card.innerHTML=
-    '<button class="btn-back" onclick="window.location.href=\'dashboard.html\'"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back to Dashboard</button>'+
-    '<div class="agree-logo"><img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:50%" onerror="this.style.display=\'none\'"><span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1)">Exalyte</span></div>'+
-    '<div class="agree-badge badge-scheduled-badge">Scheduled</div>'+
-    '<div class="agree-title">'+esc(examData.name)+'</div>'+
-    '<div class="agree-sub" style="display:block">This exam is scheduled for a future date. You cannot access it until the scheduled time.</div>'+
-    '<div class="scheduled-countdown-wrap"><div class="scheduled-countdown-display" id="scheduledExamCountdown">'+formatCountdown(remaining)+'</div><div class="scheduled-countdown-label">until exam opens</div></div>'+
-    '<div class="agree-meta" style="justify-content:center">'+
-      '<span class="agree-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+examData.time_limit+'m</span>'+
-      '<span class="agree-meta-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'+new Date(examData.scheduled_at).toLocaleString()+'</span>'+
-    '</div>'+
-    '<button class="btn-agree" disabled id="scheduledAgreeBtn" style="background:var(--hov);color:var(--t4);cursor:not-allowed">'+formatCountdown(remaining)+' remaining</button>';
+  if(!sectionConfig) return;
+  sectionWrap.style.display = 'block';
   
-  let r=remaining;
-  scheduledExamInterval=setInterval(()=>{
-    r--;
-    const countdownEl=document.getElementById('scheduledExamCountdown');
-    const btnEl=document.getElementById('scheduledAgreeBtn');
-    if(r<=0){
-      if(countdownEl)countdownEl.textContent='Available now';
-      if(btnEl){btnEl.textContent='Begin Exam';btnEl.disabled=false;btnEl.style.background='var(--blue)';btnEl.style.color='#fff';btnEl.style.cursor='pointer';btnEl.onclick=function(){loadAgreement();};}
-      clearInterval(scheduledExamInterval);
-    }else{
-      if(countdownEl)countdownEl.textContent=formatCountdown(r);
-      if(btnEl)btnEl.textContent=formatCountdown(r)+' remaining';
+  let html = '';
+  sectionConfig.required?.forEach(s => {
+    html += `<label class="section-checkbox selected" style="cursor:default;opacity:.7">
+      <input type="checkbox" checked disabled>
+      <span class="sec-name">${esc(s.name)}</span>
+      <span class="sec-count">${s.count} MCQ</span>
+      <span class="sec-badge sec-required">Required</span>
+    </label>`;
+  });
+  
+  sectionConfig.optional?.forEach(s => {
+    const isCompulsory = s.compulsory_group === 1;
+    html += `<label class="section-checkbox" id="secCheck_${esc(s.name)}" onclick="toggleSectionCheck('${esc(s.name)}')">
+      <input type="checkbox" id="secInput_${esc(s.name)}" onchange="toggleSectionCheck('${esc(s.name)}')" onclick="event.stopPropagation()">
+      <span class="sec-name">${esc(s.name)}</span>
+      <span class="sec-count">${s.count} MCQ</span>
+      <span class="sec-badge ${isCompulsory ? 'sec-compulsory' : 'sec-optional'}">${isCompulsory ? 'Compulsory Group' : 'Optional'}</span>
+    </label>`;
+  });
+  
+  checkboxList.innerHTML = html;
+  
+  let rulesText = '';
+  if(sectionConfig.min_optional > 0){
+    rulesText += `Select at least <strong>${sectionConfig.min_optional}</strong> optional section${sectionConfig.min_optional > 1 ? 's' : ''}. `;
+  }
+  if(sectionConfig.min_from_group > 0){
+    const groupNames = sectionConfig.optional.filter(s => s.compulsory_group === 1).map(s => s.name).join(', ');
+    rulesText += `You must select at least <strong>${sectionConfig.min_from_group}</strong> from: ${groupNames}.`;
+  }
+  if(rulesText) rulesInfo.innerHTML = rulesText;
+  
+  selectedSections = sectionConfig.required.map(s => s.name);
+}
+
+function toggleSectionCheck(name){
+  const input = document.getElementById('secInput_' + name);
+  const label = document.getElementById('secCheck_' + name);
+  if(input.checked){
+    if(!selectedSections.includes(name)) selectedSections.push(name);
+    label.classList.add('selected');
+  } else {
+    selectedSections = selectedSections.filter(s => s !== name);
+    label.classList.remove('selected');
+  }
+}
+
+function validateSectionSelection(){
+  if(!sectionConfig) return true;
+  const optionalSelected = sectionConfig.optional.filter(s => selectedSections.includes(s.name));
+  if(sectionConfig.min_optional > 0 && optionalSelected.length < sectionConfig.min_optional){
+    alert('Select at least '+sectionConfig.min_optional+' optional section'+(sectionConfig.min_optional > 1 ? 's' : '')+'.');
+    return false;
+  }
+  if(sectionConfig.min_from_group > 0){
+    const groupSelected = sectionConfig.optional.filter(s => s.compulsory_group === 1 && selectedSections.includes(s.name));
+    if(groupSelected.length < sectionConfig.min_from_group){
+      const groupNames = sectionConfig.optional.filter(s => s.compulsory_group === 1).map(s => s.name).join(', ');
+      alert('Select at least '+sectionConfig.min_from_group+' from: '+groupNames);
+      return false;
     }
-  },1000);
+  }
+  return true;
 }
 
 function toggleAgree(){const cb=document.getElementById('agreeCheck');cb.checked=!cb.checked;document.getElementById('agreeBtn').disabled=!cb.checked}
 document.getElementById('agreeCheck').addEventListener('change',e=>{document.getElementById('agreeBtn').disabled=!e.target.checked});
 
 async function startExam(){
+  if(!validateSectionSelection()) return;
   document.getElementById('agreeBtn').disabled=true;
   document.getElementById('agreeBtn').textContent='Loading...';
   try{
-    const{ok,data}=await apiFetch('/exams/'+examId+'/questions?practice='+(isPrac?'1':'0'));
+    const body = sectionConfig ? JSON.stringify({ sections: selectedSections }) : JSON.stringify({});
+    const{ok,data}=await apiFetch('/exams/'+examId+'/questions?practice='+(isPrac?'1':'0'),{method:'POST',body:body});
     if(!ok){alert(data.error||'Cannot load questions.');window.location.href='dashboard.html';return}
     questions=data.questions||[];
     if(!questions.length){alert('This exam has no questions yet.');window.location.href='dashboard.html';return}
@@ -605,23 +460,15 @@ async function startExam(){
   document.getElementById('agreementScreen').style.display='none';
   document.getElementById('examUI').style.display='flex';
   document.getElementById('timerBox').style.display='flex';
-  
-  if(window.innerWidth<=900){
-    document.getElementById('floatingSubmit').style.display='none';
-    document.getElementById('mobileFooter').classList.add('show');
-  }
+  document.getElementById('floatingSubmit').style.display='flex';
   
   examStartTime=Date.now();
   
-  // ── SET TIMER: min(exam_time, remaining_live_time) for live exams ──
   if(!isPrac && exam.live_deadline_hours > 0){
-    const liveStart = exam.scheduled_at 
-      ? new Date(exam.scheduled_at).getTime() 
-      : new Date(exam.created_at).getTime();
+    const liveStart = exam.scheduled_at ? new Date(exam.scheduled_at).getTime() : new Date(exam.created_at).getTime();
     const liveEnd = liveStart + exam.live_deadline_hours * 3600000;
     const remainingLiveSec = Math.max(0, Math.floor((liveEnd - Date.now()) / 1000));
-    const examTimeSec = exam.time_limit * 60;
-    timeLeft = Math.min(examTimeSec, remainingLiveSec);
+    timeLeft = Math.min(exam.time_limit * 60, remainingLiveSec);
   } else {
     timeLeft = exam.time_limit * 60;
   }
@@ -632,22 +479,11 @@ async function startExam(){
   window.addEventListener('beforeunload',onBeforeUnload);
 }
 
-window.addEventListener('resize',()=>{
-  if(document.getElementById('examUI').style.display==='flex'){
-    if(window.innerWidth<=900){
-      document.getElementById('floatingSubmit').style.display='none';
-      document.getElementById('mobileFooter').classList.add('show');
-    }else{
-      document.getElementById('floatingSubmit').style.display='flex';
-      document.getElementById('mobileFooter').classList.remove('show');
-    }
-  }
-});
-
 function buildUI(){
-  document.getElementById('questionsArea').innerHTML=questions.map((q,i)=>
-    '<div class="q-card" id="qc'+q.id+'">'+
-      '<div class="q-top"><div class="q-num">'+(i+1)+'</div><div class="q-text">'+esc(q.question_text||'')+'</div></div>'+
+  document.getElementById('questionsArea').innerHTML=questions.map((q,i)=>{
+    const sectionLabel = q.section ? `<span class="q-section">${esc(q.section)}</span>` : '';
+    return '<div class="q-card" id="qc'+q.id+'">'+
+      '<div class="q-top"><div class="q-num">'+(i+1)+'</div><div class="q-text">'+esc(q.question_text||'')+sectionLabel+'</div></div>'+
       (q.image_url?'<img src="'+esc(q.image_url)+'" class="q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">':'')+
       '<div class="options" id="opts'+q.id+'">'+['A','B','C','D'].map(l=>
         '<div class="option" id="opt'+q.id+l+'" onclick="pick(event,'+q.id+',\''+l+'\')">'+
@@ -660,7 +496,8 @@ function buildUI(){
           '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review'+
         '</button>'+
       '</div>'+
-    '</div>').join('');
+    '</div>';
+  }).join('');
   updateStats();
 }
 
@@ -679,9 +516,7 @@ function toggleMark(e,qId){
   marked[qId]=!marked[qId];
   const btn=document.getElementById('mark'+qId);
   btn?.classList.toggle('active',marked[qId]);
-  btn.innerHTML=marked[qId]?
-    '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>Marked':
-    '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review';
+  btn.innerHTML=marked[qId]?'<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>Marked':'<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review';
   updateStats();
 }
 
@@ -693,53 +528,16 @@ function updateStats(){
   document.getElementById('progFill').style.width=(questions.length?ans/questions.length*100:0)+'%';
 }
 
-document.addEventListener('keydown',e=>{
-  if(['a','b','c','d'].includes(e.key.toLowerCase())){
-    const cards=[...document.querySelectorAll('.q-card')];
-    const idx=cards.findIndex(c=>c.classList.contains('active'));
-    if(idx>=0){
-      const id=cards[idx].id.replace('qc','');
-      pick({stopPropagation:()=>{}},id,e.key.toUpperCase());
-    }
-  }
-  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
-    e.preventDefault();
-    const cards=[...document.querySelectorAll('.q-card')];
-    const idx=cards.findIndex(c=>c.classList.contains('active'));
-    const next=idx+(e.key==='ArrowDown'?1:-1);
-    if(next>=0&&next<cards.length){
-      cards[idx].classList.remove('active');
-      cards[next].classList.add('active');
-      cards[next].scrollIntoView({behavior:'smooth',block:'center'});
-    }
-  }
-});
-
-// ── TIMER WITH LIVE AUTO-SUBMIT ──
 function startTimer(){
   updateTimerDisplay();
   timerInt=setInterval(()=>{
     timeLeft--;
     updateTimerDisplay();
-    
-    // Auto-submit when timer reaches 0
-    if(timeLeft<=0){
-      clearInterval(timerInt);
-      doSubmit();
-      return;
-    }
-    
-    // For live exams: auto-submit when live window ends
+    if(timeLeft<=0){clearInterval(timerInt);doSubmit();return}
     if(!isPrac && exam.live_deadline_hours > 0){
-      const liveStart = exam.scheduled_at 
-        ? new Date(exam.scheduled_at).getTime() 
-        : new Date(exam.created_at).getTime();
+      const liveStart = exam.scheduled_at ? new Date(exam.scheduled_at).getTime() : new Date(exam.created_at).getTime();
       const liveEnd = liveStart + exam.live_deadline_hours * 3600000;
-      if(Date.now() >= liveEnd){
-        clearInterval(timerInt);
-        doSubmit();
-        return;
-      }
+      if(Date.now() >= liveEnd){clearInterval(timerInt);doSubmit();return}
     }
   },1000);
 }
@@ -782,161 +580,6 @@ function openSubmit(){
 }
 function closeSubmit(){document.getElementById('submitModal').classList.remove('open')}
 
-async function showPracticeResult(data){
-  const pct=data.percentage||0;
-  const correct=data.correct||0;
-  const wrong=data.wrong||0;
-  const skipped=data.skipped||0;
-  const detailed=data.detailed||{};
-  const timeTaken=data.time_taken_seconds||0;
-  const totalQuestions=questions.length;
-  
-  let gradeColor='#1e8e3e',gradeLabel='Excellent';
-  if(pct>=90){gradeColor='#1e8e3e';gradeLabel='Outstanding'}
-  else if(pct>=80){gradeColor='#1e8e3e';gradeLabel='Excellent'}
-  else if(pct>=60){gradeColor='#1a73e8';gradeLabel='Good'}
-  else if(pct>=40){gradeColor='#f9ab00';gradeLabel='Needs Work'}
-  else{gradeColor='#d93025';gradeLabel='Keep Trying'}
-  
-  document.getElementById('examUI').style.display='none';
-  document.getElementById('floatingSubmit').style.display='none';
-  document.getElementById('mobileFooter').classList.remove('show');
-  document.getElementById('timerBox').style.display='none';
-  
-  let timeHTML='';
-  if(timeTaken>0){
-    const timeMin=(timeTaken/60).toFixed(1);
-    timeHTML=
-    '<div class="time-info">'+
-      '<span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: '+timeMin+' min / '+exam.time_limit+' min</span>'+
-      '<span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: '+formatAvgTime(timeTaken,totalQuestions)+'</span>'+
-    '</div>';
-  }
-  
-  let html=
-  '<div class="practice-result-page" id="practiceResultPage">'+
-    '<div class="score-card">'+
-      '<div class="score-ring-wrap">'+
-        '<svg viewBox="0 0 120 120">'+
-          '<circle class="ring-bg" cx="60" cy="60" r="54"/>'+
-          '<circle class="ring-fill" cx="60" cy="60" r="54" stroke="'+gradeColor+'" style="stroke-dasharray:339;stroke-dashoffset:'+(339-(pct/100)*339)+'"/>'+
-        '</svg>'+
-        '<div class="ring-inner"><div class="ring-pct">'+pct.toFixed(1)+'%</div><div class="ring-lbl">Score</div></div>'+
-      '</div>'+
-      '<div class="score-grade" style="color:'+gradeColor+'">'+gradeLabel+'</div>'+
-      '<div class="score-exam">Practice Result</div>'+
-      '<div class="score-stats">'+
-        '<div class="sc-stat sc-correct"><div class="sc-stat-val">'+correct+'</div><div class="sc-stat-lbl">Correct</div></div>'+
-        '<div class="sc-stat sc-wrong"><div class="sc-stat-val">'+wrong+'</div><div class="sc-stat-lbl">Wrong</div></div>'+
-        '<div class="sc-stat sc-skip"><div class="sc-stat-val">'+skipped+'</div><div class="sc-stat-lbl">Skipped</div></div>'+
-      '</div>'+
-      timeHTML+
-      '<div class="perf-bar"><div class="perf-fill" style="width:'+Math.max(pct,2)+'%;background:'+gradeColor+'"></div></div>'+
-      '<div class="result-actions">'+
-        '<a href="dashboard.html" class="btn-secondary" style="text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>'+
-        '<a href="exam.html?id='+examId+'&practice=1" class="btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Again</a>'+
-      '</div>'+
-    '</div>';
-  
-  if(questions.length>0){
-    html+=
-    '<div class="review-head"><h2>Question Review</h2>'+
-      '<div class="chips">'+
-        '<button class="chip active" data-f="all" onclick="filterPracticeReview(\'all\')">All</button>'+
-        '<button class="chip" data-f="correct" onclick="filterPracticeReview(\'correct\')">Correct</button>'+
-        '<button class="chip" data-f="wrong" onclick="filterPracticeReview(\'wrong\')">Wrong</button>'+
-        '<button class="chip" data-f="skipped" onclick="filterPracticeReview(\'skipped\')">Skipped</button>'+
-      '</div>'+
-    '</div>'+
-    '<div class="review-list" id="practiceReviewList"></div>';
-  }
-  
-  html+='</div>'+
-  '<footer class="footer">'+
-    '<div class="footer-inner">'+
-      '<div class="fc"><div class="footer-brand"><img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display=\'none\'"><span style="font-family:\'Google Sans\',sans-serif;font-size:1rem;font-weight:500;color:#3c4043">Exalyte</span></div><p>A precision examination platform built for students who want to perform, not just prepare.</p></div>'+
-      '<div class="fc"><h4>Platform</h4><a href="dashboard.html">Dashboard</a><a href="exam-history.html">Exam History</a></div>'+
-      '<div class="fc"><h4>Legal</h4><a href="privacy.html">Privacy Policy</a><a href="tos.html">Terms of Service</a><a href="contact.html">Contact</a></div>'+
-    '</div>'+
-    '<div class="footer-bottom"><span>&copy; 2025 Exalyte — SciVerse Academy. All rights reserved.</span><div class="footer-links"><a href="privacy.html">Privacy</a><a href="tos.html">Terms</a></div></div>'+
-  '</footer>';
-  
-  const main=document.querySelector('.main');
-  if(!main){
-    const m=document.createElement('div');m.className='main';m.style.flex='1';m.style.paddingTop='64px';m.innerHTML=html;
-    document.body.insertBefore(m,document.querySelector('.modal-overlay'));
-  }else{main.innerHTML=html;main.style.paddingTop='64px'}
-  
-  window.scrollTo({top:0,behavior:'instant'});
-  window._practiceQuestions=questions;
-  window._practiceDetailed=detailed;
-  window._practiceFilter='all';
-  if(questions.length>0)renderPracticeReviewList();
-}
-
-function renderPracticeReviewList(){
-  const reviewQuestions=window._practiceQuestions||[];
-  const detailed=window._practiceDetailed||{};
-  const filter=window._practiceFilter||'all';
-  
-  const filtered=reviewQuestions.filter(q=>{
-    const detail=detailed[q.id]||{};
-    const given=String(detail.given||'').trim().toUpperCase();
-    if(filter==='correct')return given&&detail.isCorrect;
-    if(filter==='wrong')return given&&!detail.isCorrect;
-    if(filter==='skipped')return!given;
-    return true;
-  });
-  
-  const icons={
-    correct:'<polyline points="20 6 9 17 4 12"/>',
-    wrong:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
-    skipped:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
-  };
-  
-  const list=document.getElementById('practiceReviewList');
-  if(!list)return;
-  if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:40px;color:#5f6368;font-size:.82rem">No questions in this filter.</div>';return}
-  
-  list.innerHTML=filtered.map(q=>{
-    const detail=detailed[q.id]||{};
-    const given=String(detail.given||'').trim().toUpperCase();
-    const correctAns=String(detail.correct||q.correct_answer||'').trim().toUpperCase();
-    const isCorrect=detail.isCorrect===true;
-    const st=!given?'skip':isCorrect?'correct':'wrong';
-    const cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st]||'';
-    
-    const opts=['A','B','C','D'].map(l=>{
-      const isCorrectOption=l===correctAns;
-      const isYoursWrong=l===given&&l!==correctAns;
-      let optCls='';
-      if(isCorrectOption)optCls='rv-opt-correct';
-      else if(isYoursWrong)optCls='rv-opt-wrong';
-      const optText=q['option_'+l.toLowerCase()]||'';
-      return'<div class="rv-opt '+optCls+'"><div class="rv-ol">'+l+'</div><div style="flex:1;line-height:1.4">'+renderOptionContent(optText)+'</div></div>';
-    }).join('');
-    
-    let note='';
-    if(given&&!isCorrect)note='<div class="rv-ans-note">Your answer: '+given+' — Correct: '+correctAns+'</div>';
-    else if(!given)note='<div class="rv-ans-note" style="color:#5f6368">Not answered — Correct: '+correctAns+'</div>';
-    
-    let exp='';
-    if(q.explanation&&q.explanation.trim())exp='<div class="rv-explanation">'+renderExplanationContent(q.explanation)+'</div>';
-    
-    return'<div class="rv-card '+cls+'" onclick="this.classList.toggle(\'open\')">'+
-      '<div class="rv-header"><div class="rv-status"><svg viewBox="0 0 24 24">'+icons[st]+'</svg></div><div class="rv-q">'+esc(q.question_text||'')+(q.image_url?'<br><img src="'+esc(q.image_url)+'" style="max-width:100%;max-height:140px;border-radius:4px;margin-top:6px;border:1px solid #dadce0;object-fit:contain" alt="" loading="lazy">':'')+'</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>'+
-      '<div class="rv-body"><div class="rv-opts">'+opts+'</div>'+note+exp+'</div>'+
-    '</div>';
-  }).join('');
-}
-
-function filterPracticeReview(filter){
-  window._practiceFilter=filter;
-  document.querySelectorAll('.chips .chip').forEach(c=>c.classList.remove('active'));
-  document.querySelector('.chips .chip[data-f="'+filter+'"]')?.classList.add('active');
-  renderPracticeReviewList();
-}
-
 async function doSubmit(){
   clearInterval(timerInt);
   document.removeEventListener('visibilitychange',onVisChange);
@@ -948,14 +591,16 @@ async function doSubmit(){
   document.getElementById('confirmSubmitBtn').textContent='Submitting...';
   
   const timeTaken=Math.floor((Date.now()-examStartTime)/1000);
-  const totalTime=exam.time_limit*60;
-  const actualTime=Math.min(timeTaken,totalTime);
+  const actualTime=Math.min(timeTaken,exam.time_limit*60);
   
   try{
-    const{ok,data}=await apiFetch('/exams/'+examId+'/submit',{method:'POST',body:JSON.stringify({answers,is_practice:isPrac,time_taken_seconds:actualTime})});
+    const submitBody={answers,is_practice:isPrac,time_taken_seconds:actualTime};
+    if(sectionConfig) submitBody.selected_sections = selectedSections;
+    
+    const{ok,data}=await apiFetch('/exams/'+examId+'/submit',{method:'POST',body:JSON.stringify(submitBody)});
     if(!ok){alert(data.error||'Submission failed');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now';return}
     
-    if(isPrac){showPracticeResult(data)}
+    if(isPrac){window.location.href='result.html?examId='+examId+'&attemptId=0&practice=1'}
     else{window.location.href='result.html?examId='+examId+'&attemptId='+(data.attemptId||0)}
   }catch{alert('Network error.');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now'}
 }
