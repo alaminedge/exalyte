@@ -1,6 +1,6 @@
 // Exalyte API — Complete Backend for Cloudflare Pages
 // functions/api/[[route]].js
-// FULL VERSION — ALL FEATURES PRESERVED + Sectional Exams + Marks per Question
+// FULL VERSION — Sectional Exams + Marks per Question + Practice No Storage
 
 // ============================================================
 // CRYPTO HELPERS
@@ -481,7 +481,11 @@ async function handleDeleteExamResource(resourceId, db) {
 }
 
 // ============================================================
-// EXAMS
+// END OF PART 1 — PART 2 CONTINUES BELOW
+// =======================================================BELOW
+
+// ============================================================
+// EXAMS ROUTES
 // ============================================================
 
 async function handleListExams(request, db) {
@@ -573,7 +577,7 @@ async function handleListExams(request, db) {
 }
 
 // ============================================================
-// GET EXAM QUESTIONS — BOTH GET AND POST
+// GET EXAM QUESTIONS — ALWAYS FILTERS BY SELECTED SECTIONS
 // ============================================================
 
 async function handleGetExamQuestions(examId, request, db) {
@@ -596,7 +600,8 @@ async function handleGetExamQuestions(examId, request, db) {
     try { const body = await request.json(); selectedSections = body.sections || []; } catch (e) {}
   }
 
-  if (exam.has_sections && exam.section_config && !isPractice) {
+  // Section validation for BOTH practice and real exam
+  if (exam.has_sections && exam.section_config && selectedSections.length > 0) {
     const config = JSON.parse(exam.section_config);
     const compulsoryGroup = config.compulsory_group || [];
     const normalGroup = config.normal_group || [];
@@ -623,7 +628,7 @@ async function handleGetExamQuestions(examId, request, db) {
 }
 
 // ============================================================
-// SUBMIT EXAM — MARKS PER QUESTION + PRACTICE NO STORAGE
+// SUBMIT EXAM — GRADES ONLY SELECTED SECTIONS (BOTH MODES)
 // ============================================================
 
 async function handleSubmitExam(examId, request, db) {
@@ -636,6 +641,7 @@ async function handleSubmitExam(examId, request, db) {
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
 
+  // FETCH ONLY SELECTED SECTIONS FOR GRADING (both practice and real)
   let questions;
   if (exam.has_sections && selected_sections && selected_sections.length > 0) {
     const placeholders = selected_sections.map(() => '?').join(',');
@@ -762,7 +768,7 @@ async function handleMarkNotificationRead(notifId, request, db) {
 }
 
 // ============================================================
-// ADMIN — FULL
+// ADMIN ROUTES
 // ============================================================
 
 async function handleAdminCreateExam(request, db) {
@@ -1006,7 +1012,7 @@ export async function onRequest(context) {
     // USER
     if (path === '/history' && method === 'GET') return handleHistory(request, db);
     
-    // QUESTIONS — GET + POST
+    // QUESTIONS — GET + POST (always filters by sections)
     const examQuestions = path.match(/^\/exams\/(\d+)\/questions$/);
     if (examQuestions && (method === 'GET' || method === 'POST')) return handleGetExamQuestions(examQuestions[1], request, db);
     
