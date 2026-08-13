@@ -20,107 +20,52 @@ html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
   --hh:64px;--r:4px;--rl:8px;--tr:.2s cubic-bezier(.4,0,.2,1);
   --safe-bottom:env(safe-area-inset-bottom,20px);
 }
-body{
-  font-family:var(--rb);background:var(--bg);color:var(--t2);
-  -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
-  display:flex;flex-direction:column;overflow-x:hidden;-webkit-tap-highlight-color:transparent;
-}
-.header{
-  position:fixed;top:0;left:0;right:0;height:var(--hh);
-  background:var(--surf);border-bottom:1px solid var(--border);
-  z-index:1000;display:flex;align-items:center;
-  justify-content:space-between;padding:0 24px;
-  transition:transform .25s ease;
-}
+body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+.header{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--surf);border-bottom:1px solid var(--border);z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 24px;transition:transform .25s ease}
 .header.hidden{transform:translateY(-100%)}
 .header-left{display:flex;align-items:center;gap:12px}
 .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
 .logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
 .logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
 .header-right{display:flex;align-items:center;gap:8px}
-.timer-box{
-  display:flex;align-items:center;gap:6px;padding:6px 14px;
-  border:1px solid var(--border);border-radius:20px;
-  font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t2);
-  background:var(--surf);transition:all var(--tr);
-}
+.timer-box{display:flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t2);background:var(--surf);transition:all var(--tr)}
 .timer-box.warning{border-color:var(--yellow);background:var(--yel-bg);color:#e37400}
 .timer-box.danger{border-color:var(--red);background:var(--red-bg);color:var(--red);animation:pulse 1s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 .timer-box svg{width:16px;height:16px;stroke:currentColor;fill:none}
 .timer-val{font-family:'Google Sans',monospace;font-weight:500;font-size:.9rem;min-width:50px}
-.icon-btn{
-  width:44px;height:44px;border:none;background:none;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0;
-}
+.icon-btn{width:44px;height:44px;border:none;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0}
 .icon-btn:hover{background:var(--hov)}
 .icon-btn svg{width:20px;height:20px}
 .icon-btn.leave:hover{background:var(--red-bg);color:var(--red)}
 
-.agreement-overlay{
-  position:fixed;inset:0;z-index:500;background:var(--bg);
-  display:flex;align-items:center;justify-content:center;padding:20px;
-  overflow-y:auto;
-}
-.agree-card{
-  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
-  max-width:560px;width:100%;padding:36px 32px;
-}
+.agreement-overlay{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.agree-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);max-width:560px;width:100%;padding:36px 32px}
 .agree-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
-.agree-badge{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:4px 12px;border-radius:20px;font-family:var(--gs);
-  font-size:.72rem;font-weight:500;margin-bottom:14px;
-}
+.agree-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-family:var(--gs);font-size:.72rem;font-weight:500;margin-bottom:14px}
 .badge-blue{background:#e8f0fe;color:var(--blue)}
 .badge-red{background:var(--red-bg);color:var(--red)}
-.badge-scheduled-badge{background:var(--yel-bg);color:#e37400;border:1px solid rgba(249,171,0,.3)}
 .agree-title{font-family:var(--gs);font-size:1.4rem;font-weight:500;color:var(--t1);margin-bottom:6px}
 .agree-sub{font-size:.85rem;color:var(--t3);margin-bottom:20px}
 .agree-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;justify-content:flex-start}
-.agree-meta-item{
-  display:flex;align-items:center;gap:5px;font-size:.72rem;
-  color:var(--t3);padding:4px 10px;border:1px solid var(--border);
-  border-radius:20px;
-}
+.agree-meta-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--t3);padding:4px 10px;border:1px solid var(--border);border-radius:20px}
 .agree-meta-item svg{width:12px;height:12px;stroke:currentColor;fill:none}
 .agree-rules{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
 .agree-rule{display:flex;align-items:flex-start;gap:10px;font-size:.82rem;color:var(--t2);line-height:1.5}
 .agree-rule svg{width:16px;height:16px;stroke:var(--blue);fill:none;flex-shrink:0;margin-top:1px}
-.agree-check{
-  display:flex;align-items:flex-start;gap:10px;padding:14px;
-  background:var(--bg);border:1px solid var(--border);border-radius:var(--r);
-  margin-bottom:20px;cursor:pointer;
-}
+.agree-check{display:flex;align-items:flex-start;gap:10px;padding:14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:20px;cursor:pointer}
 .agree-check input[type=checkbox]{width:18px;height:18px;accent-color:var(--blue);cursor:pointer;flex-shrink:0;margin-top:1px}
 .agree-check label{font-size:.85rem;color:var(--t2);cursor:pointer;line-height:1.5}
-.btn-agree{
-  width:100%;padding:14px;font-family:var(--gs);font-size:.92rem;font-weight:500;
-  background:var(--blue);color:#fff;border:none;border-radius:var(--r);
-  cursor:pointer;transition:all var(--tr);min-height:44px;
-}
+.btn-agree{width:100%;padding:14px;font-family:var(--gs);font-size:.92rem;font-weight:500;background:var(--blue);color:#fff;border:none;border-radius:var(--r);cursor:pointer;transition:all var(--tr);min-height:44px}
 .btn-agree:hover{background:var(--blue-h)}
 .btn-agree:disabled{background:var(--hov);color:var(--t4);cursor:not-allowed}
-.btn-back{
-  display:inline-flex;align-items:center;gap:6px;color:var(--t3);
-  font-size:.82rem;background:none;border:none;cursor:pointer;
-  margin-bottom:14px;font-family:var(--rb);transition:color var(--tr);min-height:40px;
-}
+.btn-back{display:inline-flex;align-items:center;gap:6px;color:var(--t3);font-size:.82rem;background:none;border:none;cursor:pointer;margin-bottom:14px;font-family:var(--rb);transition:color var(--tr);min-height:40px}
 .btn-back:hover{color:var(--t1)}
 .btn-back svg{width:14px;height:14px;stroke:currentColor;fill:none}
 
-.scheduled-countdown-wrap{text-align:center;padding:24px 0}
-.scheduled-countdown-display{font-family:var(--gs);font-size:2rem;font-weight:500;color:#e37400;margin-bottom:8px}
-.scheduled-countdown-label{font-size:.8rem;color:var(--t4)}
-
 .section-select-wrap{margin-bottom:20px}
 .section-select-title{font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t1);margin-bottom:12px}
-.section-checkbox{
-  display:flex;align-items:center;gap:10px;padding:12px 14px;
-  background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);
-  margin-bottom:8px;cursor:pointer;transition:all var(--tr);
-}
+.section-checkbox{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;cursor:pointer;transition:all var(--tr)}
 .section-checkbox:hover{border-color:var(--blue);background:#e8f0fe}
 .section-checkbox.selected{border-color:var(--blue);background:#e8f0fe}
 .section-checkbox.locked{opacity:.4;pointer-events:none;cursor:default}
@@ -171,16 +116,7 @@ body{
 .btn-mark:hover,.btn-mark.active{border-color:var(--blue);color:var(--blue);background:#e8f0fe}
 .btn-mark svg{width:12px;height:12px;stroke:currentColor;fill:none}
 
-.floating-submit{
-  position:fixed;bottom:24px;right:24px;z-index:50;
-  background:var(--blue);color:#fff;border:none;
-  padding:14px 28px;border-radius:28px;
-  font-family:var(--gs);font-size:.88rem;font-weight:500;
-  cursor:pointer;display:none;align-items:center;gap:8px;
-  box-shadow:0 4px 20px rgba(26,115,232,.35);
-  transition:all var(--tr);min-height:48px;
-  bottom:calc(24px + var(--safe-bottom));
-}
+.floating-submit{position:fixed;bottom:24px;right:24px;z-index:50;background:var(--blue);color:#fff;border:none;padding:14px 28px;border-radius:28px;font-family:var(--gs);font-size:.88rem;font-weight:500;cursor:pointer;display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(26,115,232,.35);transition:all var(--tr);min-height:48px;bottom:calc(24px + var(--safe-bottom))}
 .floating-submit:hover{background:var(--blue-h);transform:translateY(-2px);box-shadow:0 6px 24px rgba(26,115,232,.45)}
 .floating-submit svg{width:18px;height:18px;stroke:#fff;fill:none}
 
@@ -280,33 +216,8 @@ body{
 .footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
 .footer-links a:hover{text-decoration:underline;color:var(--blue)}
 
-@media(max-width:900px){
-  .header{padding:0 16px}
-  .questions-area{padding:14px 14px 90px}
-  .q-card{padding:14px}
-  .agree-card{padding:28px 20px}
-  .practice-result-page{padding:24px 16px 80px}
-  .score-card{padding:28px 20px}
-  .score-ring-wrap{width:100px;height:100px}
-  .score-ring-wrap svg{width:100px;height:100px}
-  .ring-pct{font-size:1.4rem}
-  .footer-inner{grid-template-columns:1fr 1fr;gap:28px}
-}
-@media(max-width:600px){
-  .agree-title{font-size:1.2rem}
-  .modal{padding:20px 16px}
-  .submit-stats{grid-template-columns:1fr 1fr}
-  .option{padding:8px 12px}
-  .option-text{font-size:.78rem}
-  .q-text{font-size:.82rem}
-  .score-stats{grid-template-columns:1fr 1fr}
-  .score-stats .sc-stat:last-child{grid-column:span 2}
-  .result-actions .btn{flex:1;justify-content:center}
-  .footer-inner{grid-template-columns:1fr;gap:20px}
-  .footer-bottom{flex-direction:column;text-align:center}
-  .floating-submit{bottom:calc(12px + var(--safe-bottom));right:12px;padding:10px 18px;font-size:.75rem;gap:4px;border-radius:20px}
-  .floating-submit svg{width:14px;height:14px}
-}
+@media(max-width:900px){.header{padding:0 16px}.questions-area{padding:14px 14px 90px}.q-card{padding:14px}.agree-card{padding:28px 20px}.practice-result-page{padding:24px 16px 80px}.score-card{padding:28px 20px}.score-ring-wrap{width:100px;height:100px}.score-ring-wrap svg{width:100px;height:100px}.ring-pct{font-size:1.4rem}.footer-inner{grid-template-columns:1fr 1fr;gap:28px}}
+@media(max-width:600px){.agree-title{font-size:1.2rem}.modal{padding:20px 16px}.submit-stats{grid-template-columns:1fr 1fr}.option{padding:8px 12px}.option-text{font-size:.78rem}.q-text{font-size:.82rem}.score-stats{grid-template-columns:1fr 1fr}.score-stats .sc-stat:last-child{grid-column:span 2}.result-actions .btn{flex:1;justify-content:center}.footer-inner{grid-template-columns:1fr;gap:20px}.footer-bottom{flex-direction:column;text-align:center}.floating-submit{bottom:calc(12px + var(--safe-bottom));right:12px;padding:10px 18px;font-size:.75rem;gap:4px;border-radius:20px}.floating-submit svg{width:14px;height:14px}}
 </style>
 </head>
 <body>
@@ -406,77 +317,25 @@ body{
 </div>
 
 <script>
-const API = '/api';
-
+const API='/api';
 function getToken(){return localStorage.getItem('exalyte_token')}
-function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
 function logout(){localStorage.clear();window.location.href='/'}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-
-function isImageURL(str){
-  if(!str)return false;
-  const s=str.trim();
-  return (s.startsWith('http')&&(s.includes('.jpg')||s.includes('.jpeg')||s.includes('.png')||s.includes('.webp')||s.includes('.gif')||s.includes('ibb.co')||s.includes('images.unsplash.com')||s.includes('i.imgur.com')));
-}
-
-function renderOptionContent(text){
-  if(isImageURL(text))return'<img src="'+esc(text)+'" class="option-img" alt="Option" onerror="this.style.display=\'none\'" loading="lazy">';
-  return esc(text||'');
-}
-
-function renderExplanationContent(text){
-  if(!text)return'';
-  if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-explanation-img" alt="Explanation" onerror="this.style.display=\'none\'" loading="lazy">';
-  return esc(text);
-}
-
-function formatTimeTaken(seconds){
-  if(!seconds||seconds<=0)return'';
-  const min=Math.floor(seconds/60);
-  const sec=Math.floor(seconds%60);
-  if(min>0)return min+'m '+sec+'s';
-  return sec+'s';
-}
-
-function formatAvgTime(seconds,total){
-  if(!seconds||!total||seconds<=0||total<=0)return'';
-  const avg=seconds/total;
-  if(avg<60)return Math.round(avg)+'s/Q';
-  return (avg/60).toFixed(1)+'m/Q';
-}
-
-function formatCountdown(sec){
-  if(sec<=0)return'0s';
-  const d=Math.floor(sec/86400);
-  const h=Math.floor((sec%86400)/3600);
-  const m=Math.floor((sec%3600)/60);
-  const s=sec%60;
-  const p=[];
-  if(d>0)p.push(d+'d');
-  if(h>0)p.push(h+'h');
-  if(m>0)p.push(m+'m');
-  if(s>0||p.length===0)p.push(s+'s');
-  return p.join(' ');
-}
-
-async function apiFetch(path,opts={}){
-  const token=getToken();
-  const headers={'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})};
-  const res=await fetch(API+path,{...opts,headers});
-  return{ok:res.ok,data:await res.json().catch(()=>({}))};
-}
+function isImageURL(s){if(!s)return false;const t=s.trim();return t.startsWith('http')&&(t.includes('.jpg')||t.includes('.jpeg')||t.includes('.png')||t.includes('.webp')||t.includes('.gif')||t.includes('ibb.co')||t.includes('images.unsplash.com')||t.includes('i.imgur.com'))}
+function renderOptionContent(text){if(isImageURL(text))return'<img src="'+esc(text)+'" class="option-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">';return esc(text||'')}
+function renderExplanationContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-explanation-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">';return esc(text)}
+function formatTimeTaken(seconds){if(!seconds||seconds<=0)return'';const min=Math.floor(seconds/60);const sec=Math.floor(seconds%60);if(min>0)return min+'m '+sec+'s';return sec+'s'}
+function formatAvgTime(seconds,total){if(!seconds||!total||seconds<=0||total<=0)return'';const avg=seconds/total;if(avg<60)return Math.round(avg)+'s/Q';return (avg/60).toFixed(1)+'m/Q'}
+async function apiFetch(path,opts={}){const t=getToken();const h={'Content-Type':'application/json',...(t?{Authorization:'Bearer '+t}:{})};const r=await fetch(API+path,{...opts,headers:h});return{ok:r.ok,data:await r.json().catch(()=>({}))}}
 
 const params=new URLSearchParams(location.search);
 const examId=params.get('id');
 const isPrac=params.get('practice')==='1';
-
 if(!examId)window.location.href='dashboard.html';
 if(!getToken())window.location.href='/';
 
 let questions=[],answers={},marked={},exam=null;
-let timeLeft=0,timerInt=null,tabLeaves=0;
-let examStartTime=0;
-let scheduledExamInterval=null;
+let timeLeft=0,timerInt=null,tabLeaves=0,examStartTime=0;
 let sectionConfig=null,selectedSections=[];
 
 let lastY=0,ticking=false;
@@ -487,24 +346,11 @@ async function loadAgreement(){
   try{
     const{ok,data}=await apiFetch('/exams');
     if(!ok){logout();return}
-    const exams=(data.exams||[]);
-    exam=exams.find(e=>e.id==examId);
+    exam=(data.exams||[]).find(e=>e.id==examId);
     if(!exam){window.location.href='dashboard.html';return}
     
-    if(exam.scheduled_at){
-      const scheduledTime=new Date(exam.scheduled_at).getTime();
-      const now=Date.now();
-      if(now<scheduledTime){
-        showScheduledCountdown(exam,scheduledTime);
-        return;
-      }
-    }
-    
     if(exam.has_sections&&exam.section_config){
-      try{
-        sectionConfig=JSON.parse(exam.section_config);
-        renderSectionSelection();
-      }catch(e){sectionConfig=null}
+      try{sectionConfig=JSON.parse(exam.section_config);renderSectionSelection()}catch(e){sectionConfig=null}
     }
     
     document.getElementById('agreeTitle').textContent=exam.name+(isPrac?' — Practice':'');
@@ -519,46 +365,12 @@ async function loadAgreement(){
     document.getElementById('agreeMeta').innerHTML=
       '<span class="agree-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+exam.time_limit+'m</span>'+
       '<span class="agree-meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>'+(exam.question_count||0)+' Q</span>'+
-      '<span class="agree-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>'+mpq+' mark/Q</span>'+
-      (exam.negative_marking>0?'<span class="agree-meta-item" style="color:var(--red)"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>-'+exam.negative_marking+'</span>':'');
+      '<span class="agree-meta-item">'+mpq+' mark/Q</span>'+
+      (exam.negative_marking>0?'<span class="agree-meta-item" style="color:var(--red)">-'+exam.negative_marking+'</span>':'');
     
     if(!isPrac&&exam.live_deadline_hours>0)document.getElementById('tabRule').style.display='flex';
-    if(exam.negative_marking>0){document.getElementById('negRule').style.display='flex';document.getElementById('negRuleText').textContent='Wrong answers deduct '+exam.negative_marking+' mark'+(exam.negative_marking!==1?'s':'')+' each.'}
+    if(exam.negative_marking>0){document.getElementById('negRule').style.display='flex';document.getElementById('negRuleText').textContent='Wrong: -'+exam.negative_marking}
   }catch(e){window.location.href='dashboard.html'}
-}
-
-function showScheduledCountdown(examData,scheduledTime){
-  if(scheduledExamInterval)clearInterval(scheduledExamInterval);
-  const card=document.querySelector('.agree-card');
-  const remaining=Math.max(0,Math.floor((scheduledTime-Date.now())/1000));
-  
-  card.innerHTML=
-    '<button class="btn-back" onclick="window.location.href=\'dashboard.html\'"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back to Dashboard</button>'+
-    '<div class="agree-logo"><img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:50%" onerror="this.style.display=\'none\'"><span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1)">Exalyte</span></div>'+
-    '<div class="agree-badge badge-scheduled-badge">Scheduled</div>'+
-    '<div class="agree-title">'+esc(examData.name)+'</div>'+
-    '<div class="agree-sub" style="display:block">This exam is scheduled for a future date. You cannot access it until the scheduled time.</div>'+
-    '<div class="scheduled-countdown-wrap"><div class="scheduled-countdown-display" id="scheduledExamCountdown">'+formatCountdown(remaining)+'</div><div class="scheduled-countdown-label">until exam opens</div></div>'+
-    '<div class="agree-meta" style="justify-content:center">'+
-      '<span class="agree-meta-item">'+examData.time_limit+'m</span>'+
-      '<span class="agree-meta-item">'+new Date(examData.scheduled_at).toLocaleString()+'</span>'+
-    '</div>'+
-    '<button class="btn-agree" disabled id="scheduledAgreeBtn" style="background:var(--hov);color:var(--t4);cursor:not-allowed">'+formatCountdown(remaining)+' remaining</button>';
-  
-  let r=remaining;
-  scheduledExamInterval=setInterval(()=>{
-    r--;
-    const countdownEl=document.getElementById('scheduledExamCountdown');
-    const btnEl=document.getElementById('scheduledAgreeBtn');
-    if(r<=0){
-      if(countdownEl)countdownEl.textContent='Available now';
-      if(btnEl){btnEl.textContent='Begin Exam';btnEl.disabled=false;btnEl.style.background='var(--blue)';btnEl.style.color='#fff';btnEl.style.cursor='pointer';btnEl.onclick=function(){loadAgreement();};}
-      clearInterval(scheduledExamInterval);
-    }else{
-      if(countdownEl)countdownEl.textContent=formatCountdown(r);
-      if(btnEl)btnEl.textContent=formatCountdown(r)+' remaining';
-    }
-  },1000);
 }
 
 function renderSectionSelection(){
@@ -567,7 +379,6 @@ function renderSectionSelection(){
   const info=document.getElementById('sectionRulesInfo');
   if(!sectionConfig)return;
   wrap.style.display='block';
-  
   let html='';
   (sectionConfig.required||[]).forEach(s=>{
     html+='<label class="section-checkbox selected locked"><input type="checkbox" checked disabled><span class="sec-name">'+esc(s.name)+'</span><span class="sec-count">'+s.count+' MCQ</span><span class="sec-badge sec-required">Required</span></label>';
@@ -579,25 +390,17 @@ function renderSectionSelection(){
     html+='<label class="section-checkbox" id="secCheck_'+esc(s.name)+'" onclick="toggleSection(\''+esc(s.name)+'\',\'normal\')"><input type="checkbox" id="secInput_'+esc(s.name)+'" onchange="toggleSection(\''+esc(s.name)+'\',\'normal\')" onclick="event.stopPropagation()"><span class="sec-name">'+esc(s.name)+'</span><span class="sec-count">'+s.count+' MCQ</span><span class="sec-badge sec-normal">Normal</span></label>';
   });
   list.innerHTML=html;
-  
   const maxOpt=sectionConfig.max_optional||2;
   const minComp=sectionConfig.min_from_compulsory||1;
-  info.innerHTML='Select exactly <strong>'+maxOpt+'</strong> optional sections. At least <strong>'+minComp+'</strong> from compulsory group. If both compulsory selected, normal group locks.';
-  
+  info.innerHTML='Select exactly <strong>'+maxOpt+'</strong> optional sections. At least <strong>'+minComp+'</strong> from compulsory group.';
   selectedSections=(sectionConfig.required||[]).map(s=>s.name);
 }
 
 function toggleSection(name,group){
   const input=document.getElementById('secInput_'+name);
   const label=document.getElementById('secCheck_'+name);
-  
-  if(input.checked){
-    if(!selectedSections.includes(name))selectedSections.push(name);
-    label.classList.add('selected');
-  }else{
-    selectedSections=selectedSections.filter(s=>s!==name);
-    label.classList.remove('selected');
-  }
+  if(input.checked){if(!selectedSections.includes(name))selectedSections.push(name);label.classList.add('selected')}
+  else{selectedSections=selectedSections.filter(s=>s!==name);label.classList.remove('selected')}
   updateSectionLocks();
 }
 
@@ -608,19 +411,12 @@ function updateSectionLocks(){
   const selNormal=normal.filter(s=>selectedSections.includes(s));
   const total=selComp.length+selNormal.length;
   const maxOpt=sectionConfig.max_optional||2;
-  
   if(total>=maxOpt){
-    [...compulsory,...normal].forEach(s=>{
-      if(!selectedSections.includes(s))document.getElementById('secCheck_'+s)?.classList.add('locked');
-    });
+    [...compulsory,...normal].forEach(s=>{if(!selectedSections.includes(s))document.getElementById('secCheck_'+s)?.classList.add('locked')});
     return;
   }
-  
   [...compulsory,...normal].forEach(s=>document.getElementById('secCheck_'+s)?.classList.remove('locked'));
-  
-  if(selComp.length===0){
-    normal.forEach(s=>document.getElementById('secCheck_'+s)?.classList.add('locked'));
-  }
+  if(selComp.length===0){normal.forEach(s=>document.getElementById('secCheck_'+s)?.classList.add('locked'))}
 }
 
 function validateSections(){
@@ -632,7 +428,6 @@ function validateSections(){
   const total=selComp.length+selNormal.length;
   const maxOpt=sectionConfig.max_optional||2;
   const minComp=sectionConfig.min_from_compulsory||1;
-  
   if(total!==maxOpt){alert('Select exactly '+maxOpt+' optional sections.');return false}
   if(selComp.length<minComp){alert('Select at least '+minComp+' from compulsory group.');return false}
   return true;
@@ -661,18 +456,8 @@ async function startExam(){
   document.getElementById('examUI').style.display='flex';
   document.getElementById('timerBox').style.display='flex';
   document.getElementById('floatingSubmit').style.display='flex';
-  
   examStartTime=Date.now();
-  
-  if(!isPrac&&exam.live_deadline_hours>0){
-    const liveStart=exam.scheduled_at?new Date(exam.scheduled_at).getTime():new Date(exam.created_at).getTime();
-    const liveEnd=liveStart+exam.live_deadline_hours*3600000;
-    const remainingLiveSec=Math.max(0,Math.floor((liveEnd-Date.now())/1000));
-    timeLeft=Math.min(exam.time_limit*60,remainingLiveSec);
-  }else{
-    timeLeft=exam.time_limit*60;
-  }
-  
+  timeLeft=exam.time_limit*60;
   buildUI();
   startTimer();
   if(!isPrac&&exam.live_deadline_hours>0)setupTabDetection();
@@ -685,18 +470,11 @@ function buildUI(){
     return '<div class="q-card" id="qc'+q.id+'">'+
       '<div class="q-top"><div class="q-num">'+(i+1)+'</div><div class="q-text">'+esc(q.question_text||'')+secLabel+'</div></div>'+
       (q.image_url?'<img src="'+esc(q.image_url)+'" class="q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">':'')+
-      '<div class="options" id="opts'+q.id+'">'+['A','B','C','D'].map(l=>
-        '<div class="option" id="opt'+q.id+l+'" onclick="pick(event,'+q.id+',\''+l+'\')">'+
-        '<div class="option-letter">'+l+'</div>'+
-        '<div class="option-text">'+renderOptionContent(q['option_'+l.toLowerCase()])+'</div>'+
-        '</div>').join('')+
+      '<div class="options">'+['A','B','C','D'].map(l=>
+        '<div class="option" id="opt'+q.id+l+'" onclick="pick(event,'+q.id+',\''+l+'\')"><div class="option-letter">'+l+'</div><div class="option-text">'+renderOptionContent(q['option_'+l.toLowerCase()])+'</div></div>').join('')+
       '</div>'+
-      '<div class="q-footer">'+
-      '<button class="btn-mark" id="mark'+q.id+'" onclick="toggleMark(event,'+q.id+')">'+
-      '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review'+
-      '</button>'+
-      '</div>'+
-      '</div>';
+      '<div class="q-footer"><button class="btn-mark" id="mark'+q.id+'" onclick="toggleMark(event,'+q.id+')"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review</button></div>'+
+    '</div>';
   }).join('');
   updateStats();
 }
@@ -716,9 +494,7 @@ function toggleMark(e,qId){
   marked[qId]=!marked[qId];
   const btn=document.getElementById('mark'+qId);
   btn?.classList.toggle('active',marked[qId]);
-  btn.innerHTML=marked[qId]?
-    '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>Marked':
-    '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review';
+  btn.innerHTML=marked[qId]?'<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>Marked':'<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review';
   updateStats();
 }
 
@@ -758,11 +534,6 @@ function startTimer(){
     timeLeft--;
     updateTimerDisplay();
     if(timeLeft<=0){clearInterval(timerInt);doSubmit();return}
-    if(!isPrac&&exam.live_deadline_hours>0){
-      const liveStart=exam.scheduled_at?new Date(exam.scheduled_at).getTime():new Date(exam.created_at).getTime();
-      const liveEnd=liveStart+exam.live_deadline_hours*3600000;
-      if(Date.now()>=liveEnd){clearInterval(timerInt);doSubmit();return}
-    }
   },1000);
 }
 
@@ -781,15 +552,14 @@ function onVisChange(){if(document.hidden)handleLeave()}
 function onBlur(){const now=Date.now();if(now-lastBlurTime>500){lastBlurTime=now;handleLeave()}}
 function handleLeave(){
   tabLeaves++;
-  const w=document.getElementById('tabWarn'),rb=document.getElementById('returnBtn');
-  w.classList.add('show');
+  document.getElementById('tabWarn').classList.add('show');
   if(tabLeaves>=2){
-    document.getElementById('warnCount').textContent='Maximum leaves reached. Auto-submitting...';
-    rb.style.display='none';
-    setTimeout(()=>{document.getElementById('tabWarn').classList.remove('show');doSubmit()},2000);
+    document.getElementById('warnCount').textContent='Auto-submitting...';
+    document.getElementById('returnBtn').style.display='none';
+    setTimeout(()=>{document.getElementById('tabWarn').classList.remove('show');doSubmit()},1500);
   }else{
-    document.getElementById('warnCount').textContent='Warning '+tabLeaves+'/2. One more and the exam auto-submits.';
-    rb.style.display='block';
+    document.getElementById('warnCount').textContent='Warning '+tabLeaves+'/2';
+    document.getElementById('returnBtn').style.display='block';
   }
 }
 function dismissWarn(){document.getElementById('tabWarn').classList.remove('show')}
@@ -813,37 +583,26 @@ async function doSubmit(){
   document.getElementById('tabWarn').classList.remove('show');
   document.getElementById('confirmSubmitBtn').disabled=true;
   document.getElementById('confirmSubmitBtn').textContent='Submitting...';
-  
   const timeTaken=Math.floor((Date.now()-examStartTime)/1000);
-  const actualTime=Math.min(timeTaken,exam.time_limit*60);
-  
+  const body={answers,is_practice:isPrac,time_taken_seconds:timeTaken};
+  if(sectionConfig)body.selected_sections=selectedSections;
   try{
-    const submitBody={answers,is_practice:isPrac,time_taken_seconds:actualTime};
-    if(sectionConfig)submitBody.selected_sections=selectedSections;
-    
-    const{ok,data}=await apiFetch('/exams/'+examId+'/submit',{method:'POST',body:JSON.stringify(submitBody)});
+    const{ok,data}=await apiFetch('/exams/'+examId+'/submit',{method:'POST',body:JSON.stringify(body)});
     if(!ok){alert(data.error||'Submission failed');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now';return}
-    
     if(isPrac){showPracticeResult(data)}
     else{window.location.href='result.html?examId='+examId+'&attemptId='+(data.attemptId||0)}
   }catch{alert('Network error.');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now'}
 }
 
 function showPracticeResult(data){
-  const pct=data.percentage||0;
-  const correct=data.correct||0;
-  const wrong=data.wrong||0;
-  const skipped=data.skipped||0;
-  const detailed=data.detailed||{};
+  const pct=data.percentage||0,correct=data.correct||0,wrong=data.wrong||0,skipped=data.skipped||0,detailed=data.detailed||{};
   const timeTaken=data.time_taken_seconds||0;
   const totalQuestions=questions.length;
-  
-  let gradeColor='#1e8e3e',gradeLabel='Excellent';
-  if(pct>=90){gradeColor='#1e8e3e';gradeLabel='Outstanding'}
-  else if(pct>=80){gradeColor='#1e8e3e';gradeLabel='Excellent'}
-  else if(pct>=60){gradeColor='#1a73e8';gradeLabel='Good'}
-  else if(pct>=40){gradeColor='#f9ab00';gradeLabel='Needs Work'}
-  else{gradeColor='#d93025';gradeLabel='Keep Trying'}
+  let gc='#1e8e3e',gl='Excellent';
+  if(pct>=80){gc='#1e8e3e';gl='Excellent'}
+  else if(pct>=60){gc='#1a73e8';gl='Good'}
+  else if(pct>=40){gc='#f9ab00';gl='Needs Work'}
+  else{gc='#d93025';gl='Keep Trying'}
   
   document.getElementById('examUI').style.display='none';
   document.getElementById('floatingSubmit').style.display='none';
@@ -852,47 +611,36 @@ function showPracticeResult(data){
   
   let timeHTML='';
   if(timeTaken>0){
-    const timeMin=(timeTaken/60).toFixed(1);
     timeHTML='<div class="time-info">'+
-      '<span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: '+timeMin+' min / '+exam.time_limit+' min</span>'+
+      '<span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: '+(timeTaken/60).toFixed(1)+' min / '+exam.time_limit+' min</span>'+
       '<span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: '+formatAvgTime(timeTaken,totalQuestions)+'</span>'+
     '</div>';
   }
   
-  let html='<div class="practice-result-page" id="practiceResultPage">'+
+  let html='<div class="practice-result-page">'+
     '<div class="score-card">'+
-      '<div class="score-ring-wrap">'+
-        '<svg viewBox="0 0 120 120">'+
-          '<circle class="ring-bg" cx="60" cy="60" r="54"/>'+
-          '<circle class="ring-fill" cx="60" cy="60" r="54" stroke="'+gradeColor+'" style="stroke-dasharray:339;stroke-dashoffset:'+(339-(pct/100)*339)+'"/>'+
-        '</svg>'+
-        '<div class="ring-inner"><div class="ring-pct">'+pct.toFixed(1)+'%</div><div class="ring-lbl">Score</div></div>'+
-      '</div>'+
-      '<div class="score-grade" style="color:'+gradeColor+'">'+gradeLabel+'</div>'+
-      '<div class="score-exam">Practice Result</div>'+
-      '<div class="score-stats">'+
-        '<div class="sc-stat sc-correct"><div class="sc-stat-val">'+correct+'</div><div class="sc-stat-lbl">Correct</div></div>'+
-        '<div class="sc-stat sc-wrong"><div class="sc-stat-val">'+wrong+'</div><div class="sc-stat-lbl">Wrong</div></div>'+
-        '<div class="sc-stat sc-skip"><div class="sc-stat-val">'+skipped+'</div><div class="sc-stat-lbl">Skipped</div></div>'+
-      '</div>'+
-      timeHTML+
-      '<div class="perf-bar"><div class="perf-fill" style="width:'+Math.max(pct,2)+'%;background:'+gradeColor+'"></div></div>'+
-      '<div class="result-actions">'+
-        '<a href="dashboard.html" class="btn-secondary" style="text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>'+
-        '<a href="exam.html?id='+examId+'&practice=1" class="btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Again</a>'+
-      '</div>'+
-    '</div>';
+    '<div class="score-ring-wrap"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-fill" cx="60" cy="60" r="54" stroke="'+gc+'" stroke-dasharray="339" stroke-dashoffset="'+(339-(pct/100)*339)+'"/></svg><div class="ring-inner"><div class="ring-pct">'+pct.toFixed(1)+'%</div><div class="ring-lbl">Score</div></div></div>'+
+    '<div class="score-grade" style="color:'+gc+'">'+gl+'</div>'+
+    '<div class="score-exam">Practice Result</div>'+
+    '<div class="score-stats">'+
+    '<div class="sc-stat sc-correct"><div class="sc-stat-val">'+correct+'</div><div class="sc-stat-lbl">Correct</div></div>'+
+    '<div class="sc-stat sc-wrong"><div class="sc-stat-val">'+wrong+'</div><div class="sc-stat-lbl">Wrong</div></div>'+
+    '<div class="sc-stat sc-skip"><div class="sc-stat-val">'+skipped+'</div><div class="sc-stat-lbl">Skipped</div></div>'+
+    '</div>'+
+    timeHTML+
+    '<div class="perf-bar"><div class="perf-fill" style="width:'+Math.max(pct,2)+'%;background:'+gc+'"></div></div>'+
+    '<div class="result-actions">'+
+    '<a href="dashboard.html" class="btn-secondary" style="text-decoration:none">Dashboard</a>'+
+    '<a href="exam.html?id='+examId+'&practice=1" class="btn-primary" style="text-decoration:none">Practice Again</a>'+
+    '</div></div>';
   
   if(questions.length>0){
-    html+='<div class="review-head"><h2>Question Review</h2>'+
-      '<div class="chips">'+
-        '<button class="chip active" data-f="all" onclick="filterPracticeReview(\'all\')">All</button>'+
-        '<button class="chip" data-f="correct" onclick="filterPracticeReview(\'correct\')">Correct</button>'+
-        '<button class="chip" data-f="wrong" onclick="filterPracticeReview(\'wrong\')">Wrong</button>'+
-        '<button class="chip" data-f="skipped" onclick="filterPracticeReview(\'skipped\')">Skipped</button>'+
-      '</div>'+
-    '</div>'+
-    '<div class="review-list" id="practiceReviewList"></div>';
+    html+='<div class="review-head"><h2>Review</h2><div class="chips">'+
+    '<button class="chip active" onclick="filterReview(\'all\',this)">All</button>'+
+    '<button class="chip" onclick="filterReview(\'correct\',this)">Correct</button>'+
+    '<button class="chip" onclick="filterReview(\'wrong\',this)">Wrong</button>'+
+    '<button class="chip" onclick="filterReview(\'skipped\',this)">Skipped</button>'+
+    '</div></div><div class="review-list" id="reviewList"></div>';
   }
   
   html+='</div>'+
@@ -905,76 +653,69 @@ function showPracticeResult(data){
     '<div class="footer-bottom"><span>&copy; 2025 Exalyte — SciVerse Academy. All rights reserved.</span><div class="footer-links"><a href="privacy.html">Privacy</a><a href="tos.html">Terms</a></div></div>'+
   '</footer>';
   
-  const main=document.querySelector('.main');
-  if(!main){
-    const m=document.createElement('div');m.className='main';m.style.flex='1';m.style.paddingTop='64px';m.innerHTML=html;
-    document.body.insertBefore(m,document.querySelector('.modal-overlay'));
-  }else{main.innerHTML=html;main.style.paddingTop='64px'}
+  const main=document.querySelector('.main')||document.createElement('div');
+  if(!document.querySelector('.main')){
+    main.className='main';
+    main.style.flex='1';
+    main.style.paddingTop='64px';
+    main.innerHTML=html;
+    document.body.insertBefore(main,document.querySelector('.modal-overlay'));
+  }else{
+    main.innerHTML=html;
+    main.style.paddingTop='64px';
+  }
   
-  window.scrollTo({top:0,behavior:'instant'});
-  window._practiceQuestions=questions;
-  window._practiceDetailed=detailed;
-  window._practiceFilter='all';
-  if(questions.length>0)renderPracticeReviewList();
+  window.scrollTo({top:0});
+  window._questions=questions;
+  window._detailed=detailed;
+  window._reviewFilter='all';
+  renderReviewList();
 }
 
-function renderPracticeReviewList(){
-  const reviewQuestions=window._practiceQuestions||[];
-  const detailed=window._practiceDetailed||{};
-  const filter=window._practiceFilter||'all';
-  
-  const filtered=reviewQuestions.filter(q=>{
-    const detail=detailed[q.id]||{};
-    const given=String(detail.given||'').trim().toUpperCase();
-    if(filter==='correct')return given&&detail.isCorrect;
-    if(filter==='wrong')return given&&!detail.isCorrect;
+function renderReviewList(){
+  const list=document.getElementById('reviewList');
+  if(!list)return;
+  const qs=window._questions||[],det=window._detailed||{},filter=window._reviewFilter||'all';
+  const filtered=qs.filter(q=>{
+    const d=det[q.id]||{},given=String(d.given||'').trim().toUpperCase();
+    if(filter==='correct')return given&&d.isCorrect;
+    if(filter==='wrong')return given&&!d.isCorrect;
     if(filter==='skipped')return!given;
     return true;
   });
-  
-  const icons={correct:'<polyline points="20 6 9 17 4 12"/>',wrong:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',skipped:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'};
-  
-  const list=document.getElementById('practiceReviewList');
-  if(!list)return;
-  if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:40px;color:#5f6368;font-size:.82rem">No questions in this filter.</div>';return}
+  if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:30px;color:var(--t3)">No questions in this filter.</div>';return}
   
   list.innerHTML=filtered.map(q=>{
-    const detail=detailed[q.id]||{};
-    const given=String(detail.given||'').trim().toUpperCase();
-    const correctAns=String(detail.correct||q.correct_answer||'').trim().toUpperCase();
-    const isCorrect=detail.isCorrect===true;
-    const st=!given?'skip':isCorrect?'correct':'wrong';
-    const cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st]||'';
+    const d=det[q.id]||{},given=String(d.given||'').trim().toUpperCase(),ca=String(d.correct||q.correct_answer||'').trim().toUpperCase();
+    const st=!given?'skip':d.isCorrect?'correct':'wrong';
+    const cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
+    const icons={correct:'<polyline points="20 6 9 17 4 12"/>',wrong:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',skipped:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'};
     
     const opts=['A','B','C','D'].map(l=>{
-      const isCorrectOption=l===correctAns;
-      const isYoursWrong=l===given&&l!==correctAns;
-      let optCls='';
-      if(isCorrectOption)optCls='rv-opt-correct';
-      else if(isYoursWrong)optCls='rv-opt-wrong';
-      const optText=q['option_'+l.toLowerCase()]||'';
-      return'<div class="rv-opt '+optCls+'"><div class="rv-ol">'+l+'</div><div style="flex:1;line-height:1.4">'+renderOptionContent(optText)+'</div></div>';
+      const isC=l===ca,isW=l===given&&l!==ca;let c='';
+      if(isC)c='rv-opt-correct';else if(isW)c='rv-opt-wrong';
+      return '<div class="rv-opt '+c+'"><div class="rv-ol">'+l+'</div><div style="flex:1">'+renderOptionContent(q['option_'+l.toLowerCase()])+'</div></div>';
     }).join('');
     
     let note='';
-    if(given&&!isCorrect)note='<div class="rv-ans-note">Your answer: '+given+' — Correct: '+correctAns+'</div>';
-    else if(!given)note='<div class="rv-ans-note" style="color:#5f6368">Not answered — Correct: '+correctAns+'</div>';
+    if(given&&!d.isCorrect)note='<div class="rv-ans-note">Your: '+given+' | Correct: '+ca+'</div>';
+    else if(!given)note='<div class="rv-ans-note">Skipped | Correct: '+ca+'</div>';
     
     let exp='';
-    if(q.explanation&&q.explanation.trim())exp='<div class="rv-explanation"><strong>Explanation</strong>'+renderExplanationContent(q.explanation)+'</div>';
+    if(q.explanation)exp='<div class="rv-explanation"><strong>Explanation</strong>'+renderExplanationContent(q.explanation)+'</div>';
     
-    return'<div class="rv-card '+cls+'" onclick="this.classList.toggle(\'open\')">'+
-      '<div class="rv-header"><div class="rv-status"><svg viewBox="0 0 24 24">'+icons[st]+'</svg></div><div class="rv-q">'+esc(q.question_text||'')+(q.image_url?'<br><img src="'+esc(q.image_url)+'" style="max-width:100%;max-height:140px;border-radius:4px;margin-top:6px;border:1px solid #dadce0;object-fit:contain" alt="" loading="lazy">':'')+'</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>'+
+    return '<div class="rv-card '+cls+'" onclick="this.classList.toggle(\'open\')">'+
+      '<div class="rv-header"><div class="rv-status"><svg viewBox="0 0 24 24">'+icons[st]+'</svg></div><div class="rv-q">'+esc(q.question_text||'')+'</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>'+
       '<div class="rv-body"><div class="rv-opts">'+opts+'</div>'+note+exp+'</div>'+
     '</div>';
   }).join('');
 }
 
-function filterPracticeReview(filter){
-  window._practiceFilter=filter;
-  document.querySelectorAll('.chips .chip').forEach(c=>c.classList.remove('active'));
-  document.querySelector('.chips .chip[data-f="'+filter+'"]')?.classList.add('active');
-  renderPracticeReviewList();
+function filterReview(filter,btn){
+  window._reviewFilter=filter;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderReviewList();
 }
 
 document.getElementById('submitModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSubmit()});
@@ -982,8 +723,5 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSubmit()});
 
 loadAgreement();
 </script>
-</body>
-</html>
-
 </body>
 </html>
