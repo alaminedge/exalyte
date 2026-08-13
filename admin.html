@@ -36,6 +36,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .mobile-nav-dropdown .sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--r);font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t2);cursor:pointer;transition:all var(--tr);width:100%;background:none;border:none;text-align:left}
 .mobile-nav-dropdown .sidebar-item:hover{background:var(--hov)}
 .mobile-nav-dropdown .sidebar-item.active{background:#e8f0fe;color:var(--blue)}
+.mobile-nav-dropdown .sidebar-item svg{width:17px;height:17px;stroke:currentColor;fill:none}
 .header-right{display:flex;align-items:center;gap:8px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 18px;font-family:var(--gs);font-size:.85rem;font-weight:500;border:none;border-radius:var(--r);cursor:pointer;transition:all var(--tr);text-decoration:none;white-space:nowrap}
 .btn-primary{background:var(--blue);color:#fff}
@@ -53,12 +54,14 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .sidebar-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--r);font-family:var(--gs);font-size:.82rem;font-weight:500;color:var(--t3);cursor:pointer;transition:all var(--tr);width:100%;background:none;border:none;text-align:left}
 .sidebar-item:hover{background:var(--hov);color:var(--t1)}
 .sidebar-item.active{background:#e8f0fe;color:var(--blue)}
+.sidebar-item svg{width:17px;height:17px;stroke:currentColor;fill:none}
 .content{flex:1;padding:28px 32px;overflow-x:auto;min-width:0}
 .section{display:none}
 .section.active{display:block}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
 .stat-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:18px}
 .stat-card-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.stat-card-icon svg{width:18px;height:18px;stroke:currentColor;fill:none}
 .stat-card-val{font-family:var(--gs);font-size:1.5rem;font-weight:500;color:var(--t1)}
 .stat-card-lbl{font-size:.7rem;color:var(--t3)}
 .card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:20px}
@@ -96,6 +99,7 @@ tr:last-child td{border-bottom:none}
 .resource-list{margin-bottom:14px}
 .resource-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:6px;flex-wrap:wrap;gap:8px}
 .resource-info{display:flex;align-items:center;gap:10px;flex:1;min-width:200px}
+.resource-info svg{width:16px;height:16px;stroke:var(--blue);fill:none}
 .resource-title{font-weight:500;font-size:.8rem;color:var(--t1)}
 .resource-link{font-size:.65rem;color:var(--t4);word-break:break-all}
 .resource-link-img{max-width:40px;max-height:40px;border-radius:4px;border:1px solid var(--border);object-fit:contain}
@@ -130,10 +134,12 @@ tr:last-child td{border-bottom:none}
 .notif-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px}
 .notif-title{font-family:var(--gs);font-weight:500;font-size:.85rem;color:var(--t1);flex:1}
 .notif-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px}
-.notif-meta span{font-size:.68rem;color:var(--t4)}
+.notif-meta span{font-size:.68rem;color:var(--t4);display:flex;align-items:center;gap:3px}
+.notif-meta span svg{width:10px;height:10px}
 .notif-body{font-size:.78rem;color:var(--t2);line-height:1.5;margin-bottom:6px}
 .notif-img{max-width:100%;max-height:140px;border-radius:var(--r);margin-bottom:6px;border:1px solid var(--border);object-fit:contain}
 .notif-link{display:inline-flex;align-items:center;gap:3px;font-size:.7rem;color:var(--blue);font-weight:500;text-decoration:none}
+.notif-link svg{width:10px;height:10px}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.open{display:flex}
 .modal{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);width:100%;max-width:600px;max-height:85vh;overflow-y:auto;box-shadow:0 24px 50px rgba(0,0,0,.3)}
@@ -190,51 +196,57 @@ tr:last-child td{border-bottom:none}
 
 <header class="header">
   <div class="header-left">
-    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-    <a href="/" class="logo-wrap"><img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'"><span class="logo-text">Exalyte</span></a>
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <a href="/" class="logo-wrap">
+      <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
+      <span class="logo-text">Exalyte</span>
+    </a>
     <span class="admin-tag">Admin</span>
   </div>
-  <div class="header-right"><button class="btn btn-danger btn-sm" onclick="logout()">Sign out</button></div>
+  <div class="header-right">
+    <button class="btn btn-danger btn-sm" onclick="logout()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign out
+    </button>
+  </div>
 </header>
 
 <div class="mobile-nav-dropdown" id="mobileNavDropdown">
-  <div class="sidebar-section"><div class="sidebar-label">Overview</div><button class="sidebar-item active" onclick="switchSection('dashboard')">Dashboard</button></div>
-  <div class="sidebar-section"><div class="sidebar-label">Content</div><button class="sidebar-item" onclick="switchSection('exams')">Exams</button><button class="sidebar-item" onclick="switchSection('batches')">Batches</button><button class="sidebar-item" onclick="switchSection('questions')">Questions</button><button class="sidebar-item" onclick="switchSection('resources')">Resources</button></div>
-  <div class="sidebar-section"><div class="sidebar-label">Communication</div><button class="sidebar-item" onclick="switchSection('notifications')">Notifications</button></div>
-  <div class="sidebar-section"><div class="sidebar-label">People</div><button class="sidebar-item" onclick="switchSection('users')">Users</button><button class="sidebar-item" onclick="switchSection('results')">Results</button></div>
+  <div class="sidebar-section"><div class="sidebar-label">Overview</div><button class="sidebar-item active" onclick="switchSection('dashboard')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</button></div>
+  <div class="sidebar-section"><div class="sidebar-label">Content</div><button class="sidebar-item" onclick="switchSection('exams')"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Exams</button><button class="sidebar-item" onclick="switchSection('batches')"><svg viewBox="0 0 24 24"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg>Batches</button><button class="sidebar-item" onclick="switchSection('questions')"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Questions</button><button class="sidebar-item" onclick="switchSection('resources')"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Resources</button></div>
+  <div class="sidebar-section"><div class="sidebar-label">Communication</div><button class="sidebar-item" onclick="switchSection('notifications')"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</button></div>
+  <div class="sidebar-section"><div class="sidebar-label">People</div><button class="sidebar-item" onclick="switchSection('users')"><svg viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857"/></svg>Users</button><button class="sidebar-item" onclick="switchSection('results')"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg>Results</button></div>
 </div>
 
 <main class="main">
   <aside class="sidebar">
-    <div class="sidebar-section"><div class="sidebar-label">Overview</div><button class="sidebar-item active" onclick="switchSection('dashboard')">Dashboard</button></div>
-    <div class="sidebar-section"><div class="sidebar-label">Content</div><button class="sidebar-item" onclick="switchSection('exams')">Exams</button><button class="sidebar-item" onclick="switchSection('batches')">Batches</button><button class="sidebar-item" onclick="switchSection('questions')">Questions</button><button class="sidebar-item" onclick="switchSection('resources')">Resources</button></div>
-    <div class="sidebar-section"><div class="sidebar-label">Communication</div><button class="sidebar-item" onclick="switchSection('notifications')">Notifications</button></div>
-    <div class="sidebar-section"><div class="sidebar-label">People</div><button class="sidebar-item" onclick="switchSection('users')">Users</button><button class="sidebar-item" onclick="switchSection('results')">Results</button></div>
+    <div class="sidebar-section"><div class="sidebar-label">Overview</div><button class="sidebar-item active" onclick="switchSection('dashboard')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</button></div>
+    <div class="sidebar-section"><div class="sidebar-label">Content</div><button class="sidebar-item" onclick="switchSection('exams')"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Exams</button><button class="sidebar-item" onclick="switchSection('batches')"><svg viewBox="0 0 24 24"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg>Batches</button><button class="sidebar-item" onclick="switchSection('questions')"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Questions</button><button class="sidebar-item" onclick="switchSection('resources')"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Resources</button></div>
+    <div class="sidebar-section"><div class="sidebar-label">Communication</div><button class="sidebar-item" onclick="switchSection('notifications')"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</button></div>
+    <div class="sidebar-section"><div class="sidebar-label">People</div><button class="sidebar-item" onclick="switchSection('users')"><svg viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857"/></svg>Users</button><button class="sidebar-item" onclick="switchSection('results')"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg>Results</button></div>
   </aside>
 
   <div class="content">
-    <!-- Dashboard -->
     <div class="section active" id="sec-dashboard">
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-card-icon" style="background:#e8f0fe;color:var(--blue)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg></div><div class="stat-card-val" id="statExams">—</div><div class="stat-card-lbl">Total Exams</div></div>
-        <div class="stat-card"><div class="stat-card-icon" style="background:var(--yel-bg);color:#e37400"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg></div><div class="stat-card-val" id="statBatches">—</div><div class="stat-card-lbl">Batches</div></div>
-        <div class="stat-card"><div class="stat-card-icon" style="background:var(--grn-bg);color:var(--green)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="stat-card-val" id="statUsers">—</div><div class="stat-card-lbl">Users</div></div>
-        <div class="stat-card"><div class="stat-card-icon" style="background:#f3e8fd;color:#9333ea"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"/></svg></div><div class="stat-card-val" id="statSubmissions">—</div><div class="stat-card-lbl">Submissions</div></div>
+        <div class="stat-card"><div class="stat-card-icon" style="background:#e8f0fe;color:var(--blue)"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg></div><div class="stat-card-val" id="statExams">—</div><div class="stat-card-lbl">Total Exams</div></div>
+        <div class="stat-card"><div class="stat-card-icon" style="background:var(--yel-bg);color:#e37400"><svg viewBox="0 0 24 24"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg></div><div class="stat-card-val" id="statBatches">—</div><div class="stat-card-lbl">Batches</div></div>
+        <div class="stat-card"><div class="stat-card-icon" style="background:var(--grn-bg);color:var(--green)"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="stat-card-val" id="statUsers">—</div><div class="stat-card-lbl">Users</div></div>
+        <div class="stat-card"><div class="stat-card-icon" style="background:#f3e8fd;color:#9333ea"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"/></svg></div><div class="stat-card-val" id="statSubmissions">—</div><div class="stat-card-lbl">Submissions</div></div>
       </div>
       <div class="card"><div class="card-header"><span class="card-title">Recent Submissions</span></div><div class="card-body"><div class="table-wrap" id="recentTable"><div class="skeleton" style="height:40px"></div></div></div></div>
     </div>
 
-    <!-- Exams -->
     <div class="section" id="sec-exams">
       <div class="card"><div class="card-header"><span class="card-title">All Examinations</span><div style="display:flex;gap:10px;flex-wrap:wrap"><div class="inline-filter-wrap"><svg class="inline-filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="inline-filter-input" id="examSearchInput" placeholder="Filter exams..." oninput="onExamSearchInput()"></div><button class="btn btn-primary btn-sm" onclick="openExamModal()">+ New Exam</button></div></div><div class="card-body"><div class="table-wrap" id="examsTable"><div class="skeleton" style="height:40px"></div></div></div></div>
     </div>
 
-    <!-- Batches -->
     <div class="section" id="sec-batches">
       <div class="card"><div class="card-header"><span class="card-title">Batches</span><div style="display:flex;gap:10px"><div class="inline-filter-wrap"><svg class="inline-filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="inline-filter-input" id="batchSearchInput" placeholder="Filter batches..." oninput="onBatchSearchInput()"></div><button class="btn btn-primary btn-sm" onclick="openBatchModal()">+ New Batch</button></div></div><div class="card-body"><div class="table-wrap" id="batchesTable"><div class="skeleton" style="height:40px"></div></div></div></div>
     </div>
 
-    <!-- Questions -->
     <div class="section" id="sec-questions">
       <div class="card"><div class="card-header"><span class="card-title">Upload Questions (JSON)</span></div><div class="card-body">
         <div class="form-group"><label class="form-label">Select Exam</label>
@@ -249,13 +261,12 @@ tr:last-child td{border-bottom:none}
           <select class="form-select" id="uploadSectionSelect"><option value="">All Sections</option></select>
         </div>
         <div class="form-group"><label class="form-label">JSON</label><textarea class="form-textarea" id="questionsJson" rows="6" placeholder='[{"question":"...","option_a":"...","option_b":"...","option_c":"...","option_d":"...","answer":"A"}]'></textarea></div>
-        <div class="form-group"><label class="form-check"><input type="checkbox" id="replaceQuestions"> Replace existing questions</label></div>
-        <button class="btn btn-primary" onclick="uploadQuestions()">Upload Questions</button><div id="questionUploadResult"></div>
+        <div class="form-group"><label class="form-check"><input type="checkbox" id="replaceQuestions"> Replace existing</label></div>
+        <button class="btn btn-primary" onclick="uploadQuestions()">Upload</button><div id="questionUploadResult"></div>
       </div></div>
       <div class="card"><div class="card-header"><span class="card-title">Current Questions</span><button class="btn btn-danger btn-sm" onclick="deleteAllQuestions()">Delete All</button></div><div class="card-body"><div id="questionsList"></div></div></div>
     </div>
 
-    <!-- Resources -->
     <div class="section" id="sec-resources">
       <div class="card"><div class="card-header"><span class="card-title">Manage Resources</span></div><div class="card-body">
         <div class="resource-type-selector"><button class="resource-type-btn active" data-type="exam" onclick="setResourceType('exam')">Exam Resources</button><button class="resource-type-btn" data-type="batch" onclick="setResourceType('batch')">Batch Resources</button></div>
@@ -274,16 +285,12 @@ tr:last-child td{border-bottom:none}
           <input type="hidden" id="resourceBatchSelect" value="">
         </div></div>
         <div id="resourcesList"></div>
-        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
-          <h3 style="font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t1);margin-bottom:12px">Add New Resource</h3>
-          <div style="display:flex;gap:10px;flex-wrap:wrap"><input type="text" id="newResourceTitle" class="form-input" placeholder="Title" style="flex:2"><input type="url" id="newResourceLink" class="form-input" placeholder="Link" style="flex:3"><button class="btn btn-primary" onclick="addResource()">Add</button></div>
-        </div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)"><h3 style="font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t1);margin-bottom:12px">Add New Resource</h3><div style="display:flex;gap:10px;flex-wrap:wrap"><input type="text" id="newResourceTitle" class="form-input" placeholder="Title" style="flex:2"><input type="url" id="newResourceLink" class="form-input" placeholder="Link" style="flex:3"><button class="btn btn-primary" onclick="addResource()">Add</button></div></div>
       </div></div>
     </div>
 
-    <!-- Users -->
     <div class="section" id="sec-users">
-      <div class="card"><div class="card-header"><span class="card-title">Find a User</span></div><div class="card-body">
+      <div class="card"><div class="card-header"><span class="card-title">Find User</span></div><div class="card-body">
         <div class="user-search-wrap">
           <svg class="user-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text" class="user-search-input" id="userSearchInput" placeholder="Search by name or email" oninput="onUserSearchInput()">
@@ -294,9 +301,8 @@ tr:last-child td{border-bottom:none}
       <div class="card"><div class="card-header"><span class="card-title">Registered Users</span></div><div class="card-body"><div class="table-wrap" id="usersTable"><div class="skeleton" style="height:40px"></div></div></div></div>
     </div>
 
-    <!-- Results -->
     <div class="section" id="sec-results">
-      <div class="card"><div class="card-header"><span class="card-title">Exam Results</span>
+      <div class="card"><div class="card-header"><span class="card-title">Results</span>
         <div class="searchable-select searchable-select-sm" id="resultFilterExamWrap" style="width:220px">
           <button class="searchable-select-trigger" onclick="toggleSearchableSelect('resultFilterExamWrap')"><span class="placeholder">All Exams</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
           <div class="searchable-select-dropdown"><div class="searchable-select-search"><input type="text" placeholder="Search..." oninput="filterSearchableOptions(this)"></div><div class="searchable-select-list" id="resultFilterExamList"></div></div>
@@ -305,17 +311,16 @@ tr:last-child td{border-bottom:none}
       </div><div class="card-body"><div class="table-wrap" id="resultsTable"><div class="skeleton" style="height:40px"></div></div></div></div>
     </div>
 
-    <!-- Notifications -->
     <div class="section" id="sec-notifications">
       <div class="card"><div class="card-header"><span class="card-title">Send Notification</span></div><div class="card-body">
-        <div id="notifResult"></div>
         <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="notifTitle"></div>
         <div class="form-group"><label class="form-label">Body</label><textarea class="form-textarea" id="notifBody" rows="3"></textarea></div>
         <div class="form-group"><label class="form-label">Image URL</label><input class="form-input" id="notifImage"></div>
         <div class="form-group"><label class="form-label">Link URL</label><input class="form-input" id="notifLink"></div>
-        <button class="btn btn-primary" onclick="sendNotification()">Send Notification</button>
+        <button class="btn btn-primary" onclick="sendNotification()">Send</button>
+        <div id="notifResult"></div>
       </div></div>
-      <div class="card"><div class="card-header"><span class="card-title">Sent Notifications</span></div><div class="card-body"><div id="notifList"></div></div></div>
+      <div class="card"><div class="card-header"><span class="card-title">Sent</span></div><div class="card-body"><div id="notifList"></div></div></div>
     </div>
   </div>
 </main>
@@ -324,10 +329,10 @@ tr:last-child td{border-bottom:none}
 <div class="modal-overlay" id="examModal"><div class="modal">
   <div class="modal-header"><h2 id="examModalTitle">New Exam</h2><button class="modal-close" onclick="closeModal('examModal')">✕</button></div>
   <div class="modal-body">
-    <div class="form-group"><label class="form-label">Exam Name</label><input class="form-input" id="examName"></div>
+    <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="examName"></div>
     <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="examDesc" rows="2"></textarea></div>
     <div class="form-grid">
-      <div class="form-group"><label class="form-label">Time Limit (min)</label><input class="form-input" type="number" id="examTime" value="30"></div>
+      <div class="form-group"><label class="form-label">Time (min)</label><input class="form-input" type="number" id="examTime" value="30"></div>
       <div class="form-group"><label class="form-label">Negative Marking</label><input class="form-input" type="number" id="examNeg" value="0" step="0.25"></div>
       <div class="form-group"><label class="form-label">Marks per MCQ</label><input class="form-input" type="number" id="examMarksPerQ" value="1" min="0.25" step="0.25"></div>
       <div class="form-group"><label class="form-label">Live Deadline (hrs)</label><input class="form-input" type="number" id="examLive" value="0"></div>
@@ -340,64 +345,63 @@ tr:last-child td{border-bottom:none}
         <input type="hidden" id="examBatchSelect" value="">
       </div>
     </div>
-    <div class="form-group"><label class="form-check"><input type="checkbox" id="examPremium"> Premium Exam</label></div>
-    <div class="form-group"><label class="form-check"><input type="checkbox" id="examPractice" checked> Allow Practice Mode</label></div>
-    <div class="form-group"><label class="form-check"><input type="checkbox" id="examLeaderboard" checked> Enable Leaderboard</label></div>
+    <div class="form-group"><label class="form-check"><input type="checkbox" id="examPremium"> Premium</label></div>
+    <div class="form-group"><label class="form-check"><input type="checkbox" id="examPractice" checked> Allow Practice</label></div>
+    <div class="form-group"><label class="form-check"><input type="checkbox" id="examLeaderboard" checked> Leaderboard</label></div>
     <div class="form-group"><label class="form-check"><input type="checkbox" id="examHasSections" onchange="toggleSectionBuilder()"> Enable Sections</label></div>
     <div class="section-builder" id="sectionBuilder" style="display:none">
       <div class="section-builder-title">Required Sections</div>
       <div id="requiredSectionsList"></div>
-      <button class="section-add-btn" onclick="addRequiredSection()">+ Add Required Section</button>
+      <button class="section-add-btn" onclick="addRequiredSection()">+ Add Required</button>
       <div class="section-builder-title" style="margin-top:16px">Compulsory Group</div>
       <div id="compulsorySectionsList"></div>
-      <button class="section-add-btn" onclick="addCompulsorySection()">+ Add Compulsory Section</button>
+      <button class="section-add-btn" onclick="addCompulsorySection()">+ Add Compulsory</button>
       <div class="section-builder-title" style="margin-top:16px">Normal Group</div>
       <div id="normalSectionsList"></div>
-      <button class="section-add-btn" onclick="addNormalSection()">+ Add Normal Section</button>
+      <button class="section-add-btn" onclick="addNormalSection()">+ Add Normal</button>
       <div class="section-rules">
-        <div class="form-group"><label class="form-label">Max Optional Sections</label><input class="form-input" type="number" id="maxOptional" value="2" min="1"></div>
+        <div class="form-group"><label class="form-label">Max Optional</label><input class="form-input" type="number" id="maxOptional" value="2" min="1"></div>
         <div class="form-group"><label class="form-label">Min from Compulsory</label><input class="form-input" type="number" id="minCompulsory" value="1" min="0"></div>
       </div>
     </div>
   </div>
-  <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('examModal')">Cancel</button><button class="btn btn-primary" onclick="saveExam()">Save Exam</button></div>
+  <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('examModal')">Cancel</button><button class="btn btn-primary" onclick="saveExam()">Save</button></div>
 </div></div>
 
 <!-- Batch Modal -->
 <div class="modal-overlay" id="batchModal"><div class="modal">
   <div class="modal-header"><h2>New Batch</h2><button class="modal-close" onclick="closeModal('batchModal')">✕</button></div>
   <div class="modal-body">
-    <div class="form-group"><label class="form-label">Batch Name</label><input class="form-input" id="batchName"></div>
+    <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="batchName"></div>
     <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="batchDesc" rows="2"></textarea></div>
   </div>
-  <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('batchModal')">Cancel</button><button class="btn btn-primary" onclick="saveBatch()">Save Batch</button></div>
+  <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('batchModal')">Cancel</button><button class="btn btn-primary" onclick="saveBatch()">Save</button></div>
 </div></div>
 
-<!-- Grant Premium Modal -->
+<!-- Grant Modal -->
 <div class="modal-overlay" id="grantModal"><div class="modal">
-  <div class="modal-header"><h2>Grant Premium Access</h2><button class="modal-close" onclick="closeModal('grantModal')">✕</button></div>
+  <div class="modal-header"><h2>Grant Premium</h2><button class="modal-close" onclick="closeModal('grantModal')">✕</button></div>
   <div class="modal-body">
     <div class="form-group"><label class="form-label">User</label><div id="grantUserDisplay" style="padding:8px;background:var(--bg);border-radius:var(--r)"></div></div>
-    <div class="form-group"><label class="form-label">Scope</label><select class="form-select" id="grantScope" onchange="toggleGrantScope()"><option value="exam">Single Exam</option><option value="batch">Whole Batch</option><option value="account">Account-Wide</option></select></div>
-    <div class="form-group" id="grantExamGroup"><label class="form-label">Select Exam</label><select class="form-select" id="grantExam"></select></div>
-    <div class="form-group" id="grantBatchGroup" style="display:none"><label class="form-label">Select Batch</label><select class="form-select" id="grantBatch"></select></div>
-    <div class="form-group"><label class="form-label">Duration</label><select class="form-select" id="grantDuration"><option value="">Permanent</option><option value="24">24 Hours</option><option value="168">7 Days</option><option value="720">30 Days</option></select></div>
+    <div class="form-group"><label class="form-label">Scope</label><select class="form-select" id="grantScope" onchange="toggleGrantScope()"><option value="exam">Exam</option><option value="batch">Batch</option><option value="account">Account</option></select></div>
+    <div class="form-group" id="grantExamGroup"><label class="form-label">Exam</label><select class="form-select" id="grantExam"></select></div>
+    <div class="form-group" id="grantBatchGroup" style="display:none"><label class="form-label">Batch</label><select class="form-select" id="grantBatch"></select></div>
+    <div class="form-group"><label class="form-label">Duration</label><select class="form-select" id="grantDuration"><option value="">Permanent</option><option value="24">24h</option><option value="168">7d</option><option value="720">30d</option></select></div>
   </div>
-  <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('grantModal')">Cancel</button><button class="btn btn-primary" onclick="submitGrant()">Grant Access</button></div>
+  <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('grantModal')">Cancel</button><button class="btn btn-primary" onclick="submitGrant()">Grant</button></div>
 </div></div>
 
 <!-- Confirm Modal -->
 <div class="modal-overlay" id="confirmActionModal"><div class="modal">
-  <div class="modal-header"><h2 id="confirmActionTitle">Confirm Action</h2><button class="modal-close" onclick="closeModal('confirmActionModal')">✕</button></div>
+  <div class="modal-header"><h2 id="confirmActionTitle">Confirm</h2><button class="modal-close" onclick="closeModal('confirmActionModal')">✕</button></div>
   <div class="modal-body" id="confirmActionBody"></div>
   <div class="modal-footer" id="confirmActionFooter"></div>
 </div></div>
 
 <div class="toast" id="toast"></div>
-
-<!-- PART 2 (JavaScript) CONTINUES BELOW -->
-  <script>
+<script>
 const API='/api';
+
 function getToken(){return localStorage.getItem('exalyte_token')}
 function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
 function logout(){localStorage.clear();window.location.href='/'}
@@ -417,11 +421,13 @@ let requiredSections=[],compulsorySections=[],normalSections=[];
 // ============================================================
 function levenshtein(a,b){
   const m=a.length,n=b.length;
-  if(m===0)return n;if(n===0)return m;
+  if(m===0)return n;
+  if(n===0)return m;
   const dp=new Array(n+1);
   for(let j=0;j<=n;j++)dp[j]=j;
   for(let i=1;i<=m;i++){
-    let prev=dp[0];dp[0]=i;
+    let prev=dp[0];
+    dp[0]=i;
     for(let j=1;j<=n;j++){
       const tmp=dp[j];
       dp[j]=a[i-1]===b[j-1]?prev:1+Math.min(prev,dp[j],dp[j-1]);
@@ -464,7 +470,9 @@ function fuzzyUserSearch(query){
 // SEARCHABLE DROPDOWN (FIXED — always allows re-selection)
 // ============================================================
 const searchableSelects={};
-function registerSearchableSelect(wrapId,items,targetInputId,onChange,options={}){searchableSelects[wrapId]={items,selectedValue:options.defaultValue||'',targetInputId,onChange:onChange||(()=>{}),placeholder:options.placeholder||'Select...'}}
+function registerSearchableSelect(wrapId,items,targetInputId,onChange,options={}){
+  searchableSelects[wrapId]={items,selectedValue:options.defaultValue||'',targetInputId,onChange:onChange||(()=>{}),placeholder:options.placeholder||'Select...'};
+}
 function updateSearchableSelectUI(wrapId,q){
   const ss=searchableSelects[wrapId];
   if(!ss)return;
@@ -472,7 +480,6 @@ function updateSearchableSelectUI(wrapId,q){
   const trig=document.getElementById(wrapId).querySelector('.placeholder');
   let filtered=ss.items;
   if(q){
-    const f=normalizeSearch(q);
     filtered=ss.items.map(i=>({...i,_s:Math.max(fieldMatchScore(q,i.label),fieldMatchScore(q,i.desc||''))})).filter(i=>i._s>=0).sort((a,b)=>b._s-a._s);
   }
   if(ss.selectedValue){
@@ -520,14 +527,20 @@ function renderSections(){
 // ============================================================
 // CLEAR JSON (FIX)
 // ============================================================
-function clearQuestionsJson(){const t=document.getElementById('questionsJson');if(t)t.value='';const r=document.getElementById('questionUploadResult');if(r)r.innerHTML=''}
+function clearQuestionsJson(){
+  const t=document.getElementById('questionsJson');
+  if(t)t.value='';
+  const r=document.getElementById('questionUploadResult');
+  if(r)r.innerHTML='';
+}
 document.getElementById('uploadSectionSelect').addEventListener('change',clearQuestionsJson);
 
 // ============================================================
 // UPLOAD SECTION SELECTOR (FIXED)
 // ============================================================
 function updateUploadSectionSelector(examId){
-  const wrap=document.getElementById('uploadSectionWrap'),sel=document.getElementById('uploadSectionSelect');
+  const wrap=document.getElementById('uploadSectionWrap');
+  const sel=document.getElementById('uploadSectionSelect');
   if(!wrap||!sel)return;
   const exam=allExams.find(e=>e.id==examId);
   if(exam?.has_sections&&exam?.section_config){
@@ -565,8 +578,18 @@ async function loadDashboard(){
   document.getElementById('statSubmissions').textContent=rl.length;
   document.getElementById('recentTable').innerHTML=`<table><thead><tr><th>Rank</th><th>User</th><th>Exam</th><th>Score</th><th>%</th><th>Date</th></tr></thead><tbody>${rl.slice(0,10).map(r=>`<tr><td>#${r.rank||'—'}</td><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:.65rem;color:var(--t4)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td>${(r.percentage||0).toFixed(1)}%</td><td>${formatDate(r.submitted_at)}</td></tr>`).join('')||'<tr><td colspan="6">No submissions</td></tr>'}</tbody></table>`;
 }
-async function loadExams(){const{data}=await apiFetch('/exams');allExams=(data.exams||[]);rebuildSearchableSelects();renderExams()}
-async function loadBatches(){const{data}=await apiFetch('/batches');allBatches=data||[];rebuildSearchableSelects();renderBatches()}
+async function loadExams(){
+  const{data}=await apiFetch('/exams');
+  allExams=(data.exams||[]);
+  rebuildSearchableSelects();
+  renderExams();
+}
+async function loadBatches(){
+  const{data}=await apiFetch('/batches');
+  allBatches=data||[];
+  rebuildSearchableSelects();
+  renderBatches();
+}
 
 // ============================================================
 // RENDER EXAMS & BATCHES
@@ -605,13 +628,20 @@ function openExamModal(id=null){
   document.getElementById('examNeg').value=e?.negative_marking||0;
   document.getElementById('examMarksPerQ').value=e?.marks_per_question||1;
   document.getElementById('examLive').value=e?.live_deadline_hours||0;
-  if(e?.scheduled_at){const d=new Date(e.scheduled_at);const local=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);document.getElementById('examScheduledAt').value=local}else{document.getElementById('examScheduledAt').value=''}
+  if(e?.scheduled_at){
+    const d=new Date(e.scheduled_at);
+    const local=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+    document.getElementById('examScheduledAt').value=local;
+  }else{document.getElementById('examScheduledAt').value=''}
   document.getElementById('examPremium').checked=e?.is_premium||false;
   document.getElementById('examPractice').checked=e?.allow_practice!==false;
   document.getElementById('examLeaderboard').checked=e?.leaderboard_enabled!==false;
   document.getElementById('examHasSections').checked=e?.has_sections===1;
   document.getElementById('examBatchSelect').value=e?.batch_id||'';
-  if(searchableSelects['examBatchSelectWrap']){searchableSelects['examBatchSelectWrap'].selectedValue=e?.batch_id||'';updateSearchableSelectUI('examBatchSelectWrap')}
+  if(searchableSelects['examBatchSelectWrap']){
+    searchableSelects['examBatchSelectWrap'].selectedValue=e?.batch_id||'';
+    updateSearchableSelectUI('examBatchSelectWrap');
+  }
   requiredSections=[];compulsorySections=[];normalSections=[];
   if(e?.has_sections&&e?.section_config){
     try{
@@ -661,15 +691,37 @@ async function saveExam(){
   if(ok){closeModal('examModal');loadExams();loadDashboard();toast('Exam saved')}
   else alert(data.error||'Failed to save exam');
 }
-async function deleteExam(id){if(confirm('Delete this exam?')){await apiFetch(`/admin/exams/${id}`,{method:'DELETE'});loadExams();loadDashboard()}}
-async function toggleExam(id){const e=allExams.find(x=>x.id==id);if(!e)return;await apiFetch(`/admin/exams/${id}/toggle`,{method:'POST',body:JSON.stringify({is_closed:e.is_closed?0:1})});toast('Exam '+(e.is_closed?'opened':'closed'));loadExams()}
+async function deleteExam(id){
+  if(confirm('Delete this exam?')){await apiFetch(`/admin/exams/${id}`,{method:'DELETE'});loadExams();loadDashboard()}
+}
+async function toggleExam(id){
+  const e=allExams.find(x=>x.id==id);
+  if(!e)return;
+  await apiFetch(`/admin/exams/${id}/toggle`,{method:'POST',body:JSON.stringify({is_closed:e.is_closed?0:1})});
+  toast('Exam '+(e.is_closed?'opened':'closed'));
+  loadExams();
+}
 
 // ============================================================
 // BATCH CRUD
 // ============================================================
-function openBatchModal(id=null){editingBatchId=id;const b=id?allBatches.find(x=>x.id==id):null;document.getElementById('batchName').value=b?.name||'';document.getElementById('batchDesc').value=b?.description||'';document.getElementById('batchModal').classList.add('open')}
-async function saveBatch(){const body={name:document.getElementById('batchName').value.trim(),description:document.getElementById('batchDesc').value};const url=editingBatchId?`/admin/batches/${editingBatchId}`:'/admin/batches';const method=editingBatchId?'PUT':'POST';const{ok}=await apiFetch(url,{method,body:JSON.stringify(body)});if(ok){closeModal('batchModal');loadBatches();loadDashboard()}}
-async function deleteBatch(id){if(confirm('Delete this batch?')){await apiFetch(`/admin/batches/${id}`,{method:'DELETE'});loadBatches();loadExams();loadDashboard()}}
+function openBatchModal(id=null){
+  editingBatchId=id;
+  const b=id?allBatches.find(x=>x.id==id):null;
+  document.getElementById('batchName').value=b?.name||'';
+  document.getElementById('batchDesc').value=b?.description||'';
+  document.getElementById('batchModal').classList.add('open');
+}
+async function saveBatch(){
+  const body={name:document.getElementById('batchName').value.trim(),description:document.getElementById('batchDesc').value};
+  const url=editingBatchId?`/admin/batches/${editingBatchId}`:'/admin/batches';
+  const method=editingBatchId?'PUT':'POST';
+  const{ok}=await apiFetch(url,{method,body:JSON.stringify(body)});
+  if(ok){closeModal('batchModal');loadBatches();loadDashboard()}
+}
+async function deleteBatch(id){
+  if(confirm('Delete this batch?')){await apiFetch(`/admin/batches/${id}`,{method:'DELETE'});loadBatches();loadExams();loadDashboard()}
+}
 
 // ============================================================
 // QUESTIONS (FIXED — JSON clears properly)
@@ -696,12 +748,21 @@ async function uploadQuestions(){
     loadQuestionsForExam();
   }catch(e){alert('Invalid JSON format')}
 }
-async function deleteAllQuestions(){const id=document.getElementById('questionExamSelect').value;if(id&&confirm('Delete ALL questions?')){await apiFetch(`/admin/questions/${id}`,{method:'DELETE'});loadQuestionsForExam()}}
+async function deleteAllQuestions(){
+  const id=document.getElementById('questionExamSelect').value;
+  if(id&&confirm('Delete ALL questions?')){await apiFetch(`/admin/questions/${id}`,{method:'DELETE'});loadQuestionsForExam()}
+}
 
 // ============================================================
 // RESOURCES
 // ============================================================
-function setResourceType(t){currentResourceType=t;document.querySelectorAll('.resource-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type===t));document.getElementById('resourceExamGroup').style.display=t==='exam'?'block':'none';document.getElementById('resourceBatchGroup').style.display=t==='batch'?'block':'none';loadResourcesForTarget()}
+function setResourceType(t){
+  currentResourceType=t;
+  document.querySelectorAll('.resource-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type===t));
+  document.getElementById('resourceExamGroup').style.display=t==='exam'?'block':'none';
+  document.getElementById('resourceBatchGroup').style.display=t==='batch'?'block':'none';
+  loadResourcesForTarget();
+}
 async function loadResourcesForTarget(){
   const id=currentResourceType==='exam'?document.getElementById('resourceExamSelect').value:document.getElementById('resourceBatchSelect').value;
   if(!id){document.getElementById('resourcesList').innerHTML='<div class="resource-empty">Select an exam or batch</div>';return}
@@ -709,7 +770,7 @@ async function loadResourcesForTarget(){
   const ep=currentResourceType==='exam'?`/admin/exams/${id}/resources`:`/admin/batches/${id}/resources`;
   const{data}=await apiFetch(ep);
   const rs=data||[];
-  document.getElementById('resourcesList').innerHTML=rs.length?`<div class="resource-list">${rs.map(r=>`<div class="resource-item"><div class="resource-info"><div><div class="resource-title">${esc(r.title)}</div><div class="resource-link">${isImageURL(r.link)?`<img src="${esc(r.link)}" class="resource-link-img" alt="">`:esc(r.link)}</div></div></div><div class="resource-actions"><button class="btn btn-danger btn-sm" onclick="deleteResource(${r.id})">Delete</button></div></div>`).join('')}</div>`:'<div class="resource-empty">No resources added yet</div>';
+  document.getElementById('resourcesList').innerHTML=rs.length?`<div class="resource-list">${rs.map(r=>`<div class="resource-item"><div class="resource-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><div><div class="resource-title">${esc(r.title)}</div><div class="resource-link">${isImageURL(r.link)?`<img src="${esc(r.link)}" class="resource-link-img" alt="">`:esc(r.link)}</div></div></div><div class="resource-actions"><button class="btn btn-danger btn-sm" onclick="deleteResource(${r.id})">Delete</button></div></div>`).join('')}</div>`:'<div class="resource-empty">No resources added yet</div>';
 }
 async function addResource(){
   const t=document.getElementById('newResourceTitle').value.trim();
@@ -720,7 +781,13 @@ async function addResource(){
   const{ok}=await apiFetch(ep,{method:'POST',body:JSON.stringify(body)});
   if(ok){document.getElementById('newResourceTitle').value='';document.getElementById('newResourceLink').value='';loadResourcesForTarget();toast('Resource added')}
 }
-async function deleteResource(id){if(confirm('Delete this resource?')){const ep=currentResourceType==='exam'?`/admin/resources/${id}`:`/admin/batch-resources/${id}`;await apiFetch(ep,{method:'DELETE'});loadResourcesForTarget()}}
+async function deleteResource(id){
+  if(confirm('Delete this resource?')){
+    const ep=currentResourceType==='exam'?`/admin/resources/${id}`:`/admin/batch-resources/${id}`;
+    await apiFetch(ep,{method:'DELETE'});
+    loadResourcesForTarget();
+  }
+}
 
 // ============================================================
 // USERS (FULL with premium tags, ban/unban, fuzzy search)
@@ -753,14 +820,43 @@ async function loadUsers(){
   const activeQuery=document.getElementById('userSearchInput')?.value;
   if(activeQuery)onUserSearchInput();
 }
-function openGrantModal(id,name){grantUserId=id;document.getElementById('grantUserDisplay').textContent=name;document.getElementById('grantExam').innerHTML=allExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');document.getElementById('grantBatch').innerHTML=allBatches.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');toggleGrantScope();document.getElementById('grantModal').classList.add('open')}
-function toggleGrantScope(){const s=document.getElementById('grantScope').value;document.getElementById('grantExamGroup').style.display=s==='exam'?'block':'none';document.getElementById('grantBatchGroup').style.display=s==='batch'?'block':'none'}
-async function submitGrant(){const s=document.getElementById('grantScope').value;const d=document.getElementById('grantDuration').value;const body={user_id:grantUserId,grant_scope:s,duration_hours:d?parseInt(d):null};if(s==='exam')body.exam_id=parseInt(document.getElementById('grantExam').value);if(s==='batch')body.batch_id=parseInt(document.getElementById('grantBatch').value);const{ok}=await apiFetch('/admin/grant-premium',{method:'POST',body:JSON.stringify(body)});if(ok){closeModal('grantModal');loadUsers();toast('Premium granted')}}
+function openGrantModal(id,name){
+  grantUserId=id;
+  document.getElementById('grantUserDisplay').textContent=name;
+  document.getElementById('grantExam').innerHTML=allExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');
+  document.getElementById('grantBatch').innerHTML=allBatches.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+  toggleGrantScope();
+  document.getElementById('grantModal').classList.add('open');
+}
+function toggleGrantScope(){
+  const s=document.getElementById('grantScope').value;
+  document.getElementById('grantExamGroup').style.display=s==='exam'?'block':'none';
+  document.getElementById('grantBatchGroup').style.display=s==='batch'?'block':'none';
+}
+async function submitGrant(){
+  const s=document.getElementById('grantScope').value;
+  const d=document.getElementById('grantDuration').value;
+  const body={user_id:grantUserId,grant_scope:s,duration_hours:d?parseInt(d):null};
+  if(s==='exam')body.exam_id=parseInt(document.getElementById('grantExam').value);
+  if(s==='batch')body.batch_id=parseInt(document.getElementById('grantBatch').value);
+  const{ok}=await apiFetch('/admin/grant-premium',{method:'POST',body:JSON.stringify(body)});
+  if(ok){closeModal('grantModal');loadUsers();toast('Premium granted')}
+}
 async function revokeExamPremium(uid,eid){if(!confirm('Revoke exam premium?'))return;await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:uid,exam_id:eid})});loadUsers()}
 async function revokeBatchPremium(uid,bid){if(!confirm('Revoke batch premium?'))return;await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:uid,batch_id:bid})});loadUsers()}
 async function revokeAccountPremium(uid){if(!confirm('Revoke account premium?'))return;await apiFetch('/admin/revoke-account-premium',{method:'DELETE',body:JSON.stringify({user_id:uid})});loadUsers()}
-function confirmBan(uid,name){document.getElementById('confirmActionTitle').textContent='Ban User';document.getElementById('confirmActionBody').innerHTML=`<p>Are you sure you want to <strong style="color:#e37400">ban</strong> <strong>${esc(name)}</strong>?</p><p style="font-size:.8rem;color:var(--t3)">They will be unable to login. Data preserved.</p>`;document.getElementById('confirmActionFooter').innerHTML=`<button class="btn btn-outline" onclick="closeModal('confirmActionModal')">Cancel</button><button class="btn btn-primary" style="background:#e37400" onclick="banUser(${uid})">Ban User</button>`;document.getElementById('confirmActionModal').classList.add('open')}
-function confirmDeleteUser(uid,name){document.getElementById('confirmActionTitle').textContent='Delete User Permanently';document.getElementById('confirmActionBody').innerHTML=`<p class="warning-text">This action CANNOT be undone.</p><p>This will permanently delete <strong>${esc(name)}</strong> and all related accounts.</p>`;document.getElementById('confirmActionFooter').innerHTML=`<button class="btn btn-outline" onclick="closeModal('confirmActionModal')">Cancel</button><button class="btn btn-danger" onclick="deleteUser(${uid})">Delete Permanently</button>`;document.getElementById('confirmActionModal').classList.add('open')}
+function confirmBan(uid,name){
+  document.getElementById('confirmActionTitle').textContent='Ban User';
+  document.getElementById('confirmActionBody').innerHTML=`<p>Are you sure you want to <strong style="color:#e37400">ban</strong> <strong>${esc(name)}</strong>?</p><p style="font-size:.8rem;color:var(--t3)">They will be unable to login. Data preserved.</p>`;
+  document.getElementById('confirmActionFooter').innerHTML=`<button class="btn btn-outline" onclick="closeModal('confirmActionModal')">Cancel</button><button class="btn btn-primary" style="background:#e37400" onclick="banUser(${uid})">Ban User</button>`;
+  document.getElementById('confirmActionModal').classList.add('open');
+}
+function confirmDeleteUser(uid,name){
+  document.getElementById('confirmActionTitle').textContent='Delete User Permanently';
+  document.getElementById('confirmActionBody').innerHTML=`<p class="warning-text">This action CANNOT be undone.</p><p>This will permanently delete <strong>${esc(name)}</strong> and all related accounts.</p>`;
+  document.getElementById('confirmActionFooter').innerHTML=`<button class="btn btn-outline" onclick="closeModal('confirmActionModal')">Cancel</button><button class="btn btn-danger" onclick="deleteUser(${uid})">Delete Permanently</button>`;
+  document.getElementById('confirmActionModal').classList.add('open');
+}
 async function banUser(id){const{ok}=await apiFetch(`/admin/users/${id}/ban`,{method:'POST'});if(ok){closeModal('confirmActionModal');loadUsers();toast('User banned')}}
 async function unbanUser(id){const{ok}=await apiFetch(`/admin/users/${id}/unban`,{method:'POST'});if(ok){loadUsers();toast('User unbanned')}}
 async function deleteUser(id){const{ok}=await apiFetch(`/admin/users/${id}/delete`,{method:'DELETE'});if(ok){closeModal('confirmActionModal');loadUsers();loadDashboard();toast('User deleted')}}
@@ -786,7 +882,12 @@ function onUserSearchInput(){
   }).join('');
   box.classList.add('show');
 }
-function clearUserSearch(){document.getElementById('userSearchInput').value='';document.getElementById('userSearchClear').style.display='none';document.getElementById('userSearchResults').classList.remove('show');document.getElementById('userSearchResults').innerHTML=''}
+function clearUserSearch(){
+  document.getElementById('userSearchInput').value='';
+  document.getElementById('userSearchClear').style.display='none';
+  document.getElementById('userSearchResults').classList.remove('show');
+  document.getElementById('userSearchResults').innerHTML='';
+}
 
 // ============================================================
 // RESULTS
@@ -799,7 +900,10 @@ async function loadResults(){
   const dl=id?`<button class="btn btn-primary btn-sm" onclick="downloadResults(${id})">Download TXT</button>`:'';
   document.getElementById('resultsTable').innerHTML=`<div style="margin-bottom:8px">${dl}</div><table><thead><tr><th>Rank</th><th>User</th><th>Exam</th><th>Score</th><th>%</th><th>Time</th><th>Date</th></tr></thead><tbody>${rs.map(r=>`<tr><td><strong>#${r.rank||'—'}</strong></td><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:.65rem;color:var(--t4)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><span style="color:${(r.percentage||0)>=80?'var(--green)':(r.percentage||0)>=50?'#e37400':'var(--red)'}">${(r.percentage||0).toFixed(1)}%</span></td><td>${formatTimeTaken(r.time_taken_seconds)}</td><td>${formatDate(r.submitted_at)}</td></tr>`).join('')||'<tr><td colspan="7">No results</td></tr>'}</tbody></table>`;
 }
-function downloadResults(id){const t=getToken();fetch(API+'/admin/results/'+id+'/download',{headers:{'Authorization':'Bearer '+t}}).then(r=>r.blob()).then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='results.txt';a.click()})}
+function downloadResults(id){
+  const t=getToken();
+  fetch(API+'/admin/results/'+id+'/download',{headers:{'Authorization':'Bearer '+t}}).then(r=>r.blob()).then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='results.txt';a.click()});
+}
 
 // ============================================================
 // NOTIFICATIONS
@@ -809,20 +913,31 @@ async function sendNotification(){
   if(!title){alert('Title required');return}
   const body={title,body:document.getElementById('notifBody').value,image_url:document.getElementById('notifImage').value||null,link_url:document.getElementById('notifLink').value||null};
   const{ok}=await apiFetch('/admin/notifications',{method:'POST',body:JSON.stringify(body)});
-  if(ok){document.getElementById('notifResult').innerHTML='<div class="alert alert-success">Notification sent!</div>';document.getElementById('notifTitle').value='';document.getElementById('notifBody').value='';document.getElementById('notifImage').value='';document.getElementById('notifLink').value='';loadNotificationsList();setTimeout(()=>document.getElementById('notifResult').innerHTML='',3000)}
+  if(ok){
+    document.getElementById('notifResult').innerHTML='<div class="alert alert-success">Notification sent!</div>';
+    document.getElementById('notifTitle').value='';document.getElementById('notifBody').value='';document.getElementById('notifImage').value='';document.getElementById('notifLink').value='';
+    loadNotificationsList();
+    setTimeout(()=>document.getElementById('notifResult').innerHTML='',3000);
+  }
 }
 async function loadNotificationsList(){
   const{data}=await apiFetch('/admin/notifications');
   const ns=data||[];
-  document.getElementById('notifList').innerHTML=ns.length?ns.map(n=>`<div class="notif-card"><div class="notif-header"><div class="notif-title">${esc(n.title)}</div><button class="btn btn-danger btn-sm" onclick="deleteNotification(${n.id})">Delete</button></div><div class="notif-meta"><span>${formatDate(n.created_at)}</span><span>${n.read_count||0}/${n.total_users||0} read</span><span>by ${esc(n.creator_name||'')}</span></div>${n.body?`<div class="notif-body">${esc(n.body)}</div>`:''}${n.image_url?`<img src="${esc(n.image_url)}" class="notif-img" onerror="this.style.display='none'">`:''}${n.link_url?`<a href="${esc(n.link_url)}" target="_blank" class="notif-link">Open</a>`:''}</div>`).join(''):'<p style="color:var(--t3);text-align:center;padding:16px">No notifications sent</p>';
+  document.getElementById('notifList').innerHTML=ns.length?ns.map(n=>`<div class="notif-card"><div class="notif-header"><div class="notif-title">${esc(n.title)}</div><button class="btn btn-danger btn-sm" onclick="deleteNotification(${n.id})">Delete</button></div><div class="notif-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatDate(n.created_at)}</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${n.read_count||0}/${n.total_users||0} read</span><span style="color:var(--t4);font-size:.65rem">by ${esc(n.creator_name||'')}</span></div>${n.body?`<div class="notif-body">${esc(n.body)}</div>`:''}${n.image_url?`<img src="${esc(n.image_url)}" class="notif-img" onerror="this.style.display='none'">`:''}${n.link_url?`<a href="${esc(n.link_url)}" target="_blank" class="notif-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open</a>`:''}</div>`).join(''):'<p style="color:var(--t3);text-align:center;padding:16px">No notifications sent</p>';
 }
-async function deleteNotification(id){if(confirm('Delete this notification?')){await apiFetch(`/admin/notifications/${id}`,{method:'DELETE'});loadNotificationsList()}}
+async function deleteNotification(id){
+  if(confirm('Delete this notification?')){await apiFetch(`/admin/notifications/${id}`,{method:'DELETE'});loadNotificationsList()}
+}
 
 // ============================================================
 // NAVIGATION & MODALS
 // ============================================================
 function toggleMobileNav(){document.getElementById('mobileNavDropdown').classList.toggle('show')}
-document.addEventListener('click',e=>{const dd=document.getElementById('mobileNavDropdown');const hb=document.getElementById('hamburger');if(dd&&!dd.contains(e.target)&&!hb.contains(e.target))dd.classList.remove('show')});
+document.addEventListener('click',e=>{
+  const dd=document.getElementById('mobileNavDropdown');
+  const hb=document.getElementById('hamburger');
+  if(dd&&!dd.contains(e.target)&&!hb.contains(e.target))dd.classList.remove('show');
+});
 function switchSection(s){
   document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.sidebar-item').forEach(x=>x.classList.remove('active'));
@@ -850,5 +965,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelect
 // ============================================================
 loadDashboard();loadExams();loadBatches();loadUsers();loadNotificationsList();
 </script>
+</body>
+</html>
+
+
 </body>
 </html>
