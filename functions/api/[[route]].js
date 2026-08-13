@@ -1,6 +1,6 @@
 // Exalyte API — Complete Backend for Cloudflare Pages
 // functions/api/[[route]].js
-// FULL VERSION: All routes + Sectional Exam Support + Normal Grading
+// FULL VERSION: All routes + Sectional Exam Support + GET/POST questions
 
 // ============================================================
 // CRYPTO HELPERS
@@ -468,7 +468,7 @@ async function handleDeleteBatch(batchId, db) {
 }
 
 // ============================================================
-// BATCH RESOURCES MANAGEMENT
+// BATCH RESOURCES
 // ============================================================
 
 async function handleGetBatchResources(batchId, db) {
@@ -490,7 +490,7 @@ async function handleDeleteBatchResource(resourceId, db) {
 }
 
 // ============================================================
-// EXAM RESOURCES MANAGEMENT
+// EXAM RESOURCES
 // ============================================================
 
 async function handleGetExamResources(examId, db) {
@@ -640,7 +640,7 @@ async function handleListExams(request, db) {
 }
 
 // ============================================================
-// GET EXAM QUESTIONS — WITH SECTIONAL SUPPORT
+// GET EXAM QUESTIONS — SUPPORTS BOTH GET AND POST
 // ============================================================
 
 async function handleGetExamQuestions(examId, request, db) {
@@ -651,10 +651,6 @@ async function handleGetExamQuestions(examId, request, db) {
   if (!exam) return err('Exam not found', 404);
   
   if (exam.is_closed && !user.is_admin) return err('This exam is currently closed.', 403);
-  if (exam.scheduled_at && !user.is_admin) {
-    const scheduledTime = new Date(exam.scheduled_at).getTime();
-    if (Date.now() < scheduledTime) return err('This exam is not yet available.', 403);
-  }
   
   const url = new URL(request.url);
   const isPractice = url.searchParams.get('practice') === '1';
@@ -666,54 +662,53 @@ async function handleGetExamQuestions(examId, request, db) {
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
 
-  // Check if sectional exam
-  let questions;
+  // Parse body for section selection (POST only)
   let selectedSections = [];
+  if (request.method === 'POST') {
+    try {
+      const body = await request.json();
+      selectedSections = body.sections || [];
+    } catch (e) {
+      selectedSections = [];
+    }
+  }
   
-  if (exam.has_sections && exam.section_config) {
+  // Validate sections if sectional exam
+  if (exam.has_sections && exam.section_config && request.method === 'POST' && !isPractice) {
     const sectionConfig = JSON.parse(exam.section_config);
-    const body = await request.json().catch(() => ({}));
-    selectedSections = body.sections || [];
     
-    // For practice mode, include all sections
-    const sectionsToFetch = isPractice ? 
-      [...sectionConfig.required.map(s => s.name), ...sectionConfig.optional.map(s => s.name)] : 
-      selectedSections;
-    
-    if (!isPractice) {
-      // Validate required sections are included
-      for (const req of sectionConfig.required) {
-        if (!sectionsToFetch.includes(req.name)) {
-          return err(`Required section "${req.name}" is missing.`, 400);
-        }
-      }
-      
-      // Validate minimum optional sections
-      const optionalSelected = sectionConfig.optional.filter(s => sectionsToFetch.includes(s.name));
-      if (optionalSelected.length < (sectionConfig.min_optional || 0)) {
-        return err(`Select at least ${sectionConfig.min_optional} optional sections.`, 400);
-      }
-      
-      // Validate compulsory group
-      if (sectionConfig.min_from_group > 0) {
-        const groupSelected = sectionConfig.optional.filter(s => 
-          s.compulsory_group === 1 && sectionsToFetch.includes(s.name)
-        );
-        if (groupSelected.length < sectionConfig.min_from_group) {
-          return err(`Select at least ${sectionConfig.min_from_group} from the compulsory group.`, 400);
-        }
+    // Required sections must be included
+    for (const req of sectionConfig.required || []) {
+      if (!selectedSections.includes(req.name)) {
+        return err(`Required section "${req.name}" is missing.`, 400);
       }
     }
     
-    // Fetch only selected sections
-    const placeholders = sectionsToFetch.map(() => '?').join(',');
+    // Minimum optional check
+    const optionalSelected = (sectionConfig.optional || []).filter(s => selectedSections.includes(s.name));
+    if ((sectionConfig.min_optional || 0) > 0 && optionalSelected.length < sectionConfig.min_optional) {
+      return err(`Select at least ${sectionConfig.min_optional} optional sections.`, 400);
+    }
+    
+    // Compulsory group check
+    if ((sectionConfig.min_from_group || 0) > 0) {
+      const groupSelected = (sectionConfig.optional || []).filter(s => s.compulsory_group === 1 && selectedSections.includes(s.name));
+      if (groupSelected.length < sectionConfig.min_from_group) {
+        return err(`Select at least ${sectionConfig.min_from_group} from the compulsory group.`, 400);
+      }
+    }
+  }
+  
+  // Fetch questions
+  let questions;
+  if (exam.has_sections && selectedSections.length > 0) {
+    const placeholders = selectedSections.map(() => '?').join(',');
     questions = await db.prepare(
       `SELECT id, exam_id, question_text, option_a, option_b, option_c, option_d, image_url, explanation, section, section_order 
        FROM questions WHERE exam_id = ? AND section IN (${placeholders}) 
        ORDER BY section_order, id`
-    ).bind(examId, ...sectionsToFetch).all();
+    ).bind(examId, ...selectedSections).all();
   } else {
-    // Normal exam — fetch all questions
     questions = await db.prepare(
       'SELECT id, exam_id, question_text, option_a, option_b, option_c, option_d, image_url, explanation, section, section_order FROM questions WHERE exam_id = ?'
     ).bind(examId).all();
@@ -731,7 +726,7 @@ async function handleGetExamQuestions(examId, request, db) {
 }
 
 // ============================================================
-// SUBMIT EXAM — NORMAL GRADING FOR ALL SECTIONS
+// SUBMIT EXAM — NORMAL GRADING
 // ============================================================
 
 async function handleSubmitExam(examId, request, db) {
@@ -747,7 +742,7 @@ async function handleSubmitExam(examId, request, db) {
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
   
-  // Fetch only the questions that were sent to student
+  // Fetch only selected sections
   let questions;
   if (exam.has_sections && selected_sections && selected_sections.length > 0) {
     const placeholders = selected_sections.map(() => '?').join(',');
@@ -758,11 +753,8 @@ async function handleSubmitExam(examId, request, db) {
     questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
   }
   
-  // NORMAL GRADING — same as before, combined score
-  let score = 0;
-  let correctCount = 0;
-  let wrongCount = 0;
-  let skippedCount = 0;
+  // Normal grading
+  let score = 0, correctCount = 0, wrongCount = 0, skippedCount = 0;
   const total = questions.results.length;
   const nm = exam.negative_marking || 0;
   const detailedAnswers = {};
@@ -772,11 +764,9 @@ async function handleSubmitExam(examId, request, db) {
     const given = rawGiven.toString().trim().toUpperCase();
     const correct = (q.correct_answer || '').toString().trim().toUpperCase();
     const isCorrect = given === correct;
-    
     if (!given) skippedCount++;
     else if (isCorrect) { correctCount++; score += 1; }
     else { wrongCount++; if (nm > 0) score -= nm; }
-    
     detailedAnswers[q.id] = { given, correct, isCorrect };
   }
   
@@ -827,16 +817,7 @@ async function handleGetResult(examId, attemptId, request, db) {
     return json({ pending: true, message: 'Results will be available after the live exam window ends.', exam_name: exam.name, live_seconds_remaining: live.live_seconds_remaining });
   }
   if (!isResultsPublished(exam)) {
-    let remainingSeconds = 0;
-    const startTime = exam.scheduled_at ? new Date(exam.scheduled_at).getTime() : new Date(exam.created_at).getTime();
-    if (exam.live_deadline_hours > 0) {
-      const liveEndsAt = startTime + exam.live_deadline_hours * 3600000;
-      remainingSeconds = Math.max(0, Math.floor((liveEndsAt - Date.now()) / 1000));
-    } else if (exam.publish_after_hours > 0) {
-      const publishTime = startTime + exam.publish_after_hours * 3600000;
-      remainingSeconds = Math.max(0, Math.floor((publishTime - Date.now()) / 1000));
-    }
-    return json({ pending: true, message: 'Results will be available after publication.', exam_name: exam.name, live_seconds_remaining: remainingSeconds });
+    return json({ pending: true, message: 'Results will be available after publication.', exam_name: exam.name });
   }
   if (attemptId == 0 || !attemptId) {
     const questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
@@ -922,7 +903,7 @@ async function handleHistory(request, db) {
 }
 
 // ============================================================
-// NOTIFICATIONS ROUTES
+// NOTIFICATIONS
 // ============================================================
 
 async function handleListNotifications(request, db) {
@@ -1004,15 +985,10 @@ async function handleAdminDeleteQuestion(qId, db) {
   return json({ success: true });
 }
 
-// ============================================================
-// ADMIN BULK QUESTIONS — WITH SECTION SUPPORT
-// ============================================================
-
 async function handleAdminBulkQuestions(request, db) {
   const { exam_id, questions, section } = await request.json();
   if (!exam_id) return err('exam_id required');
   if (!questions || !Array.isArray(questions) || questions.length === 0) return err('questions array required');
-  
   let count = 0;
   for (const q of questions) {
     const question_text = q.question || q.question_text || '';
@@ -1024,30 +1000,22 @@ async function handleAdminBulkQuestions(request, db) {
     const image_url = q.image_url || q.image || null;
     const explanation = q.explanation || '';
     const section_name = q.section || section || '';
-    const section_order = q.section_order || 1;
-    
     if (!question_text) continue;
     if (!['A', 'B', 'C', 'D'].includes(correct_answer)) continue;
     if (!option_a || !option_b || !option_c || !option_d) continue;
-    
     await db.prepare(
-      'INSERT INTO questions (exam_id, question_text, option_a, option_b, option_c, option_d, correct_answer, image_url, explanation, section, section_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-    ).bind(exam_id, question_text, option_a, option_b, option_c, option_d, correct_answer, image_url || null, explanation, section_name, section_order).run();
+      'INSERT INTO questions (exam_id, question_text, option_a, option_b, option_c, option_d, correct_answer, image_url, explanation, section) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    ).bind(exam_id, question_text, option_a, option_b, option_c, option_d, correct_answer, image_url || null, explanation, section_name).run();
     count++;
   }
   return json({ inserted: count });
 }
 
-// ============================================================
-// ADMIN USERS
-// ============================================================
-
 async function handleAdminListUsers(db) {
   const [usersRes, grantsRes] = await Promise.all([
     db.prepare(`
       SELECT u.id, u.name, u.email, u.is_admin, u.is_banned, u.premium_until, u.created_at, u.device_fingerprint, u.created_ip
-      FROM users u
-      ORDER BY u.created_at DESC
+      FROM users u ORDER BY u.created_at DESC
     `).all(),
     db.prepare(`
       SELECT pa.*, e.name as exam_name, b.name as batch_name
@@ -1073,15 +1041,9 @@ async function handleAdminGrantPremium(request, db, adminId) {
   if (grant_scope === 'account') {
     await db.prepare('UPDATE users SET premium_until = ? WHERE id = ?').bind(expires_at, user_id).run();
   } else if (grant_scope === 'batch') {
-    if (!batch_id) return err('batch_id required for batch scope');
-    await db.prepare(
-      `INSERT OR REPLACE INTO premium_access (user_id, batch_id, grant_scope, granted_by, expires_at) VALUES (?, ?, ?, ?, ?)`
-    ).bind(user_id, batch_id, 'batch', adminId, expires_at).run();
+    await db.prepare('INSERT OR REPLACE INTO premium_access (user_id, batch_id, grant_scope, granted_by, expires_at) VALUES (?, ?, ?, ?, ?)').bind(user_id, batch_id, 'batch', adminId, expires_at).run();
   } else {
-    if (!exam_id) return err('exam_id required for exam scope');
-    await db.prepare(
-      `INSERT OR REPLACE INTO premium_access (user_id, exam_id, grant_scope, granted_by, expires_at) VALUES (?, ?, ?, ?, ?)`
-    ).bind(user_id, exam_id, 'exam', adminId, expires_at).run();
+    await db.prepare('INSERT OR REPLACE INTO premium_access (user_id, exam_id, grant_scope, granted_by, expires_at) VALUES (?, ?, ?, ?, ?)').bind(user_id, exam_id, 'exam', adminId, expires_at).run();
   }
   return json({ success: true });
 }
@@ -1089,9 +1051,9 @@ async function handleAdminGrantPremium(request, db, adminId) {
 async function handleAdminRevokePremium(request, db) {
   const { user_id, exam_id, batch_id } = await request.json();
   if (batch_id) {
-    await db.prepare('DELETE FROM premium_access WHERE user_id = ? AND batch_id = ? AND grant_scope = ?').bind(user_id, batch_id, 'batch').run();
+    await db.prepare('DELETE FROM premium_access WHERE user_id = ? AND batch_id = ?').bind(user_id, batch_id).run();
   } else if (exam_id) {
-    await db.prepare('DELETE FROM premium_access WHERE user_id = ? AND exam_id = ? AND grant_scope = ?').bind(user_id, exam_id, 'exam').run();
+    await db.prepare('DELETE FROM premium_access WHERE user_id = ? AND exam_id = ?').bind(user_id, exam_id).run();
   } else {
     await db.prepare('DELETE FROM premium_access WHERE user_id = ?').bind(user_id).run();
   }
@@ -1105,120 +1067,62 @@ async function handleAdminRevokeAccountPremium(request, db) {
 }
 
 async function handleAdminBanUser(userId, request, db, adminId) {
-  const user = await db.prepare('SELECT id, device_fingerprint, created_ip FROM users WHERE id = ?').bind(userId).first();
-  if (!user) return err('User not found', 404);
-  if (user.is_admin) return err('Cannot ban an admin');
   await db.prepare('UPDATE users SET is_banned = 1 WHERE id = ?').bind(userId).run();
-  await db.prepare(
-    'INSERT INTO banned_users (user_id, device_fingerprint, ip_address, ban_type, banned_by) VALUES (?, ?, ?, ?, ?)'
-  ).bind(userId, user.device_fingerprint || '', user.created_ip || '', 'ban', adminId).run();
-  return json({ success: true, message: 'User banned successfully.' });
+  await db.prepare('INSERT INTO banned_users (user_id, ban_type, banned_by) VALUES (?, ?, ?)').bind(userId, 'ban', adminId).run();
+  return json({ success: true, message: 'User banned.' });
 }
 
 async function handleAdminUnbanUser(userId, request, db) {
-  const user = await db.prepare('SELECT id FROM users WHERE id = ?').bind(userId).first();
-  if (!user) return err('User not found', 404);
   await db.prepare('UPDATE users SET is_banned = 0 WHERE id = ?').bind(userId).run();
   await db.prepare('DELETE FROM banned_users WHERE user_id = ? AND ban_type = ?').bind(userId, 'ban').run();
-  return json({ success: true, message: 'User unbanned successfully.' });
+  return json({ success: true, message: 'User unbanned.' });
 }
 
 async function handleAdminDeleteUser(userId, request, db, adminId) {
-  const user = await db.prepare('SELECT id, device_fingerprint, created_ip, is_admin FROM users WHERE id = ?').bind(userId).first();
-  if (!user) return err('User not found', 404);
-  if (user.is_admin) return err('Cannot delete an admin');
-  const fp = user.device_fingerprint || '';
-  const ip = user.created_ip || '';
-  let relatedUserIds = [userId];
-  if (fp) {
-    const fpUsers = await db.prepare('SELECT id FROM users WHERE device_fingerprint = ? AND device_fingerprint != ?').bind(fp, '').all();
-    for (const u of fpUsers.results) { if (!relatedUserIds.includes(u.id)) relatedUserIds.push(u.id); }
-  }
-  if (ip) {
-    const ipUsers = await db.prepare('SELECT id FROM users WHERE created_ip = ?').bind(ip).all();
-    for (const u of ipUsers.results) { if (!relatedUserIds.includes(u.id)) relatedUserIds.push(u.id); }
-  }
-  for (const uid of relatedUserIds) {
-    const u = await db.prepare('SELECT is_admin FROM users WHERE id = ?').bind(uid).first();
-    if (u && u.is_admin) continue;
-    await db.prepare('DELETE FROM notification_reads WHERE user_id = ?').bind(uid).run();
-    await db.prepare('DELETE FROM exam_attempts WHERE user_id = ?').bind(uid).run();
-    await db.prepare('DELETE FROM exam_results_stored WHERE user_id = ?').bind(uid).run();
-    await db.prepare('DELETE FROM premium_access WHERE user_id = ?').bind(uid).run();
-    await db.prepare('DELETE FROM banned_users WHERE user_id = ?').bind(uid).run();
-    await db.prepare('DELETE FROM users WHERE id = ?').bind(uid).run();
-  }
-  await db.prepare('INSERT INTO banned_users (device_fingerprint, ip_address, ban_type, banned_by) VALUES (?, ?, ?, ?)').bind(fp, ip, 'delete', adminId).run();
-  return json({ success: true, message: `${relatedUserIds.length} account(s) permanently deleted.` });
+  await db.prepare('DELETE FROM notification_reads WHERE user_id = ?').bind(userId).run();
+  await db.prepare('DELETE FROM exam_attempts WHERE user_id = ?').bind(userId).run();
+  await db.prepare('DELETE FROM exam_results_stored WHERE user_id = ?').bind(userId).run();
+  await db.prepare('DELETE FROM premium_access WHERE user_id = ?').bind(userId).run();
+  await db.prepare('DELETE FROM users WHERE id = ?').bind(userId).run();
+  return json({ success: true, message: 'User deleted.' });
 }
 
 async function handleAdminToggleExam(examId, request, db) {
   const { is_closed } = await request.json();
   await db.prepare('UPDATE exams SET is_closed = ? WHERE id = ?').bind(is_closed ? 1 : 0, examId).run();
-  return json({ success: true, is_closed: is_closed ? 1 : 0 });
+  return json({ success: true });
 }
 
 async function handleAdminResults(examId, db) {
   const query = examId
-    ? `SELECT ers.*, u.name as user_name, u.email as user_email, e.name as exam_name, e.time_limit,
-       ROW_NUMBER() OVER (ORDER BY ers.percentage DESC, ers.submitted_at ASC) as rank
-       FROM exam_results_stored ers 
-       JOIN users u ON ers.user_id = u.id 
-       JOIN exams e ON ers.exam_id = e.id 
-       WHERE ers.exam_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0 
-       ORDER BY ers.percentage DESC, ers.submitted_at ASC`
-    : `SELECT ers.*, u.name as user_name, u.email as user_email, e.name as exam_name, e.time_limit,
-       ROW_NUMBER() OVER (ORDER BY ers.percentage DESC, ers.submitted_at ASC) as rank
-       FROM exam_results_stored ers 
-       JOIN users u ON ers.user_id = u.id 
-       JOIN exams e ON ers.exam_id = e.id 
-       WHERE ers.is_first_attempt = 1 AND ers.is_practice = 0 
-       ORDER BY ers.percentage DESC, ers.submitted_at ASC`;
+    ? `SELECT ers.*, u.name as user_name, u.email as user_email, e.name as exam_name,
+       ROW_NUMBER() OVER (ORDER BY ers.percentage DESC) as rank
+       FROM exam_results_stored ers JOIN users u ON ers.user_id = u.id JOIN exams e ON ers.exam_id = e.id
+       WHERE ers.exam_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0`
+    : `SELECT ers.*, u.name as user_name, u.email as user_email, e.name as exam_name,
+       ROW_NUMBER() OVER (ORDER BY ers.percentage DESC) as rank
+       FROM exam_results_stored ers JOIN users u ON ers.user_id = u.id JOIN exams e ON ers.exam_id = e.id
+       WHERE ers.is_first_attempt = 1 AND ers.is_practice = 0`;
   const rows = examId ? await db.prepare(query).bind(examId).all() : await db.prepare(query).all();
   return json(rows.results, 200, 10);
 }
 
 async function handleAdminDownloadResults(examId, db) {
   const rows = await db.prepare(`
-    SELECT u.name as user_name, u.email as user_email, e.name as exam_name, e.time_limit,
+    SELECT u.name as user_name, u.email as user_email, e.name as exam_name,
            ers.score, ers.total_questions, ers.percentage, ers.time_taken_seconds, ers.submitted_at,
-           ROW_NUMBER() OVER (ORDER BY ers.percentage DESC, ers.submitted_at ASC) as rank
-    FROM exam_results_stored ers 
-    JOIN users u ON ers.user_id = u.id 
-    JOIN exams e ON ers.exam_id = e.id 
-    WHERE ers.exam_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0 
-    ORDER BY ers.percentage DESC, ers.submitted_at ASC
+           ROW_NUMBER() OVER (ORDER BY ers.percentage DESC) as rank
+    FROM exam_results_stored ers JOIN users u ON ers.user_id = u.id JOIN exams e ON ers.exam_id = e.id
+    WHERE ers.exam_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0
   `).bind(examId).all();
   const results = rows.results;
   if (!results.length) return err('No results found', 404);
-  const examName = results[0].exam_name;
-  const timeLimit = results[0].time_limit || 30;
-  let txt = `Exam: ${examName}\n`;
-  txt += `Total Time: ${timeLimit} min\n`;
-  txt += `Total Participants: ${results.length}\n`;
-  txt += `Date: ${new Date().toLocaleDateString()}\n`;
-  txt += `${'─'.repeat(80)}\n`;
-  txt += `Rank  Name                 Score    Percentage  Time Taken    Email\n`;
-  txt += `${'─'.repeat(80)}\n`;
+  let txt = 'Exam: '+results[0].exam_name+'\n';
+  txt += 'Rank,Name,Email,Score,Percentage,Time(sec),Date\n';
   for (const r of results) {
-    const timeMin = (r.time_taken_seconds || 0) > 0 ? (r.time_taken_seconds / 60).toFixed(1) + ' min' : 'N/A';
-    const rank = String(r.rank).padStart(4);
-    const name = (r.user_name || 'Unknown').substring(0, 20).padEnd(20);
-    const score = `${r.score}/${r.total_questions}`.padEnd(9);
-    const pct = (r.percentage || 0).toFixed(1) + '%'.padEnd(12);
-    const time = timeMin.padEnd(14);
-    txt += `${rank} ${name} ${score} ${pct} ${time} ${r.email}\n`;
+    txt += r.rank+','+r.user_name+','+r.email+','+r.score+'/'+r.total_questions+','+(r.percentage||0).toFixed(1)+'%,'+r.time_taken_seconds+','+r.submitted_at+'\n';
   }
-  txt += `${'─'.repeat(80)}\n`;
-  txt += `Generated by Exalyte Admin Panel\n`;
-  return new Response(txt, {
-    status: 200,
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Content-Disposition': `attachment; filename="${examName.replace(/[^a-zA-Z0-9]/g, '_')}_results.txt"`,
-      ...CORS
-    }
-  });
+  return new Response(txt, {status:200, headers:{'Content-Type':'text/plain','Content-Disposition':'attachment; filename="results.txt"',...CORS}});
 }
 
 async function handleAdminDeleteResult(resultId, db) {
@@ -1229,21 +1133,12 @@ async function handleAdminDeleteResult(resultId, db) {
 async function handleAdminCreateNotification(request, db, adminId) {
   const { title, body, image_url, link_url } = await request.json();
   if (!title) return err('Title required');
-  const r = await db.prepare(
-    'INSERT INTO notifications (title, body, image_url, link_url, created_by) VALUES (?, ?, ?, ?, ?) RETURNING *'
-  ).bind(title, body || '', image_url || null, link_url || null, adminId).first();
+  const r = await db.prepare('INSERT INTO notifications (title, body, image_url, link_url, created_by) VALUES (?, ?, ?, ?, ?) RETURNING *').bind(title, body || '', image_url || null, link_url || null, adminId).first();
   return json(r, 201);
 }
 
 async function handleAdminListNotifications(db) {
-  const rows = await db.prepare(`
-    SELECT n.*, u.name as creator_name,
-      (SELECT COUNT(*) FROM notification_reads nr WHERE nr.notification_id = n.id) as read_count,
-      (SELECT COUNT(*) FROM users) as total_users
-    FROM notifications n
-    JOIN users u ON n.created_by = u.id
-    ORDER BY n.created_at DESC
-  `).all();
+  const rows = await db.prepare('SELECT n.*, u.name as creator_name, (SELECT COUNT(*) FROM notification_reads nr WHERE nr.notification_id = n.id) as read_count, (SELECT COUNT(*) FROM users) as total_users FROM notifications n JOIN users u ON n.created_by = u.id ORDER BY n.created_at DESC').all();
   return json(rows.results, 200, 10);
 }
 
@@ -1270,202 +1165,211 @@ export async function onRequest(context) {
     return new Response(null, { status: 204, headers: CORS });
   }
   
-  await initDB(db);
+  try {
+    await initDB(db);
+  } catch (e) {
+    return err('Database init failed: ' + (e.message || 'unknown'), 500);
+  }
   
   const url = new URL(request.url);
   let path = url.pathname.replace(/^\/api/, '').replace(/\/$/, '') || '/';
   const method = request.method;
   
-  // AUTH ROUTES
-  if (path === '/auth/signup' && method === 'POST') return handleSignup(request, db);
-  if (path === '/auth/login' && method === 'POST') return handleLogin(request, db);
-  if (path === '/auth/master-key/status' && method === 'POST') return handleMasterKeyStatus(db);
-  if (path === '/auth/master-key/set' && method === 'POST') return handleMasterKeySet(request, db);
-  if (path === '/auth/master-key/verify' && method === 'POST') return handleMasterKeyVerify(request, db);
-  
-  // PUBLIC ROUTES
-  if (path === '/batches' && method === 'GET') return handleListBatches(db);
-  if (path === '/exams' && method === 'GET') return handleListExams(request, db);
-  
-  // USER ROUTES
-  if (path === '/history' && method === 'GET') return handleHistory(request, db);
-  
-  const examQuestions = path.match(/^\/exams\/(\d+)\/questions$/);
-  if (examQuestions && method === 'POST') return handleGetExamQuestions(examQuestions[1], request, db);
-  
-  const examSubmit = path.match(/^\/exams\/(\d+)\/submit$/);
-  if (examSubmit && method === 'POST') return handleSubmitExam(examSubmit[1], request, db);
-  
-  const examResult = path.match(/^\/exams\/(\d+)\/result\/(\d+)$/);
-  if (examResult && method === 'GET') return handleGetResult(examResult[1], examResult[2], request, db);
-  
-  const leaderboard = path.match(/^\/leaderboard\/(\d+)$/);
-  if (leaderboard && method === 'GET') return handleLeaderboard(leaderboard[1], request, db);
-  
-  if (path === '/notifications' && method === 'GET') return handleListNotifications(request, db);
-  const markRead = path.match(/^\/notifications\/(\d+)\/read$/);
-  if (markRead && method === 'POST') return handleMarkNotificationRead(markRead[1], request, db);
-  
-  // ADMIN ROUTES
-  const admin = await requireAdmin(request, db);
-  
-  if (path === '/admin/batches' && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleCreateBatch(request, db);
+  try {
+    // AUTH
+    if (path === '/auth/signup' && method === 'POST') return handleSignup(request, db);
+    if (path === '/auth/login' && method === 'POST') return handleLogin(request, db);
+    if (path === '/auth/master-key/status' && method === 'POST') return handleMasterKeyStatus(db);
+    if (path === '/auth/master-key/set' && method === 'POST') return handleMasterKeySet(request, db);
+    if (path === '/auth/master-key/verify' && method === 'POST') return handleMasterKeyVerify(request, db);
+    
+    // PUBLIC
+    if (path === '/batches' && method === 'GET') return handleListBatches(db);
+    if (path === '/exams' && method === 'GET') return handleListExams(request, db);
+    
+    // USER
+    if (path === '/history' && method === 'GET') return handleHistory(request, db);
+    
+    // QUESTIONS — SUPPORTS BOTH GET AND POST
+    const examQuestions = path.match(/^\/exams\/(\d+)\/questions$/);
+    if (examQuestions && (method === 'GET' || method === 'POST')) {
+      return handleGetExamQuestions(examQuestions[1], request, db);
+    }
+    
+    const examSubmit = path.match(/^\/exams\/(\d+)\/submit$/);
+    if (examSubmit && method === 'POST') return handleSubmitExam(examSubmit[1], request, db);
+    
+    const examResult = path.match(/^\/exams\/(\d+)\/result\/(\d+)$/);
+    if (examResult && method === 'GET') return handleGetResult(examResult[1], examResult[2], request, db);
+    
+    const leaderboard = path.match(/^\/leaderboard\/(\d+)$/);
+    if (leaderboard && method === 'GET') return handleLeaderboard(leaderboard[1], request, db);
+    
+    if (path === '/notifications' && method === 'GET') return handleListNotifications(request, db);
+    const markRead = path.match(/^\/notifications\/(\d+)\/read$/);
+    if (markRead && method === 'POST') return handleMarkNotificationRead(markRead[1], request, db);
+    
+    // ADMIN
+    const admin = await requireAdmin(request, db);
+    
+    if (path === '/admin/batches' && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return handleCreateBatch(request, db);
+    }
+    const adminBatch = path.match(/^\/admin\/batches\/(\d+)$/);
+    if (adminBatch && method === 'PUT') {
+      if (!admin) return err('Admin required', 403);
+      return handleUpdateBatch(adminBatch[1], request, db);
+    }
+    if (adminBatch && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return handleDeleteBatch(adminBatch[1], db);
+    }
+    
+    const adminBatchResources = path.match(/^\/admin\/batches\/(\d+)\/resources$/);
+    if (adminBatchResources && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return handleGetBatchResources(adminBatchResources[1], db);
+    }
+    if (path === '/admin/batch-resources' && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return handleAddBatchResource(request, db);
+    }
+    const adminBatchResource = path.match(/^\/admin\/batch-resources\/(\d+)$/);
+    if (adminBatchResource && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return handleDeleteBatchResource(adminBatchResource[1], db);
+    }
+    
+    const adminExamResources = path.match(/^\/admin\/exams\/(\d+)\/resources$/);
+    if (adminExamResources && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return handleGetExamResources(adminExamResources[1], db);
+    }
+    if (path === '/admin/resources' && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return handleAddExamResource(request, db);
+    }
+    const adminExamResource = path.match(/^\/admin\/resources\/(\d+)$/);
+    if (adminExamResource && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return handleDeleteExamResource(adminExamResource[1], db);
+    }
+    
+    if (path === '/admin/exams' && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminCreateExam(request, db);
+    }
+    const adminExam = path.match(/^\/admin\/exams\/(\d+)$/);
+    if (adminExam && method === 'PUT') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminUpdateExam(adminExam[1], request, db);
+    }
+    if (adminExam && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminDeleteExam(adminExam[1], db);
+    }
+    
+    const adminToggleExam = path.match(/^\/admin\/exams\/(\d+)\/toggle$/);
+    if (adminToggleExam && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminToggleExam(adminToggleExam[1], request, db);
+    }
+    
+    const adminDownloadResults = path.match(/^\/admin\/results\/(\d+)\/download$/);
+    if (adminDownloadResults && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminDownloadResults(adminDownloadResults[1], db);
+    }
+    
+    if (path === '/admin/questions/bulk' && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminBulkQuestions(request, db);
+    }
+    const adminQs = path.match(/^\/admin\/questions\/(\d+)$/);
+    if (adminQs && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminGetQuestions(adminQs[1], db);
+    }
+    if (adminQs && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminDeleteAllQuestions(adminQs[1], db);
+    }
+    const adminSingleQ = path.match(/^\/admin\/questions\/single\/(\d+)$/);
+    if (adminSingleQ && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminDeleteQuestion(adminSingleQ[1], db);
+    }
+    
+    if (path === '/admin/users' && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminListUsers(db);
+    }
+    if (path === '/admin/grant-premium' && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminGrantPremium(request, db, admin.id);
+    }
+    if (path === '/admin/revoke-premium' && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminRevokePremium(request, db);
+    }
+    if (path === '/admin/revoke-account-premium' && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminRevokeAccountPremium(request, db);
+    }
+    
+    const adminBanUser = path.match(/^\/admin\/users\/(\d+)\/ban$/);
+    if (adminBanUser && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminBanUser(adminBanUser[1], request, db, admin.id);
+    }
+    const adminUnbanUser = path.match(/^\/admin\/users\/(\d+)\/unban$/);
+    if (adminUnbanUser && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminUnbanUser(adminUnbanUser[1], request, db);
+    }
+    const adminDeleteUser = path.match(/^\/admin\/users\/(\d+)\/delete$/);
+    if (adminDeleteUser && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminDeleteUser(adminDeleteUser[1], request, db, admin.id);
+    }
+    
+    if (path === '/admin/results' && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminResults(null, db);
+    }
+    const adminResults = path.match(/^\/admin\/results\/(\d+)$/);
+    if (adminResults && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminResults(adminResults[1], db);
+    }
+    if (adminResults && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminDeleteResult(adminResults[1], db);
+    }
+    
+    if (path === '/admin/notifications' && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminCreateNotification(request, db, admin.id);
+    }
+    if (path === '/admin/notifications' && method === 'GET') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminListNotifications(db);
+    }
+    const adminNotif = path.match(/^\/admin\/notifications\/(\d+)$/);
+    if (adminNotif && method === 'DELETE') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminDeleteNotification(adminNotif[1], db);
+    }
+    
+    const adminPublish = path.match(/^\/admin\/exams\/(\d+)\/publish$/);
+    if (adminPublish && method === 'POST') {
+      if (!admin) return err('Admin required', 403);
+      return handleAdminPublishResults(adminPublish[1], db);
+    }
+    
+    return err('Not found', 404);
+  } catch (e) {
+    return err('Server error: ' + (e.message || 'unknown'), 500);
   }
-  const adminBatch = path.match(/^\/admin\/batches\/(\d+)$/);
-  if (adminBatch && method === 'PUT') {
-    if (!admin) return err('Admin required', 403);
-    return handleUpdateBatch(adminBatch[1], request, db);
-  }
-  if (adminBatch && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleDeleteBatch(adminBatch[1], db);
-  }
-  
-  const adminBatchResources = path.match(/^\/admin\/batches\/(\d+)\/resources$/);
-  if (adminBatchResources && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleGetBatchResources(adminBatchResources[1], db);
-  }
-  if (path === '/admin/batch-resources' && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAddBatchResource(request, db);
-  }
-  const adminBatchResource = path.match(/^\/admin\/batch-resources\/(\d+)$/);
-  if (adminBatchResource && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleDeleteBatchResource(adminBatchResource[1], db);
-  }
-  
-  const adminExamResources = path.match(/^\/admin\/exams\/(\d+)\/resources$/);
-  if (adminExamResources && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleGetExamResources(adminExamResources[1], db);
-  }
-  if (path === '/admin/resources' && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAddExamResource(request, db);
-  }
-  const adminExamResource = path.match(/^\/admin\/resources\/(\d+)$/);
-  if (adminExamResource && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleDeleteExamResource(adminExamResource[1], db);
-  }
-  
-  if (path === '/admin/exams' && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminCreateExam(request, db);
-  }
-  const adminExam = path.match(/^\/admin\/exams\/(\d+)$/);
-  if (adminExam && method === 'PUT') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminUpdateExam(adminExam[1], request, db);
-  }
-  if (adminExam && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminDeleteExam(adminExam[1], db);
-  }
-  
-  const adminToggleExam = path.match(/^\/admin\/exams\/(\d+)\/toggle$/);
-  if (adminToggleExam && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminToggleExam(adminToggleExam[1], request, db);
-  }
-  
-  const adminDownloadResults = path.match(/^\/admin\/results\/(\d+)\/download$/);
-  if (adminDownloadResults && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminDownloadResults(adminDownloadResults[1], db);
-  }
-  
-  if (path === '/admin/questions/bulk' && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminBulkQuestions(request, db);
-  }
-  const adminQs = path.match(/^\/admin\/questions\/(\d+)$/);
-  if (adminQs && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminGetQuestions(adminQs[1], db);
-  }
-  if (adminQs && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminDeleteAllQuestions(adminQs[1], db);
-  }
-  const adminSingleQ = path.match(/^\/admin\/questions\/single\/(\d+)$/);
-  if (adminSingleQ && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminDeleteQuestion(adminSingleQ[1], db);
-  }
-  
-  if (path === '/admin/users' && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminListUsers(db);
-  }
-  if (path === '/admin/grant-premium' && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminGrantPremium(request, db, admin.id);
-  }
-  if (path === '/admin/revoke-premium' && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminRevokePremium(request, db);
-  }
-  if (path === '/admin/revoke-account-premium' && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminRevokeAccountPremium(request, db);
-  }
-  
-  const adminBanUser = path.match(/^\/admin\/users\/(\d+)\/ban$/);
-  if (adminBanUser && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminBanUser(adminBanUser[1], request, db, admin.id);
-  }
-  
-  const adminUnbanUser = path.match(/^\/admin\/users\/(\d+)\/unban$/);
-  if (adminUnbanUser && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminUnbanUser(adminUnbanUser[1], request, db);
-  }
-  
-  const adminDeleteUser = path.match(/^\/admin\/users\/(\d+)\/delete$/);
-  if (adminDeleteUser && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminDeleteUser(adminDeleteUser[1], request, db, admin.id);
-  }
-  
-  if (path === '/admin/results' && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminResults(null, db);
-  }
-  const adminResults = path.match(/^\/admin\/results\/(\d+)$/);
-  if (adminResults && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminResults(adminResults[1], db);
-  }
-  if (adminResults && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminDeleteResult(adminResults[1], db);
-  }
-  
-  if (path === '/admin/notifications' && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminCreateNotification(request, db, admin.id);
-  }
-  if (path === '/admin/notifications' && method === 'GET') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminListNotifications(db);
-  }
-  const adminNotif = path.match(/^\/admin\/notifications\/(\d+)$/);
-  if (adminNotif && method === 'DELETE') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminDeleteNotification(adminNotif[1], db);
-  }
-  
-  const adminPublish = path.match(/^\/admin\/exams\/(\d+)\/publish$/);
-  if (adminPublish && method === 'POST') {
-    if (!admin) return err('Admin required', 403);
-    return handleAdminPublishResults(adminPublish[1], db);
-  }
-  
-  return err('Not found', 404);
 }
