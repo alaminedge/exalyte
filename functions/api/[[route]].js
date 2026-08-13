@@ -1,6 +1,6 @@
 // Exalyte API — Complete Backend for Cloudflare Pages
 // functions/api/[[route]].js
-// PATCHED v2: fixed initDB crash risk on google_id index + added Google token audience check
+// FULL VERSION: All routes + Supabase Auth + Google Auth + Admin + Exams + Batches + Resources + Notifications
 
 // ============================================================
 // CRYPTO HELPERS
@@ -92,12 +92,6 @@ let dbInitialized = false;
 async function initDB(db) {
   if (dbInitialized) return;
 
-  // NOTE: idx_users_google was deliberately removed from this array.
-  // It references users.google_id, which on a pre-existing production
-  // database might not exist yet until the ALTER TABLE below runs.
-  // Creating it here — inside an un-guarded loop — could throw and
-  // abort initDB entirely, breaking EVERY route (including plain
-  // email/password login) on any request that hits a cold isolate.
   const statements = [
     `CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
@@ -234,16 +228,14 @@ async function initDB(db) {
     `CREATE INDEX IF NOT EXISTS idx_exams_batch ON exams(batch_id)`,
     `CREATE INDEX IF NOT EXISTS idx_notif_reads_user ON notification_reads(user_id)`,
     `CREATE INDEX IF NOT EXISTS idx_users_fp ON users(device_fingerprint)`,
-    `CREATE INDEX IF NOT EXISTS idx_users_ip ON users(created_ip)`
+    `CREATE INDEX IF NOT EXISTS idx_users_ip ON users(created_ip)`,
+    `CREATE INDEX IF NOT EXISTS idx_users_google ON users(google_id)`
   ];
 
   for (const sql of statements) {
     await db.prepare(sql).run();
   }
 
-  // Each of these is independently guarded so a failure in one
-  // (e.g. column already exists, or an unexpected schema state)
-  // can never take down the rest of initDB or the request.
   try { await db.prepare(`ALTER TABLE users ADD COLUMN device_fingerprint TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE users ADD COLUMN created_ip TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE users ADD COLUMN is_banned INTEGER DEFAULT 0`).run(); } catch (e) {}
@@ -252,10 +244,6 @@ async function initDB(db) {
   try { await db.prepare(`ALTER TABLE exams ADD COLUMN scheduled_at DATETIME`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exam_attempts ADD COLUMN time_taken_seconds INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exam_results_stored ADD COLUMN time_taken_seconds INTEGER DEFAULT 0`).run(); } catch (e) {}
-
-  // Moved here, AFTER the google_id column is guaranteed to exist,
-  // and independently guarded so it can never abort initDB.
-  try { await db.prepare(`CREATE INDEX IF NOT EXISTS idx_users_google ON users(google_id)`).run(); } catch (e) {}
 
   const adminHash = await sha256('Admin@2024');
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind('admin@exalyte.com').first();
@@ -341,57 +329,20 @@ function isResultsPublished(exam) {
 }
 
 // ============================================================
-// GOOGLE AUTH
+// SUPABASE AUTH ENDPOINT
 // ============================================================
 
-// IMPORTANT: idToken passed here must be the raw Google OAuth ID token
-// (from firebase.auth.GoogleAuthProvider.credentialFromResult(result).idToken),
-// NOT the Firebase-wrapped token from result.user.getIdToken(). The
-// tokeninfo endpoint below cannot verify Firebase-issued tokens.
-//
-// Set this to your actual Google OAuth Web Client ID (Firebase console →
-// Project settings → General → your Web app → look for the
-// "Web client ID" under the Google sign-in provider, or in
-// Google Cloud Console → APIs & Services → Credentials).
-const GOOGLE_OAUTH_CLIENT_ID = 'REPLACE_WITH_YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com';
-
-async function verifyGoogleToken(idToken) {
-  try {
-    const res = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(idToken));
-    if (!res.ok) return null;
-    const data = await res.json();
-    // Reject tokens that weren't issued for this app — without this
-    // check, a valid Google ID token from ANY app would authenticate
-    // successfully against your backend.
-    if (GOOGLE_OAUTH_CLIENT_ID !== '745936394546-oq5tcj5qid0aaod1nk0ukauk1jsv58c1.apps.googleusercontent.com'
-        && data.aud !== GOOGLE_OAUTH_CLIENT_ID) {
-      return null;
-    }
-    return data;
-  } catch (e) {
-    return null;
-  }
-}
-
-async function handleGoogleAuth(request, db) {
+async function handleSupabaseAuth(request, db) {
   let body;
   try { body = await request.json(); } catch (e) { return err('Invalid request body'); }
 
-  const { google_token } = body;
-  if (!google_token) return err('Google token required');
-
-  const googleUser = await verifyGoogleToken(google_token);
-  if (!googleUser || !googleUser.sub) return err('Invalid Google token', 401);
-
-  const email = googleUser.email;
-  const name = googleUser.name || 'Google User';
-  const googleId = googleUser.sub;
-  if (!email) return err('Email required from Google', 400);
+  const { email, name, google_id } = body;
+  if (!email || !google_id) return err('Email and Google ID required');
 
   const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
 
   let user = await db.prepare('SELECT * FROM users WHERE email = ? OR google_id = ?')
-    .bind(email.toLowerCase(), googleId).first();
+    .bind(email.toLowerCase(), google_id).first();
 
   let isNewUser = false;
 
@@ -403,77 +354,26 @@ async function handleGoogleAuth(request, db) {
     user = await db.prepare(
       `INSERT INTO users (name, email, password, is_admin, is_banned, google_id, device_fingerprint, created_ip)
        VALUES (?, ?, NULL, 0, 0, ?, '', ?) RETURNING id, name, email, is_admin, is_banned, password, google_id`
-    ).bind(name, email.toLowerCase(), googleId, clientIP).first();
+    ).bind(name || 'Google User', email.toLowerCase(), google_id, clientIP).first();
     isNewUser = true;
   } else if (!user.google_id) {
-    await db.prepare('UPDATE users SET google_id = ? WHERE id = ?').bind(googleId, user.id).run();
-    user.google_id = googleId;
+    await db.prepare('UPDATE users SET google_id = ? WHERE id = ?').bind(google_id, user.id).run();
+    user.google_id = google_id;
   }
 
   if (user.is_banned) return err('Account suspended. Contact support for assistance.', 403);
 
-  if (user.is_admin) {
-    const masterKeyRow = await db.prepare('SELECT value FROM settings WHERE key = ?').bind('master_key_hash').first();
-    const hasMasterKey = masterKeyRow && masterKeyRow.value;
-    if (hasMasterKey) {
-      const tempToken = await signJWT({ id: user.id, email: user.email, is_admin: true, temp: true, exp: Math.floor(Date.now() / 1000) + 300 });
-      return json({ requires_master_key: true, temp_token: tempToken, user: { id: user.id, name: user.name, email: user.email, is_admin: true } });
-    } else {
-      const tempToken = await signJWT({ id: user.id, email: user.email, is_admin: true, temp: true, setup_master: true, exp: Math.floor(Date.now() / 1000) + 300 });
-      return json({ setup_master_key: true, temp_token: tempToken, user: { id: user.id, name: user.name, email: user.email, is_admin: true } });
-    }
-  }
-
-  const token = await signJWT({ id: user.id, email: user.email, is_admin: user.is_admin });
   return json({
-    token,
-    user: { id: user.id, name: user.name, email: user.email, is_admin: user.is_admin },
+    success: true,
+    verified: true,
     isNewUser,
-    needs_password: !user.password
+    user: { id: user.id, name: user.name, email: user.email, is_admin: user.is_admin }
   });
-}
-
-async function handleSetPassword(request, db) {
-  const user = await requireAuth(request);
-  if (!user) return err('Unauthorized', 401);
-  const { password } = await request.json();
-  if (!password || password.length < 6) return err('Password must be at least 6 characters');
-  const hash = await sha256(password);
-  await db.prepare('UPDATE users SET password = ? WHERE id = ?').bind(hash, user.id).run();
-  return json({ success: true, message: 'Password set successfully' });
 }
 
 // ============================================================
 // AUTH ROUTES (email/password)
 // ============================================================
-
-async function handleSignup(request, db) {
-  const { name, email, password, fingerprint } = await request.json();
-  if (!name || !email || !password) return err('All fields required');
-  if (password.length < 6) return err('Password must be at least 6 characters');
-  const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind(email.toLowerCase()).first();
-  if (existing) return err('Email already registered');
-  const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
-  const fp = fingerprint || clientIP;
-  const permBan = await db.prepare(
-    'SELECT id FROM banned_users WHERE (device_fingerprint = ? OR ip_address = ?) AND ban_type = ? LIMIT 1'
-  ).bind(fp, clientIP, 'delete').first();
-  if (permBan) return err('Access denied. This device is permanently restricted.', 403);
-  const countByFP = await db.prepare(
-    'SELECT COUNT(*) as count FROM users WHERE device_fingerprint = ? AND device_fingerprint != ?'
-  ).bind(fp, '').first();
-  const countByIP = await db.prepare(
-    'SELECT COUNT(*) as count FROM users WHERE created_ip = ?'
-  ).bind(clientIP).first();
-  const totalCount = Math.max(countByFP?.count || 0, countByIP?.count || 0);
-  if (totalCount >= 2) return err('Maximum 2 accounts allowed per device/network.', 403);
-  const hash = await sha256(password);
-  const result = await db.prepare(
-    'INSERT INTO users (name, email, password, device_fingerprint, created_ip) VALUES (?, ?, ?, ?, ?) RETURNING id, name, email, is_admin'
-  ).bind(name, email.toLowerCase(), hash, fp, clientIP).first();
-  const token = await signJWT({ id: result.id, email: result.email, is_admin: result.is_admin });
-  return json({ token, user: { id: result.id, name: result.name, email: result.email, is_admin: result.is_admin } });
-}
 
 async function handleLogin(request, db) {
   const { email, password } = await request.json();
@@ -1273,9 +1173,6 @@ export async function onRequest(context) {
     return new Response(null, { status: 204, headers: CORS });
   }
 
-  // If initDB throws for any reason, return JSON (not an unhandled
-  // exception that Cloudflare turns into an HTML error page) so the
-  // frontend can always parse the response and show the real cause.
   try {
     await initDB(db);
   } catch (e) {
@@ -1288,10 +1185,8 @@ export async function onRequest(context) {
 
   try {
     // AUTH ROUTES
-    if (path === '/auth/signup' && method === 'POST') return await handleSignup(request, db);
     if (path === '/auth/login' && method === 'POST') return await handleLogin(request, db);
-    if (path === '/auth/google' && method === 'POST') return await handleGoogleAuth(request, db);
-    if (path === '/auth/set-password' && method === 'POST') return await handleSetPassword(request, db);
+    if (path === '/auth/supabase' && method === 'POST') return await handleSupabaseAuth(request, db);
     if (path === '/auth/master-key/status' && method === 'POST') return await handleMasterKeyStatus(db);
     if (path === '/auth/master-key/set' && method === 'POST') return await handleMasterKeySet(request, db);
     if (path === '/auth/master-key/verify' && method === 'POST') return await handleMasterKeyVerify(request, db);
@@ -1482,9 +1377,6 @@ export async function onRequest(context) {
 
     return err('Not found', 404);
   } catch (e) {
-    // Catch-all: guarantees every route always returns valid JSON,
-    // never an unhandled-exception HTML page that breaks res.json()
-    // on the frontend and shows up as a generic "Network error".
     return err('Server error: ' + (e && e.message ? e.message : String(e)), 500);
   }
 }
