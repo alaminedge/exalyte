@@ -380,15 +380,19 @@ function renderSectionSelection(){
   if(!sectionConfig)return;
   wrap.style.display='block';
   let html='';
+  
   (sectionConfig.required||[]).forEach(s=>{
     html+='<label class="section-checkbox selected locked"><input type="checkbox" checked disabled><span class="sec-name">'+esc(s.name)+'</span><span class="sec-count">'+s.count+' MCQ</span><span class="sec-badge sec-required">Required</span></label>';
   });
+  
   (sectionConfig.compulsory_group||[]).forEach(s=>{
     html+='<label class="section-checkbox" id="secCheck_'+esc(s.name)+'"><input type="checkbox" id="secInput_'+esc(s.name)+'" onchange="toggleSection(\''+esc(s.name)+'\',\'compulsory\')"><span class="sec-name">'+esc(s.name)+'</span><span class="sec-count">'+s.count+' MCQ</span><span class="sec-badge sec-compulsory">Compulsory</span></label>';
   });
+  
   (sectionConfig.normal_group||[]).forEach(s=>{
     html+='<label class="section-checkbox" id="secCheck_'+esc(s.name)+'"><input type="checkbox" id="secInput_'+esc(s.name)+'" onchange="toggleSection(\''+esc(s.name)+'\',\'normal\')"><span class="sec-name">'+esc(s.name)+'</span><span class="sec-count">'+s.count+' MCQ</span><span class="sec-badge sec-normal">Normal</span></label>';
   });
+  
   list.innerHTML=html;
   const maxOpt=sectionConfig.max_optional||2;
   const minComp=sectionConfig.min_from_compulsory||1;
@@ -402,10 +406,15 @@ function toggleSection(name,group){
   
   const index = selectedSections.indexOf(name);
   if(index >= 0) {
+    // ✅ ALWAYS allow deselection
     selectedSections.splice(index, 1);
     input.checked = false;
     label.classList.remove('selected');
+    label.classList.remove('locked');
   } else {
+    // Prevent selection if locked
+    if(label.classList.contains('locked')) return;
+    
     selectedSections.push(name);
     input.checked = true;
     label.classList.add('selected');
@@ -421,25 +430,30 @@ function updateSectionLocks(){
   const total=selComp.length+selNormal.length;
   const maxOpt=sectionConfig.max_optional||2;
   
-  if(total>=maxOpt){
+  // First, remove all locked states
+  [...compulsory,...normal].forEach(s=>{
+    const label=document.getElementById('secCheck_'+s);
+    if(label)label.classList.remove('locked');
+  });
+  
+  // Then apply locks based on rules
+  if(total >= maxOpt){
+    // Lock all unselected sections
     [...compulsory,...normal].forEach(s=>{
       if(!selectedSections.includes(s)){
         const label=document.getElementById('secCheck_'+s);
         if(label)label.classList.add('locked');
       }
     });
-    return;
   }
   
-  [...compulsory,...normal].forEach(s=>{
-    const label=document.getElementById('secCheck_'+s);
-    if(label)label.classList.remove('locked');
-  });
-  
-  if(selComp.length===0){
+  // If no compulsory selected, lock normal sections
+  if(selComp.length === 0){
     normal.forEach(s=>{
-      const label=document.getElementById('secCheck_'+s);
-      if(label)label.classList.add('locked');
+      if(!selectedSections.includes(s)){
+        const label=document.getElementById('secCheck_'+s);
+        if(label)label.classList.add('locked');
+      }
     });
   }
 }
@@ -453,8 +467,19 @@ function validateSections(){
   const total=selComp.length+selNormal.length;
   const maxOpt=sectionConfig.max_optional||2;
   const minComp=sectionConfig.min_from_compulsory||1;
-  if(total!==maxOpt){alert('Select exactly '+maxOpt+' optional sections.');return false}
-  if(selComp.length<minComp){alert('Select at least '+minComp+' from compulsory group.');return false}
+  
+  if(total!==maxOpt){
+    alert('Please select exactly '+maxOpt+' optional sections. You have selected '+total+'.');
+    return false;
+  }
+  if(selComp.length<minComp){
+    alert('Please select at least '+minComp+' section(s) from the compulsory group.');
+    return false;
+  }
+  if(selComp.length===maxOpt && selNormal.length>0){
+    alert('Cannot select normal sections when all compulsory sections are selected.');
+    return false;
+  }
   return true;
 }
 
