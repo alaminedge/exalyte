@@ -62,6 +62,7 @@ body{
   display:flex;align-items:center;justify-content:center;
   font-family:var(--gs);font-weight:500;font-size:14px;
   color:#fff;cursor:pointer;flex-shrink:0;border:2px solid transparent;
+  text-decoration:none;
 }
 .avatar:hover{border-color:var(--border)}
 .main{flex:1;padding-top:var(--hh)}
@@ -545,9 +546,9 @@ body{
 
 <script>
 const API = '/api';
-const token = localStorage.getItem('exalyte_token');
-const user = JSON.parse(localStorage.getItem('exalyte_user') || 'null');
-const loggedIn = !!(token && user);
+let token = localStorage.getItem('exalyte_token');
+let user = JSON.parse(localStorage.getItem('exalyte_user') || 'null');
+let loggedIn = !!(token && user);
 
 const header = document.getElementById('header');
 let lastY = 0, ticking = false;
@@ -688,7 +689,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ============================================================
-// GOOGLE SIGN-IN — Using Redirect (fixes COOP blocking)
+// GOOGLE SIGN-IN — Redirect flow, stays on index
 // ============================================================
 async function handleGoogleClick() {
   clearModalAlert();
@@ -700,7 +701,6 @@ async function handleGoogleClick() {
   try {
     var provider = new firebase.auth.GoogleAuthProvider();
     await firebaseAuth.signInWithRedirect(provider);
-    // Page will redirect to Google, then come back
   } catch (e) {
     console.error('Google sign-in error:', e);
     btn.disabled = false;
@@ -710,7 +710,7 @@ async function handleGoogleClick() {
   }
 }
 
-// Handle Google Redirect Result when page loads
+// Handle Google Redirect Result — stays on index
 firebaseAuth.getRedirectResult().then(function(result) {
   if (result && result.user) {
     var credential = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
@@ -728,19 +728,37 @@ firebaseAuth.getRedirectResult().then(function(result) {
           modalAlert(data.error || 'Sign-in failed.');
           return;
         }
+        
         localStorage.setItem('exalyte_token', data.token);
         localStorage.setItem('exalyte_user', JSON.stringify(data.user));
         
+        // Update local variables
+        token = data.token;
+        user = data.user;
+        loggedIn = true;
+        
+        // Admin master key flow
         if (data.requires_master_key) {
-          localStorage.setItem('exalyte_temp_token', data.temp_token);
-          window.location.href = '/';
+          tempToken = data.temp_token;
+          openMasterKeyModal();
           return;
         }
         
-        window.location.href = data.user.is_admin ? 'admin.html' : 'dashboard.html';
+        if (data.setup_master_key) {
+          tempToken = data.temp_token;
+          openMasterKeySetupModal();
+          return;
+        }
+        
+        // Stay on page — update UI
+        toast('Signed in with Google!');
+        closeAuth();
+        renderUI();
+        
       })
       .catch(function(err) {
         console.error('Backend error:', err);
+        toast('Network error. Please try again.');
       });
     }
   }
@@ -749,11 +767,9 @@ firebaseAuth.getRedirectResult().then(function(result) {
 });
 
 function skipPasswordSetup() {
-  var u = JSON.parse(localStorage.getItem('exalyte_user') || 'null');
-  toast('Signed in successfully.');
-  setTimeout(function() {
-    window.location.href = (u && u.is_admin) ? 'admin.html' : 'dashboard.html';
-  }, 300);
+  toast('Signed in successfully!');
+  closeAuth();
+  renderUI();
 }
 
 document.getElementById('authForm').addEventListener('submit', async function(e) {
@@ -777,9 +793,9 @@ document.getElementById('authForm').addEventListener('submit', async function(e)
       });
       var data = await res.json();
       if (!res.ok) { modalAlert(data.error || 'Could not set password.'); resetAuthBtn(); return; }
-      toast('Account created successfully.');
-      var u = JSON.parse(localStorage.getItem('exalyte_user') || 'null');
-      setTimeout(function() { window.location.href = (u && u.is_admin) ? 'admin.html' : 'dashboard.html'; }, 400);
+      toast('Account created successfully!');
+      closeAuth();
+      renderUI();
     } catch (err) { modalAlert('Network error. Please try again.'); resetAuthBtn(); }
     return;
   }
@@ -814,8 +830,13 @@ document.getElementById('authForm').addEventListener('submit', async function(e)
 
     localStorage.setItem('exalyte_token', data.token);
     localStorage.setItem('exalyte_user', JSON.stringify(data.user));
-    toast('Signed in successfully.');
-    setTimeout(function() { window.location.href = 'dashboard.html'; }, 400);
+    token = data.token;
+    user = data.user;
+    loggedIn = true;
+    
+    toast('Signed in successfully!');
+    closeAuth();
+    renderUI();
   } catch(e) { modalAlert('Network error. Please try again.'); resetAuthBtn(); }
 });
 
@@ -861,9 +882,12 @@ document.getElementById('masterKeyForm').addEventListener('submit', async functi
     }
     localStorage.setItem('exalyte_token', data.token);
     localStorage.setItem('exalyte_user', JSON.stringify({ id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true }));
+    token = data.token;
+    user = { id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true };
+    loggedIn = true;
     toast('Admin access granted.');
     closeMasterKeyModal();
-    setTimeout(function() { window.location.href = 'admin.html'; }, 400);
+    renderUI();
   } catch(e) {
     masterKeyAlert('Network error. Please try again.');
     btn.disabled = false;
@@ -917,9 +941,12 @@ document.getElementById('masterKeySetupForm').addEventListener('submit', async f
     }
     localStorage.setItem('exalyte_token', data.token);
     localStorage.setItem('exalyte_user', JSON.stringify({ id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true }));
+    token = data.token;
+    user = { id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true };
+    loggedIn = true;
     toast('Master key set. Admin access granted.');
     closeMasterKeySetupModal();
-    setTimeout(function() { window.location.href = 'admin.html'; }, 400);
+    renderUI();
   } catch(e) {
     masterKeySetupAlertFn('Network error. Please try again.');
     btn.disabled = false;
@@ -940,8 +967,8 @@ function renderUI() {
       '<button class="icon-btn" onclick="logout()" title="Sign out" aria-label="Sign out">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>' +
       '</button>' +
-      '<div class="avatar">' + initial + '</div>';
-    document.getElementById('heroSubtitle').textContent = 'Welcome back! Continue your preparation journey.';
+      '<a href="' + dashboardUrl + '" class="avatar" title="Go to dashboard">' + initial + '</a>';
+    document.getElementById('heroSubtitle').textContent = 'Welcome back, ' + (user.name || 'User') + '! Continue your preparation journey.';
     heroActions.innerHTML = '<a href="' + dashboardUrl + '" class="btn btn-primary btn-lg">Go to Dashboard</a><a href="#features" class="btn btn-outline btn-lg">Learn more</a>';
     ctaActions.innerHTML = '<a href="' + dashboardUrl + '" class="btn btn-primary btn-lg">Go to Dashboard</a>';
   } else {
@@ -961,7 +988,10 @@ function logout() {
   localStorage.removeItem('exalyte_token');
   localStorage.removeItem('exalyte_user');
   firebaseAuth.signOut();
-  window.location.href = '/';
+  token = null;
+  user = null;
+  loggedIn = false;
+  renderUI();
 }
 
 renderUI();
