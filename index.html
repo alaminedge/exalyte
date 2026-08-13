@@ -57,14 +57,6 @@ body{
 }
 .icon-btn:hover{background:var(--hov)}
 .icon-btn svg{width:20px;height:20px}
-.avatar{
-  width:36px;height:36px;border-radius:50%;background:var(--blue);
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--gs);font-weight:500;font-size:14px;
-  color:#fff;cursor:pointer;flex-shrink:0;border:2px solid transparent;
-  text-decoration:none;
-}
-.avatar:hover{border-color:var(--border)}
 .main{flex:1;padding-top:var(--hh)}
 
 .hero-viewport{
@@ -198,7 +190,6 @@ body{
 }
 .field-input:hover{border-color:var(--t3)}
 .field-input:focus{border:2px solid var(--blue);padding:11px 13px}
-.field-input:disabled{background:var(--hov);color:var(--t3);cursor:not-allowed}
 .alert{
   padding:10px 14px;border-radius:var(--r);font-size:.8rem;
   margin-bottom:16px;display:none;
@@ -224,15 +215,6 @@ body{
   color:var(--t4);font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;
 }
 .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
-.google-hint{
-  font-size:.8rem;color:var(--t3);text-align:center;margin-bottom:20px;line-height:1.5;
-}
-.modal-footer-link{text-align:center;margin-top:20px;font-size:.85rem;color:var(--t3)}
-.modal-footer-link button{
-  background:none;border:none;color:var(--blue);cursor:pointer;
-  font-family:var(--rb);font-size:.85rem;font-weight:500;min-height:40px;
-}
-.modal-footer-link button:hover{text-decoration:underline}
 
 .footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
 .footer-inner{
@@ -420,8 +402,8 @@ body{
 
 <div class="modal-overlay" id="authModal">
   <div class="modal">
-    <h2 id="authModalTitle">Sign in</h2>
-    <p class="subtitle" id="authModalSub">to continue to <strong>Exalyte</strong></p>
+    <h2>Verify with Google</h2>
+    <p class="subtitle">Confirm your identity to continue</p>
     <div class="alert" id="modalAlert"></div>
 
     <button type="button" class="btn btn-outline btn-full google-btn" id="googleBtn" onclick="handleGoogleClick()">
@@ -430,69 +412,7 @@ body{
       <span class="spinner-inline" id="googleSpinner"></span>
     </button>
 
-    <div class="auth-divider" id="authDivider"><span>or</span></div>
-    <p class="google-hint" id="googleHint" style="display:none">Continue with Google to verify your identity — your email will be filled in automatically.</p>
-
-    <form id="authForm" autocomplete="off">
-      <div class="field" id="emailFieldWrap">
-        <label class="field-label" for="authEmail">Email address</label>
-        <input type="email" class="field-input" id="authEmail" required placeholder="you@example.com">
-      </div>
-      <div class="field" id="passwordFieldWrap">
-        <label class="field-label" for="authPassword">Password</label>
-        <input type="password" class="field-input" id="authPassword" required placeholder="Your password" minlength="6">
-      </div>
-      <button type="submit" class="btn btn-primary btn-full" id="authSubmitBtn">
-        <span id="authBtnText">Sign in</span>
-        <span class="spinner-inline" id="authSpinner"></span>
-      </button>
-    </form>
-    <div class="modal-footer-link" id="skipWrap" style="display:none">
-      <button type="button" onclick="skipPasswordSetup()">Skip for now</button>
-    </div>
-    <div class="modal-footer-link" id="authSwitch">
-      Don't have an account? <button onclick="switchAuthMode('signup')">Create one</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="masterKeyModal">
-  <div class="modal">
-    <h2>Admin Verification</h2>
-    <p class="subtitle">Enter your master key to access the admin panel</p>
-    <div class="alert" id="masterKeyAlert"></div>
-    <form id="masterKeyForm" autocomplete="off">
-      <div class="field">
-        <label class="field-label" for="masterKeyInput">Master Key</label>
-        <input type="password" class="field-input" id="masterKeyInput" placeholder="Enter your secret phrase" required>
-      </div>
-      <button type="submit" class="btn btn-primary btn-full" id="masterKeySubmitBtn">
-        <span id="masterKeyBtnText">Verify</span>
-        <span class="spinner-inline" id="masterKeySpinner"></span>
-      </button>
-    </form>
-  </div>
-</div>
-
-<div class="modal-overlay" id="masterKeySetupModal">
-  <div class="modal">
-    <h2>Set Master Key</h2>
-    <p class="subtitle">Create a secret phrase to protect admin access. Keep it safe — you'll need it every time you log in.</p>
-    <div class="alert" id="masterKeySetupAlert"></div>
-    <form id="masterKeySetupForm" autocomplete="off">
-      <div class="field">
-        <label class="field-label" for="setupKeyInput">Master Key Phrase</label>
-        <input type="password" class="field-input" id="setupKeyInput" placeholder="Minimum 6 characters" required minlength="6">
-      </div>
-      <div class="field">
-        <label class="field-label" for="setupKeyConfirm">Confirm Phrase</label>
-        <input type="password" class="field-input" id="setupKeyConfirm" placeholder="Re-enter your phrase" required minlength="6">
-      </div>
-      <button type="submit" class="btn btn-primary btn-full" id="masterKeySetupBtn">
-        <span id="masterKeySetupBtnText">Set Master Key</span>
-        <span class="spinner-inline" id="masterKeySetupSpinner"></span>
-      </button>
-    </form>
+    <p style="text-align:center;font-size:.75rem;color:var(--t4);margin-top:12px">You'll stay on this page after verification.</p>
   </div>
 </div>
 
@@ -546,23 +466,6 @@ body{
 
 <script>
 const API = '/api';
-let token = localStorage.getItem('exalyte_token');
-let user = JSON.parse(localStorage.getItem('exalyte_user') || 'null');
-let loggedIn = !!(token && user);
-
-const header = document.getElementById('header');
-let lastY = 0, ticking = false;
-window.addEventListener('scroll', function() {
-  if (!ticking) {
-    requestAnimationFrame(function() {
-      var y = window.scrollY;
-      header.classList.toggle('hidden', y > lastY && y > 80);
-      lastY = y;
-      ticking = false;
-    });
-    ticking = true;
-  }
-}, { passive: true });
 
 function toast(msg) {
   var t = document.getElementById('toast');
@@ -583,113 +486,31 @@ function clearModalAlert() {
   el.textContent = '';
 }
 
-function masterKeyAlert(msg) {
-  var el = document.getElementById('masterKeyAlert');
-  el.textContent = msg;
-  el.className = 'alert alert-e';
-}
-
-function clearMasterKeyAlert() {
-  var el = document.getElementById('masterKeyAlert');
-  el.className = 'alert';
-  el.textContent = '';
-}
-
-function masterKeySetupAlertFn(msg) {
-  var el = document.getElementById('masterKeySetupAlert');
-  el.textContent = msg;
-  el.className = 'alert alert-e';
-}
-
-function clearMasterKeySetupAlert() {
-  var el = document.getElementById('masterKeySetupAlert');
-  el.className = 'alert';
-  el.textContent = '';
-}
-
-var authMode = 'login';
-var tempToken = null;
-
-function openAuth(mode) {
-  authMode = mode;
-  resetGoogleStepUI();
+function openAuth() {
   document.getElementById('authModal').classList.add('open');
-  switchAuthMode(mode);
-  if (mode === 'login') document.getElementById('authEmail').focus();
+  clearModalAlert();
+  resetGoogleBtn();
 }
 
 function closeAuth() {
   document.getElementById('authModal').classList.remove('open');
   clearModalAlert();
-  document.getElementById('authForm').reset();
-  resetGoogleStepUI();
+  resetGoogleBtn();
 }
 
-function resetGoogleStepUI() {
-  var googleBtn = document.getElementById('googleBtn');
-  googleBtn.style.display = 'flex';
-  googleBtn.disabled = false;
-  document.getElementById('googleBtnText').textContent = 'Continue with Google';
+function resetGoogleBtn() {
+  var btn = document.getElementById('googleBtn');
+  btn.disabled = false;
+  document.getElementById('googleBtnText').style.display = 'inline';
   document.getElementById('googleSpinner').style.display = 'none';
-  document.getElementById('authEmail').disabled = false;
-  document.getElementById('skipWrap').style.display = 'none';
-  document.getElementById('authSwitch').style.display = 'block';
-  document.getElementById('googleHint').style.display = 'none';
-}
-
-function switchAuthMode(mode) {
-  authMode = mode;
-  clearModalAlert();
-  document.getElementById('authForm').reset();
-  resetGoogleStepUI();
-
-  if (mode === 'signup') {
-    document.getElementById('authModalTitle').textContent = 'Create account';
-    document.getElementById('authModalSub').innerHTML = 'Free forever — no credit card needed';
-    document.getElementById('authDivider').style.display = 'none';
-    document.getElementById('googleHint').style.display = 'block';
-    document.getElementById('emailFieldWrap').style.display = 'none';
-    document.getElementById('passwordFieldWrap').style.display = 'none';
-    document.getElementById('authSubmitBtn').style.display = 'none';
-    document.getElementById('authSwitch').innerHTML = 'Already have an account? <button onclick="switchAuthMode(\'login\')">Sign in</button>';
-  } else {
-    document.getElementById('authModalTitle').textContent = 'Sign in';
-    document.getElementById('authModalSub').innerHTML = 'to continue to <strong>Exalyte</strong>';
-    document.getElementById('authDivider').style.display = 'flex';
-    document.getElementById('emailFieldWrap').style.display = 'block';
-    document.getElementById('passwordFieldWrap').style.display = 'block';
-    document.getElementById('authSubmitBtn').style.display = 'flex';
-    document.getElementById('authBtnText').textContent = 'Sign in';
-    document.getElementById('authSwitch').innerHTML = 'Don\'t have an account? <button onclick="switchAuthMode(\'signup\')">Create one</button>';
-  }
-}
-
-function resetAuthBtn() {
-  document.getElementById('authSubmitBtn').disabled = false;
-  document.getElementById('authSpinner').style.display = 'none';
-  document.getElementById('authBtnText').style.display = 'inline';
-}
-
-function setAuthLoading() {
-  document.getElementById('authSubmitBtn').disabled = true;
-  document.getElementById('authSpinner').style.display = 'inline-block';
-  document.getElementById('authBtnText').style.display = 'none';
 }
 
 document.getElementById('authModal').addEventListener('click', function(e) {
   if (e.target === this) closeAuth();
 });
 
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    closeAuth();
-    closeMasterKeyModal();
-    closeMasterKeySetupModal();
-  }
-});
-
 // ============================================================
-// GOOGLE SIGN-IN — Redirect flow, stays on index
+// GOOGLE VERIFICATION — Redirect flow, stays on page silently
 // ============================================================
 async function handleGoogleClick() {
   clearModalAlert();
@@ -702,21 +523,20 @@ async function handleGoogleClick() {
     var provider = new firebase.auth.GoogleAuthProvider();
     await firebaseAuth.signInWithRedirect(provider);
   } catch (e) {
-    console.error('Google sign-in error:', e);
-    btn.disabled = false;
-    document.getElementById('googleBtnText').style.display = 'inline';
-    document.getElementById('googleSpinner').style.display = 'none';
-    modalAlert('Google sign-in failed. Please try again.');
+    console.error('Google verification error:', e);
+    resetGoogleBtn();
+    modalAlert('Verification failed. Please try again.');
   }
 }
 
-// Handle Google Redirect Result — stays on index
+// Handle Google Redirect Result — SILENT verification, NO UI change
 firebaseAuth.getRedirectResult().then(function(result) {
   if (result && result.user) {
     var credential = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
     var idToken = credential ? credential.idToken : null;
     
     if (idToken) {
+      // Send to backend for verification only — no localStorage, no UI update
       fetch(API + '/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -724,274 +544,36 @@ firebaseAuth.getRedirectResult().then(function(result) {
       })
       .then(function(res) { return res.json(); })
       .then(function(data) {
-        if (!data.token) {
-          modalAlert(data.error || 'Sign-in failed.');
-          return;
-        }
-        
-        localStorage.setItem('exalyte_token', data.token);
-        localStorage.setItem('exalyte_user', JSON.stringify(data.user));
-        
-        // Update local variables
-        token = data.token;
-        user = data.user;
-        loggedIn = true;
-        
-        // Admin master key flow
-        if (data.requires_master_key) {
-          tempToken = data.temp_token;
-          openMasterKeyModal();
-          return;
-        }
-        
-        if (data.setup_master_key) {
-          tempToken = data.temp_token;
-          openMasterKeySetupModal();
-          return;
-        }
-        
-        // Stay on page — update UI
-        toast('Signed in with Google!');
-        closeAuth();
-        renderUI();
-        
+        // Silently verified — do nothing, stay on page exactly as-is
+        console.log('Google verification complete:', data.user ? data.user.email : 'verified');
       })
       .catch(function(err) {
-        console.error('Backend error:', err);
-        toast('Network error. Please try again.');
+        console.error('Verification error:', err);
       });
     }
   }
 }).catch(function(error) {
-  console.log('Redirect result:', error.code);
+  // No redirect result or cancelled — just stay on page
+  console.log('No redirect result:', error.code);
 });
 
-function skipPasswordSetup() {
-  toast('Signed in successfully!');
-  closeAuth();
-  renderUI();
-}
-
-document.getElementById('authForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  clearModalAlert();
-
-  if (!navigator.onLine) { modalAlert('No internet connection.'); return; }
-
-  if (authMode === 'signup') {
-    var password = document.getElementById('authPassword').value;
-    if (!password || password.length < 6) { modalAlert('Password must be at least 6 characters.'); return; }
-    setAuthLoading();
-    try {
-      var res = await fetch(API + '/auth/set-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('exalyte_token')
-        },
-        body: JSON.stringify({ password: password })
-      });
-      var data = await res.json();
-      if (!res.ok) { modalAlert(data.error || 'Could not set password.'); resetAuthBtn(); return; }
-      toast('Account created successfully!');
-      closeAuth();
-      renderUI();
-    } catch (err) { modalAlert('Network error. Please try again.'); resetAuthBtn(); }
-    return;
-  }
-
-  var email = document.getElementById('authEmail').value.trim();
-  var password = document.getElementById('authPassword').value;
-  if (!email || !password) { modalAlert('Please fill in all fields.'); return; }
-
-  setAuthLoading();
-  try {
-    var res = await fetch(API + '/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email, password: password })
-    });
-    var data = await res.json();
-    if (!res.ok) { modalAlert(data.error || 'Login failed.'); resetAuthBtn(); return; }
-
-    if (data.requires_master_key) {
-      tempToken = data.temp_token;
-      closeAuth();
-      openMasterKeyModal();
-      return;
-    }
-
-    if (data.setup_master_key) {
-      tempToken = data.temp_token;
-      closeAuth();
-      openMasterKeySetupModal();
-      return;
-    }
-
-    localStorage.setItem('exalyte_token', data.token);
-    localStorage.setItem('exalyte_user', JSON.stringify(data.user));
-    token = data.token;
-    user = data.user;
-    loggedIn = true;
-    
-    toast('Signed in successfully!');
-    closeAuth();
-    renderUI();
-  } catch(e) { modalAlert('Network error. Please try again.'); resetAuthBtn(); }
-});
-
-function openMasterKeyModal() {
-  clearMasterKeyAlert();
-  document.getElementById('masterKeyForm').reset();
-  document.getElementById('masterKeyModal').classList.add('open');
-  document.getElementById('masterKeyInput').focus();
-}
-
-function closeMasterKeyModal() {
-  document.getElementById('masterKeyModal').classList.remove('open');
-  clearMasterKeyAlert();
-  document.getElementById('masterKeyForm').reset();
-}
-
-document.getElementById('masterKeyModal').addEventListener('click', function(e) {
-  if (e.target === this) closeMasterKeyModal();
-});
-
-document.getElementById('masterKeyForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  clearMasterKeyAlert();
-  var masterKey = document.getElementById('masterKeyInput').value;
-  if (!masterKey) { masterKeyAlert('Please enter your master key.'); return; }
-  var btn = document.getElementById('masterKeySubmitBtn');
-  btn.disabled = true;
-  document.getElementById('masterKeySpinner').style.display = 'inline-block';
-  document.getElementById('masterKeyBtnText').style.display = 'none';
-  try {
-    var res = await fetch(API + '/auth/master-key/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ temp_token: tempToken, master_key: masterKey })
-    });
-    var data = await res.json();
-    if (!res.ok) {
-      masterKeyAlert(data.error || 'Verification failed.');
-      btn.disabled = false;
-      document.getElementById('masterKeySpinner').style.display = 'none';
-      document.getElementById('masterKeyBtnText').style.display = 'inline';
-      return;
-    }
-    localStorage.setItem('exalyte_token', data.token);
-    localStorage.setItem('exalyte_user', JSON.stringify({ id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true }));
-    token = data.token;
-    user = { id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true };
-    loggedIn = true;
-    toast('Admin access granted.');
-    closeMasterKeyModal();
-    renderUI();
-  } catch(e) {
-    masterKeyAlert('Network error. Please try again.');
-    btn.disabled = false;
-    document.getElementById('masterKeySpinner').style.display = 'none';
-    document.getElementById('masterKeyBtnText').style.display = 'inline';
-  }
-});
-
-function openMasterKeySetupModal() {
-  clearMasterKeySetupAlert();
-  document.getElementById('masterKeySetupForm').reset();
-  document.getElementById('masterKeySetupModal').classList.add('open');
-  document.getElementById('setupKeyInput').focus();
-}
-
-function closeMasterKeySetupModal() {
-  document.getElementById('masterKeySetupModal').classList.remove('open');
-  clearMasterKeySetupAlert();
-  document.getElementById('masterKeySetupForm').reset();
-}
-
-document.getElementById('masterKeySetupModal').addEventListener('click', function(e) {
-  if (e.target === this) closeMasterKeySetupModal();
-});
-
-document.getElementById('masterKeySetupForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  clearMasterKeySetupAlert();
-  var key = document.getElementById('setupKeyInput').value;
-  var confirm = document.getElementById('setupKeyConfirm').value;
-  if (!key || !confirm) { masterKeySetupAlertFn('Please fill in both fields.'); return; }
-  if (key.length < 6) { masterKeySetupAlertFn('Master key must be at least 6 characters.'); return; }
-  if (key !== confirm) { masterKeySetupAlertFn('Phrases do not match.'); return; }
-  var btn = document.getElementById('masterKeySetupBtn');
-  btn.disabled = true;
-  document.getElementById('masterKeySetupSpinner').style.display = 'inline-block';
-  document.getElementById('masterKeySetupBtnText').style.display = 'none';
-  try {
-    var res = await fetch(API + '/auth/master-key/set', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ temp_token: tempToken, master_key: key })
-    });
-    var data = await res.json();
-    if (!res.ok) {
-      masterKeySetupAlertFn(data.error || 'Setup failed.');
-      btn.disabled = false;
-      document.getElementById('masterKeySetupSpinner').style.display = 'none';
-      document.getElementById('masterKeySetupBtnText').style.display = 'inline';
-      return;
-    }
-    localStorage.setItem('exalyte_token', data.token);
-    localStorage.setItem('exalyte_user', JSON.stringify({ id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true }));
-    token = data.token;
-    user = { id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true };
-    loggedIn = true;
-    toast('Master key set. Admin access granted.');
-    closeMasterKeySetupModal();
-    renderUI();
-  } catch(e) {
-    masterKeySetupAlertFn('Network error. Please try again.');
-    btn.disabled = false;
-    document.getElementById('masterKeySetupSpinner').style.display = 'none';
-    document.getElementById('masterKeySetupBtnText').style.display = 'inline';
-  }
-});
-
+// ============================================================
+// RENDER UI — Always shows "Sign in" / "Create account" buttons
+// ============================================================
 function renderUI() {
   var hr = document.getElementById('headerRight');
   var heroActions = document.getElementById('heroActions');
   var ctaActions = document.getElementById('ctaActions');
 
-  if (loggedIn) {
-    var initial = (user.name || 'U')[0].toUpperCase();
-    var dashboardUrl = user.is_admin ? 'admin.html' : 'dashboard.html';
-    hr.innerHTML =
-      '<button class="icon-btn" onclick="logout()" title="Sign out" aria-label="Sign out">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>' +
-      '</button>' +
-      '<a href="' + dashboardUrl + '" class="avatar" title="Go to dashboard">' + initial + '</a>';
-    document.getElementById('heroSubtitle').textContent = 'Welcome back, ' + (user.name || 'User') + '! Continue your preparation journey.';
-    heroActions.innerHTML = '<a href="' + dashboardUrl + '" class="btn btn-primary btn-lg">Go to Dashboard</a><a href="#features" class="btn btn-outline btn-lg">Learn more</a>';
-    ctaActions.innerHTML = '<a href="' + dashboardUrl + '" class="btn btn-primary btn-lg">Go to Dashboard</a>';
-  } else {
-    hr.innerHTML =
-      '<button class="btn btn-outline" onclick="openAuth(\'login\')">Sign in</button>' +
-      '<button class="btn btn-primary" onclick="openAuth(\'signup\')">Create account</button>';
-    heroActions.innerHTML =
-      '<button class="btn btn-primary btn-lg" onclick="openAuth(\'signup\')">Create free account</button>' +
-      '<button class="btn btn-outline btn-lg" onclick="openAuth(\'login\')">Sign in</button>';
-    ctaActions.innerHTML =
-      '<button class="btn btn-primary btn-lg" onclick="openAuth(\'signup\')">Create free account</button>' +
-      '<button class="btn btn-outline btn-lg" onclick="openAuth(\'login\')">Sign in</button>';
-  }
-}
-
-function logout() {
-  localStorage.removeItem('exalyte_token');
-  localStorage.removeItem('exalyte_user');
-  firebaseAuth.signOut();
-  token = null;
-  user = null;
-  loggedIn = false;
-  renderUI();
+  hr.innerHTML =
+    '<button class="btn btn-outline" onclick="openAuth()">Sign in</button>' +
+    '<button class="btn btn-primary" onclick="openAuth()">Get started</button>';
+  heroActions.innerHTML =
+    '<button class="btn btn-primary btn-lg" onclick="openAuth()">Create free account</button>' +
+    '<button class="btn btn-outline btn-lg" onclick="openAuth()">Sign in</button>';
+  ctaActions.innerHTML =
+    '<button class="btn btn-primary btn-lg" onclick="openAuth()">Create free account</button>' +
+    '<button class="btn btn-outline btn-lg" onclick="openAuth()">Sign in</button>';
 }
 
 renderUI();
