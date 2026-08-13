@@ -86,12 +86,12 @@ async function requireAdmin(request, db) {
 // ============================================================
 // DATABASE INITIALIZATION
 // ============================================================
-
 let dbInitialized = false;
 
 async function initDB(db) {
   if (dbInitialized) return;
 
+  // CREATE TABLE statements WITHOUT the section index
   const statements = [
     `CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
@@ -224,6 +224,7 @@ async function initDB(db) {
       link TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
+    // Safe indexes — no section column references yet
     `CREATE INDEX IF NOT EXISTS idx_results_user_exam ON exam_results_stored(user_id, exam_id, is_practice, is_first_attempt)`,
     `CREATE INDEX IF NOT EXISTS idx_results_exam_first ON exam_results_stored(exam_id, is_first_attempt, is_practice)`,
     `CREATE INDEX IF NOT EXISTS idx_premium_user ON premium_access(user_id)`,
@@ -233,14 +234,18 @@ async function initDB(db) {
     `CREATE INDEX IF NOT EXISTS idx_exams_batch ON exams(batch_id)`,
     `CREATE INDEX IF NOT EXISTS idx_notif_reads_user ON notification_reads(user_id)`,
     `CREATE INDEX IF NOT EXISTS idx_users_fp ON users(device_fingerprint)`,
-    `CREATE INDEX IF NOT EXISTS idx_users_ip ON users(created_ip)`,
-    `CREATE INDEX IF NOT EXISTS idx_questions_section ON questions(exam_id, section)`
+    `CREATE INDEX IF NOT EXISTS idx_users_ip ON users(created_ip)`
   ];
 
   for (const sql of statements) {
-    await db.prepare(sql).run();
+    try {
+      await db.prepare(sql).run();
+    } catch (e) {
+      // Skip if fails
+    }
   }
 
+  // ALTER TABLE statements — all individually guarded
   try { await db.prepare(`ALTER TABLE users ADD COLUMN device_fingerprint TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE users ADD COLUMN created_ip TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE users ADD COLUMN is_banned INTEGER DEFAULT 0`).run(); } catch (e) {}
@@ -252,6 +257,11 @@ async function initDB(db) {
   try { await db.prepare(`ALTER TABLE questions ADD COLUMN section TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE questions ADD COLUMN section_order INTEGER DEFAULT 1`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exam_results_stored ADD COLUMN selected_sections TEXT DEFAULT ''`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE exam_attempts ADD COLUMN time_taken_seconds INTEGER DEFAULT 0`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE exam_results_stored ADD COLUMN time_taken_seconds INTEGER DEFAULT 0`).run(); } catch (e) {}
+
+  // NOW create section index AFTER column exists
+  try { await db.prepare(`CREATE INDEX IF NOT EXISTS idx_questions_section ON questions(exam_id, section)`).run(); } catch (e) {}
 
   const adminHash = await sha256('Admin@2024');
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind('admin@exalyte.com').first();
