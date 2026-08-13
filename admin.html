@@ -562,6 +562,8 @@ function rebuildSearchableSelects(){
   registerSearchableSelect('resourceBatchSelectWrap',allBatches.map(b=>({value:b.id,label:b.name,desc:(b.exam_count||0)+' exams'})),'resourceBatchSelect',(val)=>{if(val)loadResourcesForTarget()});
   registerSearchableSelect('resultFilterExamWrap',[{value:'',label:'All Exams',desc:''},...allExams.map(e=>({value:e.id,label:e.name,desc:e.batch_name||''}))],'resultFilterExam',(val)=>{loadResults()});
   registerSearchableSelect('examBatchSelectWrap',[{value:'',label:'No batch',desc:''},...allBatches.map(b=>({value:b.id,label:b.name,desc:(b.exam_count||0)+' exams'}))],'examBatchSelect',()=>{},{placeholder:'Select batch (optional)'});
+  // Update existing select UIs
+  Object.keys(searchableSelects).forEach(k=>updateSearchableSelectUI(k));
 }
 
 // ============================================================
@@ -688,18 +690,31 @@ async function saveExam(){
   const url=editingExamId?`/admin/exams/${editingExamId}`:'/admin/exams';
   const method=editingExamId?'PUT':'POST';
   const{ok,data}=await apiFetch(url,{method,body:JSON.stringify(body)});
-  if(ok){closeModal('examModal');loadExams();loadDashboard();toast('Exam saved')}
+  if(ok){
+    closeModal('examModal');
+    toast('Exam saved');
+    // ✅ REAL-TIME: Refresh exams immediately
+    await loadExams();
+    await loadDashboard();
+  }
   else alert(data.error||'Failed to save exam');
 }
 async function deleteExam(id){
-  if(confirm('Delete this exam?')){await apiFetch(`/admin/exams/${id}`,{method:'DELETE'});loadExams();loadDashboard()}
+  if(confirm('Delete this exam?')){
+    await apiFetch(`/admin/exams/${id}`,{method:'DELETE'});
+    toast('Exam deleted');
+    // ✅ REAL-TIME: Refresh immediately
+    await loadExams();
+    await loadDashboard();
+  }
 }
 async function toggleExam(id){
   const e=allExams.find(x=>x.id==id);
   if(!e)return;
   await apiFetch(`/admin/exams/${id}/toggle`,{method:'POST',body:JSON.stringify({is_closed:e.is_closed?0:1})});
   toast('Exam '+(e.is_closed?'opened':'closed'));
-  loadExams();
+  // ✅ REAL-TIME: Refresh immediately
+  await loadExams();
 }
 
 // ============================================================
@@ -717,10 +732,24 @@ async function saveBatch(){
   const url=editingBatchId?`/admin/batches/${editingBatchId}`:'/admin/batches';
   const method=editingBatchId?'PUT':'POST';
   const{ok}=await apiFetch(url,{method,body:JSON.stringify(body)});
-  if(ok){closeModal('batchModal');loadBatches();loadDashboard()}
+  if(ok){
+    closeModal('batchModal');
+    toast('Batch saved');
+    // ✅ REAL-TIME: Refresh immediately
+    await loadBatches();
+    await loadExams();
+    await loadDashboard();
+  }
 }
 async function deleteBatch(id){
-  if(confirm('Delete this batch?')){await apiFetch(`/admin/batches/${id}`,{method:'DELETE'});loadBatches();loadExams();loadDashboard()}
+  if(confirm('Delete this batch?')){
+    await apiFetch(`/admin/batches/${id}`,{method:'DELETE'});
+    toast('Batch deleted');
+    // ✅ REAL-TIME: Refresh immediately
+    await loadBatches();
+    await loadExams();
+    await loadDashboard();
+  }
 }
 
 // ============================================================
@@ -745,12 +774,21 @@ async function uploadQuestions(){
     document.getElementById('questionUploadResult').innerHTML=`<div class="alert alert-success">${data.inserted} questions uploaded</div>`;
     setTimeout(()=>document.getElementById('questionUploadResult').innerHTML='',3000);
     clearQuestionsJson();
-    loadQuestionsForExam();
+    // ✅ REAL-TIME: Refresh questions and exam count
+    await loadQuestionsForExam();
+    await loadExams();
+    await loadDashboard();
   }catch(e){alert('Invalid JSON format')}
 }
 async function deleteAllQuestions(){
   const id=document.getElementById('questionExamSelect').value;
-  if(id&&confirm('Delete ALL questions?')){await apiFetch(`/admin/questions/${id}`,{method:'DELETE'});loadQuestionsForExam()}
+  if(id&&confirm('Delete ALL questions?')){
+    await apiFetch(`/admin/questions/${id}`,{method:'DELETE'});
+    // ✅ REAL-TIME: Refresh immediately
+    await loadQuestionsForExam();
+    await loadExams();
+    await loadDashboard();
+  }
 }
 
 // ============================================================
@@ -779,13 +817,21 @@ async function addResource(){
   const ep=currentResourceType==='exam'?'/admin/resources':'/admin/batch-resources';
   const body=currentResourceType==='exam'?{exam_id:currentResourceTargetId,title:t,link:l}:{batch_id:currentResourceTargetId,title:t,link:l};
   const{ok}=await apiFetch(ep,{method:'POST',body:JSON.stringify(body)});
-  if(ok){document.getElementById('newResourceTitle').value='';document.getElementById('newResourceLink').value='';loadResourcesForTarget();toast('Resource added')}
+  if(ok){
+    document.getElementById('newResourceTitle').value='';
+    document.getElementById('newResourceLink').value='';
+    toast('Resource added');
+    // ✅ REAL-TIME: Refresh immediately
+    await loadResourcesForTarget();
+  }
 }
 async function deleteResource(id){
   if(confirm('Delete this resource?')){
     const ep=currentResourceType==='exam'?`/admin/resources/${id}`:`/admin/batch-resources/${id}`;
     await apiFetch(ep,{method:'DELETE'});
-    loadResourcesForTarget();
+    toast('Resource deleted');
+    // ✅ REAL-TIME: Refresh immediately
+    await loadResourcesForTarget();
   }
 }
 
@@ -840,11 +886,16 @@ async function submitGrant(){
   if(s==='exam')body.exam_id=parseInt(document.getElementById('grantExam').value);
   if(s==='batch')body.batch_id=parseInt(document.getElementById('grantBatch').value);
   const{ok}=await apiFetch('/admin/grant-premium',{method:'POST',body:JSON.stringify(body)});
-  if(ok){closeModal('grantModal');loadUsers();toast('Premium granted')}
+  if(ok){
+    closeModal('grantModal');
+    toast('Premium granted');
+    // ✅ REAL-TIME: Refresh immediately
+    await loadUsers();
+  }
 }
-async function revokeExamPremium(uid,eid){if(!confirm('Revoke exam premium?'))return;await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:uid,exam_id:eid})});loadUsers()}
-async function revokeBatchPremium(uid,bid){if(!confirm('Revoke batch premium?'))return;await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:uid,batch_id:bid})});loadUsers()}
-async function revokeAccountPremium(uid){if(!confirm('Revoke account premium?'))return;await apiFetch('/admin/revoke-account-premium',{method:'DELETE',body:JSON.stringify({user_id:uid})});loadUsers()}
+async function revokeExamPremium(uid,eid){if(!confirm('Revoke exam premium?'))return;await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:uid,exam_id:eid})});toast('Premium revoked');await loadUsers()}
+async function revokeBatchPremium(uid,bid){if(!confirm('Revoke batch premium?'))return;await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:uid,batch_id:bid})});toast('Premium revoked');await loadUsers()}
+async function revokeAccountPremium(uid){if(!confirm('Revoke account premium?'))return;await apiFetch('/admin/revoke-account-premium',{method:'DELETE',body:JSON.stringify({user_id:uid})});toast('Premium revoked');await loadUsers()}
 function confirmBan(uid,name){
   document.getElementById('confirmActionTitle').textContent='Ban User';
   document.getElementById('confirmActionBody').innerHTML=`<p>Are you sure you want to <strong style="color:#e37400">ban</strong> <strong>${esc(name)}</strong>?</p><p style="font-size:.8rem;color:var(--t3)">They will be unable to login. Data preserved.</p>`;
@@ -857,9 +908,9 @@ function confirmDeleteUser(uid,name){
   document.getElementById('confirmActionFooter').innerHTML=`<button class="btn btn-outline" onclick="closeModal('confirmActionModal')">Cancel</button><button class="btn btn-danger" onclick="deleteUser(${uid})">Delete Permanently</button>`;
   document.getElementById('confirmActionModal').classList.add('open');
 }
-async function banUser(id){const{ok}=await apiFetch(`/admin/users/${id}/ban`,{method:'POST'});if(ok){closeModal('confirmActionModal');loadUsers();toast('User banned')}}
-async function unbanUser(id){const{ok}=await apiFetch(`/admin/users/${id}/unban`,{method:'POST'});if(ok){loadUsers();toast('User unbanned')}}
-async function deleteUser(id){const{ok}=await apiFetch(`/admin/users/${id}/delete`,{method:'DELETE'});if(ok){closeModal('confirmActionModal');loadUsers();loadDashboard();toast('User deleted')}}
+async function banUser(id){const{ok}=await apiFetch(`/admin/users/${id}/ban`,{method:'POST'});if(ok){closeModal('confirmActionModal');toast('User banned');await loadUsers()}}
+async function unbanUser(id){const{ok}=await apiFetch(`/admin/users/${id}/unban`,{method:'POST'});if(ok){toast('User unbanned');await loadUsers()}}
+async function deleteUser(id){const{ok}=await apiFetch(`/admin/users/${id}/delete`,{method:'DELETE'});if(ok){closeModal('confirmActionModal');toast('User deleted');await loadUsers();await loadDashboard()}}
 function onUserSearchInput(){
   const val=document.getElementById('userSearchInput').value;
   const btn=document.getElementById('userSearchClear');
@@ -916,7 +967,9 @@ async function sendNotification(){
   if(ok){
     document.getElementById('notifResult').innerHTML='<div class="alert alert-success">Notification sent!</div>';
     document.getElementById('notifTitle').value='';document.getElementById('notifBody').value='';document.getElementById('notifImage').value='';document.getElementById('notifLink').value='';
-    loadNotificationsList();
+    toast('Notification sent');
+    // ✅ REAL-TIME: Refresh immediately
+    await loadNotificationsList();
     setTimeout(()=>document.getElementById('notifResult').innerHTML='',3000);
   }
 }
@@ -926,7 +979,12 @@ async function loadNotificationsList(){
   document.getElementById('notifList').innerHTML=ns.length?ns.map(n=>`<div class="notif-card"><div class="notif-header"><div class="notif-title">${esc(n.title)}</div><button class="btn btn-danger btn-sm" onclick="deleteNotification(${n.id})">Delete</button></div><div class="notif-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatDate(n.created_at)}</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${n.read_count||0}/${n.total_users||0} read</span><span style="color:var(--t4);font-size:.65rem">by ${esc(n.creator_name||'')}</span></div>${n.body?`<div class="notif-body">${esc(n.body)}</div>`:''}${n.image_url?`<img src="${esc(n.image_url)}" class="notif-img" onerror="this.style.display='none'">`:''}${n.link_url?`<a href="${esc(n.link_url)}" target="_blank" class="notif-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open</a>`:''}</div>`).join(''):'<p style="color:var(--t3);text-align:center;padding:16px">No notifications sent</p>';
 }
 async function deleteNotification(id){
-  if(confirm('Delete this notification?')){await apiFetch(`/admin/notifications/${id}`,{method:'DELETE'});loadNotificationsList()}
+  if(confirm('Delete this notification?')){
+    await apiFetch(`/admin/notifications/${id}`,{method:'DELETE'});
+    toast('Notification deleted');
+    // ✅ REAL-TIME: Refresh immediately
+    await loadNotificationsList();
+  }
 }
 
 // ============================================================
@@ -965,9 +1023,5 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelect
 // ============================================================
 loadDashboard();loadExams();loadBatches();loadUsers();loadNotificationsList();
 </script>
-</body>
-</html>
-
-
 </body>
 </html>
