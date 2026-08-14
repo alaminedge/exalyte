@@ -1,6 +1,6 @@
 // Exalyte API — Complete Backend for Cloudflare Pages
 // functions/api/[[route]].js
-// FULL VERSION — Sectional Exams + Marks per Question + Practice No Storage
+// FULL VERSION — Sectional Exams + Exam Start Tracking + Compact Storage
 
 // ============================================================
 // CRYPTO HELPERS
@@ -154,16 +154,16 @@ async function initDB(db) {
       section TEXT DEFAULT '',
       section_order INTEGER DEFAULT 1
     )`,
-    `CREATE TABLE IF NOT EXISTS exam_attempts (
+    `CREATE TABLE IF NOT EXISTS exam_starts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
       exam_id INTEGER NOT NULL,
-      score REAL DEFAULT 0,
-      total_questions INTEGER DEFAULT 0,
-      percentage REAL DEFAULT 0,
-      answers TEXT,
-      time_taken_seconds INTEGER DEFAULT 0,
-      submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      expires_at DATETIME,
+      is_practice INTEGER DEFAULT 0,
+      selected_sections TEXT DEFAULT '',
+      submitted INTEGER DEFAULT 0,
+      UNIQUE(user_id, exam_id, is_practice)
     )`,
     `CREATE TABLE IF NOT EXISTS exam_results_stored (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -226,10 +226,13 @@ async function initDB(db) {
     `CREATE INDEX IF NOT EXISTS idx_premium_exam ON premium_access(exam_id)`,
     `CREATE INDEX IF NOT EXISTS idx_premium_batch ON premium_access(batch_id)`,
     `CREATE INDEX IF NOT EXISTS idx_questions_exam ON questions(exam_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_questions_section ON questions(exam_id, section)`,
     `CREATE INDEX IF NOT EXISTS idx_exams_batch ON exams(batch_id)`,
     `CREATE INDEX IF NOT EXISTS idx_notif_reads_user ON notification_reads(user_id)`,
     `CREATE INDEX IF NOT EXISTS idx_users_fp ON users(device_fingerprint)`,
-    `CREATE INDEX IF NOT EXISTS idx_users_ip ON users(created_ip)`
+    `CREATE INDEX IF NOT EXISTS idx_users_ip ON users(created_ip)`,
+    `CREATE INDEX IF NOT EXISTS idx_exam_starts_user ON exam_starts(user_id, submitted)`,
+    `CREATE INDEX IF NOT EXISTS idx_exam_starts_expiry ON exam_starts(expires_at, submitted)`
   ];
 
   for (const sql of statements) {
@@ -248,10 +251,7 @@ async function initDB(db) {
   try { await db.prepare(`ALTER TABLE questions ADD COLUMN section TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE questions ADD COLUMN section_order INTEGER DEFAULT 1`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exam_results_stored ADD COLUMN selected_sections TEXT DEFAULT ''`).run(); } catch (e) {}
-  try { await db.prepare(`ALTER TABLE exam_attempts ADD COLUMN time_taken_seconds INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exam_results_stored ADD COLUMN time_taken_seconds INTEGER DEFAULT 0`).run(); } catch (e) {}
-
-  try { await db.prepare(`CREATE INDEX IF NOT EXISTS idx_questions_section ON questions(exam_id, section)`).run(); } catch (e) {}
 
   const adminHash = await sha256('Admin@2024');
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind('admin@exalyte.com').first();
@@ -325,6 +325,35 @@ function isResultsPublished(exam) {
   }
   if (Date.now() >= startTime + exam.live_deadline_hours * 3600000) return true;
   return false;
+}
+
+// ============================================================
+// CLEANUP FUNCTIONS
+// ============================================================
+
+async function cleanupExpiredPremium(db) {
+  try {
+    await db.prepare('DELETE FROM premium_access WHERE expires_at < ? AND expires_at IS NOT NULL').bind(new Date().toISOString()).run();
+  } catch(e) {}
+}
+
+async function cleanupExpiredStarts(db) {
+  try {
+    const expiredStarts = await db.prepare('SELECT * FROM exam_starts WHERE submitted = 0 AND expires_at < ?').bind(new Date().toISOString()).all();
+    for (const start of expiredStarts.results) {
+      if (!start.is_practice) {
+        const existingResult = await db.prepare('SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0').bind(start.user_id, start.exam_id).first();
+        if (!existingResult) {
+          const exam = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(start.exam_id).first();
+          if (exam) {
+            const totalQuestions = await db.prepare('SELECT COUNT(*) as count FROM questions WHERE exam_id = ?').bind(start.exam_id).first();
+            await db.prepare(`INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt, time_taken_seconds, selected_sections) VALUES (?, ?, 0, ?, 0, '{}', 0, 1, ?, ?)`).bind(start.user_id, start.exam_id, totalQuestions?.count || 0, exam.time_limit * 60, start.selected_sections || '[]').run();
+          }
+        }
+      }
+      await db.prepare('UPDATE exam_starts SET submitted = 1 WHERE id = ?').bind(start.id).run();
+    }
+  } catch(e) {}
 }
 
 // ============================================================
@@ -485,13 +514,16 @@ async function handleDeleteExamResource(resourceId, db) {
 // ============================================================
 
 async function handleListExams(request, db) {
+  await cleanupExpiredPremium(db);
+  await cleanupExpiredStarts(db);
+  
   const user = await requireAuth(request);
   const userId = user ? user.id : null;
   const isAdmin = user ? user.is_admin : false;
 
   const exams = await db.prepare(`SELECT e.*, b.name as batch_name, (SELECT COUNT(*) FROM questions q WHERE q.exam_id = e.id) as total_questions_in_db FROM exams e LEFT JOIN batches b ON e.batch_id = b.id ORDER BY e.created_at DESC`).all();
 
-  // ✅ CALCULATE ACTUAL ATTEMPTABLE QUESTIONS FOR SECTIONAL EXAMS
+  // Calculate actual attemptable questions for sectional exams
   for (const exam of exams.results) {
     if (exam.has_sections && exam.section_config) {
       try {
@@ -499,18 +531,15 @@ async function handleListExams(request, db) {
         const maxOptional = config.max_optional || 2;
         const minCompulsory = config.min_from_compulsory || 1;
         
-        // Count required sections (always included)
         const requiredSections = config.required || [];
         const requiredCount = requiredSections.reduce((sum, s) => sum + (s.count || 0), 0);
         
-        // Get optional sections
         const compulsoryGroup = config.compulsory_group || [];
         const normalGroup = config.normal_group || [];
         
         let optionalCount = 0;
         
         if (compulsoryGroup.length > 0) {
-          // Must select at least minCompulsory from compulsory group
           const sortedCompulsory = [...compulsoryGroup].sort((a, b) => (b.count || 0) - (a.count || 0));
           const selectedCompulsory = sortedCompulsory.slice(0, Math.min(minCompulsory, maxOptional));
           const compulsoryCount = selectedCompulsory.reduce((sum, s) => sum + (s.count || 0), 0);
@@ -518,7 +547,6 @@ async function handleListExams(request, db) {
           const remainingSlots = maxOptional - selectedCompulsory.length;
           
           if (remainingSlots > 0) {
-            // Can select remaining from rest of compulsory + all normal
             const remainingOptional = [
               ...sortedCompulsory.slice(minCompulsory),
               ...normalGroup
@@ -532,35 +560,23 @@ async function handleListExams(request, db) {
             optionalCount = compulsoryCount;
           }
         } else {
-          // No compulsory group, just pick maxOptional from normal
           const sortedNormal = [...normalGroup].sort((a, b) => (b.count || 0) - (a.count || 0));
           const selectedNormal = sortedNormal.slice(0, maxOptional);
           optionalCount = selectedNormal.reduce((sum, s) => sum + (s.count || 0), 0);
         }
         
-        // Set question_count to actual attemptable questions
         exam.question_count = requiredCount + optionalCount;
         exam.is_sectional = true;
-        exam.section_summary = {
-          required: requiredCount,
-          optional: optionalCount,
-          total_attemptable: requiredCount + optionalCount,
-          max_optional: maxOptional,
-          min_compulsory: minCompulsory
-        };
       } catch(e) {
-        // If parsing fails, use total count
         exam.question_count = exam.total_questions_in_db || 0;
         exam.is_sectional = false;
       }
     } else {
-      // Non-sectional exam - use total count
       exam.question_count = exam.total_questions_in_db || 0;
     }
   }
 
   const allExamResources = await db.prepare(`SELECT er.*, e.id as exam_id, e.is_premium, e.batch_id FROM exam_resources er JOIN exams e ON er.exam_id = e.id ORDER BY er.created_at DESC`).all();
-
   const allBatchResources = await db.prepare(`SELECT br.*, b.id as batch_id, b.name as batch_name FROM batch_resources br JOIN batches b ON br.batch_id = b.id ORDER BY br.created_at DESC`).all();
 
   let userPremiumBatches = new Set();
@@ -634,20 +650,64 @@ async function handleListExams(request, db) {
       if (exam.live_deadline_hours > 0 && live.is_live) results_visible = false;
       else results_visible = isResultsPublished(exam);
     }
-    result.push({ 
-      ...exam, 
-      ...live, 
-      stored_attempt, 
-      accessible, 
-      can_practice, 
-      results_visible, 
-      exam_resources: examResourcesMap[exam.id] || [], 
-      batch_id: exam.batch_id, 
-      batch_name: exam.batch_name 
-    });
+    result.push({ ...exam, ...live, stored_attempt, accessible, can_practice, results_visible, exam_resources: examResourcesMap[exam.id] || [], batch_id: exam.batch_id, batch_name: exam.batch_name });
   }
   
   return json({ exams: result, batch_resources: batchResourcesList }, 200, 15);
+}
+
+// ============================================================
+// START EXAM — Track exam start
+// ============================================================
+
+async function handleStartExam(examId, request, db) {
+  const user = await requireAuth(request);
+  if (!user) return err('Unauthorized', 401);
+  
+  const { is_practice, selected_sections } = await request.json();
+  const exam = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
+  if (!exam) return err('Exam not found', 404);
+  
+  if (exam.is_closed && !user.is_admin) return err('Exam closed.', 403);
+  
+  const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
+  if (!accessible) return err('Premium access required', 403);
+  
+  // Check if user already has a stored result (real exam)
+  if (!is_practice) {
+    const existingFirst = await db.prepare(
+      'SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1'
+    ).bind(user.id, examId).first();
+    
+    if (existingFirst) return err('You have already taken this exam.', 403);
+  }
+  
+  // Check for existing in-progress exam
+  const existingStart = await db.prepare(
+    'SELECT * FROM exam_starts WHERE user_id = ? AND exam_id = ? AND is_practice = ? AND submitted = 0'
+  ).bind(user.id, examId, is_practice ? 1 : 0).first();
+  
+  if (existingStart) {
+    const expiresAt = new Date(existingStart.expires_at).getTime();
+    if (Date.now() < expiresAt) {
+      return err('Exam already in progress. Please complete your current attempt.', 409);
+    }
+    await db.prepare('DELETE FROM exam_starts WHERE id = ?').bind(existingStart.id).run();
+  }
+  
+  const timeLimitMs = exam.time_limit * 60 * 1000;
+  const expiresAt = new Date(Date.now() + timeLimitMs).toISOString();
+  
+  await db.prepare(
+    `INSERT INTO exam_starts (user_id, exam_id, is_practice, selected_sections, expires_at) 
+     VALUES (?, ?, ?, ?, ?)`
+  ).bind(user.id, examId, is_practice ? 1 : 0, JSON.stringify(selected_sections || []), expiresAt).run();
+  
+  return json({ 
+    success: true, 
+    expires_at: expiresAt,
+    time_limit_seconds: exam.time_limit * 60
+  });
 }
 
 // ============================================================
@@ -702,7 +762,7 @@ async function handleGetExamQuestions(examId, request, db) {
 }
 
 // ============================================================
-// SUBMIT EXAM — GRADES ONLY SELECTED SECTIONS (BOTH MODES)
+// SUBMIT EXAM — GRADES ONLY SELECTED SECTIONS
 // ============================================================
 
 async function handleSubmitExam(examId, request, db) {
@@ -715,7 +775,7 @@ async function handleSubmitExam(examId, request, db) {
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
 
-  // FETCH ONLY SELECTED SECTIONS FOR GRADING (both practice and real)
+  // Fetch only selected sections for grading
   let questions;
   let validSections = [];
   
@@ -733,17 +793,21 @@ async function handleSubmitExam(examId, request, db) {
   const nm = exam.negative_marking || 0;
   let score = 0, correctCount = 0, wrongCount = 0, skippedCount = 0;
   const total = questions.results.length;
-  const detailedAnswers = {};
+  
+  // Compact answers format
+  const compactAnswers = {};
 
   for (const q of questions.results) {
     const rawGiven = answers[q.id] || answers[String(q.id)] || '';
     const given = rawGiven.toString().trim().toUpperCase();
     const correct = (q.correct_answer || '').toString().trim().toUpperCase();
     const isCorrect = given === correct;
+    
     if (!given) skippedCount++;
     else if (isCorrect) { correctCount++; score += marksPerQ; }
     else { wrongCount++; if (nm > 0) score -= nm; }
-    detailedAnswers[q.id] = { given, correct, isCorrect };
+    
+    compactAnswers[q.id] = given;
   }
 
   const maxScore = total * marksPerQ;
@@ -751,6 +815,8 @@ async function handleSubmitExam(examId, request, db) {
   const timeTaken = time_taken_seconds || 0;
 
   if (is_practice) {
+    await db.prepare('UPDATE exam_starts SET submitted = 1 WHERE user_id = ? AND exam_id = ? AND is_practice = 1 AND submitted = 0').bind(user.id, examId).run();
+    
     return json({ 
       attemptId: 0, 
       score: Math.max(0, score), 
@@ -760,7 +826,7 @@ async function handleSubmitExam(examId, request, db) {
       correct: correctCount, 
       wrong: wrongCount, 
       skipped: skippedCount, 
-      detailed: detailedAnswers, 
+      detailed: compactAnswers,
       time_taken_seconds: timeTaken, 
       is_practice: true,
       selected_sections: validSections
@@ -770,9 +836,11 @@ async function handleSubmitExam(examId, request, db) {
   const existingFirst = await db.prepare('SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1').bind(user.id, examId).first();
   if (existingFirst) return err('You have already taken this exam.', 403);
 
-  const r1 = await db.prepare(`INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt, time_taken_seconds, selected_sections) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`).bind(user.id, examId, Math.max(0, score), total, percentage, JSON.stringify(detailedAnswers), 0, 1, timeTaken, JSON.stringify(validSections)).first();
+  // Store ONLY in exam_results_stored (no exam_attempts)
+  const r1 = await db.prepare(`INSERT INTO exam_results_stored (user_id, exam_id, score, total_questions, percentage, answers, is_practice, is_first_attempt, time_taken_seconds, selected_sections) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`).bind(user.id, examId, Math.max(0, score), total, percentage, JSON.stringify(compactAnswers), 0, 1, timeTaken, JSON.stringify(validSections)).first();
 
-  await db.prepare(`INSERT INTO exam_attempts (user_id, exam_id, score, total_questions, percentage, answers, time_taken_seconds) VALUES (?, ?, ?, ?, ?, ?, ?)`).bind(user.id, examId, Math.max(0, score), total, percentage, JSON.stringify(detailedAnswers), timeTaken).run();
+  // Mark exam start as submitted
+  await db.prepare('UPDATE exam_starts SET submitted = 1 WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND submitted = 0').bind(user.id, examId).run();
 
   return json({ 
     attemptId: r1.id, 
@@ -783,7 +851,7 @@ async function handleSubmitExam(examId, request, db) {
     correct: correctCount, 
     wrong: wrongCount, 
     skipped: skippedCount, 
-    detailed: detailedAnswers, 
+    detailed: compactAnswers,
     time_taken_seconds: timeTaken,
     selected_sections: validSections
   });
@@ -800,77 +868,36 @@ async function handleGetResult(examId, attemptId, request, db) {
   if (!exam) return err('Exam not found', 404);
   const live = getLiveStatus(exam);
   if (exam.live_deadline_hours > 0 && live.is_live) {
-    return json({ 
-      pending: true, 
-      message: 'Results available after live window ends.',
-      live_seconds_remaining: live.live_seconds_remaining,
-      exam_name: exam.name
-    });
+    return json({ pending: true, message: 'Results available after live window ends.', live_seconds_remaining: live.live_seconds_remaining, exam_name: exam.name });
   }
   if (!isResultsPublished(exam)) {
-    return json({ 
-      pending: true, 
-      message: 'Results available after publication.',
-      exam_name: exam.name
-    });
+    return json({ pending: true, message: 'Results available after publication.', exam_name: exam.name });
   }
   
-  // Practice mode - no stored attempt
   if (attemptId == 0 || !attemptId) {
     const questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
-    return json({ 
-      attempt: { 
-        id: 0, 
-        score: 0, 
-        total_questions: questions.results.length, 
-        percentage: 0, 
-        answers: '{}', 
-        is_practice: 1 
-      }, 
-      questions: questions.results, 
-      exam, 
-      results_published: true 
-    });
+    return json({ attempt: { id: 0, score: 0, total_questions: questions.results.length, percentage: 0, answers: '{}', is_practice: 1 }, questions: questions.results, exam, results_published: true });
   }
   
-  // Real exam - get stored attempt
-  const attempt = await db.prepare(
-    'SELECT * FROM exam_results_stored WHERE id = ? AND user_id = ? AND exam_id = ?'
-  ).bind(attemptId, user.id, examId).first();
-  
+  const attempt = await db.prepare('SELECT * FROM exam_results_stored WHERE id = ? AND user_id = ? AND exam_id = ?').bind(attemptId, user.id, examId).first();
   if (!attempt) return err('Result not found', 404);
   
-  // Parse selected sections from attempt
   let selectedSections = [];
-  try {
-    selectedSections = JSON.parse(attempt.selected_sections || '[]');
-  } catch(e) {
-    selectedSections = [];
-  }
+  try { selectedSections = JSON.parse(attempt.selected_sections || '[]'); } catch(e) { selectedSections = []; }
   
-  // Fetch only questions from selected sections
   let questions;
   if (exam.has_sections && selectedSections.length > 0) {
     const placeholders = selectedSections.map(() => '?').join(',');
-    questions = await db.prepare(
-      `SELECT * FROM questions 
-       WHERE exam_id = ? AND section IN (${placeholders})
-       ORDER BY section_order, id`
-    ).bind(examId, ...selectedSections).all();
+    questions = await db.prepare(`SELECT * FROM questions WHERE exam_id = ? AND section IN (${placeholders}) ORDER BY section_order, id`).bind(examId, ...selectedSections).all();
   } else {
-    // Non-sectional exam or no sections stored
     questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
   }
   
-  // Filter answers to only include selected questions
-  const questionIds = new Set(questions.results.map(q => q.id));
+  // Parse compact answers
   let storedAnswers = {};
-  try {
-    storedAnswers = JSON.parse(attempt.answers || '{}');
-  } catch(e) {
-    storedAnswers = {};
-  }
+  try { storedAnswers = JSON.parse(attempt.answers || '{}'); } catch(e) { storedAnswers = {}; }
   
+  const questionIds = new Set(questions.results.map(q => q.id));
   const filteredAnswers = {};
   for (const [qId, answer] of Object.entries(storedAnswers)) {
     const numericId = parseInt(qId);
@@ -880,12 +907,7 @@ async function handleGetResult(examId, attemptId, request, db) {
   }
   
   return json({ 
-    attempt: { 
-      ...attempt, 
-      answers: filteredAnswers,
-      selected_sections: selectedSections,
-      total_questions: questions.results.length
-    }, 
+    attempt: { ...attempt, answers: filteredAnswers, selected_sections: selectedSections, total_questions: questions.results.length }, 
     questions: questions.results, 
     exam, 
     results_published: true 
@@ -972,8 +994,8 @@ async function handleAdminUpdateExam(examId, request, db) {
 
 async function handleAdminDeleteExam(examId, db) {
   await db.prepare('DELETE FROM premium_access WHERE exam_id = ?').bind(examId).run();
+  await db.prepare('DELETE FROM exam_starts WHERE exam_id = ?').bind(examId).run();
   await db.prepare('DELETE FROM exam_results_stored WHERE exam_id = ?').bind(examId).run();
-  await db.prepare('DELETE FROM exam_attempts WHERE exam_id = ?').bind(examId).run();
   await db.prepare('DELETE FROM questions WHERE exam_id = ?').bind(examId).run();
   await db.prepare('DELETE FROM exam_resources WHERE exam_id = ?').bind(examId).run();
   await db.prepare('DELETE FROM exams WHERE id = ?').bind(examId).run();
@@ -1092,7 +1114,7 @@ async function handleAdminDeleteUser(userId, request, db, adminId) {
     const u = await db.prepare('SELECT is_admin FROM users WHERE id = ?').bind(uid).first();
     if (u && u.is_admin) continue;
     await db.prepare('DELETE FROM notification_reads WHERE user_id = ?').bind(uid).run();
-    await db.prepare('DELETE FROM exam_attempts WHERE user_id = ?').bind(uid).run();
+    await db.prepare('DELETE FROM exam_starts WHERE user_id = ?').bind(uid).run();
     await db.prepare('DELETE FROM exam_results_stored WHERE user_id = ?').bind(uid).run();
     await db.prepare('DELETE FROM premium_access WHERE user_id = ?').bind(uid).run();
     await db.prepare('DELETE FROM banned_users WHERE user_id = ?').bind(uid).run();
@@ -1196,6 +1218,10 @@ export async function onRequest(context) {
     
     // USER
     if (path === '/history' && method === 'GET') return handleHistory(request, db);
+    
+    // START EXAM
+    const examStart = path.match(/^\/exams\/(\d+)\/start$/);
+    if (examStart && method === 'POST') return handleStartExam(examStart[1], request, db);
     
     // QUESTIONS — GET + POST (always filters by sections)
     const examQuestions = path.match(/^\/exams\/(\d+)\/questions$/);
