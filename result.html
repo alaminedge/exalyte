@@ -568,7 +568,32 @@ var SOL_LOGO_URL='';
 
 function printSolution(){
   if(!questions||!questions.length)return;
-  SOL_LOGO_URL=new URL('images/exalyte.png',location.href).href;
+  
+  // ✅ Ensure logo loads - try multiple paths
+  SOL_LOGO_URL = '';
+  var logoCandidates = [
+    'images/exalyte.png',
+    '/images/exalyte.png',
+    './images/exalyte.png',
+    '../images/exalyte.png'
+  ];
+  
+  for (var li = 0; li < logoCandidates.length; li++) {
+    try {
+      var testURL = new URL(logoCandidates[li], location.href).href;
+      var testImg = new Image();
+      testImg.src = testURL;
+      if (testImg.complete || testImg.naturalWidth > 0) {
+        SOL_LOGO_URL = testURL;
+        break;
+      }
+    } catch(e) {}
+  }
+  
+  // Fallback: use first candidate
+  if (!SOL_LOGO_URL) {
+    SOL_LOGO_URL = new URL('images/exalyte.png', location.href).href;
+  }
 
   var w=window.open('','_blank');
   if(!w){alert('Please allow pop-ups for this site to print the Solution Sheet.');return}
