@@ -696,6 +696,18 @@ async function doSubmit() {
   }
 }
 
+/* ============================================================
+   FIXED: showPracticeResult
+   The server (handleSubmitExam) already returns a correct
+   `detailed` object built from the real correct_answer values
+   (which the client never has for practice questions, since
+   /exams/:id/questions intentionally omits correct_answer).
+   Previously this function ignored data.detailed and tried to
+   rebuild it client-side using q.correct_answer, which is
+   always undefined for practice — so every question showed as
+   wrong in the review even when the score was correct.
+   Fix: just use data.detailed directly.
+   ============================================================ */
 function showPracticeResult(data) {
   const pct = data.percentage || 0;
   const correct = data.correct || 0;
@@ -732,20 +744,6 @@ function showPracticeResult(data) {
       '</div>';
   }
 
-  // Build detailed from questions directly
-  const detailed = {};
-  questions.forEach(function(q) {
-    const qIdStr = String(q.id);
-    const userAnswer = answers[qIdStr] || answers[q.id] || '';
-    const given = String(userAnswer).trim().toUpperCase();
-    const correctAns = String(q.correct_answer || '').trim().toUpperCase();
-    detailed[qIdStr] = {
-      given: given,
-      correct: correctAns,
-      isCorrect: given === correctAns && given !== ''
-    };
-  });
-
   let html = '<div class="practice-result-page">' +
     '<div class="score-card">' +
     '<div class="score-ring-wrap"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-fill" cx="60" cy="60" r="54" stroke="' + gc + '" stroke-dasharray="339" stroke-dashoffset="' + (339 - (pct / 100) * 339) + '"/></svg><div class="ring-inner"><div class="ring-pct">' + pct.toFixed(1) + '%</div><div class="ring-lbl">Score</div></div></div>' +
@@ -781,7 +779,7 @@ function showPracticeResult(data) {
 
   window.scrollTo({ top: 0 });
   window._questions = questions;
-  window._detailed = detailed;
+  window._detailed = data.detailed || {};   // <-- use server-provided detail, not a client rebuild
   window._reviewFilter = 'all';
   renderReviewList();
 }
@@ -795,11 +793,11 @@ function renderReviewList() {
   const filter = window._reviewFilter || 'all';
 
   const filtered = qs.filter(function(q) {
-    const qIdStr = String(q.id);
-    const d = det[qIdStr] || {};
+    // detailed is keyed by numeric question id from the server; match either key form
+    const d = det[q.id] || det[String(q.id)] || {};
     const given = String(d.given || '').trim().toUpperCase();
     const isCorrect = d.isCorrect === true;
-    
+
     if (filter === 'correct') return given !== '' && isCorrect;
     if (filter === 'wrong') return given !== '' && !isCorrect;
     if (filter === 'skipped') return given === '';
@@ -818,11 +816,10 @@ function renderReviewList() {
   };
 
   list.innerHTML = filtered.map(function(q) {
-    const qIdStr = String(q.id);
-    const d = det[qIdStr] || {};
+    const d = det[q.id] || det[String(q.id)] || {};
     const given = String(d.given || '').trim().toUpperCase();
-    const correctAns = String(d.correct || q.correct_answer || '').trim().toUpperCase();
-    const isCorrect = d.isCorrect === true || (given === correctAns && given !== '');
+    const correctAns = String(d.correct || '').trim().toUpperCase();
+    const isCorrect = d.isCorrect === true;
 
     const st = given === '' ? 'skip' : isCorrect ? 'correct' : 'wrong';
     const cls = { correct: 'rv-correct', wrong: 'rv-wrong', skip: 'rv-skip' }[st];
