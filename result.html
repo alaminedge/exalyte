@@ -501,7 +501,7 @@ var SOL_PRINT_CSS=
 '.sol-cols{display:flex;gap:'+SOL_COL_GAP_MM+'mm}'+
 '.sol-col{flex:1 1 0;min-width:0}'+
 '.sol-col:first-child{border-right:.4pt solid #ccc;padding-right:'+SOL_COL_GAP_MM+'mm}'+
-'.sol-q{margin:0 0 3.5pt;padding-bottom:2.5pt;border-bottom:.4pt dotted #ccc;font-size:6.3pt;line-height:1.22}'+
+'.sol-q{break-inside:avoid;page-break-inside:avoid;-webkit-column-break-inside:avoid;margin:0 0 3.5pt;padding-bottom:2.5pt;border-bottom:.4pt dotted #ccc;font-size:6.3pt;line-height:1.22}'+
 '.sol-q:last-child{border-bottom:none;margin-bottom:0}'+
 '.sol-qtext{font-weight:bold;margin-bottom:1.2pt}'+
 '.sol-qtext b,.sol-qtext strong{font-weight:bold}'+
@@ -610,31 +610,29 @@ function printSolution(){
     measureEl.innerHTML=solBuildSlimHeader(1,1);
     var slimHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
 
-    // Group questions into pages, splitting each page into two height-balanced columns
+    // Group questions into pages: column 1 fills first, then column 2, then next page.
+    // No balancing — a safety margin plus break-inside:avoid on each question guarantees
+    // nothing is ever cut and no stray blank page is produced.
     var pages=[],idx=0,pageNum=0;
     while(idx<qHtmls.length){
       pageNum++;
       var headerH=pageNum===1?fullHeaderH:slimHeaderH;
-      var availH=SOL_PAGE_H_PX-headerH-4;
-      var pageItems=[];
-      var cum=0;
+      var availH=(SOL_PAGE_H_PX-headerH-4)*0.95;
+
+      var col1Idx=[],cum=0;
       while(idx<qHtmls.length){
         var hh=heights[idx];
-        if(pageItems.length>0 && (cum+hh)>2*availH)break;
-        cum+=hh;pageItems.push(idx);idx++;
+        if(col1Idx.length>0 && (cum+hh)>availH)break;
+        cum+=hh;col1Idx.push(idx);idx++;
       }
-      var n=pageItems.length,prefix=[0];
-      for(var j=0;j<n;j++)prefix.push(prefix[j]+heights[pageItems[j]]);
-      var total=prefix[n],bestK=0,bestScore=Infinity;
-      for(var k=0;k<=n;k++){
-        var c1=prefix[k],c2=total-prefix[k];
-        var mx=Math.max(c1,c2),diff=Math.abs(c1-c2);
-        var overflow=mx>availH?(mx-availH):0;
-        var score=overflow*1000+diff;
-        if(score<bestScore){bestScore=score;bestK=k}
+      var col2Idx=[];cum=0;
+      while(idx<qHtmls.length){
+        var hh=heights[idx];
+        if(col2Idx.length>0 && (cum+hh)>availH)break;
+        cum+=hh;col2Idx.push(idx);idx++;
       }
-      var col1=pageItems.slice(0,bestK).map(function(i){return qHtmls[i]}).join('');
-      var col2=pageItems.slice(bestK).map(function(i){return qHtmls[i]}).join('');
+      var col1=col1Idx.map(function(i){return qHtmls[i]}).join('');
+      var col2=col2Idx.map(function(i){return qHtmls[i]}).join('');
       pages.push({num:pageNum,col1:col1,col2:col2});
     }
 
