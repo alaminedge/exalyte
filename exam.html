@@ -147,7 +147,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .score-ring-wrap{width:120px;height:120px;margin:0 auto 16px;position:relative}
 .score-ring-wrap svg{transform:rotate(-90deg);width:120px;height:120px}
 .ring-bg{fill:none;stroke:var(--hov);stroke-width:8}
-.ring-fill{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:339;stroke-dashoffset:339;transition:stroke-dashoffset 1.4s ease}
+.ring-fill{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:339.29;stroke-dashoffset:339.29;transition:stroke-dashoffset 1.4s ease}
 .ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .ring-pct{font-family:var(--gs);font-size:1.8rem;font-weight:500;color:var(--t1)}
 .ring-lbl{font-size:.6rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
@@ -743,7 +743,10 @@ function showPracticeResult(data) {
 
   let html = '<div class="practice-result-page">' +
     '<div class="score-card">' +
-    '<div class="score-ring-wrap"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-fill" cx="60" cy="60" r="54" stroke="' + gc + '" stroke-dasharray="339" stroke-dashoffset="' + (339 - (pct / 100) * 339) + '"/></svg><div class="ring-inner"><div class="ring-pct">' + pct.toFixed(1) + '%</div><div class="ring-lbl">Score</div></div></div>' +
+    '<div class="score-ring-wrap"><svg viewBox="0 0 120 120">' +
+    '<circle class="ring-bg" cx="60" cy="60" r="54"/>' +
+    '<circle class="ring-fill" id="ringFill" cx="60" cy="60" r="54" stroke="' + gc + '" stroke-dasharray="339.29" stroke-dashoffset="339.29"/>' +
+    '</svg><div class="ring-inner"><div class="ring-pct">' + pct.toFixed(1) + '%</div><div class="ring-lbl">Score</div></div></div>' +
     '<div class="score-grade" style="color:' + gc + '">' + gl + '</div>' +
     '<div class="score-exam">Practice Result</div>' +
     sectionInfoHTML +
@@ -753,7 +756,7 @@ function showPracticeResult(data) {
     '<div class="sc-stat sc-skip"><div class="sc-stat-val">' + skipped + '</div><div class="sc-stat-lbl">Skipped</div></div>' +
     '</div>' +
     timeHTML +
-    '<div class="perf-bar"><div class="perf-fill" style="width:' + Math.max(pct, 2) + '%;background:' + gc + '"></div></div>' +
+    '<div class="perf-bar"><div class="perf-fill" id="perfFill" style="width:0%;background:' + gc + '"></div></div>' +
     '<div class="result-actions">' +
     '<a href="dashboard.html" class="btn-secondary" style="text-decoration:none">Dashboard</a>' +
     '<a href="exam.html?id=' + examId + '&practice=1" class="btn-primary" style="text-decoration:none">Practice Again</a>' +
@@ -773,6 +776,19 @@ function showPracticeResult(data) {
   const mainContent = document.getElementById('mainContent');
   mainContent.innerHTML = html;
   mainContent.style.paddingTop = '64px';
+
+  setTimeout(function() {
+    const ring = document.getElementById('ringFill');
+    if (ring) {
+      const circumference = 2 * Math.PI * 54;
+      const targetOffset = circumference - (pct / 100) * circumference;
+      ring.style.strokeDashoffset = targetOffset;
+    }
+    const perfBar = document.getElementById('perfFill');
+    if (perfBar) {
+      perfBar.style.width = Math.max(pct, 2) + '%';
+    }
+  }, 100);
 
   window.scrollTo({ top: 0 });
   window._questions = questions;
