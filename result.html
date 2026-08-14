@@ -581,12 +581,12 @@ function printSolution(){
   w.document.close();
 
   // Centered watermark, sized to exactly one page — repeats down every page automatically
-  // ✅ Text-only watermark (no image)
-var wmSvg="<svg xmlns='http://www.w3.org/2000/svg' width='300' height='424'>"+
-  "<g transform='rotate(-28 150 212)' opacity='0.09' font-family='Arial'>"+
-  "<text x='150' y='212' font-weight='bold' font-size='34' fill='%231a73e8' text-anchor='middle'>EXALYTE</text>"+
-  "<text x='150' y='236' font-size='14' fill='%231a73e8' text-anchor='middle'>exalyte.pages.dev</text>"+
-  "</g></svg>";
+  var wmSvg="<svg xmlns='http://www.w3.org/2000/svg' width='300' height='424'>"+
+    "<g transform='rotate(-28 150 212)' opacity='0.09' font-family='Arial'>"+
+    "<image href='"+SOL_LOGO_URL+"' x='130' y='148' width='40' height='40'/>"+
+    "<text x='150' y='232' font-weight='bold' font-size='34' fill='%231a73e8' text-anchor='middle'>EXALYTE</text>"+
+    "<text x='150' y='256' font-size='14' fill='%231a73e8' text-anchor='middle'>exalyte.pages.dev</text>"+
+    "</g></svg>";
   w.document.body.style.backgroundImage='url("data:image/svg+xml;utf8,'+wmSvg+'")';
   w.document.body.style.backgroundSize=SOL_PAGE_W_MM+'mm '+SOL_PAGE_H_MM+'mm';
 
