@@ -610,50 +610,85 @@ function printSolution(){
     measureEl.innerHTML=solBuildSlimHeader(1,1);
     var slimHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
 
-    // ✅ FIX — balanced two-column pagination.
-    // Old approach: pack column 1 to the max, then dump whatever's left into
-    // column 2. That starves column 2 (often leaving it 1/2 short) and can
-    // even spill a couple of questions onto a near-empty trailing page.
+    // ✅ FIX — globally balanced pagination (no stray/near-empty columns).
     //
-    // New approach, per page:
-    //   1. Look ahead and collect the full group of questions that can fit
-    //      on this page at all (bounded by 2 x availH — i.e. both columns
-    //      combined).
-    //   2. Split that fixed group roughly in half by cumulative height, so
-    //      column 1 and column 2 end up nearly equal — never overflowing
-    //      the column height, and never orphaning a tiny leftover group on
-    //      its own near-blank page.
-    // break-inside:avoid (CSS) + the per-question height check below still
-    // guarantee no question is ever cut mid-way.
-    var pages=[],idx=0,pageNum=0;
-    while(idx<qHtmls.length){
-      pageNum++;
-      var headerH=pageNum===1?fullHeaderH:slimHeaderH;
-      var availH=(SOL_PAGE_H_PX-headerH-4)*0.95;
-      var maxTotal=availH*2;
+    // The earlier per-page approach ("group what fits on this page, then
+    // split that group in half") could still leave an awkward outcome: if
+    // the greedy look-ahead landed on a small final group, one page could
+    // end up with a single lone question and a large blank column while a
+    // previous page still had spare room.
+    //
+    // The correct fix is to treat the WHOLE document as one sequence and
+    // solve "split N questions into exactly C ordered, contiguous columns,
+    // minimizing the tallest column" — a classic linear-partition problem,
+    // solved via binary search on the answer:
+    //
+    //   1. First, find the minimum number of columns C_min physically
+    //      required, by greedily packing each column as full as possible
+    //      (this also tells us how many pages we need — greedy-fill-max is
+    //      optimal for minimizing the column/page count).
+    //   2. Then, keeping that same column count C_min fixed (so we never
+    //      add extra pages), binary-search for the smallest possible
+    //      "max column height" that still lets everything fit in C_min
+    //      columns. This redistributes content so every column — including
+    //      the last one — ends up close to the same height, eliminating
+    //      lone-question / near-blank columns.
+    //
+    // Column 0 and 1 belong to page 1 (which has the taller full header,
+    // so a bit less usable height); every column after that belongs to a
+    // later page using the slim header.
+    var availH1=(SOL_PAGE_H_PX-fullHeaderH-4)*0.95;
+    var availHRest=(SOL_PAGE_H_PX-slimHeaderH-4)*0.95;
+    function capacityForCol(col){return col<2?availH1:availHRest}
 
-      // Step 1: collect everything that fits on this page (both columns combined)
-      var groupIdx=[],cum=0;
-      while(idx<qHtmls.length){
-        var hh=heights[idx];
-        if(groupIdx.length>0 && (cum+hh)>maxTotal)break;
-        cum+=hh;groupIdx.push(idx);idx++;
+    var n=heights.length;
+    var maxSingle=0,totalHeight=0;
+    for(var i=0;i<n;i++){maxSingle=Math.max(maxSingle,heights[i]);totalHeight+=heights[i]}
+
+    // Try packing everything into `maxCols` columns, with each column capped
+    // at min(h, that column's physical capacity). Returns the resulting
+    // column groupings if it fits in <= maxCols columns, otherwise null.
+    function tryPack(h,maxCols){
+      var cols=[[]],col=0,cum=0;
+      for(var qi=0;qi<n;qi++){
+        var hh=heights[qi];
+        var cap=capacityForCol(col);
+        if(hh>cap)return null; // physically too tall for any column — shouldn't happen
+        var limit=Math.min(h,cap);
+        if(cols[col].length>0 && (cum+hh)>limit){
+          col++;
+          if(col>=maxCols)return null;
+          cols.push([]);
+          cum=0;
+        }
+        cols[col].push(qi);
+        cum+=hh;
       }
-      var groupTotal=cum;
-      var target=groupTotal/2;
+      return cols;
+    }
 
-      // Step 2: split the fixed group so both columns land close to `target`
-      var col1Idx=[],col1Sum=0,gi=0;
-      while(gi<groupIdx.length){
-        var hh=heights[groupIdx[gi]];
-        if(col1Idx.length>0 && (col1Sum+hh)>availH)break; // never exceed column height
-        if(col1Sum>=target)break; // reached the halfway point — rest goes to col2
-        col1Sum+=hh;col1Idx.push(groupIdx[gi]);gi++;
-      }
-      var col2Idx=groupIdx.slice(gi);
+    // Step 1: minimum number of columns needed at all (greedy-fill-max, h=Infinity)
+    var minimalCols=tryPack(Infinity,Number.MAX_SAFE_INTEGER);
+    var C=minimalCols.length;
 
-      var col1=col1Idx.map(function(i){return qHtmls[i]}).join('');
-      var col2=col2Idx.map(function(i){return qHtmls[i]}).join('');
+    // Step 2: binary-search the smallest max-column-height that still fits in C columns
+    var lo=maxSingle,hi=totalHeight,bestCols=minimalCols;
+    while(lo<hi){
+      var mid=Math.floor((lo+hi)/2);
+      var attempt=tryPack(mid,C);
+      if(attempt){bestCols=attempt;hi=mid}
+      else{lo=mid+1}
+    }
+    // Final pass at the converged value guarantees a valid, balanced packing
+    var finalAttempt=tryPack(lo,C);
+    if(finalAttempt)bestCols=finalAttempt;
+
+    // bestCols is now a balanced list of columns; pair them up into pages
+    var pages=[];
+    for(var c=0;c<bestCols.length;c+=2){
+      var pageNum=pages.length+1;
+      var col1=bestCols[c].map(function(i){return qHtmls[i]}).join('');
+      var col2=(bestCols[c+1]||[]).map(function(i){return qHtmls[i]}).join('');
       pages.push({num:pageNum,col1:col1,col2:col2});
     }
 
