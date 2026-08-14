@@ -39,10 +39,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .icon-btn svg{width:20px;height:20px}
 .icon-btn.leave:hover{background:var(--red-bg);color:var(--red)}
 
-/* ✅ MAIN CONTENT WRAPPER */
 .main-content{flex:1;padding-top:var(--hh);display:flex;flex-direction:column}
-
-/* ✅ AGREEMENT SECTION (NOT fixed overlay) */
 .agreement-section{display:flex;align-items:flex-start;justify-content:center;padding:32px 20px 40px;flex:1}
 .agree-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);max-width:560px;width:100%;padding:36px 32px;margin:0 auto}
 .agree-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
@@ -83,7 +80,6 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .section-rules-info{font-size:.75rem;color:var(--t3);margin-top:8px;line-height:1.5}
 .section-rules-info strong{color:var(--blue)}
 
-/* ✅ EXAM UI */
 #examUI{display:none;flex-direction:column;flex:1}
 .exam-stats-bar{display:flex;border-bottom:1px solid var(--border);background:var(--surf);flex-shrink:0}
 .stat-chip{flex:1;text-align:center;padding:10px 8px;font-size:.68rem;font-weight:500;color:var(--t3);border-right:1px solid var(--border)}
@@ -141,15 +137,6 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .btn-primary{background:var(--blue);color:#fff;border:none;padding:10px 20px;border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer;transition:all var(--tr);min-height:44px}
 .btn-primary:hover{background:var(--blue-h)}
 .btn-primary:disabled{background:var(--hov);color:var(--t4);cursor:not-allowed}
-
-.tab-warn{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:36px}
-.tab-warn.show{display:flex}
-.warn-icon-wrap{width:60px;height:60px;border-radius:50%;background:rgba(217,48,37,.18);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
-.warn-icon-wrap svg{width:28px;height:28px;stroke:var(--red);fill:none}
-.tab-warn h2{font-family:var(--gs);font-size:1.2rem;font-weight:500;color:#fff;margin-bottom:8px}
-.tab-warn p{color:rgba(255,255,255,.7);font-size:.85rem;max-width:380px;line-height:1.6}
-.btn-return{background:var(--blue);color:#fff;border:none;padding:12px 32px;border-radius:var(--r);font-family:var(--gs);font-size:.88rem;font-weight:500;cursor:pointer;margin-top:12px;transition:all var(--tr);min-height:44px}
-.btn-return:hover{background:var(--blue-h)}
 
 .practice-result-page{padding:32px 24px 60px;max-width:860px;margin:0 auto;width:100%;padding-bottom:calc(60px + var(--safe-bottom))}
 .score-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:36px 28px;text-align:center;margin-bottom:20px}
@@ -248,10 +235,8 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
   </div>
 </header>
 
-<!-- ✅ MAIN CONTENT WRAPPER -->
 <div class="main-content" id="mainContent">
   
-  <!-- Agreement Section -->
   <div class="agreement-section" id="agreementScreen">
     <div class="agree-card">
       <button class="btn-back" onclick="window.location.href='dashboard.html'">
@@ -274,7 +259,6 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
       
       <div class="agree-rules" id="agreeRules">
         <div class="agree-rule"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>The timer starts immediately. You cannot pause it.</span></div>
-        <div class="agree-rule" id="tabRule" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span>Do not switch tabs or windows. You get 2 warnings then auto-submit.</span></div>
         <div class="agree-rule"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Once submitted, your answers cannot be changed.</span></div>
         <div class="agree-rule" id="negRule" style="display:none"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg><span id="negRuleText">Negative marking applies to wrong answers.</span></div>
       </div>
@@ -286,7 +270,6 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
     </div>
   </div>
 
-  <!-- Exam UI -->
   <div id="examUI">
     <div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
     <div class="exam-stats-bar">
@@ -299,7 +282,6 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
   
 </div>
 
-<!-- ✅ FOOTER - Always visible below content -->
 <footer class="footer">
   <div class="footer-inner">
     <div class="fc">
@@ -351,14 +333,6 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
   </div>
 </div>
 
-<div class="tab-warn" id="tabWarn">
-  <div class="warn-icon-wrap"><svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
-  <h2>You Left The Exam</h2>
-  <p>Switching tabs during a live exam is not allowed.</p>
-  <p id="warnCount" style="color:var(--red);font-weight:500;font-size:.85rem;margin-top:4px"></p>
-  <button class="btn-return" id="returnBtn" onclick="dismissWarn()">Return to Exam</button>
-</div>
-
 <script>
 const API='/api';
 function getToken(){return localStorage.getItem('exalyte_token')}
@@ -378,7 +352,7 @@ if(!examId)window.location.href='dashboard.html';
 if(!getToken())window.location.href='/';
 
 let questions=[],answers={},marked={},exam=null;
-let timeLeft=0,timerInt=null,tabLeaves=0,examStartTime=0;
+let timeLeft=0,timerInt=null,examStartTime=0;
 let sectionConfig=null,selectedSections=[];
 
 let lastY=0,ticking=false;
@@ -411,7 +385,6 @@ async function loadAgreement(){
       '<span class="agree-meta-item">'+mpq+' mark/Q</span>'+
       (exam.negative_marking>0?'<span class="agree-meta-item" style="color:var(--red)">-'+exam.negative_marking+'</span>':'');
     
-    if(!isPrac&&exam.live_deadline_hours>0)document.getElementById('tabRule').style.display='flex';
     if(exam.negative_marking>0){document.getElementById('negRule').style.display='flex';document.getElementById('negRuleText').textContent='Wrong: -'+exam.negative_marking}
   }catch(e){window.location.href='dashboard.html'}
 }
@@ -515,6 +488,22 @@ async function startExam(){
   if(!validateSections())return;
   document.getElementById('agreeBtn').disabled=true;
   document.getElementById('agreeBtn').textContent='Loading...';
+  
+  // Call start endpoint to track exam
+  const startRes = await apiFetch('/exams/'+examId+'/start', {
+    method: 'POST',
+    body: JSON.stringify({
+      is_practice: isPrac,
+      selected_sections: sectionConfig ? selectedSections : []
+    })
+  });
+  
+  if (!startRes.ok) {
+    alert(startRes.data.error || 'Cannot start exam.');
+    window.location.href = 'dashboard.html';
+    return;
+  }
+  
   try{
     let res;
     if(sectionConfig){
@@ -535,7 +524,6 @@ async function startExam(){
   timeLeft=exam.time_limit*60;
   buildUI();
   startTimer();
-  if(!isPrac&&exam.live_deadline_hours>0)setupTabDetection();
   window.addEventListener('beforeunload',onBeforeUnload);
 }
 
@@ -556,7 +544,7 @@ function buildUI(){
 
 function pick(e,qId,letter){
   e.stopPropagation();
-  if(answers[qId])return;
+  if(answers[qId])return; // Locked after answer
   answers[qId]=letter;
   ['A','B','C','D'].forEach(l=>{const o=document.getElementById('opt'+qId+l);if(o){o.classList.remove('selected');o.classList.add('locked')}});
   document.getElementById('opt'+qId+letter)?.classList.add('selected');
@@ -621,23 +609,6 @@ function updateTimerDisplay(){
   else if(timeLeft<300)box.classList.add('warning');
 }
 
-function setupTabDetection(){document.addEventListener('visibilitychange',onVisChange);window.addEventListener('blur',onBlur)}
-let lastBlurTime=0;
-function onVisChange(){if(document.hidden)handleLeave()}
-function onBlur(){const now=Date.now();if(now-lastBlurTime>500){lastBlurTime=now;handleLeave()}}
-function handleLeave(){
-  tabLeaves++;
-  document.getElementById('tabWarn').classList.add('show');
-  if(tabLeaves>=2){
-    document.getElementById('warnCount').textContent='Auto-submitting...';
-    document.getElementById('returnBtn').style.display='none';
-    setTimeout(()=>{document.getElementById('tabWarn').classList.remove('show');doSubmit()},1500);
-  }else{
-    document.getElementById('warnCount').textContent='Warning '+tabLeaves+'/2';
-    document.getElementById('returnBtn').style.display='block';
-  }
-}
-function dismissWarn(){document.getElementById('tabWarn').classList.remove('show')}
 function onBeforeUnload(e){e.preventDefault();e.returnValue=''}
 
 function openSubmit(){
@@ -651,11 +622,8 @@ function closeSubmit(){document.getElementById('submitModal').classList.remove('
 
 async function doSubmit(){
   clearInterval(timerInt);
-  document.removeEventListener('visibilitychange',onVisChange);
-  window.removeEventListener('blur',onBlur);
   window.removeEventListener('beforeunload',onBeforeUnload);
   closeSubmit();
-  document.getElementById('tabWarn').classList.remove('show');
   document.getElementById('confirmSubmitBtn').disabled=true;
   document.getElementById('confirmSubmitBtn').textContent='Submitting...';
   const timeTaken=Math.floor((Date.now()-examStartTime)/1000);
@@ -670,7 +638,7 @@ async function doSubmit(){
 }
 
 function showPracticeResult(data){
-  const pct=data.percentage||0,correct=data.correct||0,wrong=data.wrong||0,skipped=data.skipped||0,detailed=data.detailed||{};
+  const pct=data.percentage||0,correct=data.correct||0,wrong=data.wrong||0,skipped=data.skipped||0;
   const timeTaken=data.time_taken_seconds||0;
   const totalQuestions=questions.length;
   const selectedSectionsList = data.selected_sections || [];
@@ -701,6 +669,17 @@ function showPracticeResult(data){
       '<span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: '+formatAvgTime(timeTaken,totalQuestions)+'</span>'+
     '</div>';
   }
+  
+  // Build review with correct answers from questions
+  const detailed = {};
+  questions.forEach(q => {
+    const given = answers[q.id] || '';
+    detailed[q.id] = {
+      given: given,
+      correct: q.correct_answer,
+      isCorrect: given === q.correct_answer
+    };
+  });
   
   let html='<div class="practice-result-page">'+
     '<div class="score-card">'+
