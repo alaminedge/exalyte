@@ -610,27 +610,48 @@ function printSolution(){
     measureEl.innerHTML=solBuildSlimHeader(1,1);
     var slimHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
 
-    // Group questions into pages: column 1 fills first, then column 2, then next page.
-    // No balancing — a safety margin plus break-inside:avoid on each question guarantees
-    // nothing is ever cut and no stray blank page is produced.
+    // ✅ FIX — balanced two-column pagination.
+    // Old approach: pack column 1 to the max, then dump whatever's left into
+    // column 2. That starves column 2 (often leaving it 1/2 short) and can
+    // even spill a couple of questions onto a near-empty trailing page.
+    //
+    // New approach, per page:
+    //   1. Look ahead and collect the full group of questions that can fit
+    //      on this page at all (bounded by 2 x availH — i.e. both columns
+    //      combined).
+    //   2. Split that fixed group roughly in half by cumulative height, so
+    //      column 1 and column 2 end up nearly equal — never overflowing
+    //      the column height, and never orphaning a tiny leftover group on
+    //      its own near-blank page.
+    // break-inside:avoid (CSS) + the per-question height check below still
+    // guarantee no question is ever cut mid-way.
     var pages=[],idx=0,pageNum=0;
     while(idx<qHtmls.length){
       pageNum++;
       var headerH=pageNum===1?fullHeaderH:slimHeaderH;
       var availH=(SOL_PAGE_H_PX-headerH-4)*0.95;
+      var maxTotal=availH*2;
 
-      var col1Idx=[],cum=0;
+      // Step 1: collect everything that fits on this page (both columns combined)
+      var groupIdx=[],cum=0;
       while(idx<qHtmls.length){
         var hh=heights[idx];
-        if(col1Idx.length>0 && (cum+hh)>availH)break;
-        cum+=hh;col1Idx.push(idx);idx++;
+        if(groupIdx.length>0 && (cum+hh)>maxTotal)break;
+        cum+=hh;groupIdx.push(idx);idx++;
       }
-      var col2Idx=[];cum=0;
-      while(idx<qHtmls.length){
-        var hh=heights[idx];
-        if(col2Idx.length>0 && (cum+hh)>availH)break;
-        cum+=hh;col2Idx.push(idx);idx++;
+      var groupTotal=cum;
+      var target=groupTotal/2;
+
+      // Step 2: split the fixed group so both columns land close to `target`
+      var col1Idx=[],col1Sum=0,gi=0;
+      while(gi<groupIdx.length){
+        var hh=heights[groupIdx[gi]];
+        if(col1Idx.length>0 && (col1Sum+hh)>availH)break; // never exceed column height
+        if(col1Sum>=target)break; // reached the halfway point — rest goes to col2
+        col1Sum+=hh;col1Idx.push(groupIdx[gi]);gi++;
       }
+      var col2Idx=groupIdx.slice(gi);
+
       var col1=col1Idx.map(function(i){return qHtmls[i]}).join('');
       var col2=col2Idx.map(function(i){return qHtmls[i]}).join('');
       pages.push({num:pageNum,col1:col1,col2:col2});
