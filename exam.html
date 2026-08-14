@@ -871,7 +871,7 @@ function renderReviewList() {
     return '<div class="rv-card ' + cls + '" id="rv' + q.id + '">' +
       '<div class="rv-header" onclick="toggleReview(\'' + q.id + '\')" role="button" tabindex="0">' +
       '<div class="rv-status"><svg viewBox="0 0 24 24">' + icons[st] + '</svg></div>' +
-      '<div class="rv-q">' + (q.question_text || '') + qImg + '</div>' +
+      '<div class="rv-q">' + (q.question_text || '') + qImg + '</div>' ++
       '<svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>' +
       '</div>' +
       '<div class="rv-body"><div class="rv-opts">' + opts + '</div>' + note + exp + '</div>' +
