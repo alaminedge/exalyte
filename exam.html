@@ -39,8 +39,8 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .icon-btn svg{width:20px;height:20px}
 .icon-btn.leave:hover{background:var(--red-bg);color:var(--red)}
 
-.agreement-overlay{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
-.agree-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);max-width:560px;width:100%;padding:36px 32px}
+.agreement-overlay{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;padding-bottom:calc(80px + var(--safe-bottom))}
+.agree-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);max-width:560px;width:100%;padding:36px 32px;margin-bottom:20px}
 .agree-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
 .agree-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-family:var(--gs);font-size:.72rem;font-weight:500;margin-bottom:14px}
 .badge-blue{background:#e8f0fe;color:var(--blue)}
@@ -89,7 +89,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .stat-chip.marked strong{color:var(--blue)}
 .prog-wrap{height:3px;background:var(--hov);flex-shrink:0}
 .prog-fill{height:100%;background:var(--blue);transition:width .3s}
-.questions-area{flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:14px}
+.questions-area{flex:1;overflow-y:auto;padding:20px 20px 40px;display:flex;flex-direction:column;gap:14px}
 .questions-area::-webkit-scrollbar{width:4px}
 .questions-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .q-card{background:var(--surf);border:2px solid var(--border);border-radius:var(--rl);padding:18px;transition:border-color var(--tr);scroll-margin-top:20px}
@@ -204,7 +204,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .rv-explanation strong{color:var(--t1);display:block;margin-bottom:3px;font-size:.68rem;text-transform:uppercase;letter-spacing:.3px}
 .rv-explanation-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:10px;border:1px solid var(--border);object-fit:contain}
 
-.footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
+.footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto;flex-shrink:0}
 .footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
 .fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
 .fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
@@ -216,7 +216,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
 .footer-links a:hover{text-decoration:underline;color:var(--blue)}
 
-@media(max-width:900px){.header{padding:0 16px}.questions-area{padding:14px 14px 90px}.q-card{padding:14px}.agree-card{padding:28px 20px}.practice-result-page{padding:24px 16px 80px}.score-card{padding:28px 20px}.score-ring-wrap{width:100px;height:100px}.score-ring-wrap svg{width:100px;height:100px}.ring-pct{font-size:1.4rem}.footer-inner{grid-template-columns:1fr 1fr;gap:28px}}
+@media(max-width:900px){.header{padding:0 16px}.questions-area{padding:14px 14px 40px}.q-card{padding:14px}.agree-card{padding:28px 20px}.practice-result-page{padding:24px 16px 80px}.score-card{padding:28px 20px}.score-ring-wrap{width:100px;height:100px}.score-ring-wrap svg{width:100px;height:100px}.ring-pct{font-size:1.4rem}.footer-inner{grid-template-columns:1fr 1fr;gap:28px}}
 @media(max-width:600px){.agree-title{font-size:1.2rem}.modal{padding:20px 16px}.submit-stats{grid-template-columns:1fr 1fr}.option{padding:8px 12px}.option-text{font-size:.78rem}.q-text{font-size:.82rem}.score-stats{grid-template-columns:1fr 1fr}.score-stats .sc-stat:last-child{grid-column:span 2}.result-actions .btn{flex:1;justify-content:center}.footer-inner{grid-template-columns:1fr;gap:20px}.footer-bottom{flex-direction:column;text-align:center}.floating-submit{bottom:calc(12px + var(--safe-bottom));right:12px;padding:10px 18px;font-size:.75rem;gap:4px;border-radius:20px}.floating-submit svg{width:14px;height:14px}}
 </style>
 </head>
@@ -286,6 +286,37 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
   </div>
   <div class="questions-area" id="questionsArea"></div>
 </div>
+
+<!-- ✅ FOOTER - Always visible -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="fc">
+      <div class="footer-brand">
+        <img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'">
+        <span style="font-family:'Google Sans',sans-serif;font-size:1rem;font-weight:500;color:#3c4043">Exalyte</span>
+      </div>
+      <p>A precision examination platform built for students who want to perform, not just prepare.</p>
+    </div>
+    <div class="fc">
+      <h4>Platform</h4>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="exam-history.html">Exam History</a>
+    </div>
+    <div class="fc">
+      <h4>Legal</h4>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="tos.html">Terms of Service</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2025 Exalyte — SciVerse Academy. All rights reserved.</span>
+    <div class="footer-links">
+      <a href="privacy.html">Privacy</a>
+      <a href="tos.html">Terms</a>
+    </div>
+  </div>
+</footer>
 
 <button class="floating-submit" id="floatingSubmit" onclick="openSubmit()">
   <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
@@ -406,15 +437,12 @@ function toggleSection(name,group){
   
   const index = selectedSections.indexOf(name);
   if(index >= 0) {
-    // ✅ ALWAYS allow deselection
     selectedSections.splice(index, 1);
     input.checked = false;
     label.classList.remove('selected');
     label.classList.remove('locked');
   } else {
-    // Prevent selection if locked
     if(label.classList.contains('locked')) return;
-    
     selectedSections.push(name);
     input.checked = true;
     label.classList.add('selected');
@@ -430,15 +458,12 @@ function updateSectionLocks(){
   const total=selComp.length+selNormal.length;
   const maxOpt=sectionConfig.max_optional||2;
   
-  // First, remove all locked states
   [...compulsory,...normal].forEach(s=>{
     const label=document.getElementById('secCheck_'+s);
     if(label)label.classList.remove('locked');
   });
   
-  // Then apply locks based on rules
   if(total >= maxOpt){
-    // Lock all unselected sections
     [...compulsory,...normal].forEach(s=>{
       if(!selectedSections.includes(s)){
         const label=document.getElementById('secCheck_'+s);
@@ -447,7 +472,6 @@ function updateSectionLocks(){
     });
   }
   
-  // If no compulsory selected, lock normal sections
   if(selComp.length === 0){
     normal.forEach(s=>{
       if(!selectedSections.includes(s)){
@@ -467,19 +491,8 @@ function validateSections(){
   const total=selComp.length+selNormal.length;
   const maxOpt=sectionConfig.max_optional||2;
   const minComp=sectionConfig.min_from_compulsory||1;
-  
-  if(total!==maxOpt){
-    alert('Please select exactly '+maxOpt+' optional sections. You have selected '+total+'.');
-    return false;
-  }
-  if(selComp.length<minComp){
-    alert('Please select at least '+minComp+' section(s) from the compulsory group.');
-    return false;
-  }
-  if(selComp.length===maxOpt && selNormal.length>0){
-    alert('Cannot select normal sections when all compulsory sections are selected.');
-    return false;
-  }
+  if(total!==maxOpt){alert('Select exactly '+maxOpt+' optional sections.');return false}
+  if(selComp.length<minComp){alert('Select at least '+minComp+' from compulsory group.');return false}
   return true;
 }
 
@@ -704,15 +717,7 @@ function showPracticeResult(data){
     '</div></div><div class="review-list" id="reviewList"></div>';
   }
   
-  html+='</div>'+
-  '<footer class="footer">'+
-    '<div class="footer-inner">'+
-      '<div class="fc"><div class="footer-brand"><img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display=\'none\'"><span style="font-family:\'Google Sans\',sans-serif;font-size:1rem;font-weight:500;color:#3c4043">Exalyte</span></div><p>A precision examination platform built for students who want to perform, not just prepare.</p></div>'+
-      '<div class="fc"><h4>Platform</h4><a href="dashboard.html">Dashboard</a><a href="exam-history.html">Exam History</a></div>'+
-      '<div class="fc"><h4>Legal</h4><a href="privacy.html">Privacy Policy</a><a href="tos.html">Terms of Service</a><a href="contact.html">Contact</a></div>'+
-    '</div>'+
-    '<div class="footer-bottom"><span>&copy; 2025 Exalyte — SciVerse Academy. All rights reserved.</span><div class="footer-links"><a href="privacy.html">Privacy</a><a href="tos.html">Terms</a></div></div>'+
-  '</footer>';
+  html+='</div>';
   
   const main=document.querySelector('.main')||document.createElement('div');
   if(!document.querySelector('.main')){
@@ -720,7 +725,7 @@ function showPracticeResult(data){
     main.style.flex='1';
     main.style.paddingTop='64px';
     main.innerHTML=html;
-    document.body.insertBefore(main,document.querySelector('.modal-overlay'));
+    document.body.insertBefore(main,document.querySelector('.footer'));
   }else{
     main.innerHTML=html;
     main.style.paddingTop='64px';
