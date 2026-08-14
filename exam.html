@@ -180,6 +180,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .rv-wrong .rv-status{background:var(--red-bg);color:var(--red)}
 .rv-skip .rv-status{background:var(--hov);color:var(--t3)}
 .rv-q{font-size:.84rem;color:var(--t2);flex:1;line-height:1.5;text-align:left}
+.rv-q-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:6px;border:1px solid var(--border);object-fit:contain;display:block}
 .rv-arrow{width:16px;height:16px;stroke:var(--t3);fill:none;stroke-width:2;flex-shrink:0;transition:transform .2s}
 .rv-card.open .rv-arrow{transform:rotate(180deg)}
 .rv-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
@@ -334,100 +335,161 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 </div>
 
 <script>
-const API='/api';
-function getToken(){return localStorage.getItem('exalyte_token')}
-function logout(){localStorage.clear();window.location.href='/'}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function isImageURL(s){if(!s)return false;const t=s.trim();return t.startsWith('http')&&(t.includes('.jpg')||t.includes('.jpeg')||t.includes('.png')||t.includes('.webp')||t.includes('.gif')||t.includes('ibb.co')||t.includes('images.unsplash.com')||t.includes('i.imgur.com'))}
-function renderOptionContent(text){if(isImageURL(text))return'<img src="'+esc(text)+'" class="option-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">';return esc(text||'')}
-function renderExplanationContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-explanation-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">';return esc(text)}
-function formatTimeTaken(seconds){if(!seconds||seconds<=0)return'';const min=Math.floor(seconds/60);const sec=Math.floor(seconds%60);if(min>0)return min+'m '+sec+'s';return sec+'s'}
-function formatAvgTime(seconds,total){if(!seconds||!total||seconds<=0||total<=0)return'';const avg=seconds/total;if(avg<60)return Math.round(avg)+'s/Q';return (avg/60).toFixed(1)+'m/Q'}
-async function apiFetch(path,opts={}){const t=getToken();const h={'Content-Type':'application/json',...(t?{Authorization:'Bearer '+t}:{})};const r=await fetch(API+path,{...opts,headers:h});return{ok:r.ok,data:await r.json().catch(()=>({}))}}
+const API = '/api';
 
-const params=new URLSearchParams(location.search);
-const examId=params.get('id');
-const isPrac=params.get('practice')==='1';
-if(!examId)window.location.href='dashboard.html';
-if(!getToken())window.location.href='/';
+function getToken() {
+  return localStorage.getItem('exalyte_token');
+}
 
-let questions=[],answers={},marked={},exam=null;
-let timeLeft=0,timerInt=null,examStartTime=0;
-let sectionConfig=null,selectedSections=[];
+function logout() {
+  localStorage.clear();
+  window.location.href = '/';
+}
 
-let lastY=0,ticking=false;
-const header=document.getElementById('header');
-window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(()=>{const y=window.scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;ticking=false});ticking=true}},{passive:true});
+function esc(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
-async function loadAgreement(){
-  try{
-    const{ok,data}=await apiFetch('/exams');
-    if(!ok){logout();return}
-    exam=(data.exams||[]).find(e=>e.id==examId);
-    if(!exam){window.location.href='dashboard.html';return}
-    
-    if(exam.has_sections&&exam.section_config){
-      try{sectionConfig=JSON.parse(exam.section_config);renderSectionSelection()}catch(e){sectionConfig=null}
+function isImageURL(s) {
+  if (!s) return false;
+  const t = s.trim();
+  return t.startsWith('http') && (t.includes('.jpg') || t.includes('.jpeg') || t.includes('.png') || t.includes('.webp') || t.includes('.gif') || t.includes('ibb.co') || t.includes('images.unsplash.com') || t.includes('i.imgur.com'));
+}
+
+function renderOptionContent(text) {
+  if (isImageURL(text)) return '<img src="' + esc(text) + '" class="option-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">';
+  return esc(text || '');
+}
+
+function renderExplanationContent(text) {
+  if (!text) return '';
+  if (isImageURL(text)) return '<img src="' + esc(text) + '" class="rv-explanation-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">';
+  return esc(text);
+}
+
+function formatTimeTaken(seconds) {
+  if (!seconds || seconds <= 0) return '';
+  const min = Math.floor(seconds / 60);
+  const sec = Math.floor(seconds % 60);
+  if (min > 0) return min + 'm ' + sec + 's';
+  return sec + 's';
+}
+
+function formatAvgTime(seconds, total) {
+  if (!seconds || !total || seconds <= 0 || total <= 0) return '';
+  const avg = seconds / total;
+  if (avg < 60) return Math.round(avg) + 's/Q';
+  return (avg / 60).toFixed(1) + 'm/Q';
+}
+
+async function apiFetch(path, opts = {}) {
+  const t = getToken();
+  const h = { 'Content-Type': 'application/json', ...(t ? { Authorization: 'Bearer ' + t } : {}) };
+  const r = await fetch(API + path, { ...opts, headers: h });
+  return { ok: r.ok, data: await r.json().catch(() => ({})) };
+}
+
+const params = new URLSearchParams(location.search);
+const examId = params.get('id');
+const isPrac = params.get('practice') === '1';
+if (!examId) window.location.href = 'dashboard.html';
+if (!getToken()) window.location.href = '/';
+
+let questions = [], answers = {}, marked = {}, exam = null;
+let timeLeft = 0, timerInt = null, examStartTime = 0;
+let sectionConfig = null, selectedSections = [];
+
+let lastY = 0, ticking = false;
+const header = document.getElementById('header');
+window.addEventListener('scroll', () => {
+  if (!ticking) {
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      header.classList.toggle('hidden', y > lastY && y > 80);
+      lastY = y;
+      ticking = false;
+    });
+    ticking = true;
+  }
+}, { passive: true });
+
+async function loadAgreement() {
+  try {
+    const { ok, data } = await apiFetch('/exams');
+    if (!ok) { logout(); return; }
+    exam = (data.exams || []).find(e => e.id == examId);
+    if (!exam) { window.location.href = 'dashboard.html'; return; }
+
+    if (exam.has_sections && exam.section_config) {
+      try { sectionConfig = JSON.parse(exam.section_config); renderSectionSelection(); } catch (e) { sectionConfig = null; }
     }
-    
-    document.getElementById('agreeTitle').textContent=exam.name+(isPrac?' — Practice':'');
-    const badge=document.getElementById('agreeTypeBadge');
-    if(isPrac){badge.textContent='Practice Mode';badge.className='agree-badge badge-blue'}
-    else if(exam.is_live){badge.textContent='Live Exam';badge.className='agree-badge badge-red'}
-    else{badge.textContent='Exam';badge.className='agree-badge badge-blue'}
-    
-    if(exam.description){document.getElementById('agreeDesc').style.display='block';document.getElementById('agreeDesc').textContent=exam.description}
-    
-    const mpq=exam.marks_per_question||1;
-    document.getElementById('agreeMeta').innerHTML=
-      '<span class="agree-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+exam.time_limit+'m</span>'+
-      '<span class="agree-meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>'+(exam.question_count||0)+' Q</span>'+
-      '<span class="agree-meta-item">'+mpq+' mark/Q</span>'+
-      (exam.negative_marking>0?'<span class="agree-meta-item" style="color:var(--red)">-'+exam.negative_marking+'</span>':'');
-    
-    if(exam.negative_marking>0){document.getElementById('negRule').style.display='flex';document.getElementById('negRuleText').textContent='Wrong: -'+exam.negative_marking}
-  }catch(e){window.location.href='dashboard.html'}
+
+    document.getElementById('agreeTitle').textContent = exam.name + (isPrac ? ' — Practice' : '');
+    const badge = document.getElementById('agreeTypeBadge');
+    if (isPrac) { badge.textContent = 'Practice Mode'; badge.className = 'agree-badge badge-blue'; }
+    else if (exam.is_live) { badge.textContent = 'Live Exam'; badge.className = 'agree-badge badge-red'; }
+    else { badge.textContent = 'Exam'; badge.className = 'agree-badge badge-blue'; }
+
+    if (exam.description) {
+      document.getElementById('agreeDesc').style.display = 'block';
+      document.getElementById('agreeDesc').textContent = exam.description;
+    }
+
+    const mpq = exam.marks_per_question || 1;
+    document.getElementById('agreeMeta').innerHTML =
+      '<span class="agree-meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + exam.time_limit + 'm</span>' +
+      '<span class="agree-meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>' + (exam.question_count || 0) + ' Q</span>' +
+      '<span class="agree-meta-item">' + mpq + ' mark/Q</span>' +
+      (exam.negative_marking > 0 ? '<span class="agree-meta-item" style="color:var(--red)">-' + exam.negative_marking + '</span>' : '');
+
+    if (exam.negative_marking > 0) {
+      document.getElementById('negRule').style.display = 'flex';
+      document.getElementById('negRuleText').textContent = 'Wrong: -' + exam.negative_marking;
+    }
+  } catch (e) {
+    window.location.href = 'dashboard.html';
+  }
 }
 
-function renderSectionSelection(){
-  const wrap=document.getElementById('sectionSelection');
-  const list=document.getElementById('sectionsCheckboxList');
-  const info=document.getElementById('sectionRulesInfo');
-  if(!sectionConfig)return;
-  wrap.style.display='block';
-  let html='';
-  
-  (sectionConfig.required||[]).forEach(s=>{
-    html+='<label class="section-checkbox selected locked"><input type="checkbox" checked disabled><span class="sec-name">'+esc(s.name)+'</span><span class="sec-count">'+s.count+' MCQ</span><span class="sec-badge sec-required">Required</span></label>';
+function renderSectionSelection() {
+  const wrap = document.getElementById('sectionSelection');
+  const list = document.getElementById('sectionsCheckboxList');
+  const info = document.getElementById('sectionRulesInfo');
+  if (!sectionConfig) return;
+  wrap.style.display = 'block';
+  let html = '';
+
+  (sectionConfig.required || []).forEach(s => {
+    html += '<label class="section-checkbox selected locked"><input type="checkbox" checked disabled><span class="sec-name">' + esc(s.name) + '</span><span class="sec-count">' + s.count + ' MCQ</span><span class="sec-badge sec-required">Required</span></label>';
   });
-  
-  (sectionConfig.compulsory_group||[]).forEach(s=>{
-    html+='<label class="section-checkbox" id="secCheck_'+esc(s.name)+'"><input type="checkbox" id="secInput_'+esc(s.name)+'" onchange="toggleSection(\''+esc(s.name)+'\',\'compulsory\')"><span class="sec-name">'+esc(s.name)+'</span><span class="sec-count">'+s.count+' MCQ</span><span class="sec-badge sec-compulsory">Compulsory</span></label>';
+
+  (sectionConfig.compulsory_group || []).forEach(s => {
+    html += '<label class="section-checkbox" id="secCheck_' + esc(s.name) + '"><input type="checkbox" id="secInput_' + esc(s.name) + '" onchange="toggleSection(\'' + esc(s.name) + '\',\'compulsory\')"><span class="sec-name">' + esc(s.name) + '</span><span class="sec-count">' + s.count + ' MCQ</span><span class="sec-badge sec-compulsory">Compulsory</span></label>';
   });
-  
-  (sectionConfig.normal_group||[]).forEach(s=>{
-    html+='<label class="section-checkbox" id="secCheck_'+esc(s.name)+'"><input type="checkbox" id="secInput_'+esc(s.name)+'" onchange="toggleSection(\''+esc(s.name)+'\',\'normal\')"><span class="sec-name">'+esc(s.name)+'</span><span class="sec-count">'+s.count+' MCQ</span><span class="sec-badge sec-normal">Normal</span></label>';
+
+  (sectionConfig.normal_group || []).forEach(s => {
+    html += '<label class="section-checkbox" id="secCheck_' + esc(s.name) + '"><input type="checkbox" id="secInput_' + esc(s.name) + '" onchange="toggleSection(\'' + esc(s.name) + '\',\'normal\')"><span class="sec-name">' + esc(s.name) + '</span><span class="sec-count">' + s.count + ' MCQ</span><span class="sec-badge sec-normal">Normal</span></label>';
   });
-  
-  list.innerHTML=html;
-  const maxOpt=sectionConfig.max_optional||2;
-  const minComp=sectionConfig.min_from_compulsory||1;
-  info.innerHTML='Select exactly <strong>'+maxOpt+'</strong> optional sections. At least <strong>'+minComp+'</strong> from compulsory group.';
-  selectedSections=(sectionConfig.required||[]).map(s=>s.name);
+
+  list.innerHTML = html;
+  const maxOpt = sectionConfig.max_optional || 2;
+  const minComp = sectionConfig.min_from_compulsory || 1;
+  info.innerHTML = 'Select exactly <strong>' + maxOpt + '</strong> optional sections. At least <strong>' + minComp + '</strong> from compulsory group.';
+  selectedSections = (sectionConfig.required || []).map(s => s.name);
 }
 
-function toggleSection(name,group){
-  const input=document.getElementById('secInput_'+name);
-  const label=document.getElementById('secCheck_'+name);
-  
+function toggleSection(name, group) {
+  const input = document.getElementById('secInput_' + name);
+  const label = document.getElementById('secCheck_' + name);
+
   const index = selectedSections.indexOf(name);
-  if(index >= 0) {
+  if (index >= 0) {
     selectedSections.splice(index, 1);
     input.checked = false;
     label.classList.remove('selected');
     label.classList.remove('locked');
   } else {
-    if(label.classList.contains('locked')) return;
+    if (label.classList.contains('locked')) return;
     selectedSections.push(name);
     input.checked = true;
     label.classList.add('selected');
@@ -435,242 +497,282 @@ function toggleSection(name,group){
   updateSectionLocks();
 }
 
-function updateSectionLocks(){
-  const compulsory=(sectionConfig.compulsory_group||[]).map(s=>s.name);
-  const normal=(sectionConfig.normal_group||[]).map(s=>s.name);
-  const selComp=compulsory.filter(s=>selectedSections.includes(s));
-  const selNormal=normal.filter(s=>selectedSections.includes(s));
-  const total=selComp.length+selNormal.length;
-  const maxOpt=sectionConfig.max_optional||2;
-  
-  [...compulsory,...normal].forEach(s=>{
-    const label=document.getElementById('secCheck_'+s);
-    if(label)label.classList.remove('locked');
+function updateSectionLocks() {
+  const compulsory = (sectionConfig.compulsory_group || []).map(s => s.name);
+  const normal = (sectionConfig.normal_group || []).map(s => s.name);
+  const selComp = compulsory.filter(s => selectedSections.includes(s));
+  const selNormal = normal.filter(s => selectedSections.includes(s));
+  const total = selComp.length + selNormal.length;
+  const maxOpt = sectionConfig.max_optional || 2;
+
+  [...compulsory, ...normal].forEach(s => {
+    const label = document.getElementById('secCheck_' + s);
+    if (label) label.classList.remove('locked');
   });
-  
-  if(total >= maxOpt){
-    [...compulsory,...normal].forEach(s=>{
-      if(!selectedSections.includes(s)){
-        const label=document.getElementById('secCheck_'+s);
-        if(label)label.classList.add('locked');
+
+  if (total >= maxOpt) {
+    [...compulsory, ...normal].forEach(s => {
+      if (!selectedSections.includes(s)) {
+        const label = document.getElementById('secCheck_' + s);
+        if (label) label.classList.add('locked');
       }
     });
   }
-  
-  if(selComp.length === 0){
-    normal.forEach(s=>{
-      if(!selectedSections.includes(s)){
-        const label=document.getElementById('secCheck_'+s);
-        if(label)label.classList.add('locked');
+
+  if (selComp.length === 0) {
+    normal.forEach(s => {
+      if (!selectedSections.includes(s)) {
+        const label = document.getElementById('secCheck_' + s);
+        if (label) label.classList.add('locked');
       }
     });
   }
 }
 
-function validateSections(){
-  if(!sectionConfig)return true;
-  const compulsory=(sectionConfig.compulsory_group||[]).map(s=>s.name);
-  const normal=(sectionConfig.normal_group||[]).map(s=>s.name);
-  const selComp=compulsory.filter(s=>selectedSections.includes(s));
-  const selNormal=normal.filter(s=>selectedSections.includes(s));
-  const total=selComp.length+selNormal.length;
-  const maxOpt=sectionConfig.max_optional||2;
-  const minComp=sectionConfig.min_from_compulsory||1;
-  if(total!==maxOpt){alert('Select exactly '+maxOpt+' optional sections.');return false}
-  if(selComp.length<minComp){alert('Select at least '+minComp+' from compulsory group.');return false}
+function validateSections() {
+  if (!sectionConfig) return true;
+  const compulsory = (sectionConfig.compulsory_group || []).map(s => s.name);
+  const normal = (sectionConfig.normal_group || []).map(s => s.name);
+  const selComp = compulsory.filter(s => selectedSections.includes(s));
+  const selNormal = normal.filter(s => selectedSections.includes(s));
+  const total = selComp.length + selNormal.length;
+  const maxOpt = sectionConfig.max_optional || 2;
+  const minComp = sectionConfig.min_from_compulsory || 1;
+  if (total !== maxOpt) { alert('Select exactly ' + maxOpt + ' optional sections.'); return false; }
+  if (selComp.length < minComp) { alert('Select at least ' + minComp + ' from compulsory group.'); return false; }
   return true;
 }
 
-function toggleAgree(){const cb=document.getElementById('agreeCheck');cb.checked=!cb.checked;document.getElementById('agreeBtn').disabled=!cb.checked}
-document.getElementById('agreeCheck').addEventListener('change',e=>{document.getElementById('agreeBtn').disabled=!e.target.checked});
+function toggleAgree() {
+  const cb = document.getElementById('agreeCheck');
+  cb.checked = !cb.checked;
+  document.getElementById('agreeBtn').disabled = !cb.checked;
+}
 
-async function startExam(){
-  if(!validateSections())return;
-  document.getElementById('agreeBtn').disabled=true;
-  document.getElementById('agreeBtn').textContent='Loading...';
-  
+document.getElementById('agreeCheck').addEventListener('change', e => {
+  document.getElementById('agreeBtn').disabled = !e.target.checked;
+});
+
+async function startExam() {
+  if (!validateSections()) return;
+  document.getElementById('agreeBtn').disabled = true;
+  document.getElementById('agreeBtn').textContent = 'Loading...';
+
   // Call start endpoint to track exam
-  const startRes = await apiFetch('/exams/'+examId+'/start', {
+  const startRes = await apiFetch('/exams/' + examId + '/start', {
     method: 'POST',
     body: JSON.stringify({
       is_practice: isPrac,
       selected_sections: sectionConfig ? selectedSections : []
     })
   });
-  
+
   if (!startRes.ok) {
     alert(startRes.data.error || 'Cannot start exam.');
     window.location.href = 'dashboard.html';
     return;
   }
-  
-  try{
+
+  try {
     let res;
-    if(sectionConfig){
-      res=await apiFetch('/exams/'+examId+'/questions',{method:'POST',body:JSON.stringify({sections:selectedSections})});
-    }else{
-      res=await apiFetch('/exams/'+examId+'/questions?practice='+(isPrac?'1':'0'));
+    if (sectionConfig) {
+      res = await apiFetch('/exams/' + examId + '/questions', { method: 'POST', body: JSON.stringify({ sections: selectedSections }) });
+    } else {
+      res = await apiFetch('/exams/' + examId + '/questions?practice=' + (isPrac ? '1' : '0'));
     }
-    if(!res.ok){alert(res.data.error||'Cannot load questions.');window.location.href='dashboard.html';return}
-    questions=res.data.questions||[];
-    if(!questions.length){alert('No questions yet.');window.location.href='dashboard.html';return}
-  }catch{alert('Network error.');window.location.href='dashboard.html';return}
-  
-  document.getElementById('agreementScreen').style.display='none';
-  document.getElementById('examUI').style.display='flex';
-  document.getElementById('timerBox').style.display='flex';
-  document.getElementById('floatingSubmit').style.display='flex';
-  examStartTime=Date.now();
-  timeLeft=exam.time_limit*60;
+    if (!res.ok) { alert(res.data.error || 'Cannot load questions.'); window.location.href = 'dashboard.html'; return; }
+    questions = res.data.questions || [];
+    if (!questions.length) { alert('No questions yet.'); window.location.href = 'dashboard.html'; return; }
+  } catch (e) {
+    alert('Network error.');
+    window.location.href = 'dashboard.html';
+    return;
+  }
+
+  document.getElementById('agreementScreen').style.display = 'none';
+  document.getElementById('examUI').style.display = 'flex';
+  document.getElementById('timerBox').style.display = 'flex';
+  document.getElementById('floatingSubmit').style.display = 'flex';
+  examStartTime = Date.now();
+  timeLeft = exam.time_limit * 60;
   buildUI();
   startTimer();
-  window.addEventListener('beforeunload',onBeforeUnload);
+  window.addEventListener('beforeunload', onBeforeUnload);
 }
 
-function buildUI(){
-  document.getElementById('questionsArea').innerHTML=questions.map((q,i)=>{
-    const secLabel=q.section?'<span class="q-section">'+esc(q.section)+'</span>':'';
-    return '<div class="q-card" id="qc'+q.id+'">'+
-      '<div class="q-top"><div class="q-num">'+(i+1)+'</div><div class="q-text">'+esc(q.question_text||'')+secLabel+'</div></div>'+
-      (q.image_url?'<img src="'+esc(q.image_url)+'" class="q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">':'')+
-      '<div class="options">'+['A','B','C','D'].map(l=>
-        '<div class="option" id="opt'+q.id+l+'" onclick="pick(event,'+q.id+',\''+l+'\')"><div class="option-letter">'+l+'</div><div class="option-text">'+renderOptionContent(q['option_'+l.toLowerCase()])+'</div></div>').join('')+
-      '</div>'+
-      '<div class="q-footer"><button class="btn-mark" id="mark'+q.id+'" onclick="toggleMark(event,'+q.id+')"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review</button></div>'+
-    '</div>';
+function buildUI() {
+  document.getElementById('questionsArea').innerHTML = questions.map((q, i) => {
+    const secLabel = q.section ? '<span class="q-section">' + esc(q.section) + '</span>' : '';
+    return '<div class="q-card" id="qc' + q.id + '">' +
+      '<div class="q-top"><div class="q-num">' + (i + 1) + '</div><div class="q-text">' + esc(q.question_text || '') + secLabel + '</div></div>' +
+      (q.image_url ? '<img src="' + esc(q.image_url) + '" class="q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">' : '') +
+      '<div class="options">' + ['A', 'B', 'C', 'D'].map(l =>
+        '<div class="option" id="opt' + q.id + l + '" onclick="pick(event,' + q.id + ',\'' + l + '\')"><div class="option-letter">' + l + '</div><div class="option-text">' + renderOptionContent(q['option_' + l.toLowerCase()]) + '</div></div>').join('') +
+      '</div>' +
+      '<div class="q-footer"><button class="btn-mark" id="mark' + q.id + '" onclick="toggleMark(event,' + q.id + ')"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review</button></div>' +
+      '</div>';
   }).join('');
   updateStats();
 }
 
-function pick(e,qId,letter){
+function pick(e, qId, letter) {
   e.stopPropagation();
-  if(answers[qId])return; // Locked after answer
-  answers[qId]=letter;
-  ['A','B','C','D'].forEach(l=>{const o=document.getElementById('opt'+qId+l);if(o){o.classList.remove('selected');o.classList.add('locked')}});
-  document.getElementById('opt'+qId+letter)?.classList.add('selected');
-  document.getElementById('qc'+qId)?.classList.add('answered');
+  if (answers[qId]) return;
+  answers[qId] = letter;
+  ['A', 'B', 'C', 'D'].forEach(l => {
+    const o = document.getElementById('opt' + qId + l);
+    if (o) { o.classList.remove('selected'); o.classList.add('locked'); }
+  });
+  document.getElementById('opt' + qId + letter)?.classList.add('selected');
+  document.getElementById('qc' + qId)?.classList.add('answered');
   updateStats();
 }
 
-function toggleMark(e,qId){
+function toggleMark(e, qId) {
   e.stopPropagation();
-  marked[qId]=!marked[qId];
-  const btn=document.getElementById('mark'+qId);
-  btn?.classList.toggle('active',marked[qId]);
-  btn.innerHTML=marked[qId]?'<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>Marked':'<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review';
+  marked[qId] = !marked[qId];
+  const btn = document.getElementById('mark' + qId);
+  btn?.classList.toggle('active', marked[qId]);
+  btn.innerHTML = marked[qId] ? '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>Marked' : '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review';
   updateStats();
 }
 
-function updateStats(){
-  const ans=Object.keys(answers).length,rem=questions.length-ans,mrk=Object.values(marked).filter(Boolean).length;
-  document.getElementById('cAnswered').textContent=ans;
-  document.getElementById('cRemaining').textContent=rem;
-  document.getElementById('cMarked').textContent=mrk;
-  document.getElementById('progFill').style.width=(questions.length?ans/questions.length*100:0)+'%';
+function updateStats() {
+  const ans = Object.keys(answers).length;
+  const rem = questions.length - ans;
+  const mrk = Object.values(marked).filter(Boolean).length;
+  document.getElementById('cAnswered').textContent = ans;
+  document.getElementById('cRemaining').textContent = rem;
+  document.getElementById('cMarked').textContent = mrk;
+  document.getElementById('progFill').style.width = (questions.length ? ans / questions.length * 100 : 0) + '%';
 }
 
-document.addEventListener('keydown',e=>{
-  if(['a','b','c','d'].includes(e.key.toLowerCase())){
-    const cards=[...document.querySelectorAll('.q-card')];
-    const idx=cards.findIndex(c=>c.classList.contains('active'));
-    if(idx>=0){
-      const id=cards[idx].id.replace('qc','');
-      pick({stopPropagation:()=>{}},id,e.key.toUpperCase());
+document.addEventListener('keydown', e => {
+  if (['a', 'b', 'c', 'd'].includes(e.key.toLowerCase())) {
+    const cards = [...document.querySelectorAll('.q-card')];
+    const idx = cards.findIndex(c => c.classList.contains('active'));
+    if (idx >= 0) {
+      const id = cards[idx].id.replace('qc', '');
+      pick({ stopPropagation: () => {} }, id, e.key.toUpperCase());
     }
   }
-  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
     e.preventDefault();
-    const cards=[...document.querySelectorAll('.q-card')];
-    const idx=cards.findIndex(c=>c.classList.contains('active'));
-    const next=idx+(e.key==='ArrowDown'?1:-1);
-    if(next>=0&&next<cards.length){
+    const cards = [...document.querySelectorAll('.q-card')];
+    const idx = cards.findIndex(c => c.classList.contains('active'));
+    const next = idx + (e.key === 'ArrowDown' ? 1 : -1);
+    if (next >= 0 && next < cards.length) {
       cards[idx].classList.remove('active');
       cards[next].classList.add('active');
-      cards[next].scrollIntoView({behavior:'smooth',block:'center'});
+      cards[next].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 });
 
-function startTimer(){
+function startTimer() {
   updateTimerDisplay();
-  timerInt=setInterval(()=>{
+  timerInt = setInterval(() => {
     timeLeft--;
     updateTimerDisplay();
-    if(timeLeft<=0){clearInterval(timerInt);doSubmit();return}
-  },1000);
+    if (timeLeft <= 0) { clearInterval(timerInt); doSubmit(); return; }
+  }, 1000);
 }
 
-function updateTimerDisplay(){
-  const m=Math.floor(Math.max(0,timeLeft)/60),s=Math.max(0,timeLeft)%60;
-  document.getElementById('timerVal').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-  const box=document.getElementById('timerBox');
-  box.className='timer-box';
-  if(timeLeft<60)box.classList.add('danger');
-  else if(timeLeft<300)box.classList.add('warning');
+function updateTimerDisplay() {
+  const m = Math.floor(Math.max(0, timeLeft) / 60);
+  const s = Math.max(0, timeLeft) % 60;
+  document.getElementById('timerVal').textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  const box = document.getElementById('timerBox');
+  box.className = 'timer-box';
+  if (timeLeft < 60) box.classList.add('danger');
+  else if (timeLeft < 300) box.classList.add('warning');
 }
 
-function onBeforeUnload(e){e.preventDefault();e.returnValue=''}
+function onBeforeUnload(e) {
+  e.preventDefault();
+  e.returnValue = '';
+}
 
-function openSubmit(){
-  const ans=Object.keys(answers).length,unans=questions.length-ans,mrk=Object.values(marked).filter(Boolean).length;
-  document.getElementById('sAns').textContent=ans;
-  document.getElementById('sUnans').textContent=unans;
-  document.getElementById('sMark').textContent=mrk;
+function openSubmit() {
+  const ans = Object.keys(answers).length;
+  const unans = questions.length - ans;
+  const mrk = Object.values(marked).filter(Boolean).length;
+  document.getElementById('sAns').textContent = ans;
+  document.getElementById('sUnans').textContent = unans;
+  document.getElementById('sMark').textContent = mrk;
   document.getElementById('submitModal').classList.add('open');
 }
-function closeSubmit(){document.getElementById('submitModal').classList.remove('open')}
 
-async function doSubmit(){
-  clearInterval(timerInt);
-  window.removeEventListener('beforeunload',onBeforeUnload);
-  closeSubmit();
-  document.getElementById('confirmSubmitBtn').disabled=true;
-  document.getElementById('confirmSubmitBtn').textContent='Submitting...';
-  const timeTaken=Math.floor((Date.now()-examStartTime)/1000);
-  const body={answers,is_practice:isPrac,time_taken_seconds:timeTaken};
-  if(sectionConfig)body.selected_sections=selectedSections;
-  try{
-    const{ok,data}=await apiFetch('/exams/'+examId+'/submit',{method:'POST',body:JSON.stringify(body)});
-    if(!ok){alert(data.error||'Submission failed');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now';return}
-    if(isPrac){showPracticeResult(data)}
-    else{window.location.href='result.html?examId='+examId+'&attemptId='+(data.attemptId||0)}
-  }catch{alert('Network error.');document.getElementById('confirmSubmitBtn').disabled=false;document.getElementById('confirmSubmitBtn').textContent='Submit Now'}
+function closeSubmit() {
+  document.getElementById('submitModal').classList.remove('open');
 }
 
-function showPracticeResult(data){
-  const pct=data.percentage||0,correct=data.correct||0,wrong=data.wrong||0,skipped=data.skipped||0;
-  const timeTaken=data.time_taken_seconds||0;
-  const totalQuestions=questions.length;
+async function doSubmit() {
+  clearInterval(timerInt);
+  window.removeEventListener('beforeunload', onBeforeUnload);
+  closeSubmit();
+  document.getElementById('confirmSubmitBtn').disabled = true;
+  document.getElementById('confirmSubmitBtn').textContent = 'Submitting...';
+  const timeTaken = Math.floor((Date.now() - examStartTime) / 1000);
+  const body = { answers, is_practice: isPrac, time_taken_seconds: timeTaken };
+  if (sectionConfig) body.selected_sections = selectedSections;
+  try {
+    const { ok, data } = await apiFetch('/exams/' + examId + '/submit', { method: 'POST', body: JSON.stringify(body) });
+    if (!ok) {
+      alert(data.error || 'Submission failed');
+      document.getElementById('confirmSubmitBtn').disabled = false;
+      document.getElementById('confirmSubmitBtn').textContent = 'Submit Now';
+      return;
+    }
+    if (isPrac) {
+      showPracticeResult(data);
+    } else {
+      window.location.href = 'result.html?examId=' + examId + '&attemptId=' + (data.attemptId || 0);
+    }
+  } catch (e) {
+    alert('Network error.');
+    document.getElementById('confirmSubmitBtn').disabled = false;
+    document.getElementById('confirmSubmitBtn').textContent = 'Submit Now';
+  }
+}
+
+function showPracticeResult(data) {
+  const pct = data.percentage || 0;
+  const correct = data.correct || 0;
+  const wrong = data.wrong || 0;
+  const skipped = data.skipped || 0;
+  const timeTaken = data.time_taken_seconds || 0;
+  const totalQuestions = questions.length;
   const selectedSectionsList = data.selected_sections || [];
-  
+
   let sectionInfoHTML = '';
-  if(selectedSectionsList.length > 0) {
+  if (selectedSectionsList.length > 0) {
     sectionInfoHTML = '<div class="time-info" style="margin-top:8px">' +
-      '<span><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Sections: ' + 
-      selectedSectionsList.map(s => esc(s)).join(', ') + 
+      '<span><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Sections: ' +
+      selectedSectionsList.map(s => esc(s)).join(', ') +
       '</span></div>';
   }
-  
-  let gc='#1e8e3e',gl='Excellent';
-  if(pct>=80){gc='#1e8e3e';gl='Excellent'}
-  else if(pct>=60){gc='#1a73e8';gl='Good'}
-  else if(pct>=40){gc='#f9ab00';gl='Needs Work'}
-  else{gc='#d93025';gl='Keep Trying'}
-  
-  document.getElementById('examUI').style.display='none';
-  document.getElementById('floatingSubmit').style.display='none';
-  document.getElementById('timerBox').style.display='none';
-  document.getElementById('agreementScreen').style.display='none';
-  
-  let timeHTML='';
-  if(timeTaken>0){
-    timeHTML='<div class="time-info">'+
-      '<span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: '+(timeTaken/60).toFixed(1)+' min / '+exam.time_limit+' min</span>'+
-      '<span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: '+formatAvgTime(timeTaken,totalQuestions)+'</span>'+
-    '</div>';
+
+  let gc = '#1e8e3e', gl = 'Excellent';
+  if (pct >= 80) { gc = '#1e8e3e'; gl = 'Excellent'; }
+  else if (pct >= 60) { gc = '#1a73e8'; gl = 'Good'; }
+  else if (pct >= 40) { gc = '#f9ab00'; gl = 'Needs Work'; }
+  else { gc = '#d93025'; gl = 'Keep Trying'; }
+
+  document.getElementById('examUI').style.display = 'none';
+  document.getElementById('floatingSubmit').style.display = 'none';
+  document.getElementById('timerBox').style.display = 'none';
+  document.getElementById('agreementScreen').style.display = 'none';
+
+  let timeHTML = '';
+  if (timeTaken > 0) {
+    timeHTML = '<div class="time-info">' +
+      '<span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: ' + (timeTaken / 60).toFixed(1) + ' min / ' + exam.time_limit + ' min</span>' +
+      '<span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: ' + formatAvgTime(timeTaken, totalQuestions) + '</span>' +
+      '</div>';
   }
-  
-  // Build review with correct answers from questions
+
+  // Build detailed answers from questions
   const detailed = {};
   questions.forEach(q => {
     const given = answers[q.id] || '';
@@ -680,95 +782,137 @@ function showPracticeResult(data){
       isCorrect: given === q.correct_answer
     };
   });
-  
-  let html='<div class="practice-result-page">'+
-    '<div class="score-card">'+
-    '<div class="score-ring-wrap"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-fill" cx="60" cy="60" r="54" stroke="'+gc+'" stroke-dasharray="339" stroke-dashoffset="'+(339-(pct/100)*339)+'"/></svg><div class="ring-inner"><div class="ring-pct">'+pct.toFixed(1)+'%</div><div class="ring-lbl">Score</div></div></div>'+
-    '<div class="score-grade" style="color:'+gc+'">'+gl+'</div>'+
+
+  let html = '<div class="practice-result-page">' +
+    '<div class="score-card">' +
+    '<div class="score-ring-wrap"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-fill" cx="60" cy="60" r="54" stroke="' + gc + '" stroke-dasharray="339" stroke-dashoffset="' + (339 - (pct / 100) * 339) + '"/></svg><div class="ring-inner"><div class="ring-pct">' + pct.toFixed(1) + '%</div><div class="ring-lbl">Score</div></div></div>' +
+    '<div class="score-grade" style="color:' + gc + '">' + gl + '</div>' +
     '<div class="score-exam">Practice Result</div>' +
     sectionInfoHTML +
-    '<div class="score-stats">'+
-    '<div class="sc-stat sc-correct"><div class="sc-stat-val">'+correct+'</div><div class="sc-stat-lbl">Correct</div></div>'+
-    '<div class="sc-stat sc-wrong"><div class="sc-stat-val">'+wrong+'</div><div class="sc-stat-lbl">Wrong</div></div>'+
-    '<div class="sc-stat sc-skip"><div class="sc-stat-val">'+skipped+'</div><div class="sc-stat-lbl">Skipped</div></div>'+
-    '</div>'+
-    timeHTML+
-    '<div class="perf-bar"><div class="perf-fill" style="width:'+Math.max(pct,2)+'%;background:'+gc+'"></div></div>'+
-    '<div class="result-actions">'+
-    '<a href="dashboard.html" class="btn-secondary" style="text-decoration:none">Dashboard</a>'+
-    '<a href="exam.html?id='+examId+'&practice=1" class="btn-primary" style="text-decoration:none">Practice Again</a>'+
+    '<div class="score-stats">' +
+    '<div class="sc-stat sc-correct"><div class="sc-stat-val">' + correct + '</div><div class="sc-stat-lbl">Correct</div></div>' +
+    '<div class="sc-stat sc-wrong"><div class="sc-stat-val">' + wrong + '</div><div class="sc-stat-lbl">Wrong</div></div>' +
+    '<div class="sc-stat sc-skip"><div class="sc-stat-val">' + skipped + '</div><div class="sc-stat-lbl">Skipped</div></div>' +
+    '</div>' +
+    timeHTML +
+    '<div class="perf-bar"><div class="perf-fill" style="width:' + Math.max(pct, 2) + '%;background:' + gc + '"></div></div>' +
+    '<div class="result-actions">' +
+    '<a href="dashboard.html" class="btn-secondary" style="text-decoration:none">Dashboard</a>' +
+    '<a href="exam.html?id=' + examId + '&practice=1" class="btn-primary" style="text-decoration:none">Practice Again</a>' +
     '</div></div>';
-  
-  if(questions.length>0){
-    html+='<div class="review-head"><h2>Review</h2><div class="chips">'+
-    '<button class="chip active" onclick="filterReview(\'all\',this)">All</button>'+
-    '<button class="chip" onclick="filterReview(\'correct\',this)">Correct</button>'+
-    '<button class="chip" onclick="filterReview(\'wrong\',this)">Wrong</button>'+
-    '<button class="chip" onclick="filterReview(\'skipped\',this)">Skipped</button>'+
-    '</div></div><div class="review-list" id="reviewList"></div>';
+
+  if (questions.length > 0) {
+    html += '<div class="review-head"><h2>Review</h2><div class="chips">' +
+      '<button class="chip active" onclick="filterReview(\'all\',this)">All</button>' +
+      '<button class="chip" onclick="filterReview(\'correct\',this)">Correct</button>' +
+      '<button class="chip" onclick="filterReview(\'wrong\',this)">Wrong</button>' +
+      '<button class="chip" onclick="filterReview(\'skipped\',this)">Skipped</button>' +
+      '</div></div><div class="review-list" id="reviewList"></div>';
   }
-  
-  html+='</div>';
-  
-  const mainContent=document.getElementById('mainContent');
-  mainContent.innerHTML=html;
-  mainContent.style.paddingTop='64px';
-  
-  window.scrollTo({top:0});
-  window._questions=questions;
-  window._detailed=detailed;
-  window._reviewFilter='all';
+
+  html += '</div>';
+
+  const mainContent = document.getElementById('mainContent');
+  mainContent.innerHTML = html;
+  mainContent.style.paddingTop = '64px';
+
+  window.scrollTo({ top: 0 });
+  window._questions = questions;
+  window._detailed = detailed;
+  window._reviewFilter = 'all';
   renderReviewList();
 }
 
-function renderReviewList(){
-  const list=document.getElementById('reviewList');
-  if(!list)return;
-  const qs=window._questions||[],det=window._detailed||{},filter=window._reviewFilter||'all';
-  const filtered=qs.filter(q=>{
-    const d=det[q.id]||{},given=String(d.given||'').trim().toUpperCase();
-    if(filter==='correct')return given&&d.isCorrect;
-    if(filter==='wrong')return given&&!d.isCorrect;
-    if(filter==='skipped')return!given;
+function renderReviewList() {
+  const list = document.getElementById('reviewList');
+  if (!list) return;
+  const qs = window._questions || [];
+  const det = window._detailed || {};
+  const filter = window._reviewFilter || 'all';
+
+  const filtered = qs.filter(q => {
+    const d = det[q.id] || {};
+    const given = String(d.given || '').trim().toUpperCase();
+    const isCorrect = d.isCorrect !== undefined ? d.isCorrect : (given === q.correct_answer);
+
+    if (filter === 'correct') return given && isCorrect;
+    if (filter === 'wrong') return given && !isCorrect;
+    if (filter === 'skipped') return !given;
     return true;
   });
-  if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:30px;color:var(--t3)">No questions in this filter.</div>';return}
-  
-  list.innerHTML=filtered.map(q=>{
-    const d=det[q.id]||{},given=String(d.given||'').trim().toUpperCase(),ca=String(d.correct||q.correct_answer||'').trim().toUpperCase();
-    const st=!given?'skip':d.isCorrect?'correct':'wrong';
-    const cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
-    const icons={correct:'<polyline points="20 6 9 17 4 12"/>',wrong:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',skipped:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'};
-    
-    const opts=['A','B','C','D'].map(l=>{
-      const isC=l===ca,isW=l===given&&l!==ca;let c='';
-      if(isC)c='rv-opt-correct';else if(isW)c='rv-opt-wrong';
-      return '<div class="rv-opt '+c+'"><div class="rv-ol">'+l+'</div><div style="flex:1">'+renderOptionContent(q['option_'+l.toLowerCase()])+'</div></div>';
+
+  if (!filtered.length) {
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--t3)">No questions in this filter.</div>';
+    return;
+  }
+
+  const icons = {
+    correct: '<polyline points="20 6 9 17 4 12"/>',
+    wrong: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    skipped: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
+  };
+
+  list.innerHTML = filtered.map(q => {
+    const d = det[q.id] || {};
+    const given = String(d.given || '').trim().toUpperCase();
+    const ca = String(d.correct || q.correct_answer || '').trim().toUpperCase();
+    const isCorrect = d.isCorrect !== undefined ? d.isCorrect : (given === ca);
+
+    const st = !given ? 'skip' : isCorrect ? 'correct' : 'wrong';
+    const cls = { correct: 'rv-correct', wrong: 'rv-wrong', skip: 'rv-skip' }[st];
+
+    const opts = ['A', 'B', 'C', 'D'].map(l => {
+      const isC = l === ca;
+      const isW = l === given && l !== ca;
+      let c = '';
+      if (isC) c = 'rv-opt-correct';
+      else if (isW) c = 'rv-opt-wrong';
+      return '<div class="rv-opt ' + c + '"><div class="rv-ol">' + l + '</div><div style="flex:1">' + renderOptionContent(q['option_' + l.toLowerCase()]) + '</div></div>';
     }).join('');
-    
-    let note='';
-    if(given&&!d.isCorrect)note='<div class="rv-ans-note">Your: '+given+' | Correct: '+ca+'</div>';
-    else if(!given)note='<div class="rv-ans-note">Skipped | Correct: '+ca+'</div>';
-    
-    let exp='';
-    if(q.explanation)exp='<div class="rv-explanation"><strong>Explanation</strong>'+renderExplanationContent(q.explanation)+'</div>';
-    
-    return '<div class="rv-card '+cls+'" onclick="this.classList.toggle(\'open\')">'+
-      '<div class="rv-header"><div class="rv-status"><svg viewBox="0 0 24 24">'+icons[st]+'</svg></div><div class="rv-q">'+esc(q.question_text||'')+'</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>'+
-      '<div class="rv-body"><div class="rv-opts">'+opts+'</div>'+note+exp+'</div>'+
-    '</div>';
+
+    let note = '';
+    if (given && !isCorrect) {
+      note = '<div class="rv-ans-note">Your answer: ' + given + ' — Correct: ' + ca + '</div>';
+    } else if (!given) {
+      note = '<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: ' + ca + '</div>';
+    }
+
+    let exp = '';
+    if (q.explanation && q.explanation.trim()) {
+      exp = '<div class="rv-explanation"><strong>Explanation</strong>' + renderExplanationContent(q.explanation) + '</div>';
+    }
+
+    const qImg = q.image_url ? '<img src="' + esc(q.image_url) + '" class="rv-q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">' : '';
+
+    return '<div class="rv-card ' + cls + '" id="rv' + q.id + '">' +
+      '<div class="rv-header" onclick="toggleReview(\'' + q.id + '\')" role="button" tabindex="0">' +
+      '<div class="rv-status"><svg viewBox="0 0 24 24">' + icons[st] + '</svg></div>' +
+      '<div class="rv-q">' + esc(q.question_text || '') + qImg + '</div>' +
+      '<svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>' +
+      '</div>' +
+      '<div class="rv-body"><div class="rv-opts">' + opts + '</div>' + note + exp + '</div>' +
+      '</div>';
   }).join('');
 }
 
-function filterReview(filter,btn){
-  window._reviewFilter=filter;
-  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-  if(btn)btn.classList.add('active');
+function toggleReview(id) {
+  document.getElementById('rv' + id)?.classList.toggle('open');
+}
+
+function filterReview(filter, btn) {
+  window._reviewFilter = filter;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  if (btn) btn.classList.add('active');
   renderReviewList();
 }
 
-document.getElementById('submitModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSubmit()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSubmit()});
+document.getElementById('submitModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeSubmit();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeSubmit();
+});
 
 loadAgreement();
 </script>
