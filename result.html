@@ -482,38 +482,44 @@ var SOL_PAGE_W_PX=SOL_PAGE_W_MM*SOL_PX_PER_MM, SOL_PAGE_H_PX=SOL_PAGE_H_MM*SOL_P
 var SOL_COL_GAP_MM=5, SOL_COL_GAP_PX=SOL_COL_GAP_MM*SOL_PX_PER_MM;
 var SOL_COL_W_PX=(SOL_PAGE_W_PX-SOL_COL_GAP_PX)/2;
 
-// Self-contained, very dense CSS for the popup print window (no interference from the main page's layout)
-var SOL_PRINT_CSS=
-'*{margin:0;padding:0;box-sizing:border-box}'+
-'@page{size:A4;margin:13mm 9mm}'+
-'html,body{background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif}'+
-'body{background-repeat:repeat-y;background-position:top center;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
-'.sol-page{position:relative;width:'+SOL_PAGE_W_MM+'mm;margin:0 auto}'+
-'.sol-header-full{text-align:center;border-bottom:1.2pt solid #000;padding-bottom:4pt;margin-bottom:6pt}'+
-'.sol-brand{display:flex;align-items:center;justify-content:center;gap:4pt;margin-bottom:2pt}'+
-'.sol-brand img{width:12pt;height:12pt;border-radius:50%}'+
-'.sol-brand span{font-weight:bold;font-size:8pt}'+
-'.sol-header-full h1{font-size:8pt;font-weight:bold;margin-bottom:2pt}'+
-'.sol-meta{font-size:6pt;color:#222;display:flex;justify-content:center;gap:6pt;flex-wrap:wrap}'+
-'.sol-meta b{font-weight:bold}'+
-'.sol-header-slim{display:flex;justify-content:space-between;align-items:baseline;border-bottom:.7pt solid #000;padding-bottom:2.5pt;margin-bottom:5pt;font-size:6pt;color:#333}'+
-'.sol-header-slim b{color:#000;font-size:6.6pt}'+
-'.sol-cols{display:flex;gap:'+SOL_COL_GAP_MM+'mm}'+
-'.sol-col{flex:1 1 0;min-width:0}'+
-'.sol-col:first-child{border-right:.4pt solid #ccc;padding-right:'+SOL_COL_GAP_MM+'mm}'+
-'.sol-q{break-inside:avoid;page-break-inside:avoid;-webkit-column-break-inside:avoid;margin:0 0 3.5pt;padding-bottom:2.5pt;border-bottom:.4pt dotted #ccc;font-size:6.3pt;line-height:1.22}'+
-'.sol-q:last-child{border-bottom:none;margin-bottom:0}'+
-'.sol-qtext{font-weight:bold;margin-bottom:1.2pt}'+
-'.sol-qtext b,.sol-qtext strong{font-weight:bold}'+
-'.sol-qimg{max-width:100%;max-height:40pt;object-fit:contain;display:block;margin:1.2pt 0}'+
-'.sol-opt{margin:.3pt 0;display:flex;gap:2.2pt}'+
-'.sol-ol{font-weight:bold;min-width:7pt;flex-shrink:0}'+
-'.sol-opt.sol-correct{font-weight:bold;color:#0b6b1e}'+
-'.sol-opt.sol-correct .sol-ol:after{content:" \\2713"}'+
-'.sol-optimg{max-width:100%;max-height:26pt;object-fit:contain}'+
-'.sol-exp{font-size:5.7pt;color:#333;font-style:italic;margin-top:1.2pt}'+
-'.sol-exp b{font-style:normal;font-weight:bold;color:#000}'+
-'#solMeasure{position:absolute;visibility:hidden;left:-9999px;top:0}';
+// Self-contained, very dense CSS for the popup print window (no interference from the main page's layout).
+// Built as a function of a font `scale` (1 = normal size) so pagination can shrink
+// text a notch when needed to avoid stranding a couple of leftover MCQs on an
+// almost-blank trailing page. Page geometry (size, margins, column width/gap)
+// never changes — only type size, line spacing, and image caps shrink together.
+function buildPrintCSS(scale){
+  function pt(v){return (v*scale).toFixed(2)+'pt'}
+  return '*{margin:0;padding:0;box-sizing:border-box}'+
+  '@page{size:A4;margin:13mm 9mm}'+
+  'html,body{background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif}'+
+  'body{background-repeat:repeat-y;background-position:top center;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+  '.sol-page{position:relative;width:'+SOL_PAGE_W_MM+'mm;margin:0 auto}'+
+  '.sol-header-full{text-align:center;border-bottom:1.2pt solid #000;padding-bottom:'+pt(4)+';margin-bottom:'+pt(6)+'}'+
+  '.sol-brand{display:flex;align-items:center;justify-content:center;gap:'+pt(4)+';margin-bottom:'+pt(2)+'}'+
+  '.sol-brand img{width:'+pt(12)+';height:'+pt(12)+';border-radius:50%}'+
+  '.sol-brand span{font-weight:bold;font-size:'+pt(8)+'}'+
+  '.sol-header-full h1{font-size:'+pt(8)+';font-weight:bold;margin-bottom:'+pt(2)+'}'+
+  '.sol-meta{font-size:'+pt(6)+';color:#222;display:flex;justify-content:center;gap:'+pt(6)+';flex-wrap:wrap}'+
+  '.sol-meta b{font-weight:bold}'+
+  '.sol-header-slim{display:flex;justify-content:space-between;align-items:baseline;border-bottom:.7pt solid #000;padding-bottom:'+pt(2.5)+';margin-bottom:'+pt(5)+';font-size:'+pt(6)+';color:#333}'+
+  '.sol-header-slim b{color:#000;font-size:'+pt(6.6)+'}'+
+  '.sol-cols{display:flex;gap:'+SOL_COL_GAP_MM+'mm}'+
+  '.sol-col{flex:1 1 0;min-width:0}'+
+  '.sol-col:first-child{border-right:.4pt solid #ccc;padding-right:'+SOL_COL_GAP_MM+'mm}'+
+  '.sol-q{break-inside:avoid;page-break-inside:avoid;-webkit-column-break-inside:avoid;margin:0 0 '+pt(3.5)+';padding-bottom:'+pt(2.5)+';border-bottom:.4pt dotted #ccc;font-size:'+pt(6.3)+';line-height:1.22}'+
+  '.sol-q:last-child{border-bottom:none;margin-bottom:0}'+
+  '.sol-qtext{font-weight:bold;margin-bottom:'+pt(1.2)+'}'+
+  '.sol-qtext b,.sol-qtext strong{font-weight:bold}'+
+  '.sol-qimg{max-width:100%;max-height:'+pt(40)+';object-fit:contain;display:block;margin:'+pt(1.2)+' 0}'+
+  '.sol-opt{margin:'+pt(0.3)+' 0;display:flex;gap:'+pt(2.2)+'}'+
+  '.sol-ol{font-weight:bold;min-width:'+pt(7)+';flex-shrink:0}'+
+  '.sol-opt.sol-correct{font-weight:bold;color:#0b6b1e}'+
+  '.sol-opt.sol-correct .sol-ol:after{content:" \\2713"}'+
+  '.sol-optimg{max-width:100%;max-height:'+pt(26)+';object-fit:contain}'+
+  '.sol-exp{font-size:'+pt(5.7)+';color:#333;font-style:italic;margin-top:'+pt(1.2)+'}'+
+  '.sol-exp b{font-style:normal;font-weight:bold;color:#000}'+
+  '#solMeasure{position:absolute;visibility:hidden;left:-9999px;top:0}';
+}
 
 function solBuildFullHeader(pageCount){
   var timeStr=exam.time_limit?exam.time_limit+' min':'—';
@@ -576,7 +582,7 @@ function printSolution(){
   w.document.write(
     '<!DOCTYPE html><html><head><meta charset="UTF-8">'+
     '<title>'+esc(exam.name)+' - Solution Sheet</title>'+
-    '<style>'+SOL_PRINT_CSS+'</style></head><body><div id="solMeasure"></div></body></html>'
+    '<style id="solStyle">'+buildPrintCSS(1)+'</style></head><body><div id="solMeasure"></div></body></html>'
   );
   w.document.close();
 
@@ -591,99 +597,114 @@ function printSolution(){
   w.document.body.style.backgroundSize=SOL_PAGE_W_MM+'mm '+SOL_PAGE_H_MM+'mm';
 
   var measureEl=w.document.getElementById('solMeasure');
+  var styleEl=w.document.getElementById('solStyle');
   var qHtmls=questions.map(solBuildQuestionHTML);
 
-  // Warm-up pass: load every image once so height measurements below are accurate
+  // Warm-up pass: load every image once so height measurements below are accurate.
+  // Images only need to load once — later re-measuring at a different font scale
+  // reuses the same cached <img> elements, so this stays fast.
   measureEl.style.width=SOL_COL_W_PX+'px';
   measureEl.innerHTML=qHtmls.join('');
   solWaitForImages(w.document,measureEl,3500).then(function(){
-    // Measure each question's real rendered height at column width
-    var heights=qHtmls.map(function(html){
-      measureEl.innerHTML=html;
-      return measureEl.firstElementChild.getBoundingClientRect().height;
-    });
 
-    // Measure header heights (full width)
-    measureEl.style.width=SOL_PAGE_W_MM+'mm';
-    measureEl.innerHTML=solBuildFullHeader();
-    var fullHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
-    measureEl.innerHTML=solBuildSlimHeader(1,1);
-    var slimHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
+    // Re-measures every question + both header styles at a given font scale.
+    function measureAtScale(scale){
+      styleEl.textContent=buildPrintCSS(scale);
+      measureEl.style.width=SOL_COL_W_PX+'px';
+      var heights=qHtmls.map(function(html){
+        measureEl.innerHTML=html;
+        return measureEl.firstElementChild.getBoundingClientRect().height;
+      });
+      measureEl.style.width=SOL_PAGE_W_MM+'mm';
+      measureEl.innerHTML=solBuildFullHeader();
+      var fullHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
+      measureEl.innerHTML=solBuildSlimHeader(1,1);
+      var slimHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
+      return {heights:heights,fullHeaderH:fullHeaderH,slimHeaderH:slimHeaderH};
+    }
 
-    // ✅ FIX — dense packing + tail-only rebalance.
-    //
-    // Previous version minimized the *maximum* column height across the
-    // whole document to keep every column equal — but that meant columns
-    // were often capped below their real physical capacity just to match
-    // the shortest one, leaving visible unused space (room for a couple
-    // more MCQs) even in the middle of the document.
-    //
-    // What we actually want:
-    //   1. Pack every column as tight as its physical capacity allows,
-    //      in document order (a plain forward greedy fill) — this is the
-    //      densest possible packing, so no column is left with wasted
-    //      space it could have used.
-    //   2. That alone can still leave the very LAST page lopsided (e.g.
-    //      one lone question in the final column next to a mostly-blank
-    //      one), since whatever's left over after dense-filling everything
-    //      else just spills into whatever's left. So, as a final step,
-    //      take only the last page's two columns, pool their questions
-    //      back together, and split that small pool evenly by height.
-    //      Every earlier page stays exactly as tightly packed as possible;
-    //      only the tail gets balanced.
-    var availH1=(SOL_PAGE_H_PX-fullHeaderH-4)*0.95;
-    var availHRest=(SOL_PAGE_H_PX-slimHeaderH-4)*0.95;
-    function capacityForCol(col){return col<2?availH1:availHRest}
+    // Dense forward-fill (pack every column to its physical capacity, in
+    // document order) + a final rebalance of ONLY the last page's two
+    // columns, so nothing is ever cut and no column is left needlessly
+    // under-filled except possibly the very last one.
+    function packAtScale(m){
+      var availH1=(SOL_PAGE_H_PX-m.fullHeaderH-4)*0.95;
+      var availHRest=(SOL_PAGE_H_PX-m.slimHeaderH-4)*0.95;
+      function capacityForCol(col){return col<2?availH1:availHRest}
+      var n=m.heights.length;
 
-    var n=heights.length;
-
-    // Step 1: dense forward-fill — pack each column to its physical capacity
-    function densePack(){
       var cols=[[]],col=0,cum=0;
       for(var qi=0;qi<n;qi++){
-        var hh=heights[qi];
+        var hh=m.heights[qi];
         var cap=capacityForCol(col);
-        if(cols[col].length>0 && (cum+hh)>cap){
-          col++;
-          cols.push([]);
-          cum=0;
+        if(cols[col].length>0 && (cum+hh)>cap){col++;cols.push([]);cum=0}
+        cols[col].push(qi);cum+=hh;
+      }
+      if(cols.length%2!==0)cols.push([]); // last page always gets 2 columns
+
+      var C=cols.length;
+      if(C>=2){
+        var tailIdx=cols[C-2].concat(cols[C-1]);
+        var tailTotal=0;
+        for(var t=0;t<tailIdx.length;t++)tailTotal+=m.heights[tailIdx[t]];
+        var target=tailTotal/2;
+        var cap1=capacityForCol(C-2);
+        var newCol1=[],cum1=0,ti=0;
+        while(ti<tailIdx.length){
+          var hh2=m.heights[tailIdx[ti]];
+          if(newCol1.length>0 && (cum1+hh2)>cap1)break;
+          if(cum1>=target)break;
+          cum1+=hh2;newCol1.push(tailIdx[ti]);ti++;
         }
-        cols[col].push(qi);
-        cum+=hh;
+        cols[C-2]=newCol1;
+        cols[C-1]=tailIdx.slice(ti);
       }
       return cols;
     }
-    var cols=densePack();
-    if(cols.length%2!==0)cols.push([]); // pad so the last page always has 2 columns
 
-    // Step 2: rebalance only the final page's two columns
-    var C=cols.length;
-    if(C>=2){
-      var tailIdx=cols[C-2].concat(cols[C-1]);
-      var tailTotal=0;
-      for(var t=0;t<tailIdx.length;t++)tailTotal+=heights[tailIdx[t]];
-      var target=tailTotal/2;
-      var cap1=capacityForCol(C-2),cap2=capacityForCol(C-1);
-
-      var newCol1=[],cum1=0,ti=0;
-      while(ti<tailIdx.length){
-        var hh=heights[tailIdx[ti]];
-        if(newCol1.length>0 && (cum1+hh)>cap1)break;
-        if(cum1>=target)break;
-        cum1+=hh;newCol1.push(tailIdx[ti]);ti++;
-      }
-      var newCol2=tailIdx.slice(ti);
-
-      cols[C-2]=newCol1;
-      cols[C-1]=newCol2;
+    // A "sparse" tail = the last page holds noticeably fewer questions than
+    // a typical earlier page — the exact scenario that produces a lone MCQ
+    // stranded next to a big blank area. If there's only one page total,
+    // there's nothing to compare against or borrow from, so it's accepted
+    // as-is (there's simply not enough content to fill more).
+    function tailIsSparse(cols){
+      var C=cols.length;
+      if(C<=2)return false;
+      var lastPageItems=cols[C-2].length+cols[C-1].length;
+      var priorCounts=[];
+      for(var pc=0;pc<C-2;pc+=2)priorCounts.push(cols[pc].length+(cols[pc+1]?cols[pc+1].length:0));
+      var avgPrior=priorCounts.reduce(function(a,b){return a+b},0)/priorCounts.length;
+      return lastPageItems<avgPrior*0.6;
     }
 
-    // Pair columns into pages
+    // ✅ FIX — shrink-until-balanced.
+    //
+    // Dense packing alone can still leave the very last page stranded when
+    // the total leftover after filling every earlier page tightly is just
+    // 1–2 questions (no repacking trick can conjure more content into an
+    // empty column). The real fix: nudge the font size down a notch and
+    // repack — smaller text means more content fits per page, which either
+    // shrinks that leftover or removes it, and the layout can absorb a
+    // slightly smaller point size far more gracefully than a page can
+    // absorb a lone stranded MCQ. We try progressively smaller sizes (down
+    // to 80%) and stop at the first one that isn't sparse; if none clear
+    // the bar, we keep the smallest (best effort — a small imbalance is
+    // fine, an ugly blank corner is not).
+    var SCALE_STEPS=[1,0.96,0.92,0.88,0.85,0.82,0.8];
+    var chosenM=null,chosenCols=null;
+    for(var s=0;s<SCALE_STEPS.length;s++){
+      var m=measureAtScale(SCALE_STEPS[s]);
+      var cols=packAtScale(m);
+      chosenM=m;chosenCols=cols;
+      if(!tailIsSparse(cols))break;
+    }
+
+    // Pair the chosen columns into pages
     var pages=[];
-    for(var c=0;c<cols.length;c+=2){
+    for(var c=0;c<chosenCols.length;c+=2){
       var pageNum=pages.length+1;
-      var col1=cols[c].map(function(i){return qHtmls[i]}).join('');
-      var col2=(cols[c+1]||[]).map(function(i){return qHtmls[i]}).join('');
+      var col1=chosenCols[c].map(function(i){return qHtmls[i]}).join('');
+      var col2=(chosenCols[c+1]||[]).map(function(i){return qHtmls[i]}).join('');
       pages.push({num:pageNum,col1:col1,col2:col2});
     }
 
@@ -697,6 +718,9 @@ function printSolution(){
         '</div>';
     }).join('');
 
+    // styleEl already holds the CSS for the chosen scale from the last
+    // measureAtScale() call above, so the final render matches exactly
+    // what was measured.
     w.document.body.innerHTML=finalHTML;
 
     setTimeout(function(){w.focus();w.print()},150);
