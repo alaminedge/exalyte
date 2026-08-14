@@ -443,7 +443,6 @@ function renderSectionSelection() {
 function toggleSection(name, group) {
   const input = document.getElementById('secInput_' + name);
   const label = document.getElementById('secCheck_' + name);
-
   const index = selectedSections.indexOf(name);
   if (index >= 0) {
     selectedSections.splice(index, 1);
@@ -733,16 +732,17 @@ function showPracticeResult(data) {
       '</div>';
   }
 
-  // ✅ BUILD DETAILED FROM QUESTIONS - Always correct matching
+  // Build detailed from questions directly
   const detailed = {};
-  questions.forEach(q => {
-    const qId = String(q.id);
-    const given = String(answers[qId] || answers[q.id] || '').trim().toUpperCase();
+  questions.forEach(function(q) {
+    const qIdStr = String(q.id);
+    const userAnswer = answers[qIdStr] || answers[q.id] || '';
+    const given = String(userAnswer).trim().toUpperCase();
     const correctAns = String(q.correct_answer || '').trim().toUpperCase();
-    detailed[qId] = {
+    detailed[qIdStr] = {
       given: given,
       correct: correctAns,
-      isCorrect: given === correctAns
+      isCorrect: given === correctAns && given !== ''
     };
   });
 
@@ -794,15 +794,15 @@ function renderReviewList() {
   const det = window._detailed || {};
   const filter = window._reviewFilter || 'all';
 
-  const filtered = qs.filter(q => {
-    const qId = String(q.id);
-    const d = det[qId] || {};
+  const filtered = qs.filter(function(q) {
+    const qIdStr = String(q.id);
+    const d = det[qIdStr] || {};
     const given = String(d.given || '').trim().toUpperCase();
-    const isCorrect = d.isCorrect !== undefined ? d.isCorrect : (given === String(q.correct_answer || '').trim().toUpperCase());
-
-    if (filter === 'correct') return given && isCorrect;
-    if (filter === 'wrong') return given && !isCorrect;
-    if (filter === 'skipped') return !given;
+    const isCorrect = d.isCorrect === true;
+    
+    if (filter === 'correct') return given !== '' && isCorrect;
+    if (filter === 'wrong') return given !== '' && !isCorrect;
+    if (filter === 'skipped') return given === '';
     return true;
   });
 
@@ -817,17 +817,18 @@ function renderReviewList() {
     skipped: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
   };
 
-  list.innerHTML = filtered.map(q => {
-    const qId = String(q.id);
-    const d = det[qId] || {};
+  list.innerHTML = filtered.map(function(q) {
+    const qIdStr = String(q.id);
+    const d = det[qIdStr] || {};
     const given = String(d.given || '').trim().toUpperCase();
     const correctAns = String(d.correct || q.correct_answer || '').trim().toUpperCase();
-    const isCorrect = d.isCorrect !== undefined ? d.isCorrect : (given === correctAns);
+    const isCorrect = d.isCorrect === true || (given === correctAns && given !== '');
 
-    const st = !given ? 'skip' : isCorrect ? 'correct' : 'wrong';
+    const st = given === '' ? 'skip' : isCorrect ? 'correct' : 'wrong';
     const cls = { correct: 'rv-correct', wrong: 'rv-wrong', skip: 'rv-skip' }[st];
 
-    const opts = ['A', 'B', 'C', 'D'].map(l => {
+    // Options with highlight
+    const opts = ['A', 'B', 'C', 'D'].map(function(l) {
       const isC = l === correctAns;
       const isW = l === given && l !== correctAns;
       let c = '';
@@ -836,15 +837,17 @@ function renderReviewList() {
       return '<div class="rv-opt ' + c + '"><div class="rv-ol">' + l + '</div><div style="flex:1">' + renderOptionContent(q['option_' + l.toLowerCase()]) + '</div></div>';
     }).join('');
 
+    // Answer note
     let note = '';
-    if (given && !isCorrect) {
+    if (given !== '' && !isCorrect) {
       note = '<div class="rv-ans-note">Your answer: ' + given + ' — Correct: ' + correctAns + '</div>';
-    } else if (!given) {
+    } else if (given === '') {
       note = '<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: ' + correctAns + '</div>';
-    } else if (given && isCorrect) {
+    } else if (given !== '' && isCorrect) {
       note = '<div class="rv-ans-note" style="color:var(--green)">Correct answer: ' + correctAns + '</div>';
     }
 
+    // Explanation
     let exp = '';
     if (q.explanation && q.explanation.trim()) {
       exp = '<div class="rv-explanation"><strong>Explanation</strong>' + renderExplanationContent(q.explanation) + '</div>';
@@ -869,16 +872,16 @@ function toggleReview(id) {
 
 function filterReview(filter, btn) {
   window._reviewFilter = filter;
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
   if (btn) btn.classList.add('active');
   renderReviewList();
 }
 
-document.getElementById('submitModal').addEventListener('click', e => {
+document.getElementById('submitModal').addEventListener('click', function(e) {
   if (e.target === e.currentTarget) closeSubmit();
 });
 
-document.addEventListener('keydown', e => {
+document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeSubmit();
 });
 
