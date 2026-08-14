@@ -1,6 +1,6 @@
 // Exalyte API — Complete Backend for Cloudflare Pages
 // functions/api/[[route]].js
-// FULL VERSION — Sectional Exams + Exam Start Tracking + Compact Storage
+// FULL VERSION — Sectional Exams + Exam Start Tracking + Full Detailed Practice Results
 
 // ============================================================
 // CRYPTO HELPERS
@@ -765,7 +765,7 @@ async function handleGetExamQuestions(examId, request, db) {
 }
 
 // ============================================================
-// SUBMIT EXAM — GRADES ONLY SELECTED SECTIONS
+// SUBMIT EXAM — GRADES ONLY SELECTED SECTIONS + FULL DETAILED ANSWERS
 // ============================================================
 
 async function handleSubmitExam(examId, request, db) {
@@ -797,7 +797,10 @@ async function handleSubmitExam(examId, request, db) {
 
   const marksPerQ = exam.marks_per_question || 1;
   const nm = exam.negative_marking || 0;
-  let score = 0, correctCount = 0, wrongCount = 0, skippedCount = 0;
+  let score = 0;
+  let correctCount = 0;
+  let wrongCount = 0;
+  let skippedCount = 0;
   const total = questions.results.length;
   
   // Build detailed answers with full info
@@ -829,7 +832,7 @@ async function handleSubmitExam(examId, request, db) {
   const percentage = maxScore > 0 ? Math.round((Math.max(0, score) / maxScore) * 10000) / 100 : 0;
   const timeTaken = time_taken_seconds || 0;
 
-  // Practice mode - return full detailed answers
+  // ✅ PRACTICE MODE - Return FULL DETAILED ANSWERS
   if (is_practice) {
     await db.prepare('UPDATE exam_starts SET submitted = 1 WHERE user_id = ? AND exam_id = ? AND is_practice = 1 AND submitted = 0').bind(user.id, examId).run();
     
