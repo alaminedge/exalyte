@@ -244,7 +244,7 @@ tr:last-child td{border-bottom:none}
       <div class="card"><div class="card-header"><span class="card-title">Upload Questions (JSON)</span></div><div class="card-body">
         <div class="form-group"><label class="form-label">Select Exam</label>
           <div class="searchable-select" id="questionExamSelectWrap">
-            <button class="searchable-select-trigger" onclick="toggleSearchableSelect('questionExamSelectWrap')"><span class="placeholder">Search exams...</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <button class="searchable-select-trigger" onclick="toggleSearchableSelect('questionExamSelectWrap')"><span class="ss-label placeholder">Search exams...</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
             <div class="searchable-select-dropdown"><div class="searchable-select-search"><input type="text" placeholder="Search..." oninput="filterSearchableOptions(this)"></div><div class="searchable-select-list" id="questionExamSelectList"></div></div>
           </div>
           <input type="hidden" id="questionExamSelect" value="">
@@ -265,14 +265,14 @@ tr:last-child td{border-bottom:none}
         <div class="resource-type-selector"><button class="resource-type-btn active" data-type="exam" onclick="setResourceType('exam')">Exam Resources</button><button class="resource-type-btn" data-type="batch" onclick="setResourceType('batch')">Batch Resources</button></div>
         <div id="resourceExamGroup"><div class="form-group"><label class="form-label">Select Exam</label>
           <div class="searchable-select" id="resourceExamSelectWrap">
-            <button class="searchable-select-trigger" onclick="toggleSearchableSelect('resourceExamSelectWrap')"><span class="placeholder">Search exams...</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <button class="searchable-select-trigger" onclick="toggleSearchableSelect('resourceExamSelectWrap')"><span class="ss-label placeholder">Search exams...</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
             <div class="searchable-select-dropdown"><div class="searchable-select-search"><input type="text" placeholder="Search..." oninput="filterSearchableOptions(this)"></div><div class="searchable-select-list" id="resourceExamSelectList"></div></div>
           </div>
           <input type="hidden" id="resourceExamSelect" value="">
         </div></div>
         <div id="resourceBatchGroup" style="display:none"><div class="form-group"><label class="form-label">Select Batch</label>
           <div class="searchable-select" id="resourceBatchSelectWrap">
-            <button class="searchable-select-trigger" onclick="toggleSearchableSelect('resourceBatchSelectWrap')"><span class="placeholder">Search batches...</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <button class="searchable-select-trigger" onclick="toggleSearchableSelect('resourceBatchSelectWrap')"><span class="ss-label placeholder">Search batches...</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
             <div class="searchable-select-dropdown"><div class="searchable-select-search"><input type="text" placeholder="Search..." oninput="filterSearchableOptions(this)"></div><div class="searchable-select-list" id="resourceBatchSelectList"></div></div>
           </div>
           <input type="hidden" id="resourceBatchSelect" value="">
@@ -297,7 +297,7 @@ tr:last-child td{border-bottom:none}
     <div class="section" id="sec-results">
       <div class="card"><div class="card-header"><span class="card-title">Results</span>
         <div class="searchable-select searchable-select-sm" id="resultFilterExamWrap" style="width:220px">
-          <button class="searchable-select-trigger" onclick="toggleSearchableSelect('resultFilterExamWrap')"><span class="placeholder">All Exams</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+          <button class="searchable-select-trigger" onclick="toggleSearchableSelect('resultFilterExamWrap')"><span class="ss-label placeholder">All Exams</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
           <div class="searchable-select-dropdown"><div class="searchable-select-search"><input type="text" placeholder="Search..." oninput="filterSearchableOptions(this)"></div><div class="searchable-select-list" id="resultFilterExamList"></div></div>
         </div>
         <input type="hidden" id="resultFilterExam" value="">
@@ -332,7 +332,7 @@ tr:last-child td{border-bottom:none}
       <div class="form-group"><label class="form-label">Schedule</label><input class="form-input" type="datetime-local" id="examScheduledAt"></div>
       <div class="form-group"><label class="form-label">Batch</label>
         <div class="searchable-select" id="examBatchSelectWrap">
-          <button class="searchable-select-trigger" onclick="toggleSearchableSelect('examBatchSelectWrap')"><span class="placeholder">Select batch</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+          <button class="searchable-select-trigger" onclick="toggleSearchableSelect('examBatchSelectWrap')"><span class="ss-label placeholder">Select batch</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
           <div class="searchable-select-dropdown"><div class="searchable-select-search"><input type="text" placeholder="Search..." oninput="filterSearchableOptions(this)"></div><div class="searchable-select-list" id="examBatchSelectList"></div></div>
         </div>
         <input type="hidden" id="examBatchSelect" value="">
@@ -414,9 +414,51 @@ function normalizeSearch(s){return(s||'').toLowerCase().trim().replace(/\s+/g,' 
 function fieldMatchScore(query,field){if(!field)return -1;const q=normalizeSearch(query),f=normalizeSearch(field);if(!q)return -1;if(f.startsWith(q))return 100;if(f.includes(q))return 90-Math.min(20,f.length-q.length);let best=Infinity;const qLen=q.length;for(let i=0;i<=Math.max(0,f.length-1);i++){const win=f.substr(i,qLen);if(!win)continue;const d=levenshtein(q,win);if(d<best)best=d}best=Math.min(best,levenshtein(q,f));const threshold=qLen<=3?1:Math.ceil(qLen*0.34);if(best<=threshold)return 60-best*8;return -1}
 function fuzzyUserSearch(query){const q=normalizeSearch(query);if(!q)return[];return allUsers.map(u=>{const ns=fieldMatchScore(q,u.name);const es=fieldMatchScore(q,u.email);return{...u,_score:Math.max(ns,es)}}).filter(u=>u._score>=0).sort((a,b)=>b._score-a._score).slice(0,15)}
 
+/* ============================================================
+   FIXED: searchable-select widget
+   Root cause of "select once, then stuck until refresh" AND
+   "new exam doesn't appear in list without refresh":
+   updateSearchableSelectUI() used to look up the trigger's
+   label span via `.querySelector('.placeholder')`, but the very
+   same function REMOVES the 'placeholder' class from that span
+   once something is selected. So the 2nd call onwards couldn't
+   find the span, `trig` was null, and `trig.textContent = ...`
+   threw — silently killing whatever function called it
+   (including loadExams(), which calls rebuildSearchableSelects()
+   BEFORE renderExams(), so the table never re-rendered either).
+   Fix: give the span a permanent lookup class `.ss-label`,
+   independent of the `.placeholder` style/state class.
+   Also: preserve the current selection across rebuilds (e.g.
+   after creating/editing an exam) instead of silently resetting
+   it to blank every time loadExams()/loadBatches() runs.
+   ============================================================ */
 const searchableSelects={};
-function registerSearchableSelect(wrapId,items,targetInputId,onChange,options={}){searchableSelects[wrapId]={items,selectedValue:options.defaultValue||'',targetInputId,onChange:onChange||(()=>{}),placeholder:options.placeholder||'Select...'}}
-function updateSearchableSelectUI(wrapId,q){const ss=searchableSelects[wrapId];if(!ss)return;const list=document.getElementById(wrapId).querySelector('.searchable-select-list');const trig=document.getElementById(wrapId).querySelector('.placeholder');let filtered=ss.items;if(q){filtered=ss.items.map(i=>({...i,_s:Math.max(fieldMatchScore(q,i.label),fieldMatchScore(q,i.desc||''))})).filter(i=>i._s>=0).sort((a,b)=>b._s-a._s)}if(ss.selectedValue){const sel=ss.items.find(i=>String(i.value)===String(ss.selectedValue));if(sel){trig.textContent=sel.label;trig.classList.remove('placeholder')}}else{trig.textContent=ss.placeholder;trig.classList.add('placeholder')}list.innerHTML=filtered.length?filtered.map(i=>`<div class="searchable-select-option${String(i.value)===String(ss.selectedValue)?' selected':''}" onclick="selectSearchableOption('${wrapId}','${i.value}')"><span>${esc(i.label)}</span>${i.desc?`<span class="opt-desc">${esc(i.desc)}</span>`:''}</div>`).join(''):'<div class="searchable-select-empty">No matches</div>'}
+function registerSearchableSelect(wrapId,items,targetInputId,onChange,options={}){
+  const prev=searchableSelects[wrapId];
+  const preserved=prev?prev.selectedValue:'';
+  const defaultValue=options.defaultValue!==undefined?options.defaultValue:preserved;
+  searchableSelects[wrapId]={items,selectedValue:defaultValue||'',targetInputId,onChange:onChange||(()=>{}),placeholder:options.placeholder||'Select...'}
+}
+function updateSearchableSelectUI(wrapId,q){
+  const ss=searchableSelects[wrapId];
+  if(!ss)return;
+  const wrapEl=document.getElementById(wrapId);
+  if(!wrapEl)return;
+  const list=wrapEl.querySelector('.searchable-select-list');
+  const trig=wrapEl.querySelector('.ss-label');
+  if(!list||!trig)return;
+  let filtered=ss.items;
+  if(q){filtered=ss.items.map(i=>({...i,_s:Math.max(fieldMatchScore(q,i.label),fieldMatchScore(q,i.desc||''))})).filter(i=>i._s>=0).sort((a,b)=>b._s-a._s)}
+  if(ss.selectedValue){
+    const sel=ss.items.find(i=>String(i.value)===String(ss.selectedValue));
+    if(sel){trig.textContent=sel.label;trig.classList.remove('placeholder')}
+    else{trig.textContent=ss.placeholder;trig.classList.add('placeholder')}
+  }else{
+    trig.textContent=ss.placeholder;
+    trig.classList.add('placeholder')
+  }
+  list.innerHTML=filtered.length?filtered.map(i=>`<div class="searchable-select-option${String(i.value)===String(ss.selectedValue)?' selected':''}" onclick="selectSearchableOption('${wrapId}','${i.value}')"><span>${esc(i.label)}</span>${i.desc?`<span class="opt-desc">${esc(i.desc)}</span>`:''}</div>`).join(''):'<div class="searchable-select-empty">No matches</div>'
+}
 function toggleSearchableSelect(id){const w=document.getElementById(id);const open=w.classList.contains('open');document.querySelectorAll('.searchable-select.open').forEach(e=>{if(e.id!==id)e.classList.remove('open')});if(open)w.classList.remove('open');else{w.classList.add('open');updateSearchableSelectUI(id);const inp=w.querySelector('.searchable-select-search input');if(inp){inp.value='';setTimeout(()=>inp.focus(),50)}}}
 function filterSearchableOptions(inp){const w=inp.closest('.searchable-select');if(w)updateSearchableSelectUI(w.id,inp.value)}
 function selectSearchableOption(id,val){const ss=searchableSelects[id];if(!ss)return;ss.selectedValue=val;const ti=document.getElementById(ss.targetInputId);if(ti){ti.value=val;ti.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById(id).classList.remove('open');updateSearchableSelectUI(id);if(ss.onChange)ss.onChange(val)}
