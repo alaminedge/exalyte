@@ -102,7 +102,6 @@ tr:last-child td{border-bottom:none}
 .resource-info svg{width:16px;height:16px;stroke:var(--blue);fill:none}
 .resource-title{font-weight:500;font-size:.8rem;color:var(--t1)}
 .resource-link{font-size:.65rem;color:var(--t4);word-break:break-all}
-.resource-link-img{max-width:40px;max-height:40px;border-radius:4px;border:1px solid var(--border);object-fit:contain}
 .resource-actions{display:flex;gap:6px;flex-shrink:0}
 .resource-empty{text-align:center;padding:30px;color:var(--t3);font-size:.8rem}
 .resource-type-selector{display:flex;gap:8px;margin-bottom:14px}
@@ -139,7 +138,6 @@ tr:last-child td{border-bottom:none}
 .notif-body{font-size:.78rem;color:var(--t2);line-height:1.5;margin-bottom:6px}
 .notif-img{max-width:100%;max-height:140px;border-radius:var(--r);margin-bottom:6px;border:1px solid var(--border);object-fit:contain}
 .notif-link{display:inline-flex;align-items:center;gap:3px;font-size:.7rem;color:var(--blue);font-weight:500;text-decoration:none}
-.notif-link svg{width:10px;height:10px}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.open{display:flex}
 .modal{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);width:100%;max-width:600px;max-height:85vh;overflow-y:auto;box-shadow:0 24px 50px rgba(0,0,0,.3)}
@@ -148,14 +146,9 @@ tr:last-child td{border-bottom:none}
 .modal-close{width:32px;height:32px;border:none;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);font-size:18px;transition:background var(--tr)}
 .modal-close:hover{background:var(--hov)}
 .modal-body{padding:20px}
-.modal-body p{font-size:.85rem;color:var(--t2);line-height:1.6;margin-bottom:8px}
-.modal-body .warning-text{color:var(--red);font-weight:500}
 .modal-footer{padding:14px 20px 20px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border)}
 .alert{padding:10px 14px;border-radius:var(--r);font-size:.8rem;margin-top:8px;display:none}
 .alert-success{display:block;background:var(--grn-bg);color:var(--green);border:1px solid rgba(30,142,62,.2)}
-.alert-error{display:block;background:var(--red-bg);color:var(--red);border:1px solid rgba(217,48,37,.2)}
-.skeleton{background:linear-gradient(90deg,var(--hov)25%,#e8eaed 50%,var(--hov)75%);background-size:200%100%;animation:shimmer 1.5s infinite;border-radius:var(--r)}
-@keyframes shimmer{0%{background-position:200%0}100%{background-position:-200%0}}
 .toast{position:fixed;bottom:24px;left:24px;z-index:9999;padding:14px 24px;border-radius:var(--r);background:#323232;color:#f5f5f5;font-size:.875rem;box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px rgba(0,0,0,.14),0 1px 18px rgba(0,0,0,.12);transform:translateY(80px);opacity:0;transition:all .25s cubic-bezier(0,0,.2,1);pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
 .section-builder{margin-top:16px;padding:16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r)}
@@ -399,9 +392,9 @@ tr:last-child td{border-bottom:none}
 </div></div>
 
 <div class="toast" id="toast"></div>
+
 <script>
 const API='/api';
-
 function getToken(){return localStorage.getItem('exalyte_token')}
 function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
 function logout(){localStorage.clear();window.location.href='/'}
@@ -416,611 +409,94 @@ let allExams=[],allBatches=[],allUsers=[],editingExamId=null,editingBatchId=null
 let currentResourceType='exam',currentResourceTargetId=null;
 let requiredSections=[],compulsorySections=[],normalSections=[];
 
-// ============================================================
-// FUZZY SEARCH (Levenshtein)
-// ============================================================
-function levenshtein(a,b){
-  const m=a.length,n=b.length;
-  if(m===0)return n;
-  if(n===0)return m;
-  const dp=new Array(n+1);
-  for(let j=0;j<=n;j++)dp[j]=j;
-  for(let i=1;i<=m;i++){
-    let prev=dp[0];
-    dp[0]=i;
-    for(let j=1;j<=n;j++){
-      const tmp=dp[j];
-      dp[j]=a[i-1]===b[j-1]?prev:1+Math.min(prev,dp[j],dp[j-1]);
-      prev=tmp;
-    }
-  }
-  return dp[n];
-}
+function levenshtein(a,b){const m=a.length,n=b.length;if(m===0)return n;if(n===0)return m;const dp=new Array(n+1);for(let j=0;j<=n;j++)dp[j]=j;for(let i=1;i<=m;i++){let prev=dp[0];dp[0]=i;for(let j=1;j<=n;j++){const tmp=dp[j];dp[j]=a[i-1]===b[j-1]?prev:1+Math.min(prev,dp[j],dp[j-1]);prev=tmp}}return dp[n]}
 function normalizeSearch(s){return(s||'').toLowerCase().trim().replace(/\s+/g,' ')}
-function fieldMatchScore(query,field){
-  if(!field)return -1;
-  const q=normalizeSearch(query),f=normalizeSearch(field);
-  if(!q)return -1;
-  if(f.startsWith(q))return 100;
-  if(f.includes(q))return 90-Math.min(20,f.length-q.length);
-  let best=Infinity;
-  const qLen=q.length;
-  for(let i=0;i<=Math.max(0,f.length-1);i++){
-    const win=f.substr(i,qLen);
-    if(!win)continue;
-    const d=levenshtein(q,win);
-    if(d<best)best=d;
-  }
-  best=Math.min(best,levenshtein(q,f));
-  const threshold=qLen<=3?1:Math.ceil(qLen*0.34);
-  if(best<=threshold)return 60-best*8;
-  return -1;
-}
-function fuzzyUserSearch(query){
-  const q=normalizeSearch(query);
-  if(!q)return[];
-  return allUsers.map(u=>{
-    const ns=fieldMatchScore(q,u.name);
-    const es=fieldMatchScore(q,u.email);
-    return{...u,_score:Math.max(ns,es)};
-  }).filter(u=>u._score>=0).sort((a,b)=>b._score-a._score).slice(0,15);
-}
+function fieldMatchScore(query,field){if(!field)return -1;const q=normalizeSearch(query),f=normalizeSearch(field);if(!q)return -1;if(f.startsWith(q))return 100;if(f.includes(q))return 90-Math.min(20,f.length-q.length);let best=Infinity;const qLen=q.length;for(let i=0;i<=Math.max(0,f.length-1);i++){const win=f.substr(i,qLen);if(!win)continue;const d=levenshtein(q,win);if(d<best)best=d}best=Math.min(best,levenshtein(q,f));const threshold=qLen<=3?1:Math.ceil(qLen*0.34);if(best<=threshold)return 60-best*8;return -1}
+function fuzzyUserSearch(query){const q=normalizeSearch(query);if(!q)return[];return allUsers.map(u=>{const ns=fieldMatchScore(q,u.name);const es=fieldMatchScore(q,u.email);return{...u,_score:Math.max(ns,es)}}).filter(u=>u._score>=0).sort((a,b)=>b._score-a._score).slice(0,15)}
 
-// ============================================================
-// SEARCHABLE DROPDOWN (FIXED — always allows re-selection)
-// ============================================================
 const searchableSelects={};
-function registerSearchableSelect(wrapId,items,targetInputId,onChange,options={}){
-  searchableSelects[wrapId]={items,selectedValue:options.defaultValue||'',targetInputId,onChange:onChange||(()=>{}),placeholder:options.placeholder||'Select...'};
-}
-function updateSearchableSelectUI(wrapId,q){
-  const ss=searchableSelects[wrapId];
-  if(!ss)return;
-  const list=document.getElementById(wrapId).querySelector('.searchable-select-list');
-  const trig=document.getElementById(wrapId).querySelector('.placeholder');
-  let filtered=ss.items;
-  if(q){
-    filtered=ss.items.map(i=>({...i,_s:Math.max(fieldMatchScore(q,i.label),fieldMatchScore(q,i.desc||''))})).filter(i=>i._s>=0).sort((a,b)=>b._s-a._s);
-  }
-  if(ss.selectedValue){
-    const sel=ss.items.find(i=>String(i.value)===String(ss.selectedValue));
-    if(sel){trig.textContent=sel.label;trig.classList.remove('placeholder')}
-  }else{trig.textContent=ss.placeholder;trig.classList.add('placeholder')}
-  list.innerHTML=filtered.length?filtered.map(i=>`<div class="searchable-select-option${String(i.value)===String(ss.selectedValue)?' selected':''}" onclick="selectSearchableOption('${wrapId}','${i.value}')"><span>${esc(i.label)}</span>${i.desc?`<span class="opt-desc">${esc(i.desc)}</span>`:''}</div>`).join(''):'<div class="searchable-select-empty">No matches</div>';
-}
-function toggleSearchableSelect(id){
-  const w=document.getElementById(id);
-  const open=w.classList.contains('open');
-  document.querySelectorAll('.searchable-select.open').forEach(e=>{if(e.id!==id)e.classList.remove('open')});
-  if(open)w.classList.remove('open');
-  else{w.classList.add('open');updateSearchableSelectUI(id);const inp=w.querySelector('.searchable-select-search input');if(inp){inp.value='';setTimeout(()=>inp.focus(),50)}}
-}
+function registerSearchableSelect(wrapId,items,targetInputId,onChange,options={}){searchableSelects[wrapId]={items,selectedValue:options.defaultValue||'',targetInputId,onChange:onChange||(()=>{}),placeholder:options.placeholder||'Select...'}}
+function updateSearchableSelectUI(wrapId,q){const ss=searchableSelects[wrapId];if(!ss)return;const list=document.getElementById(wrapId).querySelector('.searchable-select-list');const trig=document.getElementById(wrapId).querySelector('.placeholder');let filtered=ss.items;if(q){filtered=ss.items.map(i=>({...i,_s:Math.max(fieldMatchScore(q,i.label),fieldMatchScore(q,i.desc||''))})).filter(i=>i._s>=0).sort((a,b)=>b._s-a._s)}if(ss.selectedValue){const sel=ss.items.find(i=>String(i.value)===String(ss.selectedValue));if(sel){trig.textContent=sel.label;trig.classList.remove('placeholder')}}else{trig.textContent=ss.placeholder;trig.classList.add('placeholder')}list.innerHTML=filtered.length?filtered.map(i=>`<div class="searchable-select-option${String(i.value)===String(ss.selectedValue)?' selected':''}" onclick="selectSearchableOption('${wrapId}','${i.value}')"><span>${esc(i.label)}</span>${i.desc?`<span class="opt-desc">${esc(i.desc)}</span>`:''}</div>`).join(''):'<div class="searchable-select-empty">No matches</div>'}
+function toggleSearchableSelect(id){const w=document.getElementById(id);const open=w.classList.contains('open');document.querySelectorAll('.searchable-select.open').forEach(e=>{if(e.id!==id)e.classList.remove('open')});if(open)w.classList.remove('open');else{w.classList.add('open');updateSearchableSelectUI(id);const inp=w.querySelector('.searchable-select-search input');if(inp){inp.value='';setTimeout(()=>inp.focus(),50)}}}
 function filterSearchableOptions(inp){const w=inp.closest('.searchable-select');if(w)updateSearchableSelectUI(w.id,inp.value)}
-function selectSearchableOption(id,val){
-  const ss=searchableSelects[id];
-  if(!ss)return;
-  ss.selectedValue=val;
-  const ti=document.getElementById(ss.targetInputId);
-  if(ti){ti.value=val;ti.dispatchEvent(new Event('change',{bubbles:true}))}
-  document.getElementById(id).classList.remove('open');
-  updateSearchableSelectUI(id);
-  if(ss.onChange)ss.onChange(val);
-}
+function selectSearchableOption(id,val){const ss=searchableSelects[id];if(!ss)return;ss.selectedValue=val;const ti=document.getElementById(ss.targetInputId);if(ti){ti.value=val;ti.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById(id).classList.remove('open');updateSearchableSelectUI(id);if(ss.onChange)ss.onChange(val)}
 document.addEventListener('click',e=>{if(!e.target.closest('.searchable-select'))document.querySelectorAll('.searchable-select.open').forEach(el=>el.classList.remove('open'))});
 
-// ============================================================
-// SECTION BUILDER
-// ============================================================
 function toggleSectionBuilder(){document.getElementById('sectionBuilder').style.display=document.getElementById('examHasSections').checked?'block':'none'}
 function addRequiredSection(d){requiredSections.push({id:Date.now()+Math.random(),name:d?.name||'',count:d?.count||5});renderSections()}
 function addCompulsorySection(d){compulsorySections.push({id:Date.now()+Math.random(),name:d?.name||'',count:d?.count||5});renderSections()}
 function addNormalSection(d){normalSections.push({id:Date.now()+Math.random(),name:d?.name||'',count:d?.count||5});renderSections()}
 function removeSection(list,id){if(list==='req')requiredSections=requiredSections.filter(s=>s.id!==id);if(list==='comp')compulsorySections=compulsorySections.filter(s=>s.id!==id);if(list==='norm')normalSections=normalSections.filter(s=>s.id!==id);renderSections()}
 function updateSectionField(list,id,field,val){const arr=list==='req'?requiredSections:list==='comp'?compulsorySections:normalSections;const s=arr.find(x=>x.id===id);if(s){if(field==='name')s.name=val;if(field==='count')s.count=parseInt(val)||0}}
-function renderSections(){
-  const rs=document.getElementById('requiredSectionsList'),cs=document.getElementById('compulsorySectionsList'),ns=document.getElementById('normalSectionsList');
-  rs.innerHTML=requiredSections.length?requiredSections.map(s=>`<div class="section-row"><input type="text" placeholder="Section name" value="${esc(s.name)}" onchange="updateSectionField('req',${s.id},'name',this.value)"><input type="number" placeholder="MCQ" value="${s.count}" onchange="updateSectionField('req',${s.id},'count',this.value)"><button class="btn-remove" onclick="removeSection('req',${s.id})">✕</button></div>`).join(''):'<p style="color:var(--t4);font-size:.75rem;padding:8px">None</p>';
-  cs.innerHTML=compulsorySections.length?compulsorySections.map(s=>`<div class="section-row"><input type="text" placeholder="Section name" value="${esc(s.name)}" onchange="updateSectionField('comp',${s.id},'name',this.value)"><input type="number" placeholder="MCQ" value="${s.count}" onchange="updateSectionField('comp',${s.id},'count',this.value)"><button class="btn-remove" onclick="removeSection('comp',${s.id})">✕</button></div>`).join(''):'<p style="color:var(--t4);font-size:.75rem;padding:8px">None</p>';
-  ns.innerHTML=normalSections.length?normalSections.map(s=>`<div class="section-row"><input type="text" placeholder="Section name" value="${esc(s.name)}" onchange="updateSectionField('norm',${s.id},'name',this.value)"><input type="number" placeholder="MCQ" value="${s.count}" onchange="updateSectionField('norm',${s.id},'count',this.value)"><button class="btn-remove" onclick="removeSection('norm',${s.id})">✕</button></div>`).join(''):'<p style="color:var(--t4);font-size:.75rem;padding:8px">None</p>';
-}
+function renderSections(){const rs=document.getElementById('requiredSectionsList'),cs=document.getElementById('compulsorySectionsList'),ns=document.getElementById('normalSectionsList');rs.innerHTML=requiredSections.length?requiredSections.map(s=>`<div class="section-row"><input type="text" placeholder="Section name" value="${esc(s.name)}" onchange="updateSectionField('req',${s.id},'name',this.value)"><input type="number" placeholder="MCQ" value="${s.count}" onchange="updateSectionField('req',${s.id},'count',this.value)"><button class="btn-remove" onclick="removeSection('req',${s.id})">✕</button></div>`).join(''):'<p style="color:var(--t4);font-size:.75rem;padding:8px">None</p>';cs.innerHTML=compulsorySections.length?compulsorySections.map(s=>`<div class="section-row"><input type="text" placeholder="Section name" value="${esc(s.name)}" onchange="updateSectionField('comp',${s.id},'name',this.value)"><input type="number" placeholder="MCQ" value="${s.count}" onchange="updateSectionField('comp',${s.id},'count',this.value)"><button class="btn-remove" onclick="removeSection('comp',${s.id})">✕</button></div>`).join(''):'<p style="color:var(--t4);font-size:.75rem;padding:8px">None</p>';ns.innerHTML=normalSections.length?normalSections.map(s=>`<div class="section-row"><input type="text" placeholder="Section name" value="${esc(s.name)}" onchange="updateSectionField('norm',${s.id},'name',this.value)"><input type="number" placeholder="MCQ" value="${s.count}" onchange="updateSectionField('norm',${s.id},'count',this.value)"><button class="btn-remove" onclick="removeSection('norm',${s.id})">✕</button></div>`).join(''):'<p style="color:var(--t4);font-size:.75rem;padding:8px">None</p>'}
 
-// ============================================================
-// CLEAR JSON (FIX)
-// ============================================================
-function clearQuestionsJson(){
-  const t=document.getElementById('questionsJson');
-  if(t)t.value='';
-  const r=document.getElementById('questionUploadResult');
-  if(r)r.innerHTML='';
-}
+function clearQuestionsJson(){const t=document.getElementById('questionsJson');if(t)t.value='';const r=document.getElementById('questionUploadResult');if(r)r.innerHTML=''}
 document.getElementById('uploadSectionSelect').addEventListener('change',clearQuestionsJson);
 
-// ============================================================
-// UPLOAD SECTION SELECTOR (FIXED)
-// ============================================================
-function updateUploadSectionSelector(examId){
-  const wrap=document.getElementById('uploadSectionWrap');
-  const sel=document.getElementById('uploadSectionSelect');
-  if(!wrap||!sel)return;
-  const exam=allExams.find(e=>e.id==examId);
-  if(exam?.has_sections&&exam?.section_config){
-    try{
-      const c=JSON.parse(exam.section_config);
-      const all=[...(c.required||[]).map(s=>s.name),...(c.compulsory_group||[]).map(s=>s.name),...(c.normal_group||[]).map(s=>s.name)];
-      sel.innerHTML='<option value="">All Sections</option>'+all.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');
-      wrap.classList.add('show');
-    }catch(e){wrap.classList.remove('show')}
-  }else{wrap.classList.remove('show')}
-}
+function updateUploadSectionSelector(examId){const wrap=document.getElementById('uploadSectionWrap');const sel=document.getElementById('uploadSectionSelect');if(!wrap||!sel)return;const exam=allExams.find(e=>e.id==examId);if(exam?.has_sections&&exam?.section_config){try{const c=JSON.parse(exam.section_config);const all=[...(c.required||[]).map(s=>s.name),...(c.compulsory_group||[]).map(s=>s.name),...(c.normal_group||[]).map(s=>s.name)];sel.innerHTML='<option value="">All Sections</option>'+all.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');wrap.classList.add('show')}catch(e){wrap.classList.remove('show')}}else{wrap.classList.remove('show')}}
 
-// ============================================================
-// REBUILD SEARCHABLE SELECTS
-// ============================================================
-function rebuildSearchableSelects(){
-  registerSearchableSelect('questionExamSelectWrap',allExams.map(e=>({value:e.id,label:e.name,desc:e.batch_name||''})),'questionExamSelect',(val)=>{if(val){clearQuestionsJson();loadQuestionsForExam();updateUploadSectionSelector(val)}});
-  registerSearchableSelect('resourceExamSelectWrap',allExams.map(e=>({value:e.id,label:e.name,desc:e.batch_name||''})),'resourceExamSelect',(val)=>{if(val)loadResourcesForTarget()});
-  registerSearchableSelect('resourceBatchSelectWrap',allBatches.map(b=>({value:b.id,label:b.name,desc:(b.exam_count||0)+' exams'})),'resourceBatchSelect',(val)=>{if(val)loadResourcesForTarget()});
-  registerSearchableSelect('resultFilterExamWrap',[{value:'',label:'All Exams',desc:''},...allExams.map(e=>({value:e.id,label:e.name,desc:e.batch_name||''}))],'resultFilterExam',(val)=>{loadResults()});
-  registerSearchableSelect('examBatchSelectWrap',[{value:'',label:'No batch',desc:''},...allBatches.map(b=>({value:b.id,label:b.name,desc:(b.exam_count||0)+' exams'}))],'examBatchSelect',()=>{},{placeholder:'Select batch (optional)'});
-  // Update existing select UIs
-  Object.keys(searchableSelects).forEach(k=>updateSearchableSelectUI(k));
-}
+function rebuildSearchableSelects(){registerSearchableSelect('questionExamSelectWrap',allExams.map(e=>({value:e.id,label:e.name,desc:e.batch_name||''})),'questionExamSelect',(val)=>{if(val){clearQuestionsJson();loadQuestionsForExam();updateUploadSectionSelector(val)}});registerSearchableSelect('resourceExamSelectWrap',allExams.map(e=>({value:e.id,label:e.name,desc:e.batch_name||''})),'resourceExamSelect',(val)=>{if(val)loadResourcesForTarget()});registerSearchableSelect('resourceBatchSelectWrap',allBatches.map(b=>({value:b.id,label:b.name,desc:(b.exam_count||0)+' exams'})),'resourceBatchSelect',(val)=>{if(val)loadResourcesForTarget()});registerSearchableSelect('resultFilterExamWrap',[{value:'',label:'All Exams',desc:''},...allExams.map(e=>({value:e.id,label:e.name,desc:e.batch_name||''}))],'resultFilterExam',(val)=>{loadResults()});registerSearchableSelect('examBatchSelectWrap',[{value:'',label:'No batch',desc:''},...allBatches.map(b=>({value:b.id,label:b.name,desc:(b.exam_count||0)+' exams'}))],'examBatchSelect',()=>{},{placeholder:'Select batch (optional)'});Object.keys(searchableSelects).forEach(k=>updateSearchableSelectUI(k))}
 
-// ============================================================
-// DATA LOADING
-// ============================================================
-async function loadDashboard(){
-  const user=getUser();
-  if(!user?.is_admin){window.location.href='/';return}
-  const[exams,batches,users,results]=await Promise.all([apiFetch('/exams'),apiFetch('/batches'),apiFetch('/admin/users'),apiFetch('/admin/results')]);
-  const el=(exams.data||{}).exams||[],bl=batches.data||[],ul=users.data||[],rl=results.data||[];
-  document.getElementById('statExams').textContent=el.length;
-  document.getElementById('statBatches').textContent=bl.length;
-  document.getElementById('statUsers').textContent=ul.length;
-  document.getElementById('statSubmissions').textContent=rl.length;
-  document.getElementById('recentTable').innerHTML=`<table><thead><tr><th>Rank</th><th>User</th><th>Exam</th><th>Score</th><th>%</th><th>Date</th></tr></thead><tbody>${rl.slice(0,10).map(r=>`<tr><td>#${r.rank||'—'}</td><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:.65rem;color:var(--t4)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td>${(r.percentage||0).toFixed(1)}%</td><td>${formatDate(r.submitted_at)}</td></tr>`).join('')||'<tr><td colspan="6">No submissions</td></tr>'}</tbody></table>`;
-}
-async function loadExams(){
-  const{data}=await apiFetch('/exams');
-  allExams=(data.exams||[]);
-  rebuildSearchableSelects();
-  renderExams();
-}
-async function loadBatches(){
-  const{data}=await apiFetch('/batches');
-  allBatches=data||[];
-  rebuildSearchableSelects();
-  renderBatches();
-}
+async function loadDashboard(){const user=getUser();if(!user?.is_admin){window.location.href='/';return}const[exams,batches,users,results]=await Promise.all([apiFetch('/exams'),apiFetch('/batches'),apiFetch('/admin/users'),apiFetch('/admin/results')]);const el=(exams.data||{}).exams||[],bl=batches.data||[],ul=users.data||[],rl=results.data||[];document.getElementById('statExams').textContent=el.length;document.getElementById('statBatches').textContent=bl.length;document.getElementById('statUsers').textContent=ul.length;document.getElementById('statSubmissions').textContent=rl.length;document.getElementById('recentTable').innerHTML=`<table><thead><tr><th>Rank</th><th>User</th><th>Exam</th><th>Score</th><th>%</th><th>Date</th></tr></thead><tbody>${rl.slice(0,10).map(r=>`<tr><td>#${r.rank||'—'}</td><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:.65rem;color:var(--t4)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td>${(r.percentage||0).toFixed(1)}%</td><td>${formatDate(r.submitted_at)}</td></tr>`).join('')||'<tr><td colspan="6">No submissions</td></tr>'}</tbody></table>`}
+async function loadExams(){const{data}=await apiFetch('/exams');allExams=(data.exams||[]);rebuildSearchableSelects();renderExams()}
+async function loadBatches(){const{data}=await apiFetch('/batches');allBatches=data||[];rebuildSearchableSelects();renderBatches()}
 
-// ============================================================
-// RENDER EXAMS & BATCHES
-// ============================================================
-function renderExams(){
-  const q=normalizeSearch(document.getElementById('examSearchInput').value||'');
-  let filtered=allExams;
-  if(q){filtered=allExams.map(e=>({...e,_s:Math.max(fieldMatchScore(q,e.name),fieldMatchScore(q,e.description||''),fieldMatchScore(q,e.batch_name||''))})).filter(e=>e._s>=0).sort((a,b)=>b._s-a._s)}
-  document.getElementById('examsTable').innerHTML=`<table><thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Status</th><th>Marks/Q</th><th>Questions</th><th>Actions</th></tr></thead><tbody>${filtered.map(e=>{
-    let st='<span class="badge badge-open">Open</span>';
-    if(e.is_closed)st='<span class="badge badge-closed">Closed</span>';
-    else if(e.is_live)st='<span class="badge badge-live">Live</span>';
-    else if(e.scheduled_at&&new Date(e.scheduled_at)>new Date())st='<span class="badge badge-scheduled">Scheduled</span>';
-    return `<tr><td><strong>${esc(e.name)}</strong>${e.has_sections?' <span class="badge badge-sectional">Sectional</span>':''}${e.description?`<br><span style="font-size:.65rem;color:var(--t4)">${esc(e.description)}</span>`:''}</td><td>${esc(e.batch_name)||'—'}</td><td><span class="badge ${e.is_premium?'badge-premium':'badge-free'}">${e.is_premium?'Premium':'Free'}</span></td><td>${st}</td><td>${e.marks_per_question||1}</td><td>${e.question_count||0}</td><td><button class="btn btn-outline btn-sm" onclick="openExamModal(${e.id})">Edit</button><button class="btn btn-outline btn-sm" style="color:${e.is_closed?'var(--green)':'var(--red)'}" onclick="toggleExam(${e.id})">${e.is_closed?'Open':'Close'}</button><button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id})">Delete</button></td></tr>`;
-  }).join('')||'<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--t3)">No exams found</td></tr>'}</tbody></table>`;
-}
-function renderBatches(){
-  const q=normalizeSearch(document.getElementById('batchSearchInput').value||'');
-  let filtered=allBatches;
-  if(q){filtered=allBatches.map(b=>({...b,_s:Math.max(fieldMatchScore(q,b.name),fieldMatchScore(q,b.description||''))})).filter(b=>b._s>=0).sort((a,b)=>b._s-a._s)}
-  document.getElementById('batchesTable').innerHTML=`<table><thead><tr><th>Name</th><th>Description</th><th>Exams</th><th>Actions</th></tr></thead><tbody>${filtered.map(b=>`<tr><td><strong>${esc(b.name)}</strong></td><td>${esc(b.description)||'—'}</td><td><span class="badge badge-free">${b.exam_count||0} exams</span></td><td><button class="btn btn-outline btn-sm" onclick="openBatchModal(${b.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteBatch(${b.id})">Delete</button></td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--t3)">No batches found</td></tr>'}</tbody></table>`;
-}
+function renderExams(){const q=normalizeSearch(document.getElementById('examSearchInput').value||'');let filtered=allExams;if(q){filtered=allExams.map(e=>({...e,_s:Math.max(fieldMatchScore(q,e.name),fieldMatchScore(q,e.description||''),fieldMatchScore(q,e.batch_name||''))})).filter(e=>e._s>=0).sort((a,b)=>b._s-a._s)}document.getElementById('examsTable').innerHTML=`<table><thead><tr><th>Name</th><th>Batch</th><th>Type</th><th>Status</th><th>Marks/Q</th><th>Questions</th><th>Leaderboard</th><th>Actions</th></tr></thead><tbody>${filtered.map(e=>{let st='<span class="badge badge-open">Open</span>';if(e.is_closed)st='<span class="badge badge-closed">Closed</span>';else if(e.is_live)st='<span class="badge badge-live">Live</span>';else if(e.scheduled_at&&new Date(e.scheduled_at)>new Date())st='<span class="badge badge-scheduled">Scheduled</span>';return `<tr><td><strong>${esc(e.name)}</strong>${e.has_sections?' <span class="badge badge-sectional">Sectional</span>':''}${e.description?`<br><span style="font-size:.65rem;color:var(--t4)">${esc(e.description)}</span>`:''}</td><td>${esc(e.batch_name)||'—'}</td><td><span class="badge ${e.is_premium?'badge-premium':'badge-free'}">${e.is_premium?'Premium':'Free'}</span></td><td>${st}</td><td>${e.marks_per_question||1}</td><td>${e.question_count||0}</td><td>${e.leaderboard_enabled?'<span class="badge badge-open">On</span>':'<span class="badge badge-closed">Off</span>'}</td><td><button class="btn btn-outline btn-sm" onclick="openExamModal(${e.id})">Edit</button><button class="btn btn-outline btn-sm" style="color:${e.is_closed?'var(--green)':'var(--red)'}" onclick="toggleExam(${e.id})">${e.is_closed?'Open':'Close'}</button><button class="btn btn-danger btn-sm" onclick="deleteExam(${e.id})">Delete</button></td></tr>`}).join('')||'<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--t3)">No exams found</td></tr>'}</tbody></table>`}
+function renderBatches(){const q=normalizeSearch(document.getElementById('batchSearchInput').value||'');let filtered=allBatches;if(q){filtered=allBatches.map(b=>({...b,_s:Math.max(fieldMatchScore(q,b.name),fieldMatchScore(q,b.description||''))})).filter(b=>b._s>=0).sort((a,b)=>b._s-a._s)}document.getElementById('batchesTable').innerHTML=`<table><thead><tr><th>Name</th><th>Description</th><th>Exams</th><th>Actions</th></tr></thead><tbody>${filtered.map(b=>`<tr><td><strong>${esc(b.name)}</strong></td><td>${esc(b.description)||'—'}</td><td><span class="badge badge-free">${b.exam_count||0} exams</span></td><td><button class="btn btn-outline btn-sm" onclick="openBatchModal(${b.id})">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteBatch(${b.id})">Delete</button></td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--t3)">No batches found</td></tr>'}</tbody></table>`}
 function onExamSearchInput(){renderExams()}
 function onBatchSearchInput(){renderBatches()}
 
-// ============================================================
-// EXAM CRUD (FULL with sections, marks, batch, schedule)
-// ============================================================
-function openExamModal(id=null){
-  editingExamId=id;
-  const e=id?allExams.find(x=>x.id==id):null;
-  document.getElementById('examModalTitle').textContent=e?'Edit Exam':'New Exam';
-  document.getElementById('examName').value=e?.name||'';
-  document.getElementById('examDesc').value=e?.description||'';
-  document.getElementById('examTime').value=e?.time_limit||30;
-  document.getElementById('examNeg').value=e?.negative_marking||0;
-  document.getElementById('examMarksPerQ').value=e?.marks_per_question||1;
-  document.getElementById('examLive').value=e?.live_deadline_hours||0;
-  if(e?.scheduled_at){
-    const d=new Date(e.scheduled_at);
-    const local=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
-    document.getElementById('examScheduledAt').value=local;
-  }else{document.getElementById('examScheduledAt').value=''}
-  document.getElementById('examPremium').checked=e?.is_premium||false;
-  document.getElementById('examPractice').checked=e?.allow_practice!==false;
-  document.getElementById('examLeaderboard').checked=e?.leaderboard_enabled!==false;
-  document.getElementById('examHasSections').checked=e?.has_sections===1;
-  document.getElementById('examBatchSelect').value=e?.batch_id||'';
-  if(searchableSelects['examBatchSelectWrap']){
-    searchableSelects['examBatchSelectWrap'].selectedValue=e?.batch_id||'';
-    updateSearchableSelectUI('examBatchSelectWrap');
-  }
-  requiredSections=[];compulsorySections=[];normalSections=[];
-  if(e?.has_sections&&e?.section_config){
-    try{
-      const c=JSON.parse(e.section_config);
-      (c.required||[]).forEach(s=>requiredSections.push({id:Date.now()+Math.random(),name:s.name,count:s.count}));
-      (c.compulsory_group||[]).forEach(s=>compulsorySections.push({id:Date.now()+Math.random(),name:s.name,count:s.count}));
-      (c.normal_group||[]).forEach(s=>normalSections.push({id:Date.now()+Math.random(),name:s.name,count:s.count}));
-      document.getElementById('maxOptional').value=c.max_optional||2;
-      document.getElementById('minCompulsory').value=c.min_from_compulsory||1;
-    }catch(e){}
-  }
-  toggleSectionBuilder();
-  renderSections();
-  document.getElementById('examModal').classList.add('open');
-}
-async function saveExam(){
-  const hasSections=document.getElementById('examHasSections').checked;
-  let config='';
-  if(hasSections){
-    config=JSON.stringify({
-      required:requiredSections.filter(s=>s.name.trim()).map(s=>({name:s.name.trim(),count:s.count})),
-      compulsory_group:compulsorySections.filter(s=>s.name.trim()).map(s=>({name:s.name.trim(),count:s.count})),
-      normal_group:normalSections.filter(s=>s.name.trim()).map(s=>({name:s.name.trim(),count:s.count})),
-      max_optional:parseInt(document.getElementById('maxOptional').value)||2,
-      min_from_compulsory:parseInt(document.getElementById('minCompulsory').value)||1
-    });
-  }
-  const sv=document.getElementById('examScheduledAt').value;
-  const body={
-    name:document.getElementById('examName').value.trim(),
-    description:document.getElementById('examDesc').value,
-    time_limit:parseInt(document.getElementById('examTime').value)||30,
-    negative_marking:parseFloat(document.getElementById('examNeg').value)||0,
-    marks_per_question:parseFloat(document.getElementById('examMarksPerQ').value)||1,
-    is_premium:document.getElementById('examPremium').checked?1:0,
-    allow_practice:document.getElementById('examPractice').checked?1:0,
-    leaderboard_enabled:document.getElementById('examLeaderboard').checked?1:0,
-    batch_id:document.getElementById('examBatchSelect').value||null,
-    live_deadline_hours:parseInt(document.getElementById('examLive').value)||0,
-    scheduled_at:sv?new Date(sv).toISOString():null,
-    has_sections:hasSections?1:0,
-    section_config:config
-  };
-  const url=editingExamId?`/admin/exams/${editingExamId}`:'/admin/exams';
-  const method=editingExamId?'PUT':'POST';
-  const{ok,data}=await apiFetch(url,{method,body:JSON.stringify(body)});
-  if(ok){
-    closeModal('examModal');
-    toast('Exam saved');
-    // ✅ REAL-TIME: Refresh exams immediately
-    await loadExams();
-    await loadDashboard();
-  }
-  else alert(data.error||'Failed to save exam');
-}
-async function deleteExam(id){
-  if(confirm('Delete this exam?')){
-    await apiFetch(`/admin/exams/${id}`,{method:'DELETE'});
-    toast('Exam deleted');
-    // ✅ REAL-TIME: Refresh immediately
-    await loadExams();
-    await loadDashboard();
-  }
-}
-async function toggleExam(id){
-  const e=allExams.find(x=>x.id==id);
-  if(!e)return;
-  await apiFetch(`/admin/exams/${id}/toggle`,{method:'POST',body:JSON.stringify({is_closed:e.is_closed?0:1})});
-  toast('Exam '+(e.is_closed?'opened':'closed'));
-  // ✅ REAL-TIME: Refresh immediately
-  await loadExams();
-}
+function openExamModal(id=null){editingExamId=id;const e=id?allExams.find(x=>x.id==id):null;document.getElementById('examModalTitle').textContent=e?'Edit Exam':'New Exam';document.getElementById('examName').value=e?.name||'';document.getElementById('examDesc').value=e?.description||'';document.getElementById('examTime').value=e?.time_limit||30;document.getElementById('examNeg').value=e?.negative_marking||0;document.getElementById('examMarksPerQ').value=e?.marks_per_question||1;document.getElementById('examLive').value=e?.live_deadline_hours||0;if(e?.scheduled_at){const d=new Date(e.scheduled_at);const local=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);document.getElementById('examScheduledAt').value=local}else{document.getElementById('examScheduledAt').value=''}document.getElementById('examPremium').checked=e?.is_premium||false;document.getElementById('examPractice').checked=e?.allow_practice!==false;document.getElementById('examLeaderboard').checked=e?.leaderboard_enabled!==false;document.getElementById('examHasSections').checked=e?.has_sections===1;document.getElementById('examBatchSelect').value=e?.batch_id||'';if(searchableSelects['examBatchSelectWrap']){searchableSelects['examBatchSelectWrap'].selectedValue=e?.batch_id||'';updateSearchableSelectUI('examBatchSelectWrap')}requiredSections=[];compulsorySections=[];normalSections=[];if(e?.has_sections&&e?.section_config){try{const c=JSON.parse(e.section_config);(c.required||[]).forEach(s=>requiredSections.push({id:Date.now()+Math.random(),name:s.name,count:s.count}));(c.compulsory_group||[]).forEach(s=>compulsorySections.push({id:Date.now()+Math.random(),name:s.name,count:s.count}));(c.normal_group||[]).forEach(s=>normalSections.push({id:Date.now()+Math.random(),name:s.name,count:s.count}));document.getElementById('maxOptional').value=c.max_optional||2;document.getElementById('minCompulsory').value=c.min_from_compulsory||1}catch(e){}}toggleSectionBuilder();renderSections();document.getElementById('examModal').classList.add('open')}
+async function saveExam(){const hasSections=document.getElementById('examHasSections').checked;let config='';if(hasSections){config=JSON.stringify({required:requiredSections.filter(s=>s.name.trim()).map(s=>({name:s.name.trim(),count:s.count})),compulsory_group:compulsorySections.filter(s=>s.name.trim()).map(s=>({name:s.name.trim(),count:s.count})),normal_group:normalSections.filter(s=>s.name.trim()).map(s=>({name:s.name.trim(),count:s.count})),max_optional:parseInt(document.getElementById('maxOptional').value)||2,min_from_compulsory:parseInt(document.getElementById('minCompulsory').value)||1})}const sv=document.getElementById('examScheduledAt').value;const body={name:document.getElementById('examName').value.trim(),description:document.getElementById('examDesc').value,time_limit:parseInt(document.getElementById('examTime').value)||30,negative_marking:parseFloat(document.getElementById('examNeg').value)||0,marks_per_question:parseFloat(document.getElementById('examMarksPerQ').value)||1,is_premium:document.getElementById('examPremium').checked?1:0,allow_practice:document.getElementById('examPractice').checked?1:0,leaderboard_enabled:document.getElementById('examLeaderboard').checked?1:0,batch_id:document.getElementById('examBatchSelect').value||null,live_deadline_hours:parseInt(document.getElementById('examLive').value)||0,scheduled_at:sv?new Date(sv).toISOString():null,has_sections:hasSections?1:0,section_config:config};const url=editingExamId?`/admin/exams/${editingExamId}`:'/admin/exams';const method=editingExamId?'PUT':'POST';const{ok,data}=await apiFetch(url,{method,body:JSON.stringify(body)});if(ok){closeModal('examModal');toast('Exam saved');await loadExams();await loadDashboard()}else alert(data.error||'Failed to save exam')}
+async function deleteExam(id){if(confirm('Delete this exam?')){await apiFetch(`/admin/exams/${id}`,{method:'DELETE'});toast('Exam deleted');await loadExams();await loadDashboard()}}
+async function toggleExam(id){const e=allExams.find(x=>x.id==id);if(!e)return;await apiFetch(`/admin/exams/${id}/toggle`,{method:'POST',body:JSON.stringify({is_closed:e.is_closed?0:1})});toast('Exam '+(e.is_closed?'opened':'closed'));await loadExams()}
 
-// ============================================================
-// BATCH CRUD
-// ============================================================
-function openBatchModal(id=null){
-  editingBatchId=id;
-  const b=id?allBatches.find(x=>x.id==id):null;
-  document.getElementById('batchName').value=b?.name||'';
-  document.getElementById('batchDesc').value=b?.description||'';
-  document.getElementById('batchModal').classList.add('open');
-}
-async function saveBatch(){
-  const body={name:document.getElementById('batchName').value.trim(),description:document.getElementById('batchDesc').value};
-  const url=editingBatchId?`/admin/batches/${editingBatchId}`:'/admin/batches';
-  const method=editingBatchId?'PUT':'POST';
-  const{ok}=await apiFetch(url,{method,body:JSON.stringify(body)});
-  if(ok){
-    closeModal('batchModal');
-    toast('Batch saved');
-    // ✅ REAL-TIME: Refresh immediately
-    await loadBatches();
-    await loadExams();
-    await loadDashboard();
-  }
-}
-async function deleteBatch(id){
-  if(confirm('Delete this batch?')){
-    await apiFetch(`/admin/batches/${id}`,{method:'DELETE'});
-    toast('Batch deleted');
-    // ✅ REAL-TIME: Refresh immediately
-    await loadBatches();
-    await loadExams();
-    await loadDashboard();
-  }
-}
+function openBatchModal(id=null){editingBatchId=id;const b=id?allBatches.find(x=>x.id==id):null;document.getElementById('batchName').value=b?.name||'';document.getElementById('batchDesc').value=b?.description||'';document.getElementById('batchModal').classList.add('open')}
+async function saveBatch(){const body={name:document.getElementById('batchName').value.trim(),description:document.getElementById('batchDesc').value};const url=editingBatchId?`/admin/batches/${editingBatchId}`:'/admin/batches';const method=editingBatchId?'PUT':'POST';const{ok}=await apiFetch(url,{method,body:JSON.stringify(body)});if(ok){closeModal('batchModal');toast('Batch saved');await loadBatches();await loadExams();await loadDashboard()}}
+async function deleteBatch(id){if(confirm('Delete this batch?')){await apiFetch(`/admin/batches/${id}`,{method:'DELETE'});toast('Batch deleted');await loadBatches();await loadExams();await loadDashboard()}}
 
-// ============================================================
-// QUESTIONS (FIXED — JSON clears properly)
-// ============================================================
-async function loadQuestionsForExam(){
-  const id=document.getElementById('questionExamSelect').value;
-  if(!id){document.getElementById('questionsList').innerHTML='<p style="color:var(--t3);padding:16px">Select an exam</p>';return}
-  const{data}=await apiFetch(`/admin/questions/${id}`);
-  const qs=data||[];
-  document.getElementById('questionsList').innerHTML=qs.length?qs.map((q,i)=>`<div style="padding:10px;border-bottom:1px solid var(--border)"><strong>${i+1}.</strong> ${q.section?`<span style="background:#e8f0fe;color:var(--blue);font-size:.65rem;padding:2px 8px;border-radius:20px;margin-right:6px">${esc(q.section)}</span>`:''}${esc(q.question_text||'')} <span style="color:var(--green)">(${q.correct_answer})</span></div>`).join(''):'<p style="color:var(--t3);padding:20px;text-align:center">No questions yet</p>';
-}
-async function uploadQuestions(){
-  const examId=document.getElementById('questionExamSelect').value;
-  const json=document.getElementById('questionsJson').value;
-  const section=document.getElementById('uploadSectionSelect').value;
-  if(!examId||!json){alert('Select exam and paste JSON');return}
-  try{
-    const questions=JSON.parse(json);
-    if(document.getElementById('replaceQuestions').checked)await apiFetch(`/admin/questions/${examId}`,{method:'DELETE'});
-    const{data}=await apiFetch('/admin/questions/bulk',{method:'POST',body:JSON.stringify({exam_id:parseInt(examId),questions,section})});
-    document.getElementById('questionUploadResult').innerHTML=`<div class="alert alert-success">${data.inserted} questions uploaded</div>`;
-    setTimeout(()=>document.getElementById('questionUploadResult').innerHTML='',3000);
-    clearQuestionsJson();
-    // ✅ REAL-TIME: Refresh questions and exam count
-    await loadQuestionsForExam();
-    await loadExams();
-    await loadDashboard();
-  }catch(e){alert('Invalid JSON format')}
-}
-async function deleteAllQuestions(){
-  const id=document.getElementById('questionExamSelect').value;
-  if(id&&confirm('Delete ALL questions?')){
-    await apiFetch(`/admin/questions/${id}`,{method:'DELETE'});
-    // ✅ REAL-TIME: Refresh immediately
-    await loadQuestionsForExam();
-    await loadExams();
-    await loadDashboard();
-  }
-}
+async function loadQuestionsForExam(){const id=document.getElementById('questionExamSelect').value;if(!id){document.getElementById('questionsList').innerHTML='<p style="color:var(--t3);padding:16px">Select an exam</p>';return}const{data}=await apiFetch(`/admin/questions/${id}`);const qs=data||[];document.getElementById('questionsList').innerHTML=qs.length?qs.map((q,i)=>`<div style="padding:10px;border-bottom:1px solid var(--border)"><strong>${i+1}.</strong> ${q.section?`<span style="background:#e8f0fe;color:var(--blue);font-size:.65rem;padding:2px 8px;border-radius:20px;margin-right:6px">${esc(q.section)}</span>`:''}${esc(q.question_text||'')} <span style="color:var(--green)">(${q.correct_answer})</span></div>`).join(''):'<p style="color:var(--t3);padding:20px;text-align:center">No questions yet</p>'}
+async function uploadQuestions(){const examId=document.getElementById('questionExamSelect').value;const json=document.getElementById('questionsJson').value;const section=document.getElementById('uploadSectionSelect').value;if(!examId||!json){alert('Select exam and paste JSON');return}try{const questions=JSON.parse(json);if(document.getElementById('replaceQuestions').checked)await apiFetch(`/admin/questions/${examId}`,{method:'DELETE'});const{data}=await apiFetch('/admin/questions/bulk',{method:'POST',body:JSON.stringify({exam_id:parseInt(examId),questions,section})});document.getElementById('questionUploadResult').innerHTML=`<div class="alert alert-success">${data.inserted} questions uploaded</div>`;setTimeout(()=>document.getElementById('questionUploadResult').innerHTML='',3000);clearQuestionsJson();await loadQuestionsForExam();await loadExams();await loadDashboard()}catch(e){alert('Invalid JSON format')}}
+async function deleteAllQuestions(){const id=document.getElementById('questionExamSelect').value;if(id&&confirm('Delete ALL questions?')){await apiFetch(`/admin/questions/${id}`,{method:'DELETE'});await loadQuestionsForExam();await loadExams();await loadDashboard()}}
 
-// ============================================================
-// RESOURCES
-// ============================================================
-function setResourceType(t){
-  currentResourceType=t;
-  document.querySelectorAll('.resource-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type===t));
-  document.getElementById('resourceExamGroup').style.display=t==='exam'?'block':'none';
-  document.getElementById('resourceBatchGroup').style.display=t==='batch'?'block':'none';
-  loadResourcesForTarget();
-}
-async function loadResourcesForTarget(){
-  const id=currentResourceType==='exam'?document.getElementById('resourceExamSelect').value:document.getElementById('resourceBatchSelect').value;
-  if(!id){document.getElementById('resourcesList').innerHTML='<div class="resource-empty">Select an exam or batch</div>';return}
-  currentResourceTargetId=parseInt(id);
-  const ep=currentResourceType==='exam'?`/admin/exams/${id}/resources`:`/admin/batches/${id}/resources`;
-  const{data}=await apiFetch(ep);
-  const rs=data||[];
-  document.getElementById('resourcesList').innerHTML=rs.length?`<div class="resource-list">${rs.map(r=>`<div class="resource-item"><div class="resource-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><div><div class="resource-title">${esc(r.title)}</div><div class="resource-link">${isImageURL(r.link)?`<img src="${esc(r.link)}" class="resource-link-img" alt="">`:esc(r.link)}</div></div></div><div class="resource-actions"><button class="btn btn-danger btn-sm" onclick="deleteResource(${r.id})">Delete</button></div></div>`).join('')}</div>`:'<div class="resource-empty">No resources added yet</div>';
-}
-async function addResource(){
-  const t=document.getElementById('newResourceTitle').value.trim();
-  const l=document.getElementById('newResourceLink').value.trim();
-  if(!currentResourceTargetId||!t||!l){alert('Select target and fill all fields');return}
-  const ep=currentResourceType==='exam'?'/admin/resources':'/admin/batch-resources';
-  const body=currentResourceType==='exam'?{exam_id:currentResourceTargetId,title:t,link:l}:{batch_id:currentResourceTargetId,title:t,link:l};
-  const{ok}=await apiFetch(ep,{method:'POST',body:JSON.stringify(body)});
-  if(ok){
-    document.getElementById('newResourceTitle').value='';
-    document.getElementById('newResourceLink').value='';
-    toast('Resource added');
-    // ✅ REAL-TIME: Refresh immediately
-    await loadResourcesForTarget();
-  }
-}
-async function deleteResource(id){
-  if(confirm('Delete this resource?')){
-    const ep=currentResourceType==='exam'?`/admin/resources/${id}`:`/admin/batch-resources/${id}`;
-    await apiFetch(ep,{method:'DELETE'});
-    toast('Resource deleted');
-    // ✅ REAL-TIME: Refresh immediately
-    await loadResourcesForTarget();
-  }
-}
+function setResourceType(t){currentResourceType=t;document.querySelectorAll('.resource-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type===t));document.getElementById('resourceExamGroup').style.display=t==='exam'?'block':'none';document.getElementById('resourceBatchGroup').style.display=t==='batch'?'block':'none';loadResourcesForTarget()}
+async function loadResourcesForTarget(){const id=currentResourceType==='exam'?document.getElementById('resourceExamSelect').value:document.getElementById('resourceBatchSelect').value;if(!id){document.getElementById('resourcesList').innerHTML='<div class="resource-empty">Select an exam or batch</div>';return}currentResourceTargetId=parseInt(id);const ep=currentResourceType==='exam'?`/admin/exams/${id}/resources`:`/admin/batches/${id}/resources`;const{data}=await apiFetch(ep);const rs=data||[];document.getElementById('resourcesList').innerHTML=rs.length?`<div class="resource-list">${rs.map(r=>`<div class="resource-item"><div class="resource-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><div><div class="resource-title">${esc(r.title)}</div><div class="resource-link">${isImageURL(r.link)?`<img src="${esc(r.link)}" class="resource-link-img" alt="">`:esc(r.link)}</div></div></div><div class="resource-actions"><button class="btn btn-danger btn-sm" onclick="deleteResource(${r.id})">Delete</button></div></div>`).join('')}</div>`:'<div class="resource-empty">No resources added yet</div>'}
+async function addResource(){const t=document.getElementById('newResourceTitle').value.trim();const l=document.getElementById('newResourceLink').value.trim();if(!currentResourceTargetId||!t||!l){alert('Select target and fill all fields');return}const ep=currentResourceType==='exam'?'/admin/resources':'/admin/batch-resources';const body=currentResourceType==='exam'?{exam_id:currentResourceTargetId,title:t,link:l}:{batch_id:currentResourceTargetId,title:t,link:l};const{ok}=await apiFetch(ep,{method:'POST',body:JSON.stringify(body)});if(ok){document.getElementById('newResourceTitle').value='';document.getElementById('newResourceLink').value='';toast('Resource added');await loadResourcesForTarget()}}
+async function deleteResource(id){if(confirm('Delete this resource?')){const ep=currentResourceType==='exam'?`/admin/resources/${id}`:`/admin/batch-resources/${id}`;await apiFetch(ep,{method:'DELETE'});toast('Resource deleted');await loadResourcesForTarget()}}
 
-// ============================================================
-// USERS (FULL with premium tags, ban/unban, fuzzy search)
-// ============================================================
-async function loadUsers(){
-  const{data}=await apiFetch('/admin/users');
-  allUsers=data||[];
-  document.getElementById('usersTable').innerHTML=`<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Premium</th><th>Actions</th></tr></thead><tbody>${allUsers.map(u=>{
-    let prem='';
-    if(u.premium_grants&&u.premium_grants.length){
-      prem=u.premium_grants.map(g=>{
-        const c=g.grant_scope==='exam'?'pt-exam':g.grant_scope==='batch'?'pt-batch':'pt-account';
-        const n=g.exam_name||g.batch_name||(g.grant_scope==='account'?'Account':g.grant_scope);
-        const rf=g.grant_scope==='exam'?`revokeExamPremium(${u.id},${g.exam_id})`:g.grant_scope==='batch'?`revokeBatchPremium(${u.id},${g.batch_id})`:`revokeAccountPremium(${u.id})`;
-        return `<span class="premium-tag ${c}">${esc(n)}<button class="revoke-btn" onclick="${rf}">✕</button></span>`;
-      }).join('');
-    }else prem='<span style="color:var(--t4);font-size:.7rem">None</span>';
-    let st='<span class="badge badge-free">Active</span>';
-    if(u.is_banned)st='<span class="badge badge-banned">Banned</span>';
-    else if(u.is_admin)st='<span class="badge badge-admin">Admin</span>';
-    let act='';
-    if(!u.is_admin){
-      act=`<button class="btn btn-primary btn-xs" onclick="openGrantModal(${u.id},'${esc(u.name)}')">Grant</button>`;
-      if(u.is_banned)act+=` <button class="btn btn-outline btn-xs" onclick="unbanUser(${u.id})">Unban</button>`;
-      else act+=` <button class="btn btn-outline btn-xs" style="color:#e37400;border-color:#e37400" onclick="confirmBan(${u.id},'${esc(u.name)}')">Ban</button>`;
-      act+=` <button class="btn btn-danger btn-xs" onclick="confirmDeleteUser(${u.id},'${esc(u.name)}')">Delete</button>`;
-    }
-    return `<tr><td><strong>${esc(u.name)}</strong></td><td style="color:var(--t4);font-size:.75rem">${esc(u.email)}</td><td>${u.is_admin?'Admin':'Student'}</td><td>${st}</td><td style="max-width:180px">${prem}</td><td>${act||'—'}</td></tr>`;
-  }).join('')||'<tr><td colspan="6">No users</td></tr>'}</tbody></table>`;
-  const activeQuery=document.getElementById('userSearchInput')?.value;
-  if(activeQuery)onUserSearchInput();
-}
-function openGrantModal(id,name){
-  grantUserId=id;
-  document.getElementById('grantUserDisplay').textContent=name;
-  document.getElementById('grantExam').innerHTML=allExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');
-  document.getElementById('grantBatch').innerHTML=allBatches.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
-  toggleGrantScope();
-  document.getElementById('grantModal').classList.add('open');
-}
-function toggleGrantScope(){
-  const s=document.getElementById('grantScope').value;
-  document.getElementById('grantExamGroup').style.display=s==='exam'?'block':'none';
-  document.getElementById('grantBatchGroup').style.display=s==='batch'?'block':'none';
-}
-async function submitGrant(){
-  const s=document.getElementById('grantScope').value;
-  const d=document.getElementById('grantDuration').value;
-  const body={user_id:grantUserId,grant_scope:s,duration_hours:d?parseInt(d):null};
-  if(s==='exam')body.exam_id=parseInt(document.getElementById('grantExam').value);
-  if(s==='batch')body.batch_id=parseInt(document.getElementById('grantBatch').value);
-  const{ok}=await apiFetch('/admin/grant-premium',{method:'POST',body:JSON.stringify(body)});
-  if(ok){
-    closeModal('grantModal');
-    toast('Premium granted');
-    // ✅ REAL-TIME: Refresh immediately
-    await loadUsers();
-  }
-}
+async function loadUsers(){const{data}=await apiFetch('/admin/users');allUsers=data||[];document.getElementById('usersTable').innerHTML=`<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Premium</th><th>Actions</th></tr></thead><tbody>${allUsers.map(u=>{let prem='';if(u.premium_grants&&u.premium_grants.length){prem=u.premium_grants.map(g=>{const c=g.grant_scope==='exam'?'pt-exam':g.grant_scope==='batch'?'pt-batch':'pt-account';const n=g.exam_name||g.batch_name||(g.grant_scope==='account'?'Account':g.grant_scope);const rf=g.grant_scope==='exam'?`revokeExamPremium(${u.id},${g.exam_id})`:g.grant_scope==='batch'?`revokeBatchPremium(${u.id},${g.batch_id})`:`revokeAccountPremium(${u.id})`;return `<span class="premium-tag ${c}">${esc(n)}<button class="revoke-btn" onclick="${rf}">✕</button></span>`}).join('')}else prem='<span style="color:var(--t4);font-size:.7rem">None</span>';let st='<span class="badge badge-free">Active</span>';if(u.is_banned)st='<span class="badge badge-banned">Banned</span>';else if(u.is_admin)st='<span class="badge badge-admin">Admin</span>';let act='';if(!u.is_admin){act=`<button class="btn btn-primary btn-xs" onclick="openGrantModal(${u.id},'${esc(u.name)}')">Grant</button>`;if(u.is_banned)act+=` <button class="btn btn-outline btn-xs" onclick="unbanUser(${u.id})">Unban</button>`;else act+=` <button class="btn btn-outline btn-xs" style="color:#e37400;border-color:#e37400" onclick="confirmBan(${u.id},'${esc(u.name)}')">Ban</button>`;act+=` <button class="btn btn-danger btn-xs" onclick="confirmDeleteUser(${u.id},'${esc(u.name)}')">Delete</button>`}return `<tr><td><strong>${esc(u.name)}</strong></td><td style="color:var(--t4);font-size:.75rem">${esc(u.email)}</td><td>${u.is_admin?'Admin':'Student'}</td><td>${st}</td><td style="max-width:180px">${prem}</td><td>${act||'—'}</td></tr>`}).join('')||'<tr><td colspan="6">No users</td></tr>'}</tbody></table>`;const activeQuery=document.getElementById('userSearchInput')?.value;if(activeQuery)onUserSearchInput()}
+
+function openGrantModal(id,name){grantUserId=id;document.getElementById('grantUserDisplay').textContent=name;document.getElementById('grantExam').innerHTML=allExams.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');document.getElementById('grantBatch').innerHTML=allBatches.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');toggleGrantScope();document.getElementById('grantModal').classList.add('open')}
+function toggleGrantScope(){const s=document.getElementById('grantScope').value;document.getElementById('grantExamGroup').style.display=s==='exam'?'block':'none';document.getElementById('grantBatchGroup').style.display=s==='batch'?'block':'none'}
+async function submitGrant(){const s=document.getElementById('grantScope').value;const d=document.getElementById('grantDuration').value;const body={user_id:grantUserId,grant_scope:s,duration_hours:d?parseInt(d):null};if(s==='exam')body.exam_id=parseInt(document.getElementById('grantExam').value);if(s==='batch')body.batch_id=parseInt(document.getElementById('grantBatch').value);const{ok}=await apiFetch('/admin/grant-premium',{method:'POST',body:JSON.stringify(body)});if(ok){closeModal('grantModal');toast('Premium granted');await loadUsers()}}
 async function revokeExamPremium(uid,eid){if(!confirm('Revoke exam premium?'))return;await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:uid,exam_id:eid})});toast('Premium revoked');await loadUsers()}
 async function revokeBatchPremium(uid,bid){if(!confirm('Revoke batch premium?'))return;await apiFetch('/admin/revoke-premium',{method:'DELETE',body:JSON.stringify({user_id:uid,batch_id:bid})});toast('Premium revoked');await loadUsers()}
 async function revokeAccountPremium(uid){if(!confirm('Revoke account premium?'))return;await apiFetch('/admin/revoke-account-premium',{method:'DELETE',body:JSON.stringify({user_id:uid})});toast('Premium revoked');await loadUsers()}
-function confirmBan(uid,name){
-  document.getElementById('confirmActionTitle').textContent='Ban User';
-  document.getElementById('confirmActionBody').innerHTML=`<p>Are you sure you want to <strong style="color:#e37400">ban</strong> <strong>${esc(name)}</strong>?</p><p style="font-size:.8rem;color:var(--t3)">They will be unable to login. Data preserved.</p>`;
-  document.getElementById('confirmActionFooter').innerHTML=`<button class="btn btn-outline" onclick="closeModal('confirmActionModal')">Cancel</button><button class="btn btn-primary" style="background:#e37400" onclick="banUser(${uid})">Ban User</button>`;
-  document.getElementById('confirmActionModal').classList.add('open');
-}
-function confirmDeleteUser(uid,name){
-  document.getElementById('confirmActionTitle').textContent='Delete User Permanently';
-  document.getElementById('confirmActionBody').innerHTML=`<p class="warning-text">This action CANNOT be undone.</p><p>This will permanently delete <strong>${esc(name)}</strong> and all related accounts.</p>`;
-  document.getElementById('confirmActionFooter').innerHTML=`<button class="btn btn-outline" onclick="closeModal('confirmActionModal')">Cancel</button><button class="btn btn-danger" onclick="deleteUser(${uid})">Delete Permanently</button>`;
-  document.getElementById('confirmActionModal').classList.add('open');
-}
+
+function confirmBan(uid,name){document.getElementById('confirmActionTitle').textContent='Ban User';document.getElementById('confirmActionBody').innerHTML=`<p>Are you sure you want to <strong style="color:#e37400">ban</strong> <strong>${esc(name)}</strong>?</p><p style="font-size:.8rem;color:var(--t3)">They will be unable to login. Data preserved.</p>`;document.getElementById('confirmActionFooter').innerHTML=`<button class="btn btn-outline" onclick="closeModal('confirmActionModal')">Cancel</button><button class="btn btn-primary" style="background:#e37400" onclick="banUser(${uid})">Ban User</button>`;document.getElementById('confirmActionModal').classList.add('open')}
+function confirmDeleteUser(uid,name){document.getElementById('confirmActionTitle').textContent='Delete User Permanently';document.getElementById('confirmActionBody').innerHTML=`<p style="color:var(--red);font-weight:500">This action CANNOT be undone.</p><p>This will permanently delete <strong>${esc(name)}</strong> and all related accounts.</p>`;document.getElementById('confirmActionFooter').innerHTML=`<button class="btn btn-outline" onclick="closeModal('confirmActionModal')">Cancel</button><button class="btn btn-danger" onclick="deleteUser(${uid})">Delete Permanently</button>`;document.getElementById('confirmActionModal').classList.add('open')}
 async function banUser(id){const{ok}=await apiFetch(`/admin/users/${id}/ban`,{method:'POST'});if(ok){closeModal('confirmActionModal');toast('User banned');await loadUsers()}}
 async function unbanUser(id){const{ok}=await apiFetch(`/admin/users/${id}/unban`,{method:'POST'});if(ok){toast('User unbanned');await loadUsers()}}
 async function deleteUser(id){const{ok}=await apiFetch(`/admin/users/${id}/delete`,{method:'DELETE'});if(ok){closeModal('confirmActionModal');toast('User deleted');await loadUsers();await loadDashboard()}}
-function onUserSearchInput(){
-  const val=document.getElementById('userSearchInput').value;
-  const btn=document.getElementById('userSearchClear');
-  const box=document.getElementById('userSearchResults');
-  btn.style.display=val?'flex':'none';
-  if(!normalizeSearch(val)){box.classList.remove('show');box.innerHTML='';return}
-  const matches=fuzzyUserSearch(val);
-  if(!matches.length){box.innerHTML='<div class="user-search-empty">No matching users found</div>';box.classList.add('show');return}
-  box.innerHTML=matches.map(u=>{
-    let st='';
-    if(u.is_banned)st='<span class="badge badge-banned">Banned</span>';
-    else if(u.is_admin)st='<span class="badge badge-admin">Admin</span>';
-    let actions=`<button class="btn btn-primary btn-xs" onclick="event.stopPropagation();openGrantModal(${u.id},'${esc(u.name)}')">Grant</button>`;
-    if(!u.is_admin){
-      if(u.is_banned)actions+=` <button class="btn btn-outline btn-xs" onclick="event.stopPropagation();unbanUser(${u.id})">Unban</button>`;
-      else actions+=` <button class="btn btn-outline btn-xs" style="color:#e37400" onclick="event.stopPropagation();confirmBan(${u.id},'${esc(u.name)}')">Ban</button>`;
-      actions+=` <button class="btn btn-danger btn-xs" onclick="event.stopPropagation();confirmDeleteUser(${u.id},'${esc(u.name)}')">Delete</button>`;
-    }
-    return `<div class="user-search-item"><div class="user-search-main" onclick="openGrantModal(${u.id},'${esc(u.name)}')"><div class="user-search-name">${esc(u.name)} ${st}</div><div class="user-search-email">${esc(u.email)}</div></div><div class="user-search-actions">${actions}</div></div>`;
-  }).join('');
-  box.classList.add('show');
-}
-function clearUserSearch(){
-  document.getElementById('userSearchInput').value='';
-  document.getElementById('userSearchClear').style.display='none';
-  document.getElementById('userSearchResults').classList.remove('show');
-  document.getElementById('userSearchResults').innerHTML='';
-}
 
-// ============================================================
-// RESULTS
-// ============================================================
-async function loadResults(){
-  const id=document.getElementById('resultFilterExam').value;
-  const url=id?`/admin/results/${id}`:'/admin/results';
-  const{data}=await apiFetch(url);
-  const rs=data||[];
-  const dl=id?`<button class="btn btn-primary btn-sm" onclick="downloadResults(${id})">Download TXT</button>`:'';
-  document.getElementById('resultsTable').innerHTML=`<div style="margin-bottom:8px">${dl}</div><table><thead><tr><th>Rank</th><th>User</th><th>Exam</th><th>Score</th><th>%</th><th>Time</th><th>Date</th></tr></thead><tbody>${rs.map(r=>`<tr><td><strong>#${r.rank||'—'}</strong></td><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:.65rem;color:var(--t4)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><span style="color:${(r.percentage||0)>=80?'var(--green)':(r.percentage||0)>=50?'#e37400':'var(--red)'}">${(r.percentage||0).toFixed(1)}%</span></td><td>${formatTimeTaken(r.time_taken_seconds)}</td><td>${formatDate(r.submitted_at)}</td></tr>`).join('')||'<tr><td colspan="7">No results</td></tr>'}</tbody></table>`;
-}
-function downloadResults(id){
-  const t=getToken();
-  fetch(API+'/admin/results/'+id+'/download',{headers:{'Authorization':'Bearer '+t}}).then(r=>r.blob()).then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='results.txt';a.click()});
-}
+function onUserSearchInput(){const val=document.getElementById('userSearchInput').value;const btn=document.getElementById('userSearchClear');const box=document.getElementById('userSearchResults');btn.style.display=val?'flex':'none';if(!normalizeSearch(val)){box.classList.remove('show');box.innerHTML='';return}const matches=fuzzyUserSearch(val);if(!matches.length){box.innerHTML='<div class="user-search-empty">No matching users found</div>';box.classList.add('show');return}box.innerHTML=matches.map(u=>{let st='';if(u.is_banned)st='<span class="badge badge-banned">Banned</span>';else if(u.is_admin)st='<span class="badge badge-admin">Admin</span>';let actions=`<button class="btn btn-primary btn-xs" onclick="event.stopPropagation();openGrantModal(${u.id},'${esc(u.name)}')">Grant</button>`;if(!u.is_admin){if(u.is_banned)actions+=` <button class="btn btn-outline btn-xs" onclick="event.stopPropagation();unbanUser(${u.id})">Unban</button>`;else actions+=` <button class="btn btn-outline btn-xs" style="color:#e37400" onclick="event.stopPropagation();confirmBan(${u.id},'${esc(u.name)}')">Ban</button>`;actions+=` <button class="btn btn-danger btn-xs" onclick="event.stopPropagation();confirmDeleteUser(${u.id},'${esc(u.name)}')">Delete</button>`}return `<div class="user-search-item"><div class="user-search-main" onclick="openGrantModal(${u.id},'${esc(u.name)}')"><div class="user-search-name">${esc(u.name)} ${st}</div><div class="user-search-email">${esc(u.email)}</div></div><div class="user-search-actions">${actions}</div></div>`}).join('');box.classList.add('show')}
+function clearUserSearch(){document.getElementById('userSearchInput').value='';document.getElementById('userSearchClear').style.display='none';document.getElementById('userSearchResults').classList.remove('show');document.getElementById('userSearchResults').innerHTML=''}
 
-// ============================================================
-// NOTIFICATIONS
-// ============================================================
-async function sendNotification(){
-  const title=document.getElementById('notifTitle').value.trim();
-  if(!title){alert('Title required');return}
-  const body={title,body:document.getElementById('notifBody').value,image_url:document.getElementById('notifImage').value||null,link_url:document.getElementById('notifLink').value||null};
-  const{ok}=await apiFetch('/admin/notifications',{method:'POST',body:JSON.stringify(body)});
-  if(ok){
-    document.getElementById('notifResult').innerHTML='<div class="alert alert-success">Notification sent!</div>';
-    document.getElementById('notifTitle').value='';document.getElementById('notifBody').value='';document.getElementById('notifImage').value='';document.getElementById('notifLink').value='';
-    toast('Notification sent');
-    // ✅ REAL-TIME: Refresh immediately
-    await loadNotificationsList();
-    setTimeout(()=>document.getElementById('notifResult').innerHTML='',3000);
-  }
-}
-async function loadNotificationsList(){
-  const{data}=await apiFetch('/admin/notifications');
-  const ns=data||[];
-  document.getElementById('notifList').innerHTML=ns.length?ns.map(n=>`<div class="notif-card"><div class="notif-header"><div class="notif-title">${esc(n.title)}</div><button class="btn btn-danger btn-sm" onclick="deleteNotification(${n.id})">Delete</button></div><div class="notif-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatDate(n.created_at)}</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${n.read_count||0}/${n.total_users||0} read</span><span style="color:var(--t4);font-size:.65rem">by ${esc(n.creator_name||'')}</span></div>${n.body?`<div class="notif-body">${esc(n.body)}</div>`:''}${n.image_url?`<img src="${esc(n.image_url)}" class="notif-img" onerror="this.style.display='none'">`:''}${n.link_url?`<a href="${esc(n.link_url)}" target="_blank" class="notif-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open</a>`:''}</div>`).join(''):'<p style="color:var(--t3);text-align:center;padding:16px">No notifications sent</p>';
-}
-async function deleteNotification(id){
-  if(confirm('Delete this notification?')){
-    await apiFetch(`/admin/notifications/${id}`,{method:'DELETE'});
-    toast('Notification deleted');
-    // ✅ REAL-TIME: Refresh immediately
-    await loadNotificationsList();
-  }
-}
+async function loadResults(){const id=document.getElementById('resultFilterExam').value;const url=id?`/admin/results/${id}`:'/admin/results';const{data}=await apiFetch(url);const rs=data||[];const dl=id?`<button class="btn btn-primary btn-sm" onclick="downloadResults(${id})">Download TXT</button>`:'';document.getElementById('resultsTable').innerHTML=`<div style="margin-bottom:8px">${dl}</div><table><thead><tr><th>Rank</th><th>User</th><th>Exam</th><th>Score</th><th>%</th><th>Time</th><th>Date</th></tr></thead><tbody>${rs.map(r=>`<tr><td><strong>#${r.rank||'—'}</strong></td><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:.65rem;color:var(--t4)">${esc(r.email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><span style="color:${(r.percentage||0)>=80?'var(--green)':(r.percentage||0)>=50?'#e37400':'var(--red)'}">${(r.percentage||0).toFixed(1)}%</span></td><td>${formatTimeTaken(r.time_taken_seconds)}</td><td>${formatDate(r.submitted_at)}</td></tr>`).join('')||'<tr><td colspan="7">No results</td></tr>'}</tbody></table>`}
+function downloadResults(id){const t=getToken();fetch(API+'/admin/results/'+id+'/download',{headers:{'Authorization':'Bearer '+t}}).then(r=>r.blob()).then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='results.txt';a.click()})}
 
-// ============================================================
-// NAVIGATION & MODALS
-// ============================================================
+async function sendNotification(){const title=document.getElementById('notifTitle').value.trim();if(!title){alert('Title required');return}const body={title,body:document.getElementById('notifBody').value,image_url:document.getElementById('notifImage').value||null,link_url:document.getElementById('notifLink').value||null};const{ok}=await apiFetch('/admin/notifications',{method:'POST',body:JSON.stringify(body)});if(ok){document.getElementById('notifResult').innerHTML='<div class="alert alert-success">Notification sent!</div>';document.getElementById('notifTitle').value='';document.getElementById('notifBody').value='';document.getElementById('notifImage').value='';document.getElementById('notifLink').value='';toast('Notification sent');await loadNotificationsList();setTimeout(()=>document.getElementById('notifResult').innerHTML='',3000)}}
+async function loadNotificationsList(){const{data}=await apiFetch('/admin/notifications');const ns=data||[];document.getElementById('notifList').innerHTML=ns.length?ns.map(n=>`<div class="notif-card"><div class="notif-header"><div class="notif-title">${esc(n.title)}</div><button class="btn btn-danger btn-sm" onclick="deleteNotification(${n.id})">Delete</button></div><div class="notif-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatDate(n.created_at)}</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>${n.read_count||0}/${n.total_users||0} read</span><span style="color:var(--t4);font-size:.65rem">by ${esc(n.creator_name||'')}</span></div>${n.body?`<div class="notif-body">${esc(n.body)}</div>`:''}${n.image_url?`<img src="${esc(n.image_url)}" class="notif-img" onerror="this.style.display='none'">`:''}${n.link_url?`<a href="${esc(n.link_url)}" target="_blank" class="notif-link">Open Link</a>`:''}</div>`).join(''):'<p style="color:var(--t3);text-align:center;padding:16px">No notifications sent</p>'}
+async function deleteNotification(id){if(confirm('Delete this notification?')){await apiFetch(`/admin/notifications/${id}`,{method:'DELETE'});toast('Notification deleted');await loadNotificationsList()}}
+
 function toggleMobileNav(){document.getElementById('mobileNavDropdown').classList.toggle('show')}
-document.addEventListener('click',e=>{
-  const dd=document.getElementById('mobileNavDropdown');
-  const hb=document.getElementById('hamburger');
-  if(dd&&!dd.contains(e.target)&&!hb.contains(e.target))dd.classList.remove('show');
-});
-function switchSection(s){
-  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.sidebar-item').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.mobile-nav-dropdown .sidebar-item').forEach(x=>x.classList.remove('active'));
-  document.getElementById('sec-'+s).classList.add('active');
-  document.querySelector(`.sidebar-item[onclick="switchSection('${s}')"]`)?.classList.add('active');
-  document.querySelector(`.mobile-nav-dropdown .sidebar-item[onclick="switchSection('${s}')"]`)?.classList.add('active');
-  if(s==='dashboard')loadDashboard();
-  if(s==='exams')loadExams();
-  if(s==='batches')loadBatches();
-  if(s==='questions'){loadQuestionsForExam()}
-  if(s==='resources'){rebuildSearchableSelects()}
-  if(s==='users')loadUsers();
-  if(s==='results'){rebuildSearchableSelects();loadResults()}
-  if(s==='notifications')loadNotificationsList();
-  document.getElementById('mobileNavDropdown').classList.remove('show');
-}
+document.addEventListener('click',e=>{const dd=document.getElementById('mobileNavDropdown');const hb=document.getElementById('hamburger');if(dd&&!dd.contains(e.target)&&!hb.contains(e.target))dd.classList.remove('show')})
+function switchSection(s){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.sidebar-item').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.mobile-nav-dropdown .sidebar-item').forEach(x=>x.classList.remove('active'));document.getElementById('sec-'+s).classList.add('active');document.querySelector(`.sidebar-item[onclick="switchSection('${s}')"]`)?.classList.add('active');document.querySelector(`.mobile-nav-dropdown .sidebar-item[onclick="switchSection('${s}')"]`)?.classList.add('active');if(s==='dashboard')loadDashboard();if(s==='exams')loadExams();if(s==='batches')loadBatches();if(s==='questions'){loadQuestionsForExam()}if(s==='resources'){rebuildSearchableSelects()}if(s==='users')loadUsers();if(s==='results'){rebuildSearchableSelects();loadResults()}if(s==='notifications')loadNotificationsList();document.getElementById('mobileNavDropdown').classList.remove('show')}
 function openModal(id){document.getElementById(id).classList.add('open')}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
-document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'))});
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}))
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'))})
 
-// ============================================================
-// INIT
-// ============================================================
 loadDashboard();loadExams();loadBatches();loadUsers();loadNotificationsList();
 </script>
 </body>
