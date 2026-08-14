@@ -101,6 +101,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .q-card.answered .q-num{background:var(--grn-bg);color:var(--green)}
 .q-card.active .q-num{background:#e8f0fe;color:var(--blue)}
 .q-text{font-size:.9rem;color:var(--t1);line-height:1.6;font-weight:400}
+.q-text strong{font-weight:700}
 .q-section{display:inline-block;font-size:.65rem;background:#e8f0fe;color:var(--blue);padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle}
 .q-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-bottom:12px;border:1px solid var(--border);object-fit:contain}
 .options{display:flex;flex-direction:column;gap:8px}
@@ -111,11 +112,17 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .option-letter{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.72rem;font-weight:500;background:var(--surf);color:var(--t3);flex-shrink:0;transition:all .15s}
 .option.selected .option-letter{background:var(--blue);color:#fff}
 .option-text{font-size:.82rem;color:var(--t2);line-height:1.4;flex:1}
+.option-text p{margin:0;display:inline}
+.option-text strong{font-weight:700}
 .option-img{max-width:100%;max-height:160px;border-radius:var(--r);border:1px solid var(--border);object-fit:contain}
 .q-footer{display:flex;align-items:center;gap:8px;margin-top:12px}
 .btn-mark{background:none;border:1px solid var(--border);color:var(--t3);padding:6px 14px;border-radius:20px;font-family:var(--gs);font-size:.7rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all var(--tr);min-height:36px}
 .btn-mark:hover,.btn-mark.active{border-color:var(--blue);color:var(--blue);background:#e8f0fe}
 .btn-mark svg{width:12px;height:12px;stroke:currentColor;fill:none}
+
+/* Math equation styling */
+.mathy{font-family:'Times New Roman',serif;font-style:italic;color:#1a1a1a;background:#f5f5f5;padding:1px 4px;border-radius:3px;display:inline-block}
+.mathy p{margin:0;display:inline}
 
 .floating-submit{position:fixed;bottom:24px;right:24px;z-index:50;background:var(--blue);color:#fff;border:none;padding:14px 28px;border-radius:28px;font-family:var(--gs);font-size:.88rem;font-weight:500;cursor:pointer;display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(26,115,232,.35);transition:all var(--tr);min-height:48px;bottom:calc(24px + var(--safe-bottom))}
 .floating-submit:hover{background:var(--blue-h);transform:translateY(-2px);box-shadow:0 6px 24px rgba(26,115,232,.45)}
@@ -180,6 +187,8 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .rv-wrong .rv-status{background:var(--red-bg);color:var(--red)}
 .rv-skip .rv-status{background:var(--hov);color:var(--t3)}
 .rv-q{font-size:.84rem;color:var(--t2);flex:1;line-height:1.5;text-align:left}
+.rv-q strong{font-weight:700}
+.rv-q p{margin:0;display:inline}
 .rv-q-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:6px;border:1px solid var(--border);object-fit:contain;display:block}
 .rv-arrow{width:16px;height:16px;stroke:var(--t3);fill:none;stroke-width:2;flex-shrink:0;transition:transform .2s}
 .rv-card.open .rv-arrow{transform:rotate(180deg)}
@@ -189,12 +198,16 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .rv-opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:var(--r);background:var(--bg);border:1.5px solid var(--border);font-size:.8rem;color:var(--t2);line-height:1.4}
 .rv-opt.rv-opt-correct{background:var(--grn-bg);border-color:rgba(30,142,62,.4);color:var(--green)}
 .rv-opt.rv-opt-wrong{background:var(--red-bg);border-color:rgba(217,48,37,.3);color:var(--red)}
+.rv-opt p{margin:0;display:inline}
+.rv-opt strong{font-weight:700}
 .rv-ol{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.7rem;font-weight:500;flex-shrink:0;color:var(--t3)}
 .rv-opt-correct .rv-ol{background:rgba(30,142,62,.2);color:var(--green)}
 .rv-opt-wrong .rv-ol{background:rgba(217,48,37,.15);color:var(--red)}
 .rv-ans-note{font-size:.68rem;font-weight:500;color:var(--t4);text-transform:uppercase;letter-spacing:.3px;margin-top:10px;text-align:left}
 .rv-explanation{margin-top:10px;padding:10px 14px;background:#e8f0fe;border:1px solid rgba(26,115,232,.2);border-radius:var(--r);font-size:.78rem;color:var(--blue);line-height:1.6;text-align:left}
 .rv-explanation strong{color:var(--t1);display:block;margin-bottom:3px;font-size:.68rem;text-transform:uppercase;letter-spacing:.3px}
+.rv-explanation p{margin:0;display:inline}
+.rv-explanation .mathy{color:var(--blue);background:#e8f0fe}
 .rv-explanation-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:10px;border:1px solid var(--border);object-fit:contain}
 
 .footer{background:var(--surf);border-top:1px solid var(--border);flex-shrink:0}
@@ -341,8 +354,20 @@ function getToken() { return localStorage.getItem('exalyte_token'); }
 function logout() { localStorage.clear(); window.location.href = '/'; }
 function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 function isImageURL(s) { if (!s) return false; const t = s.trim(); return t.startsWith('http') && (t.includes('.jpg') || t.includes('.jpeg') || t.includes('.png') || t.includes('.webp') || t.includes('.gif') || t.includes('ibb.co') || t.includes('images.unsplash.com') || t.includes('i.imgur.com')); }
-function renderOptionContent(text) { if (isImageURL(text)) return '<img src="' + esc(text) + '" class="option-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">'; return esc(text || ''); }
-function renderExplanationContent(text) { if (!text) return ''; if (isImageURL(text)) return '<img src="' + esc(text) + '" class="rv-explanation-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">'; return esc(text); }
+
+// ✅ FIX: Allow HTML tags for question/option/explanation content
+function renderOptionContent(text) {
+  if (!text) return '';
+  if (isImageURL(text)) return '<img src="' + esc(text) + '" class="option-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">';
+  return text;
+}
+
+function renderExplanationContent(text) {
+  if (!text) return '';
+  if (isImageURL(text)) return '<img src="' + esc(text) + '" class="rv-explanation-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">';
+  return text;
+}
+
 function formatTimeTaken(seconds) { if (!seconds || seconds <= 0) return ''; const min = Math.floor(seconds / 60); const sec = Math.floor(seconds % 60); if (min > 0) return min + 'm ' + sec + 's'; return sec + 's'; }
 function formatAvgTime(seconds, total) { if (!seconds || !total || seconds <= 0 || total <= 0) return ''; const avg = seconds / total; if (avg < 60) return Math.round(avg) + 's/Q'; return (avg / 60).toFixed(1) + 'm/Q'; }
 
@@ -564,7 +589,7 @@ function buildUI() {
   document.getElementById('questionsArea').innerHTML = questions.map((q, i) => {
     const secLabel = q.section ? '<span class="q-section">' + esc(q.section) + '</span>' : '';
     return '<div class="q-card" id="qc' + q.id + '">' +
-      '<div class="q-top"><div class="q-num">' + (i + 1) + '</div><div class="q-text">' + esc(q.question_text || '') + secLabel + '</div></div>' +
+      '<div class="q-top"><div class="q-num">' + (i + 1) + '</div><div class="q-text">' + (q.question_text || '') + secLabel + '</div></div>' +
       (q.image_url ? '<img src="' + esc(q.image_url) + '" class="q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">' : '') +
       '<div class="options">' + ['A', 'B', 'C', 'D'].map(l =>
         '<div class="option" id="opt' + q.id + l + '" onclick="pick(event,' + q.id + ',\'' + l + '\')"><div class="option-letter">' + l + '</div><div class="option-text">' + renderOptionContent(q['option_' + l.toLowerCase()]) + '</div></div>').join('') +
@@ -698,15 +723,7 @@ async function doSubmit() {
 
 /* ============================================================
    FIXED: showPracticeResult
-   The server (handleSubmitExam) already returns a correct
-   `detailed` object built from the real correct_answer values
-   (which the client never has for practice questions, since
-   /exams/:id/questions intentionally omits correct_answer).
-   Previously this function ignored data.detailed and tried to
-   rebuild it client-side using q.correct_answer, which is
-   always undefined for practice — so every question showed as
-   wrong in the review even when the score was correct.
-   Fix: just use data.detailed directly.
+   Uses server-provided `detailed` object.
    ============================================================ */
 function showPracticeResult(data) {
   const pct = data.percentage || 0;
@@ -779,7 +796,7 @@ function showPracticeResult(data) {
 
   window.scrollTo({ top: 0 });
   window._questions = questions;
-  window._detailed = data.detailed || {};   // <-- use server-provided detail, not a client rebuild
+  window._detailed = data.detailed || {};
   window._reviewFilter = 'all';
   renderReviewList();
 }
@@ -793,7 +810,6 @@ function renderReviewList() {
   const filter = window._reviewFilter || 'all';
 
   const filtered = qs.filter(function(q) {
-    // detailed is keyed by numeric question id from the server; match either key form
     const d = det[q.id] || det[String(q.id)] || {};
     const given = String(d.given || '').trim().toUpperCase();
     const isCorrect = d.isCorrect === true;
@@ -855,7 +871,7 @@ function renderReviewList() {
     return '<div class="rv-card ' + cls + '" id="rv' + q.id + '">' +
       '<div class="rv-header" onclick="toggleReview(\'' + q.id + '\')" role="button" tabindex="0">' +
       '<div class="rv-status"><svg viewBox="0 0 24 24">' + icons[st] + '</svg></div>' +
-      '<div class="rv-q">' + esc(q.question_text || '') + qImg + '</div>' +
+      '<div class="rv-q">' + (q.question_text || '') + qImg + '</div>' +
       '<svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>' +
       '</div>' +
       '<div class="rv-body"><div class="rv-opts">' + opts + '</div>' + note + exp + '</div>' +
