@@ -337,50 +337,14 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 <script>
 const API = '/api';
 
-function getToken() {
-  return localStorage.getItem('exalyte_token');
-}
-
-function logout() {
-  localStorage.clear();
-  window.location.href = '/';
-}
-
-function esc(s) {
-  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-function isImageURL(s) {
-  if (!s) return false;
-  const t = s.trim();
-  return t.startsWith('http') && (t.includes('.jpg') || t.includes('.jpeg') || t.includes('.png') || t.includes('.webp') || t.includes('.gif') || t.includes('ibb.co') || t.includes('images.unsplash.com') || t.includes('i.imgur.com'));
-}
-
-function renderOptionContent(text) {
-  if (isImageURL(text)) return '<img src="' + esc(text) + '" class="option-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">';
-  return esc(text || '');
-}
-
-function renderExplanationContent(text) {
-  if (!text) return '';
-  if (isImageURL(text)) return '<img src="' + esc(text) + '" class="rv-explanation-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">';
-  return esc(text);
-}
-
-function formatTimeTaken(seconds) {
-  if (!seconds || seconds <= 0) return '';
-  const min = Math.floor(seconds / 60);
-  const sec = Math.floor(seconds % 60);
-  if (min > 0) return min + 'm ' + sec + 's';
-  return sec + 's';
-}
-
-function formatAvgTime(seconds, total) {
-  if (!seconds || !total || seconds <= 0 || total <= 0) return '';
-  const avg = seconds / total;
-  if (avg < 60) return Math.round(avg) + 's/Q';
-  return (avg / 60).toFixed(1) + 'm/Q';
-}
+function getToken() { return localStorage.getItem('exalyte_token'); }
+function logout() { localStorage.clear(); window.location.href = '/'; }
+function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function isImageURL(s) { if (!s) return false; const t = s.trim(); return t.startsWith('http') && (t.includes('.jpg') || t.includes('.jpeg') || t.includes('.png') || t.includes('.webp') || t.includes('.gif') || t.includes('ibb.co') || t.includes('images.unsplash.com') || t.includes('i.imgur.com')); }
+function renderOptionContent(text) { if (isImageURL(text)) return '<img src="' + esc(text) + '" class="option-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">'; return esc(text || ''); }
+function renderExplanationContent(text) { if (!text) return ''; if (isImageURL(text)) return '<img src="' + esc(text) + '" class="rv-explanation-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">'; return esc(text); }
+function formatTimeTaken(seconds) { if (!seconds || seconds <= 0) return ''; const min = Math.floor(seconds / 60); const sec = Math.floor(seconds % 60); if (min > 0) return min + 'm ' + sec + 's'; return sec + 's'; }
+function formatAvgTime(seconds, total) { if (!seconds || !total || seconds <= 0 || total <= 0) return ''; const avg = seconds / total; if (avg < 60) return Math.round(avg) + 's/Q'; return (avg / 60).toFixed(1) + 'm/Q'; }
 
 async function apiFetch(path, opts = {}) {
   const t = getToken();
@@ -446,9 +410,7 @@ async function loadAgreement() {
       document.getElementById('negRule').style.display = 'flex';
       document.getElementById('negRuleText').textContent = 'Wrong: -' + exam.negative_marking;
     }
-  } catch (e) {
-    window.location.href = 'dashboard.html';
-  }
+  } catch (e) { window.location.href = 'dashboard.html'; }
 }
 
 function renderSectionSelection() {
@@ -558,7 +520,6 @@ async function startExam() {
   document.getElementById('agreeBtn').disabled = true;
   document.getElementById('agreeBtn').textContent = 'Loading...';
 
-  // Call start endpoint to track exam
   const startRes = await apiFetch('/exams/' + examId + '/start', {
     method: 'POST',
     body: JSON.stringify({
@@ -772,14 +733,16 @@ function showPracticeResult(data) {
       '</div>';
   }
 
-  // Build detailed answers from questions
+  // ✅ BUILD DETAILED FROM QUESTIONS - Always correct matching
   const detailed = {};
   questions.forEach(q => {
-    const given = answers[q.id] || '';
-    detailed[q.id] = {
+    const qId = String(q.id);
+    const given = String(answers[qId] || answers[q.id] || '').trim().toUpperCase();
+    const correctAns = String(q.correct_answer || '').trim().toUpperCase();
+    detailed[qId] = {
       given: given,
-      correct: q.correct_answer,
-      isCorrect: given === q.correct_answer
+      correct: correctAns,
+      isCorrect: given === correctAns
     };
   });
 
@@ -826,14 +789,16 @@ function showPracticeResult(data) {
 function renderReviewList() {
   const list = document.getElementById('reviewList');
   if (!list) return;
+
   const qs = window._questions || [];
   const det = window._detailed || {};
   const filter = window._reviewFilter || 'all';
 
   const filtered = qs.filter(q => {
-    const d = det[q.id] || {};
+    const qId = String(q.id);
+    const d = det[qId] || {};
     const given = String(d.given || '').trim().toUpperCase();
-    const isCorrect = d.isCorrect !== undefined ? d.isCorrect : (given === q.correct_answer);
+    const isCorrect = d.isCorrect !== undefined ? d.isCorrect : (given === String(q.correct_answer || '').trim().toUpperCase());
 
     if (filter === 'correct') return given && isCorrect;
     if (filter === 'wrong') return given && !isCorrect;
@@ -853,17 +818,18 @@ function renderReviewList() {
   };
 
   list.innerHTML = filtered.map(q => {
-    const d = det[q.id] || {};
+    const qId = String(q.id);
+    const d = det[qId] || {};
     const given = String(d.given || '').trim().toUpperCase();
-    const ca = String(d.correct || q.correct_answer || '').trim().toUpperCase();
-    const isCorrect = d.isCorrect !== undefined ? d.isCorrect : (given === ca);
+    const correctAns = String(d.correct || q.correct_answer || '').trim().toUpperCase();
+    const isCorrect = d.isCorrect !== undefined ? d.isCorrect : (given === correctAns);
 
     const st = !given ? 'skip' : isCorrect ? 'correct' : 'wrong';
     const cls = { correct: 'rv-correct', wrong: 'rv-wrong', skip: 'rv-skip' }[st];
 
     const opts = ['A', 'B', 'C', 'D'].map(l => {
-      const isC = l === ca;
-      const isW = l === given && l !== ca;
+      const isC = l === correctAns;
+      const isW = l === given && l !== correctAns;
       let c = '';
       if (isC) c = 'rv-opt-correct';
       else if (isW) c = 'rv-opt-wrong';
@@ -872,9 +838,11 @@ function renderReviewList() {
 
     let note = '';
     if (given && !isCorrect) {
-      note = '<div class="rv-ans-note">Your answer: ' + given + ' — Correct: ' + ca + '</div>';
+      note = '<div class="rv-ans-note">Your answer: ' + given + ' — Correct: ' + correctAns + '</div>';
     } else if (!given) {
-      note = '<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: ' + ca + '</div>';
+      note = '<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: ' + correctAns + '</div>';
+    } else if (given && isCorrect) {
+      note = '<div class="rv-ans-note" style="color:var(--green)">Correct answer: ' + correctAns + '</div>';
     }
 
     let exp = '';
