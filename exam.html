@@ -39,8 +39,12 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .icon-btn svg{width:20px;height:20px}
 .icon-btn.leave:hover{background:var(--red-bg);color:var(--red)}
 
-.agreement-overlay{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;padding-bottom:calc(80px + var(--safe-bottom))}
-.agree-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);max-width:560px;width:100%;padding:36px 32px;margin-bottom:20px}
+/* ✅ MAIN CONTENT WRAPPER */
+.main-content{flex:1;padding-top:var(--hh);display:flex;flex-direction:column}
+
+/* ✅ AGREEMENT SECTION (NOT fixed overlay) */
+.agreement-section{display:flex;align-items:flex-start;justify-content:center;padding:32px 20px 40px;flex:1}
+.agree-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);max-width:560px;width:100%;padding:36px 32px;margin:0 auto}
 .agree-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
 .agree-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-family:var(--gs);font-size:.72rem;font-weight:500;margin-bottom:14px}
 .badge-blue{background:#e8f0fe;color:var(--blue)}
@@ -79,7 +83,8 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .section-rules-info{font-size:.75rem;color:var(--t3);margin-top:8px;line-height:1.5}
 .section-rules-info strong{color:var(--blue)}
 
-#examUI{display:none;flex-direction:column;min-height:calc(100vh - var(--hh))}
+/* ✅ EXAM UI */
+#examUI{display:none;flex-direction:column;flex:1}
 .exam-stats-bar{display:flex;border-bottom:1px solid var(--border);background:var(--surf);flex-shrink:0}
 .stat-chip{flex:1;text-align:center;padding:10px 8px;font-size:.68rem;font-weight:500;color:var(--t3);border-right:1px solid var(--border)}
 .stat-chip:last-child{border-right:none}
@@ -204,7 +209,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .rv-explanation strong{color:var(--t1);display:block;margin-bottom:3px;font-size:.68rem;text-transform:uppercase;letter-spacing:.3px}
 .rv-explanation-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:10px;border:1px solid var(--border);object-fit:contain}
 
-.footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto;flex-shrink:0}
+.footer{background:var(--surf);border-top:1px solid var(--border);flex-shrink:0}
 .footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
 .fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
 .fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
@@ -243,51 +248,58 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
   </div>
 </header>
 
-<div class="agreement-overlay" id="agreementScreen">
-  <div class="agree-card">
-    <button class="btn-back" onclick="window.location.href='dashboard.html'">
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back to Dashboard
-    </button>
-    <div class="agree-logo">
-      <img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:50%" onerror="this.style.display='none'">
-      <span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1)">Exalyte</span>
+<!-- ✅ MAIN CONTENT WRAPPER -->
+<div class="main-content" id="mainContent">
+  
+  <!-- Agreement Section -->
+  <div class="agreement-section" id="agreementScreen">
+    <div class="agree-card">
+      <button class="btn-back" onclick="window.location.href='dashboard.html'">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back to Dashboard
+      </button>
+      <div class="agree-logo">
+        <img src="images/exalyte.png" alt="Exalyte" style="width:28px;height:28px;border-radius:50%" onerror="this.style.display='none'">
+        <span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1)">Exalyte</span>
+      </div>
+      <div class="agree-badge" id="agreeTypeBadge">Exam</div>
+      <div class="agree-title" id="agreeTitle">Loading...</div>
+      <div class="agree-sub" id="agreeDesc" style="display:none"></div>
+      <div class="agree-meta" id="agreeMeta"></div>
+      
+      <div id="sectionSelection" style="display:none">
+        <div class="section-select-title">Select Sections to Attempt</div>
+        <div id="sectionsCheckboxList"></div>
+        <div class="section-rules-info" id="sectionRulesInfo"></div>
+      </div>
+      
+      <div class="agree-rules" id="agreeRules">
+        <div class="agree-rule"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>The timer starts immediately. You cannot pause it.</span></div>
+        <div class="agree-rule" id="tabRule" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span>Do not switch tabs or windows. You get 2 warnings then auto-submit.</span></div>
+        <div class="agree-rule"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Once submitted, your answers cannot be changed.</span></div>
+        <div class="agree-rule" id="negRule" style="display:none"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg><span id="negRuleText">Negative marking applies to wrong answers.</span></div>
+      </div>
+      <div class="agree-check" id="agreeCheckWrap" onclick="toggleAgree()">
+        <input type="checkbox" id="agreeCheck" onclick="event.stopPropagation()">
+        <label for="agreeCheck">I have read and understood the exam rules. I agree to attempt this exam honestly.</label>
+      </div>
+      <button class="btn-agree" id="agreeBtn" disabled onclick="startExam()">Begin Exam</button>
     </div>
-    <div class="agree-badge" id="agreeTypeBadge">Exam</div>
-    <div class="agree-title" id="agreeTitle">Loading...</div>
-    <div class="agree-sub" id="agreeDesc" style="display:none"></div>
-    <div class="agree-meta" id="agreeMeta"></div>
-    
-    <div id="sectionSelection" style="display:none">
-      <div class="section-select-title">Select Sections to Attempt</div>
-      <div id="sectionsCheckboxList"></div>
-      <div class="section-rules-info" id="sectionRulesInfo"></div>
-    </div>
-    
-    <div class="agree-rules" id="agreeRules">
-      <div class="agree-rule"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>The timer starts immediately. You cannot pause it.</span></div>
-      <div class="agree-rule" id="tabRule" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span>Do not switch tabs or windows. You get 2 warnings then auto-submit.</span></div>
-      <div class="agree-rule"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Once submitted, your answers cannot be changed.</span></div>
-      <div class="agree-rule" id="negRule" style="display:none"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg><span id="negRuleText">Negative marking applies to wrong answers.</span></div>
-    </div>
-    <div class="agree-check" id="agreeCheckWrap" onclick="toggleAgree()">
-      <input type="checkbox" id="agreeCheck" onclick="event.stopPropagation()">
-      <label for="agreeCheck">I have read and understood the exam rules. I agree to attempt this exam honestly.</label>
-    </div>
-    <button class="btn-agree" id="agreeBtn" disabled onclick="startExam()">Begin Exam</button>
   </div>
+
+  <!-- Exam UI -->
+  <div id="examUI">
+    <div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="exam-stats-bar">
+      <div class="stat-chip answered"><strong id="cAnswered">0</strong>Answered</div>
+      <div class="stat-chip remaining"><strong id="cRemaining">0</strong>Remaining</div>
+      <div class="stat-chip marked"><strong id="cMarked">0</strong>Marked</div>
+    </div>
+    <div class="questions-area" id="questionsArea"></div>
+  </div>
+  
 </div>
 
-<div id="examUI">
-  <div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
-  <div class="exam-stats-bar">
-    <div class="stat-chip answered"><strong id="cAnswered">0</strong>Answered</div>
-    <div class="stat-chip remaining"><strong id="cRemaining">0</strong>Remaining</div>
-    <div class="stat-chip marked"><strong id="cMarked">0</strong>Marked</div>
-  </div>
-  <div class="questions-area" id="questionsArea"></div>
-</div>
-
-<!-- ✅ FOOTER - Always visible -->
+<!-- ✅ FOOTER - Always visible below content -->
 <footer class="footer">
   <div class="footer-inner">
     <div class="fc">
@@ -719,17 +731,9 @@ function showPracticeResult(data){
   
   html+='</div>';
   
-  const main=document.querySelector('.main')||document.createElement('div');
-  if(!document.querySelector('.main')){
-    main.className='main';
-    main.style.flex='1';
-    main.style.paddingTop='64px';
-    main.innerHTML=html;
-    document.body.insertBefore(main,document.querySelector('.footer'));
-  }else{
-    main.innerHTML=html;
-    main.style.paddingTop='64px';
-  }
+  const mainContent=document.getElementById('mainContent');
+  mainContent.innerHTML=html;
+  mainContent.style.paddingTop='64px';
   
   window.scrollTo({top:0});
   window._questions=questions;
