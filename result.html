@@ -87,6 +87,9 @@ body{
 .time-info{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:8px;font-size:.75rem;color:var(--t3)}
 .time-info span{display:flex;align-items:center;gap:4px}
 .time-info svg{width:12px;height:12px;stroke:currentColor;fill:none;flex-shrink:0}
+.sections-info{display:flex;justify-content:center;flex-wrap:wrap;margin-top:8px;font-size:.75rem;color:var(--t3)}
+.sections-info span{display:flex;align-items:center;gap:4px}
+.sections-info svg{width:12px;height:12px;stroke:currentColor;fill:none;flex-shrink:0}
 
 .lb-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .lb-badge{width:56px;height:56px;border-radius:50%;background:var(--blue);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
@@ -106,11 +109,6 @@ body{
 .pending-sub{font-size:.85rem;color:var(--t3);max-width:400px;margin:0 auto 20px;line-height:1.6}
 .pending-countdown{font-family:var(--gs);font-size:1.4rem;font-weight:500;color:#e37400;margin:8px 0}
 .pending-countdown-sub{font-size:.78rem;color:var(--t4);margin-bottom:20px}
-.pending-guide{text-align:left;max-width:340px;margin:20px auto 0;font-size:.8rem;color:var(--t3);line-height:1.7;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px}
-.pending-guide-title{font-weight:500;color:var(--t1);margin-bottom:8px;display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px}
-.pending-guide span{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px}
-.pending-guide span svg{width:14px;height:14px;stroke:var(--blue);fill:none;flex-shrink:0;margin-top:2px}
-.pending-guide span strong{color:var(--t1)}
 
 .review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
 .review-head h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1)}
@@ -122,6 +120,7 @@ body{
 .rv-card{background:var(--surf);border:2px solid var(--border);border-radius:var(--rl);overflow:hidden}
 .rv-card.rv-correct{border-color:rgba(30,142,62,.4)}
 .rv-card.rv-wrong{border-color:rgba(217,48,37,.3)}
+.rv-card.rv-skip{border-color:var(--border)}
 .rv-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;min-height:44px}
 .rv-status{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .rv-status svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5}
@@ -292,50 +291,165 @@ function showPending(msg,liveSeconds,examName){
   if(examName)h+='<div class="pending-sub">'+esc(examName)+'</div>';
   else h+='<div class="pending-sub">'+esc(msg)+'</div>';
   if(liveSeconds>0){h+='<div class="pending-countdown" id="pendingCountdown">'+formatCountdown(liveSeconds)+'</div>';h+='<div class="pending-countdown-sub">until results are published</div>';}
-  h+='<div class="pending-guide"><span class="pending-guide-title">How to check your result</span>';
-  h+='<span><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Go to <strong>Dashboard</strong> → click <strong>View Result</strong></span></span>';
-  h+='<span><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg><span>Or visit <strong>Exam History</strong></span></span>';
-  h+='<span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Results auto-publish when live exam ends</span></span>';
-  h+='</div><a href="dashboard.html" class="btn btn-primary" style="margin-top:20px">Back to Dashboard</a></div>';
+  h+='<a href="dashboard.html" class="btn btn-primary" style="margin-top:20px">Back to Dashboard</a></div>';
   document.getElementById('resultWrap').innerHTML=h;
   if(liveSeconds>0){var r=liveSeconds;pendingCountdown=setInterval(function(){r--;var el=document.getElementById('pendingCountdown');if(el){if(r<=0){el.innerHTML='<span style="color:var(--green)">Results available now!</span>';clearInterval(pendingCountdown);var refreshBtn=document.createElement('button');refreshBtn.className='btn btn-primary';refreshBtn.textContent='Refresh to View Results';refreshBtn.style.marginTop='12px';refreshBtn.onclick=function(){location.reload();};el.parentNode.insertBefore(refreshBtn,el.nextSibling)}else{el.textContent=formatCountdown(r)}}},1000)}
 }
 
 function renderReview(){
-  var filtered=questions.filter(function(q){var a=userAnswers[q.id];var g=(typeof a==='object'?a?.given:'')||(typeof a==='string'?a:'')||'';if(reviewFilter==='correct')return g===q.correct_answer;if(reviewFilter==='wrong')return g&&g!==q.correct_answer;if(reviewFilter==='skipped')return!g;return true});
+  var filtered=questions.filter(function(q){
+    var a=userAnswers[q.id];
+    var g='';
+    if(typeof a==='object'&&a!==null){g=a.given||'';}
+    else if(typeof a==='string'){g=a;}
+    
+    if(reviewFilter==='correct')return g&&g===q.correct_answer;
+    if(reviewFilter==='wrong')return g&&g!==q.correct_answer;
+    if(reviewFilter==='skipped')return !g;
+    return true;
+  });
+  
   if(!filtered.length){document.getElementById('reviewList').innerHTML='<div class="empty-review">No questions in this filter.</div>';return}
+  
   var icons={correct:'<polyline points="20 6 9 17 4 12"/>',wrong:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',skipped:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'};
-  document.getElementById('reviewList').innerHTML=filtered.map(function(q){var a=userAnswers[q.id];var g=(typeof a==='object'?a?.given:'')||(typeof a==='string'?a:'')||'';var st=g===q.correct_answer?'correct':g?'wrong':'skip';var cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
-    var opts=['A','B','C','D'].map(function(l){var isC=l===q.correct_answer;var isY=l===g&&!isC;var oc=isC?'rv-opt-correct':isY?'rv-opt-wrong':'';var ot=q['option_'+l.toLowerCase()]||'';return'<div class="rv-opt '+oc+'"><div class="rv-ol">'+l+'</div><div style="flex:1;line-height:1.4">'+renderOptionContent(ot)+'</div></div>'}).join('');
-    var note='';if(g&&g!==q.correct_answer)note='<div class="rv-ans-note">Your answer: '+g+' — Correct: '+q.correct_answer+'</div>';else if(!g)note='<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: '+q.correct_answer+'</div>';
-    var exp='';if(q.explanation&&q.explanation.trim())exp='<div class="rv-explanation">'+renderExplanationContent(q.explanation)+'</div>';
+  
+  document.getElementById('reviewList').innerHTML=filtered.map(function(q){
+    var a=userAnswers[q.id];
+    var g='';
+    if(typeof a==='object'&&a!==null){g=a.given||'';}
+    else if(typeof a==='string'){g=a;}
+    
+    var st=g===q.correct_answer?'correct':g?'wrong':'skip';
+    var cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
+    
+    var opts=['A','B','C','D'].map(function(l){
+      var isC=l===q.correct_answer;
+      var isY=l===g&&!isC;
+      var oc=isC?'rv-opt-correct':isY?'rv-opt-wrong':'';
+      var ot=q['option_'+l.toLowerCase()]||'';
+      return '<div class="rv-opt '+oc+'"><div class="rv-ol">'+l+'</div><div style="flex:1;line-height:1.4">'+renderOptionContent(ot)+'</div></div>';
+    }).join('');
+    
+    var note='';
+    if(g&&g!==q.correct_answer)note='<div class="rv-ans-note">Your answer: '+g+' — Correct: '+q.correct_answer+'</div>';
+    else if(!g)note='<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: '+q.correct_answer+'</div>';
+    
+    var exp='';
+    if(q.explanation&&q.explanation.trim())exp='<div class="rv-explanation"><strong>Explanation</strong>'+renderExplanationContent(q.explanation)+'</div>';
+    
     var qImg=q.image_url?'<img src="'+esc(q.image_url)+'" class="rv-q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">':'';
-    return'<div class="rv-card '+cls+'" id="rv'+q.id+'"><div class="rv-header" onclick="toggleReview(\''+q.id+'\')" role="button" tabindex="0"><div class="rv-status"><svg viewBox="0 0 24 24">'+icons[st]+'</svg></div><div class="rv-q">'+esc(q.question_text||'')+qImg+'</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="rv-body"><div class="rv-opts">'+opts+'</div>'+note+exp+'</div></div>'}).join('');
+    
+    return '<div class="rv-card '+cls+'" id="rv'+q.id+'"><div class="rv-header" onclick="toggleReview(\''+q.id+'\')" role="button" tabindex="0"><div class="rv-status"><svg viewBox="0 0 24 24">'+icons[st]+'</svg></div><div class="rv-q">'+esc(q.question_text||'')+qImg+'</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="rv-body"><div class="rv-opts">'+opts+'</div>'+note+exp+'</div></div>';
+  }).join('');
 }
 
 function toggleReview(id){document.getElementById('rv'+id)?.classList.toggle('open')}
-function setFilter(btn,filter){document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active')});btn.classList.add('active');reviewFilter=filter;renderReview()}
+
+function setFilter(btn,filter){
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active')});
+  btn.classList.add('active');
+  reviewFilter=filter;
+  renderReview();
+}
 
 async function loadResult(){
   if(pendingCountdown)clearInterval(pendingCountdown);
   try{
     var result=await apiFetch('/exams/'+examId+'/result/'+attemptId);
-    if(!result.ok||result.data.pending){var msg=result.data?.message||result.data?.error||'Results will be available after publication.';var liveSeconds=result.data?.live_seconds_remaining||0;var examName=result.data?.exam_name||'';showPending(msg,liveSeconds,examName);return}
+    if(!result.ok||result.data.pending){
+      var msg=result.data?.message||result.data?.error||'Results will be available after publication.';
+      var liveSeconds=result.data?.live_seconds_remaining||0;
+      var examName=result.data?.exam_name||'';
+      showPending(msg,liveSeconds,examName);
+      return;
+    }
+    
     var data=result.data;
     if(!data.attempt||!data.questions){showError('No result data found');return}
-    attempt=data.attempt;questions=data.questions||[];exam=data.exam;
-    if(typeof attempt.answers==='string'){try{userAnswers=JSON.parse(attempt.answers||'{}')}catch(e){userAnswers={}}}else{userAnswers=attempt.answers||{}}
+    
+    attempt=data.attempt;
+    questions=data.questions||[];
+    exam=data.exam;
+    
+    // Parse answers - handle both old and new format
+    if(typeof attempt.answers==='string'){
+      try{userAnswers=JSON.parse(attempt.answers||'{}')}catch(e){userAnswers={}}
+    }else{
+      userAnswers=attempt.answers||{};
+    }
+    
+    // Calculate correct/wrong/skipped
     var correct=0,wrong=0,skipped=0;
-    questions.forEach(function(q){var a=userAnswers[q.id];if(!a||typeof a==='object'){var g=a?.given||'';if(!g)skipped++;else if(g===q.correct_answer)correct++;else wrong++}else if(typeof a==='string'){if(!a)skipped++;else if(a===q.correct_answer)correct++;else wrong++}else{skipped++}});
-    var pct=attempt.percentage||0;var grade=gradeInfo(pct);
-    var timeTaken=attempt.time_taken_seconds||0;var totalQ=questions.length;
-    var timeHTML='';if(timeTaken>0){var tm=(timeTaken/60).toFixed(1);timeHTML='<div class="time-info"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: '+tm+' min / '+exam.time_limit+' min</span><span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: '+formatAvgTime(timeTaken,totalQ)+'</span></div>'}
-    var html='<div class="score-card"><div class="score-ring-wrap"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-fill" cx="60" cy="60" r="54" stroke="'+grade.color+'" style="stroke-dasharray:339;stroke-dashoffset:'+(339-(pct/100)*339)+'"/></svg><div class="ring-inner"><div class="ring-pct">'+pct.toFixed(1)+'%</div><div class="ring-lbl">Score</div></div></div><div class="score-grade" style="color:'+grade.color+'">'+grade.label+'</div><div class="score-exam">'+esc(exam.name)+(attempt.is_practice?' — Practice':'')+'</div><div class="score-stats"><div class="sc-stat sc-correct"><div class="sc-stat-val">'+correct+'</div><div class="sc-stat-lbl">Correct</div></div><div class="sc-stat sc-wrong"><div class="sc-stat-val">'+wrong+'</div><div class="sc-stat-lbl">Wrong</div></div><div class="sc-stat sc-skip"><div class="sc-stat-val">'+skipped+'</div><div class="sc-stat-lbl">Skipped</div></div></div>'+timeHTML+'<div class="perf-bar"><div class="perf-fill" style="width:'+Math.max(pct,2)+'%;background:'+grade.color+'"></div></div><div class="result-actions"><a href="dashboard.html" class="btn btn-outline"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>'+(exam.allow_practice?'<a href="exam.html?id='+examId+'&practice=1" class="btn btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Mode</a>':'')+'</div></div>';
-    try{var lbRes=await apiFetch('/leaderboard/'+examId);if(lbRes.ok&&lbRes.data?.rank&&!lbRes.data.disabled){var lb=lbRes.data;html+='<div class="lb-card"><div class="lb-badge"><div class="lb-rank">#'+lb.rank+'</div><div class="lb-lbl">Rank</div></div><div class="lb-info"><div class="lb-title">Your Leaderboard Position</div><div class="lb-sub">Out of '+lb.total_participants+' participant'+(lb.total_participants!==1?'s':'')+'</div></div><div class="lb-pct"><div class="lb-pct-val">Top '+lb.percentile+'%</div><div class="lb-pct-lbl">Percentile</div></div></div>'}}catch(e){}
-    html+='<div class="review-head"><h2>Question Review</h2><div class="chips"><button class="chip active" data-f="all" onclick="setFilter(this,\'all\')">All</button><button class="chip" data-f="correct" onclick="setFilter(this,\'correct\')">Correct</button><button class="chip" data-f="wrong" onclick="setFilter(this,\'wrong\')">Wrong</button><button class="chip" data-f="skipped" onclick="setFilter(this,\'skipped\')">Skipped</button></div></div><div class="review-list" id="reviewList"></div>';
+    questions.forEach(function(q){
+      var a=userAnswers[q.id];
+      var g='';
+      if(typeof a==='object'&&a!==null){g=a.given||'';}
+      else if(typeof a==='string'){g=a;}
+      
+      if(!g)skipped++;
+      else if(g===q.correct_answer)correct++;
+      else wrong++;
+    });
+    
+    var pct=attempt.percentage||0;
+    var grade=gradeInfo(pct);
+    var timeTaken=attempt.time_taken_seconds||0;
+    var totalQ=questions.length;
+    
+    // Sections info
+    var sectionsHTML='';
+    var selectedSections=[];
+    try{selectedSections=JSON.parse(attempt.selected_sections||'[]')}catch(e){selectedSections=[]}
+    if(selectedSections.length>0){
+      sectionsHTML='<div class="sections-info"><span><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Sections: '+selectedSections.map(function(s){return esc(s)}).join(', ')+'</span></div>';
+    }
+    
+    var timeHTML='';
+    if(timeTaken>0){
+      var tm=(timeTaken/60).toFixed(1);
+      timeHTML='<div class="time-info"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: '+tm+' min / '+exam.time_limit+' min</span><span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: '+formatAvgTime(timeTaken,totalQ)+'</span></div>';
+    }
+    
+    var html='<div class="score-card">'+
+      '<div class="score-ring-wrap"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-fill" cx="60" cy="60" r="54" stroke="'+grade.color+'" style="stroke-dasharray:339;stroke-dashoffset:'+(339-(pct/100)*339)+'"/></svg><div class="ring-inner"><div class="ring-pct">'+pct.toFixed(1)+'%</div><div class="ring-lbl">Score</div></div></div>'+
+      '<div class="score-grade" style="color:'+grade.color+'">'+grade.label+'</div>'+
+      '<div class="score-exam">'+esc(exam.name)+(attempt.is_practice?' — Practice':'')+'</div>'+
+      '<div class="score-stats">'+
+      '<div class="sc-stat sc-correct"><div class="sc-stat-val">'+correct+'</div><div class="sc-stat-lbl">Correct</div></div>'+
+      '<div class="sc-stat sc-wrong"><div class="sc-stat-val">'+wrong+'</div><div class="sc-stat-lbl">Wrong</div></div>'+
+      '<div class="sc-stat sc-skip"><div class="sc-stat-val">'+skipped+'</div><div class="sc-stat-lbl">Skipped</div></div>'+
+      '</div>'+
+      timeHTML+
+      sectionsHTML+
+      '<div class="perf-bar"><div class="perf-fill" style="width:'+Math.max(pct,2)+'%;background:'+grade.color+'"></div></div>'+
+      '<div class="result-actions">'+
+      '<a href="dashboard.html" class="btn btn-outline"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>'+
+      (exam.allow_practice?'<a href="exam.html?id='+examId+'&practice=1" class="btn btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Mode</a>':'')+
+      '</div></div>';
+    
+    // Leaderboard - only if enabled
+    if(exam.leaderboard_enabled){
+      try{
+        var lbRes=await apiFetch('/leaderboard/'+examId);
+        if(lbRes.ok&&lbRes.data?.rank&&!lbRes.data.disabled){
+          var lb=lbRes.data;
+          html+='<div class="lb-card"><div class="lb-badge"><div class="lb-rank">#'+lb.rank+'</div><div class="lb-lbl">Rank</div></div><div class="lb-info"><div class="lb-title">Your Leaderboard Position</div><div class="lb-sub">Out of '+lb.total_participants+' participant'+(lb.total_participants!==1?'s':'')+'</div></div><div class="lb-pct"><div class="lb-pct-val">Top '+lb.percentile+'%</div><div class="lb-pct-lbl">Percentile</div></div></div>';
+        }
+      }catch(e){}
+    }
+    
+    html+='<div class="review-head"><h2>Question Review</h2><div class="chips">'+
+      '<button class="chip active" data-f="all" onclick="setFilter(this,\'all\')">All</button>'+
+      '<button class="chip" data-f="correct" onclick="setFilter(this,\'correct\')">Correct</button>'+
+      '<button class="chip" data-f="wrong" onclick="setFilter(this,\'wrong\')">Wrong</button>'+
+      '<button class="chip" data-f="skipped" onclick="setFilter(this,\'skipped\')">Skipped</button>'+
+      '</div></div><div class="review-list" id="reviewList"></div>';
+    
     document.getElementById('resultWrap').innerHTML=html;
     renderReview();
-  }catch(e){showError(e.message||'Network error')}
+  }catch(e){
+    showError(e.message||'Network error');
+  }
 }
 
 loadResult();
