@@ -364,7 +364,7 @@ async function apiFetch(path, opts = {}) {
 
 const params = new URLSearchParams(location.search);
 const examId = params.get('id');
-const isPrac = params.get('practice') === '1';
+let isPrac = params.get('practice') === '1';
 if (!examId) window.location.href = 'dashboard.html';
 if (!getToken()) window.location.href = '/';
 
@@ -393,17 +393,25 @@ async function loadAgreement() {
     exam = (data.exams || []).find(e => e.id == examId);
     if (!exam) { window.location.href = 'dashboard.html'; return; }
 
+    // Practice-only exam type: force practice mode client-side too, so the submit
+    // flow and result screen match what the server will actually do.
+    if (exam.is_practice_exam) isPrac = true;
+
     if (exam.has_sections && exam.section_config) {
       try { sectionConfig = JSON.parse(exam.section_config); renderSectionSelection(); } catch (e) { sectionConfig = null; }
     }
 
     document.getElementById('agreeTitle').textContent = exam.name + (isPrac ? ' — Practice' : '');
     const badge = document.getElementById('agreeTypeBadge');
-    if (isPrac) { badge.textContent = 'Practice Mode'; badge.className = 'agree-badge badge-blue'; }
+    if (exam.is_practice_exam) { badge.textContent = 'Practice-Only Exam'; badge.className = 'agree-badge badge-blue'; }
+    else if (isPrac) { badge.textContent = 'Practice Mode'; badge.className = 'agree-badge badge-blue'; }
     else if (exam.is_live) { badge.textContent = 'Live Exam'; badge.className = 'agree-badge badge-red'; }
     else { badge.textContent = 'Exam'; badge.className = 'agree-badge badge-blue'; }
 
-    if (exam.description) {
+    if (exam.is_practice_exam) {
+      document.getElementById('agreeDesc').style.display = 'block';
+      document.getElementById('agreeDesc').textContent = (exam.description ? exam.description + ' — ' : '') + 'This exam is practice-only: your result is never saved and it never appears on the leaderboard. You can retake it as many times as you like.';
+    } else if (exam.description) {
       document.getElementById('agreeDesc').style.display = 'block';
       document.getElementById('agreeDesc').textContent = exam.description;
     }
