@@ -219,6 +219,7 @@ body{
 .badge-live{background:var(--red-bg);color:var(--red)}
 .badge-closed{background:var(--red-bg);color:var(--red)}
 .badge-scheduled{background:var(--yel-bg);color:#e37400}
+.badge-practice{background:#e0e7ff;color:#4338ca}
 .exam-name{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1);margin-bottom:4px}
 .exam-desc{font-size:.8rem;color:var(--t3);margin-bottom:10px;line-height:1.5}
 .exam-meta{display:flex;gap:16px;flex-wrap:wrap}
@@ -830,7 +831,7 @@ function renderUpcomingStrip(){
 }
 
 async function renderRankings(){
-  const completed=allExams.filter(e=>e.stored_attempt&&e.results_visible).slice(0,3);
+  const completed=allExams.filter(e=>e.stored_attempt&&e.results_visible&&e.leaderboard_enabled).slice(0,3);
   if(!completed.length){document.getElementById('rankSection').style.display='none';return}
   document.getElementById('rankSection').style.display='block';
   const ranks=await Promise.all(completed.map(async e=>{const{data}=await apiFetch('/leaderboard/'+e.id);return{exam:e,lb:data}}));
@@ -920,6 +921,7 @@ function examCard(e){
   let badgeText=e.is_live?'Live':(e.is_premium?'Premium':'Free');
   if(e.is_closed){badgeCls='badge-closed';badgeText='Closed';}
   else if(isExamScheduled(e)||isUpcomingLive(e)){badgeCls='badge-scheduled';badgeText='Scheduled';}
+  else if(e.is_practice_exam){badgeCls='badge-practice';badgeText='Practice';}
   
   let scoreHtml='',actionHtml='';
   let scheduledBanner='';
@@ -956,7 +958,9 @@ function examCard(e){
       actionHtml='<button class="btn-take" disabled>Awaiting Results</button>';
     }
   }else{
-    if(e.is_live){
+    if(e.is_practice_exam){
+      actionHtml=`<button class="btn-take" onclick="startExam(${e.id},true)">Practice Exam</button>`;
+    }else if(e.is_live){
       actionHtml=`<button class="btn-take" onclick="startExam(${e.id},false)">Take Live Exam</button>`;
     }else if(e.live_ended&&e.live_deadline_hours>0){
       actionHtml=`<button class="btn-take" onclick="startExam(${e.id},true)">Start Practice</button>`;
