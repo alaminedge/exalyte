@@ -53,6 +53,11 @@ body{
 .icon-btn:hover{background:var(--hov)}
 .icon-btn svg{width:20px;height:20px}
 .main{flex:1;padding-top:var(--hh)}
+body.student-mode .main{padding-top:calc(var(--hh) + 40px)}
+.student-mode-bar{position:fixed;top:var(--hh);left:0;right:0;z-index:998;background:var(--yel-bg,#fef7e0);color:#7b5800;border-bottom:1px solid var(--yellow,#f9ab00);padding:8px 16px;display:none;align-items:center;justify-content:center;gap:12px;font-family:var(--gs);font-size:.78rem;font-weight:500;text-align:center;flex-wrap:wrap;transition:transform .25s ease}
+.student-mode-bar.show.header-hidden{transform:translateY(-150%)}
+.student-mode-bar.show{display:flex}
+.student-mode-bar button{background:#202124;color:#fff;border:none;padding:5px 14px;border-radius:4px;font-size:.72rem;font-weight:500;cursor:pointer;font-family:var(--gs);white-space:nowrap}
 .content{max-width:1080px;margin:0 auto;padding:32px 24px 60px;width:100%;padding-bottom:calc(60px + var(--safe-bottom))}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
 .stat-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:20px;text-align:center}
@@ -170,6 +175,11 @@ body{
   </div>
 </header>
 
+<div class="student-mode-bar" id="studentModeBar">
+  🎓 Student Mode — you're viewing Exalyte as a student would (full premium access).
+  <button onclick="exitStudentMode()">Exit to Admin</button>
+</div>
+
 <div class="mobile-nav-dropdown" id="mobileNavDropdown">
   <a href="dashboard.html">Dashboard</a>
   <a href="exam-history.html" class="active">History</a>
@@ -262,6 +272,9 @@ const API = '/api';
 function getToken(){return localStorage.getItem('exalyte_token')}
 function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
 function logout(){localStorage.clear();window.location.href='/'}
+function isStudentMode(){return localStorage.getItem('exalyte_student_mode')==='1'}
+function exitStudentMode(){localStorage.removeItem('exalyte_student_mode');window.location.href='admin.html'}
+function initStudentModeBar(){if(isStudentMode()&&getUser()?.is_admin){document.body.classList.add('student-mode');const bar=document.getElementById('studentModeBar');if(bar)bar.classList.add('show')}}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function formatDate(iso){return iso?new Date(iso).toLocaleDateString():'—'}
 
@@ -281,7 +294,9 @@ window.addEventListener('scroll',function(){
   if(!ticking){
     requestAnimationFrame(function(){
       var y=window.scrollY;
-      header.classList.toggle('hidden',y>lastY&&y>80);
+      var isHidden=y>lastY&&y>80;
+      header.classList.toggle('hidden',isHidden);
+      document.getElementById('studentModeBar')?.classList.toggle('header-hidden',isHidden);
       lastY=y;ticking=false;
     });
     ticking=true;
@@ -303,7 +318,8 @@ document.addEventListener('click',function(e){
 async function loadHistory(){
   if(!getToken()){window.location.href='/';return}
   var user=getUser();
-  if(user&&user.is_admin){window.location.href='admin.html';return}
+  if(user&&user.is_admin&&!isStudentMode()){window.location.href='admin.html';return}
+  initStudentModeBar();
   
   document.getElementById('historyContainer').innerHTML=
     '<div class="skeleton" style="height:120px;margin-bottom:12px"></div>'+
@@ -362,14 +378,16 @@ function renderHistory(){
     else scoreClass='pct-fail';
     
     var actions='';
+    var practiceAllowed=(item.is_practice_exam===1)||(!!item.allow_practice&&!item.is_closed);
     if(isVis){
       actions=
         '<a href="result.html?examId='+item.exam_id+'&attemptId='+item.id+'" class="btn-action btn-view">'+
           '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View Results'+
         '</a>'+
+        (practiceAllowed?
         '<a href="exam.html?id='+item.exam_id+'&practice=1" class="btn-action btn-practice">'+
           '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice'+
-        '</a>';
+        '</a>':'');
     }else{
       actions=
         '<span class="btn-action btn-disabled">'+
