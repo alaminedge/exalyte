@@ -196,6 +196,8 @@ async function initDB(db) {
       body TEXT DEFAULT '',
       image_url TEXT,
       link_url TEXT,
+      target_type TEXT DEFAULT 'all',
+      target_batch_id INTEGER REFERENCES batches(id) ON DELETE CASCADE,
       created_by INTEGER NOT NULL REFERENCES users(id),
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
@@ -253,6 +255,8 @@ async function initDB(db) {
   try { await db.prepare(`ALTER TABLE exam_results_stored ADD COLUMN selected_sections TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exam_results_stored ADD COLUMN time_taken_seconds INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exams ADD COLUMN is_practice_exam INTEGER DEFAULT 0`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE notifications ADD COLUMN target_type TEXT DEFAULT 'all'`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE notifications ADD COLUMN target_batch_id INTEGER REFERENCES batches(id) ON DELETE CASCADE`).run(); } catch (e) {}
 
   const adminHash = await sha256('Admin@2024');
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind('admin@exalyte.com').first();
@@ -678,6 +682,13 @@ async function handleStartExam(examId, request, db) {
   // Practice-only exam type: every attempt (including the first) is forced into practice mode
   // regardless of what the client sends — never stored, never counted, unlimited retakes.
   const is_practice = exam.is_practice_exam ? true : !!body.is_practice;
+
+  // Practice must be explicitly enabled by the admin for regular exams. This mirrors the
+  // check in handleGetExamQuestions so practice can never be started even if that second
+  // check is bypassed or called out of order.
+  if (is_practice && !exam.allow_practice && !exam.is_practice_exam && !user.is_admin) {
+    return err('Practice is not available for this exam.', 403);
+  }
   
   // Check if user already has a stored result (real exam only)
   if (!is_practice) {
@@ -1017,7 +1028,7 @@ async function handleLeaderboard(examId, request, db) {
 async function handleHistory(request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
-  const rows = await db.prepare(`SELECT ers.*, e.name as exam_name, e.results_published, e.live_deadline_hours, e.scheduled_at, e.created_at as exam_created_at FROM exam_results_stored ers JOIN exams e ON ers.exam_id = e.id WHERE ers.user_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0 ORDER BY ers.submitted_at DESC`).bind(user.id).all();
+  const rows = await db.prepare(`SELECT ers.*, e.name as exam_name, e.results_published, e.live_deadline_hours, e.scheduled_at, e.created_at as exam_created_at, e.allow_practice, e.is_practice_exam, e.is_closed FROM exam_results_stored ers JOIN exams e ON ers.exam_id = e.id WHERE ers.user_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0 ORDER BY ers.submitted_at DESC`).bind(user.id).all();
   const result = [];
   for (const r of rows.results) {
     const examForLive = { live_deadline_hours: r.live_deadline_hours, created_at: r.exam_created_at, scheduled_at: r.scheduled_at };
@@ -1038,11 +1049,37 @@ async function handleHistory(request, db) {
 // NOTIFICATIONS
 // ============================================================
 
+// A notification reaches a user if it's targeted at 'all', OR it's targeted at a batch the
+// user has access to (batch-scope premium grant, or account-wide premium which implies access
+// to everything). Admins always see every notification, same as every other admin bypass.
+function notificationAudienceClause(alias) {
+  return `(${alias}.target_type IS NULL OR ${alias}.target_type = 'all' OR (
+    ${alias}.target_type = 'batch' AND (
+      ? = 1
+      OR EXISTS (SELECT 1 FROM users u2 WHERE u2.id = ? AND u2.premium_until IS NOT NULL AND u2.premium_until > ?)
+      OR EXISTS (SELECT 1 FROM premium_access pa WHERE pa.user_id = ? AND pa.batch_id = ${alias}.target_batch_id AND (pa.expires_at IS NULL OR pa.expires_at > ?))
+    )
+  ))`;
+}
+
 async function handleListNotifications(request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
-  const notifications = await db.prepare(`SELECT n.*, u.name as creator_name, CASE WHEN nr.id IS NOT NULL THEN 1 ELSE 0 END as is_read FROM notifications n JOIN users u ON n.created_by = u.id LEFT JOIN notification_reads nr ON n.id = nr.notification_id AND nr.user_id = ? ORDER BY n.created_at DESC`).bind(user.id).all();
-  const unreadCount = await db.prepare('SELECT COUNT(*) as count FROM notifications n WHERE n.id NOT IN (SELECT notification_id FROM notification_reads WHERE user_id = ?)').bind(user.id).first();
+  const now = new Date().toISOString();
+  const isAdmin = user.is_admin ? 1 : 0;
+  const notifications = await db.prepare(
+    `SELECT n.*, u.name as creator_name, CASE WHEN nr.id IS NOT NULL THEN 1 ELSE 0 END as is_read
+     FROM notifications n
+     JOIN users u ON n.created_by = u.id
+     LEFT JOIN notification_reads nr ON n.id = nr.notification_id AND nr.user_id = ?
+     WHERE ${notificationAudienceClause('n')}
+     ORDER BY n.created_at DESC`
+  ).bind(user.id, isAdmin, user.id, now, user.id, now).all();
+  const unreadCount = await db.prepare(
+    `SELECT COUNT(*) as count FROM notifications n
+     WHERE ${notificationAudienceClause('n')}
+     AND n.id NOT IN (SELECT notification_id FROM notification_reads WHERE user_id = ?)`
+  ).bind(isAdmin, user.id, now, user.id, now, user.id).first();
   return json({ notifications: notifications.results, unread_count: unreadCount.count }, 200, 10);
 }
 
@@ -1259,14 +1296,32 @@ async function handleAdminDeleteAllResults(db) {
 }
 
 async function handleAdminCreateNotification(request, db, adminId) {
-  const { title, body, image_url, link_url } = await request.json();
+  const { title, body, image_url, link_url, target_type, target_batch_id } = await request.json();
   if (!title) return err('Title required');
-  const r = await db.prepare('INSERT INTO notifications (title, body, image_url, link_url, created_by) VALUES (?, ?, ?, ?, ?) RETURNING *').bind(title, body || '', image_url || null, link_url || null, adminId).first();
+  const targetType = target_type === 'batch' ? 'batch' : 'all';
+  if (targetType === 'batch' && !target_batch_id) return err('Select a batch to notify.');
+  const r = await db.prepare(
+    'INSERT INTO notifications (title, body, image_url, link_url, target_type, target_batch_id, created_by) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *'
+  ).bind(title, body || '', image_url || null, link_url || null, targetType, targetType === 'batch' ? target_batch_id : null, adminId).first();
   return json(r, 201);
 }
 
 async function handleAdminListNotifications(db) {
-  const rows = await db.prepare('SELECT n.*, u.name as creator_name, (SELECT COUNT(*) FROM notification_reads nr WHERE nr.notification_id = n.id) as read_count, (SELECT COUNT(*) FROM users) as total_users FROM notifications n JOIN users u ON n.created_by = u.id ORDER BY n.created_at DESC').all();
+  const now = new Date().toISOString();
+  const rows = await db.prepare(
+    `SELECT n.*, u.name as creator_name, b.name as target_batch_name,
+      (SELECT COUNT(*) FROM notification_reads nr WHERE nr.notification_id = n.id) as read_count,
+      (CASE WHEN n.target_type = 'batch' THEN (
+        SELECT COUNT(*) FROM users u2 WHERE u2.is_admin = 0 AND (
+          (u2.premium_until IS NOT NULL AND u2.premium_until > ?)
+          OR EXISTS (SELECT 1 FROM premium_access pa WHERE pa.user_id = u2.id AND pa.batch_id = n.target_batch_id AND (pa.expires_at IS NULL OR pa.expires_at > ?))
+        )
+      ) ELSE (SELECT COUNT(*) FROM users) END) as total_users
+     FROM notifications n
+     JOIN users u ON n.created_by = u.id
+     LEFT JOIN batches b ON n.target_batch_id = b.id
+     ORDER BY n.created_at DESC`
+  ).bind(now, now).all();
   return json(rows.results, 200, 10);
 }
 
