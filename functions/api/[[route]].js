@@ -252,6 +252,7 @@ async function initDB(db) {
   try { await db.prepare(`ALTER TABLE questions ADD COLUMN section_order INTEGER DEFAULT 1`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exam_results_stored ADD COLUMN selected_sections TEXT DEFAULT ''`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exam_results_stored ADD COLUMN time_taken_seconds INTEGER DEFAULT 0`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE exams ADD COLUMN is_practice_exam INTEGER DEFAULT 0`).run(); } catch (e) {}
 
   const adminHash = await sha256('Admin@2024');
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind('admin@exalyte.com').first();
@@ -664,7 +665,8 @@ async function handleStartExam(examId, request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
   
-  const { is_practice, selected_sections } = await request.json();
+  const body = await request.json();
+  const selected_sections = body.selected_sections;
   const exam = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   if (!exam) return err('Exam not found', 404);
   
@@ -672,6 +674,10 @@ async function handleStartExam(examId, request, db) {
   
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
+  
+  // Practice-only exam type: every attempt (including the first) is forced into practice mode
+  // regardless of what the client sends — never stored, never counted, unlimited retakes.
+  const is_practice = exam.is_practice_exam ? true : !!body.is_practice;
   
   // Check if user already has a stored result (real exam only)
   if (!is_practice) {
@@ -727,8 +733,8 @@ async function handleGetExamQuestions(examId, request, db) {
     if (Date.now() < new Date(exam.scheduled_at).getTime()) return err('Exam not yet available.', 403);
   }
   const url = new URL(request.url);
-  const isPractice = url.searchParams.get('practice') === '1';
-  if (isPractice && !exam.allow_practice) return err('Practice not available.', 403);
+  const isPractice = url.searchParams.get('practice') === '1' || !!exam.is_practice_exam;
+  if (isPractice && !exam.allow_practice && !exam.is_practice_exam) return err('Practice not available.', 403);
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
 
@@ -772,7 +778,7 @@ async function handleSubmitExam(examId, request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
   
-  const { answers, is_practice, time_taken_seconds, selected_sections } = await request.json();
+  const { answers, is_practice: clientIsPractice, time_taken_seconds, selected_sections } = await request.json();
   const exam = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   if (!exam) return err('Exam not found', 404);
   
@@ -780,6 +786,10 @@ async function handleSubmitExam(examId, request, db) {
   
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
+
+  // Practice-only exam type: force practice mode for every attempt server-side,
+  // regardless of what the client sends — never stored, never counted.
+  const is_practice = exam.is_practice_exam ? true : !!clientIsPractice;
 
   // Fetch only selected sections for grading
   let questions;
@@ -1050,13 +1060,13 @@ async function handleMarkNotificationRead(notifId, request, db) {
 async function handleAdminCreateExam(request, db) {
   const body = await request.json();
   if (!body.name) return err('Name required');
-  const r = await db.prepare(`INSERT INTO exams (name, description, time_limit, is_premium, negative_marking, marks_per_question, allow_practice, batch_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled, scheduled_at, has_sections, section_config) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`).bind(body.name, body.description || '', body.time_limit || 30, body.is_premium ? 1 : 0, body.negative_marking || 0, body.marks_per_question || 1, body.allow_practice !== false ? 1 : 0, body.batch_id || null, body.live_deadline_hours || 0, body.results_published ? 1 : 0, body.publish_after_hours || 0, body.leaderboard_enabled !== false ? 1 : 0, body.scheduled_at || null, body.has_sections ? 1 : 0, body.section_config || '').first();
+  const r = await db.prepare(`INSERT INTO exams (name, description, time_limit, is_premium, negative_marking, marks_per_question, allow_practice, batch_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled, scheduled_at, has_sections, section_config, is_practice_exam) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`).bind(body.name, body.description || '', body.time_limit || 30, body.is_premium ? 1 : 0, body.negative_marking || 0, body.marks_per_question || 1, body.allow_practice !== false ? 1 : 0, body.batch_id || null, body.live_deadline_hours || 0, body.results_published ? 1 : 0, body.publish_after_hours || 0, body.leaderboard_enabled !== false ? 1 : 0, body.scheduled_at || null, body.has_sections ? 1 : 0, body.section_config || '', body.is_practice_exam ? 1 : 0).first();
   return json(r, 201);
 }
 
 async function handleAdminUpdateExam(examId, request, db) {
   const body = await request.json();
-  await db.prepare(`UPDATE exams SET name = ?, description = ?, time_limit = ?, is_premium = ?, negative_marking = ?, marks_per_question = ?, allow_practice = ?, batch_id = ?, live_deadline_hours = ?, results_published = ?, publish_after_hours = ?, leaderboard_enabled = ?, scheduled_at = ?, has_sections = ?, section_config = ? WHERE id = ?`).bind(body.name, body.description || '', body.time_limit || 30, body.is_premium ? 1 : 0, body.negative_marking || 0, body.marks_per_question || 1, body.allow_practice !== false ? 1 : 0, body.batch_id || null, body.live_deadline_hours || 0, body.results_published ? 1 : 0, body.publish_after_hours || 0, body.leaderboard_enabled !== false ? 1 : 0, body.scheduled_at || null, body.has_sections ? 1 : 0, body.section_config || '', examId).run();
+  await db.prepare(`UPDATE exams SET name = ?, description = ?, time_limit = ?, is_premium = ?, negative_marking = ?, marks_per_question = ?, allow_practice = ?, batch_id = ?, live_deadline_hours = ?, results_published = ?, publish_after_hours = ?, leaderboard_enabled = ?, scheduled_at = ?, has_sections = ?, section_config = ?, is_practice_exam = ? WHERE id = ?`).bind(body.name, body.description || '', body.time_limit || 30, body.is_premium ? 1 : 0, body.negative_marking || 0, body.marks_per_question || 1, body.allow_practice !== false ? 1 : 0, body.batch_id || null, body.live_deadline_hours || 0, body.results_published ? 1 : 0, body.publish_after_hours || 0, body.leaderboard_enabled !== false ? 1 : 0, body.scheduled_at || null, body.has_sections ? 1 : 0, body.section_config || '', body.is_practice_exam ? 1 : 0, examId).run();
   const r = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   return json(r);
 }
@@ -1235,6 +1245,19 @@ async function handleAdminDeleteResult(resultId, db) {
   return json({ success: true });
 }
 
+// Delete every stored result for a single exam (clears that exam's leaderboard,
+// lets every user retake it as a fresh first attempt).
+async function handleAdminDeleteExamResults(examId, db) {
+  await db.prepare('DELETE FROM exam_results_stored WHERE exam_id = ?').bind(examId).run();
+  return json({ success: true });
+}
+
+// Delete every stored result for every exam on the platform.
+async function handleAdminDeleteAllResults(db) {
+  await db.prepare('DELETE FROM exam_results_stored').run();
+  return json({ success: true });
+}
+
 async function handleAdminCreateNotification(request, db, adminId) {
   const { title, body, image_url, link_url } = await request.json();
   if (!title) return err('Title required');
@@ -1364,9 +1387,12 @@ export async function onRequest(context) {
     if (adminDelUser && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminDeleteUser(adminDelUser[1], request, db, admin.id); }
     
     if (path === '/admin/results' && method === 'GET') { if (!admin) return err('Admin required', 403); return handleAdminResults(null, db); }
+    if (path === '/admin/results' && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminDeleteAllResults(db); }
     const adminResults = path.match(/^\/admin\/results\/(\d+)$/);
     if (adminResults && method === 'GET') { if (!admin) return err('Admin required', 403); return handleAdminResults(adminResults[1], db); }
     if (adminResults && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminDeleteResult(adminResults[1], db); }
+    const adminExamResults = path.match(/^\/admin\/exams\/(\d+)\/results$/);
+    if (adminExamResults && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminDeleteExamResults(adminExamResults[1], db); }
     
     if (path === '/admin/notifications' && method === 'POST') { if (!admin) return err('Admin required', 403); return handleAdminCreateNotification(request, db, admin.id); }
     if (path === '/admin/notifications' && method === 'GET') { if (!admin) return err('Admin required', 403); return handleAdminListNotifications(db); }
