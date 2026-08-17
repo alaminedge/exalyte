@@ -207,9 +207,8 @@ tr:last-child td{border-bottom:none}
     <span class="admin-tag">Admin</span>
   </div>
   <div class="header-right">
-    <button class="btn btn-outline btn-sm" onclick="enterStudentMode()" title="Browse the app as a student would see it">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg>
-      Student Mode
+    <button class="btn btn-outline btn-sm" onclick="enterStudentMode()" title="Enter Student Mode — browse the app as a student would see it" aria-label="Enter Student Mode">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg>
     </button>
     <button class="btn btn-danger btn-sm" onclick="logout()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -303,7 +302,28 @@ tr:last-child td{border-bottom:none}
         </div>
         <div class="user-search-results" id="userSearchResults"></div>
       </div></div>
-      <div class="card"><div class="card-header"><span class="card-title">Registered Users</span></div><div class="card-body"><div class="table-wrap" id="usersTable"><div class="skeleton" style="height:40px"></div></div></div></div>
+      <div class="card"><div class="card-header">
+        <span class="card-title">Registered Users</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <select class="form-select" id="userFilterType" style="width:auto;min-width:160px;padding:8px 10px;font-size:.78rem" onchange="onUserFilterTypeChange()">
+            <option value="all">All users</option>
+            <option value="batch">Batch premium</option>
+            <option value="exam">Exam premium</option>
+            <option value="account">Account-wide premium</option>
+            <option value="none">Non-premium</option>
+          </select>
+          <input type="hidden" id="userFilterBatchId">
+          <div class="searchable-select searchable-select-sm" id="userFilterBatchWrap" style="display:none;width:180px">
+            <button class="searchable-select-trigger" onclick="toggleSearchableSelect('userFilterBatchWrap')"><span class="ss-label placeholder">Any batch</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="searchable-select-dropdown"><div class="searchable-select-search"><input type="text" placeholder="Search batches..." oninput="filterSearchableOptions(this)"></div><div class="searchable-select-list" id="userFilterBatchWrapList"></div></div>
+          </div>
+          <input type="hidden" id="userFilterExamId">
+          <div class="searchable-select searchable-select-sm" id="userFilterExamWrap" style="display:none;width:180px">
+            <button class="searchable-select-trigger" onclick="toggleSearchableSelect('userFilterExamWrap')"><span class="ss-label placeholder">Any exam</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="searchable-select-dropdown"><div class="searchable-select-search"><input type="text" placeholder="Search exams..." oninput="filterSearchableOptions(this)"></div><div class="searchable-select-list" id="userFilterExamWrapList"></div></div>
+          </div>
+        </div>
+      </div><div class="card-body"><div class="table-wrap" id="usersTable"><div class="skeleton" style="height:40px"></div></div></div></div>
     </div>
 
     <div class="section" id="sec-results">
@@ -561,7 +581,44 @@ async function loadResourcesForTarget(){const id=currentResourceType==='exam'?do
 async function addResource(){const t=document.getElementById('newResourceTitle').value.trim();const l=document.getElementById('newResourceLink').value.trim();if(!currentResourceTargetId||!t||!l){alert('Select target and fill all fields');return}const ep=currentResourceType==='exam'?'/admin/resources':'/admin/batch-resources';const body=currentResourceType==='exam'?{exam_id:currentResourceTargetId,title:t,link:l}:{batch_id:currentResourceTargetId,title:t,link:l};const{ok}=await apiFetch(ep,{method:'POST',body:JSON.stringify(body)});if(ok){document.getElementById('newResourceTitle').value='';document.getElementById('newResourceLink').value='';toast('Resource added');await loadResourcesForTarget()}}
 async function deleteResource(id){if(confirm('Delete this resource?')){const ep=currentResourceType==='exam'?`/admin/resources/${id}`:`/admin/batch-resources/${id}`;await apiFetch(ep,{method:'DELETE'});toast('Resource deleted');await loadResourcesForTarget()}}
 
-async function loadUsers(){const{data}=await apiFetch('/admin/users');allUsers=data||[];document.getElementById('usersTable').innerHTML=`<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Premium</th><th>Actions</th></tr></thead><tbody>${allUsers.map(u=>{let prem='';if(u.premium_grants&&u.premium_grants.length){prem=u.premium_grants.map(g=>{const c=g.grant_scope==='exam'?'pt-exam':g.grant_scope==='batch'?'pt-batch':'pt-account';const n=g.exam_name||g.batch_name||(g.grant_scope==='account'?'Account':g.grant_scope);const rf=g.grant_scope==='exam'?`revokeExamPremium(${u.id},${g.exam_id})`:g.grant_scope==='batch'?`revokeBatchPremium(${u.id},${g.batch_id})`:`revokeAccountPremium(${u.id})`;return `<span class="premium-tag ${c}">${esc(n)}<button class="revoke-btn" onclick="${rf}">✕</button></span>`}).join('')}else prem='<span style="color:var(--t4);font-size:.7rem">None</span>';let st='<span class="badge badge-free">Active</span>';if(u.is_banned)st='<span class="badge badge-banned">Banned</span>';else if(u.is_admin)st='<span class="badge badge-admin">Admin</span>';let act='';if(!u.is_admin){act=`<button class="btn btn-primary btn-xs" onclick="openGrantModal(${u.id},'${esc(u.name)}')">Grant</button>`;if(u.is_banned)act+=` <button class="btn btn-outline btn-xs" onclick="unbanUser(${u.id})">Unban</button>`;else act+=` <button class="btn btn-outline btn-xs" style="color:#e37400;border-color:#e37400" onclick="confirmBan(${u.id},'${esc(u.name)}')">Ban</button>`;act+=` <button class="btn btn-danger btn-xs" onclick="confirmDeleteUser(${u.id},'${esc(u.name)}')">Delete</button>`}return `<tr><td><strong>${esc(u.name)}</strong></td><td style="color:var(--t4);font-size:.75rem">${esc(u.email)}</td><td>${u.is_admin?'Admin':'Student'}</td><td>${st}</td><td style="max-width:180px">${prem}</td><td>${act||'—'}</td></tr>`}).join('')||'<tr><td colspan="6">No users</td></tr>'}</tbody></table>`;const activeQuery=document.getElementById('userSearchInput')?.value;if(activeQuery)onUserSearchInput()}
+let userFilterType='all';
+function userRowHtml(u){let prem='';if(u.premium_grants&&u.premium_grants.length){prem=u.premium_grants.map(g=>{const c=g.grant_scope==='exam'?'pt-exam':g.grant_scope==='batch'?'pt-batch':'pt-account';const n=g.exam_name||g.batch_name||(g.grant_scope==='account'?'Account':g.grant_scope);const rf=g.grant_scope==='exam'?`revokeExamPremium(${u.id},${g.exam_id})`:g.grant_scope==='batch'?`revokeBatchPremium(${u.id},${g.batch_id})`:`revokeAccountPremium(${u.id})`;return `<span class="premium-tag ${c}">${esc(n)}<button class="revoke-btn" onclick="${rf}">✕</button></span>`}).join('')}else prem='<span style="color:var(--t4);font-size:.7rem">None</span>';let st='<span class="badge badge-free">Active</span>';if(u.is_banned)st='<span class="badge badge-banned">Banned</span>';else if(u.is_admin)st='<span class="badge badge-admin">Admin</span>';let act='';if(!u.is_admin){act=`<button class="btn btn-primary btn-xs" onclick="openGrantModal(${u.id},'${esc(u.name)}')">Grant</button>`;if(u.is_banned)act+=` <button class="btn btn-outline btn-xs" onclick="unbanUser(${u.id})">Unban</button>`;else act+=` <button class="btn btn-outline btn-xs" style="color:#e37400;border-color:#e37400" onclick="confirmBan(${u.id},'${esc(u.name)}')">Ban</button>`;act+=` <button class="btn btn-danger btn-xs" onclick="confirmDeleteUser(${u.id},'${esc(u.name)}')">Delete</button>`}return `<tr><td><strong>${esc(u.name)}</strong></td><td style="color:var(--t4);font-size:.75rem">${esc(u.email)}</td><td>${u.is_admin?'Admin':'Student'}</td><td>${st}</td><td style="max-width:180px">${prem}</td><td>${act||'—'}</td></tr>`}
+function isActiveGrant(g){return!g.expires_at||new Date(g.expires_at).getTime()>Date.now()}
+function userMatchesPremiumFilter(u){
+  if(userFilterType==='all')return true;
+  const grants=u.premium_grants||[];
+  const now=Date.now();
+  if(userFilterType==='batch'){
+    const bg=grants.filter(g=>g.grant_scope==='batch'&&isActiveGrant(g));
+    if(!bg.length)return false;
+    const bid=document.getElementById('userFilterBatchId').value;
+    return bid?bg.some(g=>String(g.batch_id)===String(bid)):true;
+  }
+  if(userFilterType==='exam'){
+    const eg=grants.filter(g=>g.grant_scope==='exam'&&isActiveGrant(g));
+    if(!eg.length)return false;
+    const eid=document.getElementById('userFilterExamId').value;
+    return eid?eg.some(g=>String(g.exam_id)===String(eid)):true;
+  }
+  if(userFilterType==='account')return!!(u.premium_until&&new Date(u.premium_until).getTime()>now);
+  if(userFilterType==='none'){
+    const hasBatch=grants.some(g=>g.grant_scope==='batch'&&isActiveGrant(g));
+    const hasExam=grants.some(g=>g.grant_scope==='exam'&&isActiveGrant(g));
+    const hasAccount=!!(u.premium_until&&new Date(u.premium_until).getTime()>now);
+    return!hasBatch&&!hasExam&&!hasAccount;
+  }
+  return true;
+}
+function onUserFilterTypeChange(){
+  userFilterType=document.getElementById('userFilterType').value;
+  document.getElementById('userFilterBatchWrap').style.display=userFilterType==='batch'?'block':'none';
+  document.getElementById('userFilterExamWrap').style.display=userFilterType==='exam'?'block':'none';
+  if(userFilterType==='batch'){document.getElementById('userFilterBatchId').value='';registerSearchableSelect('userFilterBatchWrap',[{value:'',label:'Any batch',desc:''}].concat(allBatches.map(b=>({value:b.id,label:b.name,desc:(b.exam_count||0)+' exams'}))),'userFilterBatchId',()=>renderUsersTable(),{defaultValue:'',placeholder:'Any batch'});updateSearchableSelectUI('userFilterBatchWrap')}
+  if(userFilterType==='exam'){document.getElementById('userFilterExamId').value='';registerSearchableSelect('userFilterExamWrap',[{value:'',label:'Any exam',desc:''}].concat(allExams.map(e=>({value:e.id,label:e.name,desc:e.batch_name||''}))),'userFilterExamId',()=>renderUsersTable(),{defaultValue:'',placeholder:'Any exam'});updateSearchableSelectUI('userFilterExamWrap')}
+  renderUsersTable();
+}
+function renderUsersTable(){const filtered=allUsers.filter(userMatchesPremiumFilter);document.getElementById('usersTable').innerHTML=`<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Premium</th><th>Actions</th></tr></thead><tbody>${filtered.map(userRowHtml).join('')||'<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--t3)">No users match this filter</td></tr>'}</tbody></table>`;const activeQuery=document.getElementById('userSearchInput')?.value;if(activeQuery)onUserSearchInput()}
+async function loadUsers(){const{data}=await apiFetch('/admin/users');allUsers=data||[];renderUsersTable()}
 
 function openGrantModal(id,name){grantUserId=id;document.getElementById('grantUserDisplay').textContent=name;registerSearchableSelect('grantExamSelectWrap',allExams.map(e=>({value:e.id,label:e.name,desc:e.batch_name||''})),'grantExam',()=>{},{defaultValue:'',placeholder:'Search exams...'});registerSearchableSelect('grantBatchSelectWrap',allBatches.map(b=>({value:b.id,label:b.name,desc:(b.exam_count||0)+' exams'})),'grantBatch',()=>{},{defaultValue:'',placeholder:'Search batches...'});updateSearchableSelectUI('grantExamSelectWrap');updateSearchableSelectUI('grantBatchSelectWrap');toggleGrantScope();document.getElementById('grantModal').classList.add('open')}
 function toggleGrantScope(){const s=document.getElementById('grantScope').value;document.getElementById('grantExamGroup').style.display=s==='exam'?'block':'none';document.getElementById('grantBatchGroup').style.display=s==='batch'?'block':'none'}
