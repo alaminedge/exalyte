@@ -1196,6 +1196,42 @@ async function handleAdminRevokeAccountPremium(request, db) {
   return json({ success: true });
 }
 
+// Who has access to a given batch, split into two categories:
+//  - "batch" grants: users granted premium specifically for this batch
+//  - "account" grants: users with account-wide premium (they can already see this
+//    batch's content too, even though they weren't granted this batch specifically)
+// Each entry includes days_remaining (null = permanent / never expires).
+async function handleAdminBatchUsers(batchId, db) {
+  const batch = await db.prepare('SELECT id, name FROM batches WHERE id = ?').bind(batchId).first();
+  if (!batch) return err('Batch not found', 404);
+  const now = Date.now();
+  const nowIso = new Date(now).toISOString();
+
+  const batchGrantsRes = await db.prepare(
+    `SELECT u.id as user_id, u.name, u.email, pa.expires_at
+     FROM premium_access pa JOIN users u ON pa.user_id = u.id
+     WHERE pa.batch_id = ? AND pa.grant_scope = 'batch' AND (pa.expires_at IS NULL OR pa.expires_at > ?)
+     ORDER BY u.name COLLATE NOCASE`
+  ).bind(batchId, nowIso).all();
+
+  const accountUsersRes = await db.prepare(
+    `SELECT id as user_id, name, email, premium_until as expires_at
+     FROM users WHERE premium_until IS NOT NULL AND premium_until > ?
+     ORDER BY name COLLATE NOCASE`
+  ).bind(nowIso).all();
+
+  const withDaysRemaining = (rows) => rows.map(r => ({
+    ...r,
+    days_remaining: r.expires_at ? Math.max(0, Math.ceil((new Date(r.expires_at).getTime() - now) / 86400000)) : null
+  }));
+
+  return json({
+    batch: { id: batch.id, name: batch.name },
+    batch_users: withDaysRemaining(batchGrantsRes.results),
+    account_users: withDaysRemaining(accountUsersRes.results)
+  }, 200, 10);
+}
+
 async function handleAdminBanUser(userId, request, db, adminId) {
   const user = await db.prepare('SELECT id, device_fingerprint, created_ip FROM users WHERE id = ?').bind(userId).first();
   if (!user) return err('User not found', 404);
@@ -1433,6 +1469,8 @@ export async function onRequest(context) {
     if (path === '/admin/grant-premium' && method === 'POST') { if (!admin) return err('Admin required', 403); return handleAdminGrantPremium(request, db, admin.id); }
     if (path === '/admin/revoke-premium' && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminRevokePremium(request, db); }
     if (path === '/admin/revoke-account-premium' && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminRevokeAccountPremium(request, db); }
+    const batchUsers = path.match(/^\/admin\/batches\/(\d+)\/users$/);
+    if (batchUsers && method === 'GET') { if (!admin) return err('Admin required', 403); return handleAdminBatchUsers(batchUsers[1], db); }
     
     const adminBan = path.match(/^\/admin\/users\/(\d+)\/ban$/);
     if (adminBan && method === 'POST') { if (!admin) return err('Admin required', 403); return handleAdminBanUser(adminBan[1], request, db, admin.id); }
