@@ -69,6 +69,14 @@ body{
 .filter-chip{padding:10px 18px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.8rem;font-weight:500;color:var(--t3);background:var(--surf);cursor:pointer;transition:all var(--tr);white-space:nowrap;min-height:40px;display:flex;align-items:center}
 .filter-chip:hover{border-color:var(--blue);color:var(--blue)}
 .filter-chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
+.batch-filter-select{padding:10px 14px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.8rem;font-weight:500;color:var(--t2);background:var(--surf);cursor:pointer;min-height:40px;flex:0 0 auto}
+.pager{display:flex;gap:6px;justify-content:center;align-items:center;padding:14px 4px 4px;flex-wrap:wrap}
+.pager-btn{min-width:32px;height:32px;padding:0 8px;border:1px solid var(--border);background:var(--surf);border-radius:var(--r);font-size:.78rem;cursor:pointer;color:var(--t2);font-family:var(--rb)}
+.pager-btn:hover:not(:disabled){border-color:var(--t3)}
+.pager-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.pager-btn:disabled{opacity:.4;cursor:not-allowed}
+.pager-ellipsis{color:var(--t4);font-size:.78rem;padding:0 2px}
+.pager-info{font-size:.68rem;color:var(--t4);text-align:center;padding-top:2px}
 .history-list{display:flex;flex-direction:column;gap:12px}
 .history-item{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:20px;transition:box-shadow var(--tr)}
 .history-item:hover{box-shadow:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15)}
@@ -215,7 +223,11 @@ body{
     <div class="section-header"><h2>Exam History</h2></div>
     <div class="filters">
       <input type="text" class="search-input" id="searchInput" placeholder="Search exams..." oninput="renderHistory()" aria-label="Search exams">
+      <select class="batch-filter-select" id="batchFilterSelect" onchange="renderHistory()" aria-label="Filter by batch">
+        <option value="">All Batches</option>
+      </select>
       <button class="filter-chip active" data-filter="all" onclick="setFilter(this)">All</button>
+      <button class="filter-chip" data-filter="recent" onclick="setFilter(this)">Recent</button>
       <button class="filter-chip" data-filter="published" onclick="setFilter(this)">Published</button>
       <button class="filter-chip" data-filter="pending" onclick="setFilter(this)">Pending</button>
     </div>
@@ -280,6 +292,22 @@ async function apiFetch(path,opts){
 }
 
 let historyData=[],currentFilter='all';
+let historyPageNum=1,lastHistoryFilterSig='';
+const HISTORY_PER_PAGE=8;
+function paginateList(list,page,perPage){const totalPages=Math.max(1,Math.ceil(list.length/perPage));const p=Math.min(Math.max(1,page),totalPages);return{items:list.slice((p-1)*perPage,p*perPage),page:p,totalPages,total:list.length}}
+function pagerHtml(page,totalPages,total,fn){if(totalPages<=1)return'';var start=Math.max(1,page-2),end=Math.min(totalPages,start+4);start=Math.max(1,end-4);var pages=[];for(var i=start;i<=end;i++)pages.push(i);var html='<div class="pager">';html+='<button class="pager-btn" '+(page<=1?'disabled':'')+' onclick="'+fn+'('+(page-1)+')">Prev</button>';if(start>1){html+='<button class="pager-btn" onclick="'+fn+'(1)">1</button>';if(start>2)html+='<span class="pager-ellipsis">\u2026</span>'}pages.forEach(function(i){html+='<button class="pager-btn'+(i===page?' active':'')+'" onclick="'+fn+'('+i+')">'+i+'</button>'});if(end<totalPages){if(end<totalPages-1)html+='<span class="pager-ellipsis">\u2026</span>';html+='<button class="pager-btn" onclick="'+fn+'('+totalPages+')">'+totalPages+'</button>'}html+='<button class="pager-btn" '+(page>=totalPages?'disabled':'')+' onclick="'+fn+'('+(page+1)+')">Next</button>';html+='</div><div class="pager-info">Page '+page+' of '+totalPages+' \u00b7 '+total+' total</div>';return html}
+function goToHistoryPage(p){historyPageNum=p;renderHistory()}
+function populateBatchFilter(){
+  var sel=document.getElementById('batchFilterSelect');
+  if(!sel)return;
+  var current=sel.value;
+  var seen={};
+  historyData.forEach(function(h){if(h.batch_id&&!seen[h.batch_id])seen[h.batch_id]=h.batch_name||'Batch'});
+  var opts='<option value="">All Batches</option>';
+  Object.keys(seen).sort(function(a,b){return seen[a].localeCompare(seen[b])}).forEach(function(id){opts+='<option value="'+id+'">'+esc(seen[id])+'</option>'});
+  sel.innerHTML=opts;
+  if(current&&seen[current])sel.value=current;
+}
 
 const header=document.getElementById('header');
 let lastY=0,ticking=false;
@@ -321,6 +349,7 @@ async function loadHistory(){
   var result=await apiFetch('/history');
   if(!result.ok){logout();return}
   historyData=result.data||[];
+  populateBatchFilter();
   updateStats();
   renderHistory();
 }
@@ -343,14 +372,19 @@ function updateStats(){
 
 function renderHistory(){
   var search=document.getElementById('searchInput').value.toLowerCase();
-  var filtered=historyData.filter(function(h){
+  var batchFilterId=document.getElementById('batchFilterSelect')?document.getElementById('batchFilterSelect').value:'';
+  var sig=search+'|'+currentFilter+'|'+batchFilterId;
+  if(sig!==lastHistoryFilterSig){historyPageNum=1;lastHistoryFilterSig=sig}
+  var filteredAll=historyData.filter(function(h){
     if(search&&h.exam_name.toLowerCase().indexOf(search)===-1)return false;
+    if(batchFilterId&&String(h.batch_id)!==String(batchFilterId))return false;
     if(currentFilter==='published')return h.results_visible===true;
     if(currentFilter==='pending')return h.results_visible===false;
+    if(currentFilter==='recent')return h.submitted_at&&(Date.now()-new Date(h.submitted_at).getTime())<14*86400000;
     return true;
   });
   
-  if(!filtered.length){
+  if(!filteredAll.length){
     document.getElementById('historyContainer').innerHTML=
       '<div class="empty-state">'+
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>'+
@@ -359,6 +393,10 @@ function renderHistory(){
       '</div>';
     return;
   }
+  
+  var page=paginateList(filteredAll,historyPageNum,HISTORY_PER_PAGE);
+  historyPageNum=page.page;
+  var filtered=page.items;
   
   document.getElementById('historyContainer').innerHTML=filtered.map(function(item){
     var isVis=item.results_visible===true;
@@ -417,13 +455,14 @@ function renderHistory(){
       scoreSection+
       '<div class="history-actions">'+actions+'</div>'+
     '</div>';
-  }).join('');
+  }).join('')+pagerHtml(page.page,page.totalPages,page.total,'goToHistoryPage');
 }
 
 function setFilter(btn){
   document.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('active')});
   btn.classList.add('active');
   currentFilter=btn.dataset.filter;
+  historyPageNum=1;
   renderHistory();
 }
 
