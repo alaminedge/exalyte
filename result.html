@@ -58,11 +58,6 @@ body{
 .btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
 .btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
 .main{flex:1;padding-top:var(--hh)}
-body.student-mode .main{padding-top:calc(var(--hh) + 40px)}
-.student-mode-bar{position:fixed;top:var(--hh);left:0;right:0;z-index:998;background:var(--yel-bg,#fef7e0);color:#7b5800;border-bottom:1px solid var(--yellow,#f9ab00);padding:8px 16px;display:none;align-items:center;justify-content:center;gap:12px;font-family:var(--gs);font-size:.78rem;font-weight:500;text-align:center;flex-wrap:wrap;transition:transform .25s ease}
-.student-mode-bar.show.header-hidden{transform:translateY(-150%)}
-.student-mode-bar.show{display:flex}
-.student-mode-bar button{background:#202124;color:#fff;border:none;padding:5px 14px;border-radius:4px;font-size:.72rem;font-weight:500;cursor:pointer;font-family:var(--gs);white-space:nowrap}
 .content{max-width:860px;margin:0 auto;padding:32px 24px 60px;width:100%;padding-bottom:calc(60px + var(--safe-bottom))}
 
 .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}
@@ -219,16 +214,14 @@ body.student-mode .main{padding-top:calc(var(--hh) + 40px)}
     </nav>
   </div>
   <div class="header-right">
+    <button class="icon-btn" id="studentModeExitBtn" title="Exit to Admin" onclick="exitStudentMode()" aria-label="Exit to Admin" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/></svg>
+    </button>
     <button class="icon-btn" onclick="logout()" title="Sign out" aria-label="Sign out">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </button>
   </div>
 </header>
-
-<div class="student-mode-bar" id="studentModeBar">
-  🎓 Student Mode — you're viewing Exalyte as a student would (full premium access).
-  <button onclick="exitStudentMode()">Exit to Admin</button>
-</div>
 
 <div class="mobile-nav-dropdown" id="mobileNavDropdown">
   <a href="dashboard.html">Dashboard</a>
@@ -260,7 +253,7 @@ function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null
 function logout(){localStorage.clear();window.location.href='/'}
 function isStudentMode(){return localStorage.getItem('exalyte_student_mode')==='1'}
 function exitStudentMode(){localStorage.removeItem('exalyte_student_mode');window.location.href='admin.html'}
-function initStudentModeBar(){if(isStudentMode()&&getUser()?.is_admin){document.body.classList.add('student-mode');const bar=document.getElementById('studentModeBar');if(bar)bar.classList.add('show')}}
+function initStudentModeBar(){if(isStudentMode()&&getUser()?.is_admin){const btn=document.getElementById('studentModeExitBtn');if(btn)btn.style.display='flex'}}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function formatCountdown(sec){if(sec<=0)return'0s';const h=Math.floor(sec/3600);const m=Math.floor((sec%3600)/60);const s=sec%60;const p=[];if(h>0)p.push(h+'h');if(m>0)p.push(m+'m');if(s>0||p.length===0)p.push(s+'s');return p.join(' ')}
 function formatTimeTaken(sec){if(!sec||sec<=0)return'';const m=Math.floor(sec/60);const s=Math.floor(sec%60);if(m>0)return m+'m '+s+'s';return s+'s'}
@@ -295,7 +288,7 @@ let pendingCountdown=null;
 
 const header=document.getElementById('header');
 let lastY=0,ticking=false;
-window.addEventListener('scroll',function(){if(!ticking){requestAnimationFrame(function(){var y=window.scrollY;var isHidden=y>lastY&&y>80;header.classList.toggle('hidden',isHidden);document.getElementById('studentModeBar')?.classList.toggle('header-hidden',isHidden);lastY=y;ticking=false});ticking=true}},{passive:true});
+window.addEventListener('scroll',function(){if(!ticking){requestAnimationFrame(function(){var y=window.scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;ticking=false});ticking=true}},{passive:true});
 
 function toggleMobileNav(){document.getElementById('mobileNavDropdown').classList.toggle('show')}
 document.addEventListener('click',function(e){var dd=document.getElementById('mobileNavDropdown');var hb=document.getElementById('hamburger');if(dd&&!dd.contains(e.target)&&!hb.contains(e.target))dd.classList.remove('show')});
