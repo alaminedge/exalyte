@@ -1028,7 +1028,7 @@ async function handleLeaderboard(examId, request, db) {
 async function handleHistory(request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
-  const rows = await db.prepare(`SELECT ers.*, e.name as exam_name, e.results_published, e.live_deadline_hours, e.scheduled_at, e.created_at as exam_created_at, e.allow_practice, e.is_practice_exam, e.is_closed FROM exam_results_stored ers JOIN exams e ON ers.exam_id = e.id WHERE ers.user_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0 ORDER BY ers.submitted_at DESC`).bind(user.id).all();
+  const rows = await db.prepare(`SELECT ers.*, e.name as exam_name, e.results_published, e.live_deadline_hours, e.scheduled_at, e.created_at as exam_created_at, e.allow_practice, e.is_practice_exam, e.is_closed, e.batch_id, b.name as batch_name FROM exam_results_stored ers JOIN exams e ON ers.exam_id = e.id LEFT JOIN batches b ON e.batch_id = b.id WHERE ers.user_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0 ORDER BY ers.submitted_at DESC`).bind(user.id).all();
   const result = [];
   for (const r of rows.results) {
     const examForLive = { live_deadline_hours: r.live_deadline_hours, created_at: r.exam_created_at, scheduled_at: r.scheduled_at };
