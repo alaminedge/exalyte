@@ -197,6 +197,14 @@ body{
 }
 .filter-chip:hover{border-color:var(--blue);color:var(--blue)}
 .filter-chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
+.batch-filter-select{padding:10px 14px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.8rem;font-weight:500;color:var(--t2);background:var(--surf);cursor:pointer;min-height:40px;flex:0 0 auto}
+.pager{display:flex;gap:6px;justify-content:center;align-items:center;padding:14px 4px 4px;flex-wrap:wrap}
+.pager-btn{min-width:32px;height:32px;padding:0 8px;border:1px solid var(--border);background:var(--surf);border-radius:var(--r);font-size:.78rem;cursor:pointer;color:var(--t2);font-family:var(--rb)}
+.pager-btn:hover:not(:disabled){border-color:var(--t3)}
+.pager-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.pager-btn:disabled{opacity:.4;cursor:not-allowed}
+.pager-ellipsis{color:var(--t4);font-size:.78rem;padding:0 2px}
+.pager-info{font-size:.68rem;color:var(--t4);text-align:center;padding-top:2px}
 
 .exam-list{display:flex;flex-direction:column;gap:20px}
 .batch-group{margin-bottom:20px}
@@ -557,7 +565,11 @@ body{
     <div class="section-header"><h2>All Examinations</h2></div>
     <div class="filters">
       <input type="text" class="search-input" id="searchInput" placeholder="Search exams..." oninput="renderExams()" aria-label="Search exams">
+      <select class="batch-filter-select" id="batchFilterSelect" onchange="renderExams()" aria-label="Filter by batch">
+        <option value="">All Batches</option>
+      </select>
       <button class="filter-chip active" data-filter="all" onclick="setFilter(this)">All</button>
+      <button class="filter-chip" data-filter="recent" onclick="setFilter(this)">Recent</button>
       <button class="filter-chip" data-filter="free" onclick="setFilter(this)">Free</button>
       <button class="filter-chip" data-filter="premium" onclick="setFilter(this)">Premium</button>
       <button class="filter-chip" data-filter="live" onclick="setFilter(this)">Live</button>
@@ -672,6 +684,20 @@ async function apiFetch(path,opts={}){
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 
 let allExams=[],allBatchResources=[],currentFilter='all',countdowns={},scheduledStripIntervals={},currentResourceFilter='all';
+let examGroupPage={},lastExamFilterSig='';
+const EXAMS_PER_PAGE=8;
+function paginateList(list,page,perPage){const totalPages=Math.max(1,Math.ceil(list.length/perPage));const p=Math.min(Math.max(1,page),totalPages);return{items:list.slice((p-1)*perPage,p*perPage),page:p,totalPages,total:list.length}}
+function pagerHtml(page,totalPages,total,onClickTemplate){if(totalPages<=1)return'';let start=Math.max(1,page-2),end=Math.min(totalPages,start+4);start=Math.max(1,end-4);let pages=[];for(let i=start;i<=end;i++)pages.push(i);const mk=(p,label,disabled,active)=>`<button class="pager-btn${active?' active':''}" ${disabled?'disabled':''} onclick="${onClickTemplate.replace('{P}',p)}">${label}</button>`;let html='<div class="pager">';html+=mk(page-1,'Prev',page<=1,false);if(start>1){html+=mk(1,'1',false,false);if(start>2)html+='<span class="pager-ellipsis">\u2026</span>'}pages.forEach(i=>{html+=mk(i,i,false,i===page)});if(end<totalPages){if(end<totalPages-1)html+='<span class="pager-ellipsis">\u2026</span>';html+=mk(totalPages,totalPages,false,false)}html+=mk(page+1,'Next',page>=totalPages,false);html+='</div><div class="pager-info">Page '+page+' of '+totalPages+' \u00b7 '+total+' total</div>';return html}
+function goToExamGroupPage(key,p){examGroupPage[key]=p;renderExams()}
+function populateBatchFilter(){
+  const sel=document.getElementById('batchFilterSelect');
+  if(!sel)return;
+  const current=sel.value;
+  const seen=new Map();
+  allExams.forEach(e=>{if(e.batch_id&&!seen.has(e.batch_id))seen.set(e.batch_id,e.batch_name||'Batch')});
+  sel.innerHTML='<option value="">All Batches</option>'+Array.from(seen.entries()).sort((a,b)=>a[1].localeCompare(b[1])).map(([id,name])=>`<option value="${id}">${esc(name)}</option>`).join('');
+  if(current&&Array.from(seen.keys()).some(id=>String(id)===String(current)))sel.value=current;
+}
 let scheduledIntervals={};
 
 const header=document.getElementById('header');
@@ -727,6 +753,7 @@ async function loadDashboard(){
     
     allExams=(data.exams||[]).filter(e=>e.accessible!==false);
     allBatchResources=data.batch_resources||[];
+    populateBatchFilter();
     
     updateStats();
     renderLiveStrip();
@@ -854,13 +881,18 @@ async function renderRankings(){
 
 function renderExams(){
   const search=document.getElementById('searchInput').value.toLowerCase();
+  const batchFilterId=document.getElementById('batchFilterSelect')?.value||'';
+  const sig=search+'|'+currentFilter+'|'+batchFilterId;
+  if(sig!==lastExamFilterSig){examGroupPage={};lastExamFilterSig=sig}
   let filtered=allExams.filter(e=>{
     if(search&&!e.name.toLowerCase().includes(search)&&!(e.description||'').toLowerCase().includes(search))return false;
+    if(batchFilterId&&String(e.batch_id)!==String(batchFilterId))return false;
     if(currentFilter==='free')return!e.is_premium;
     if(currentFilter==='premium')return e.is_premium;
     if(currentFilter==='live')return e.is_live;
     if(currentFilter==='scheduled')return isExamScheduled(e)||isUpcomingLive(e);
     if(currentFilter==='completed')return!!e.stored_attempt;
+    if(currentFilter==='recent')return e.created_at&&(Date.now()-new Date(e.created_at).getTime())<14*86400000;
     return true;
   });
   
@@ -878,12 +910,17 @@ function renderExams(){
   let html='';
   Object.entries(grouped).forEach(([batchName,exams])=>{
     const displayName=batchName==='__other__'?'Other Exams':batchName;
+    if(!examGroupPage[batchName])examGroupPage[batchName]=1;
+    const{items:pageItems,page,totalPages,total}=paginateList(exams,examGroupPage[batchName],EXAMS_PER_PAGE);
+    examGroupPage[batchName]=page;
+    const keyJs=batchName.replace(/'/g,"\\'");
     html+=`<div class="batch-group">
       <div class="batch-header" onclick="this.parentElement.classList.toggle('collapsed')" role="button" tabindex="0" aria-expanded="true">
         <svg class="batch-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         <span class="batch-name">${esc(displayName)}</span><span class="batch-count">${exams.length}</span>
       </div>
-      <div class="exams-list">${exams.map(examCard).join('')}</div>
+      <div class="exams-list">${pageItems.map(examCard).join('')}</div>
+      ${pagerHtml(page,totalPages,total,`goToExamGroupPage('${keyJs}',{P})`)}
     </div>`;
   });
   document.getElementById('examsContainer').innerHTML=html;
