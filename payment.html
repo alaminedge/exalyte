@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Enroll — Exalyte</title>
+<meta name="description" content="Enroll in an Exalyte batch — contact us on Telegram to pay, then redeem your access code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+:root{
+  --blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;
+  --green:#1e8e3e;--grn-bg:#e6f4ea;--yellow:#f9ab00;--yel-bg:#fef7e0;
+  --bg:#f8f9fa;--surf:#ffffff;--hov:#f1f3f4;--border:#dadce0;
+  --t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
+  --gs:'Google Sans','Roboto',system-ui,sans-serif;
+  --rb:'Roboto',system-ui,sans-serif;
+  --hh:64px;--r:4px;--rl:12px;--tr:.2s cubic-bezier(.4,0,.2,1);
+  --safe-bottom:env(safe-area-inset-bottom,20px);
+}
+body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
+.header{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--surf);border-bottom:1px solid var(--border);z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.header-left{display:flex;align-items:center;gap:24px}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
+.header-nav{display:flex;align-items:center;gap:4px}
+.header-nav a{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t3);text-decoration:none;padding:8px 16px;border-radius:var(--r);transition:all var(--tr)}
+.header-nav a:hover{background:var(--hov);color:var(--t1)}
+.header-nav a.active{color:var(--blue);background:#e8f0fe}
+.hamburger{display:none;background:none;border:none;cursor:pointer;color:var(--t3);padding:8px;border-radius:50%;align-items:center;justify-content:center;transition:background var(--tr)}
+.hamburger:hover{background:var(--hov)}
+.hamburger svg{width:22px;height:22px}
+.mobile-nav-dropdown{display:none;position:fixed;top:var(--hh);left:0;right:0;background:var(--surf);border-bottom:1px solid var(--border);box-shadow:0 4px 16px rgba(0,0,0,.1);padding:8px 16px;z-index:999}
+.mobile-nav-dropdown.show{display:block}
+.mobile-nav-dropdown a{display:block;padding:12px 14px;border-radius:var(--r);font-family:var(--gs);font-size:.9rem;font-weight:500;color:var(--t2);text-decoration:none}
+.mobile-nav-dropdown a:hover{background:var(--hov)}
+.mobile-nav-dropdown a.active{color:var(--blue);background:#e8f0fe}
+.header-right{display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 20px;font-family:var(--gs);font-size:.85rem;font-weight:500;border:none;border-radius:var(--r);cursor:pointer;transition:all var(--tr);text-decoration:none;white-space:nowrap;min-height:44px}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-h);box-shadow:0 1px 2px rgba(60,64,67,.3),0 2px 6px rgba(60,64,67,.15)}
+.btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
+.btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
+.btn-tg{background:#229ED9;color:#fff}
+.btn-tg:hover{background:#1b87ba}
+.btn-full{width:100%}
+.btn:disabled{background:var(--hov);color:var(--t4);cursor:not-allowed;box-shadow:none}
+.icon-btn{width:44px;height:44px;border:none;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0}
+.icon-btn:hover{background:var(--hov)}
+.icon-btn svg{width:20px;height:20px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-weight:500;font-size:14px;color:#fff;flex-shrink:0}
+.main{flex:1;padding-top:var(--hh)}
+.pay-wrap{max-width:640px;margin:0 auto;padding:40px 24px 80px}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--t3);text-decoration:none;margin-bottom:20px}
+.back-link:hover{color:var(--blue)}
+.back-link svg{width:16px;height:16px}
+.summary-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:24px}
+.summary-thumb{width:100%;aspect-ratio:21/9;background:linear-gradient(135deg,#e8f0fe,#f3e8fd);display:flex;align-items:center;justify-content:center;color:var(--blue)}
+.summary-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.summary-thumb svg{width:40px;height:40px;opacity:.5}
+.summary-body{padding:22px}
+.summary-name{font-family:var(--gs);font-size:1.3rem;font-weight:500;color:var(--t1);margin-bottom:8px;letter-spacing:-.3px}
+.summary-desc{font-size:.85rem;color:var(--t3);line-height:1.7;margin-bottom:14px}
+.summary-meta{display:flex;gap:10px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;font-family:var(--gs);font-size:.75rem;font-weight:500;padding:5px 12px;border-radius:20px}
+.chip-fee{background:var(--grn-bg);color:var(--green)}
+.chip-exams{background:var(--hov);color:var(--t3)}
+.step-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:24px;margin-bottom:20px}
+.step-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.85rem;font-weight:500;flex-shrink:0}
+.step-title{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1)}
+.step-body{font-size:.85rem;color:var(--t3);line-height:1.7;margin-bottom:16px}
+.field{margin-bottom:14px}
+.field-label{display:block;font-size:.75rem;font-weight:500;color:var(--t3);margin-bottom:4px;letter-spacing:.3px}
+.field-input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:'Roboto Mono',monospace;font-size:1rem;letter-spacing:1px;text-transform:uppercase;color:var(--t1);background:var(--surf);outline:none;transition:border var(--tr);min-height:44px}
+.field-input:hover{border-color:var(--t3)}
+.field-input:focus{border:2px solid var(--blue);padding:11px 13px}
+.alert{padding:10px 14px;border-radius:var(--r);font-size:.8rem;margin-bottom:14px;display:none;line-height:1.5}
+.alert-e{display:block;background:var(--red-bg);color:var(--red);border:1px solid rgba(217,48,37,.2)}
+.alert-s{display:block;background:var(--grn-bg);color:var(--green);border:1px solid rgba(30,142,62,.2)}
+.spinner-inline{width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.locked-overlay{background:var(--bg);border:1px dashed var(--border);border-radius:var(--r);padding:20px;text-align:center}
+.locked-overlay svg{width:28px;height:28px;color:var(--t4);margin-bottom:10px}
+.locked-overlay p{font-size:.85rem;color:var(--t3);margin-bottom:14px}
+.locked-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.success-state{text-align:center;padding:20px 0}
+.success-icon{width:56px;height:56px;border-radius:50%;background:var(--grn-bg);color:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.success-icon svg{width:28px;height:28px}
+.success-state h3{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1);margin-bottom:6px}
+.success-state p{font-size:.85rem;color:var(--t3);margin-bottom:20px}
+.skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--rl)}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.empty-state{text-align:center;padding:64px 24px;color:var(--t3)}
+.empty-state svg{width:48px;height:48px;color:var(--t4);margin-bottom:16px}
+.empty-state h3{font-family:var(--gs);font-size:1.05rem;color:var(--t2);margin-bottom:6px;font-weight:500}
+.footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
+.footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px}
+.fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
+.fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
+.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2.2;padding:2px 0}
+.fc a:hover{color:var(--blue);text-decoration:underline}
+.footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.footer-bottom{max-width:1080px;margin:0 auto;padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px;padding-bottom:calc(16px + var(--safe-bottom))}
+.footer-links{display:flex;gap:20px}
+.footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
+.footer-links a:hover{text-decoration:underline;color:var(--blue)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:40px;width:100%;max-width:420px;box-shadow:0 24px 50px rgba(0,0,0,.3)}
+.modal h2{font-family:var(--gs);font-size:1.4rem;font-weight:500;color:var(--t1);text-align:center;margin-bottom:4px}
+.modal .subtitle{font-size:.85rem;color:var(--t3);text-align:center;margin-bottom:28px}
+.modal-footer-link{text-align:center;margin-top:20px;font-size:.85rem;color:var(--t3)}
+.modal-footer-link button{background:none;border:none;color:var(--blue);cursor:pointer;font-family:var(--rb);font-size:.85rem;font-weight:500;min-height:40px}
+.modal-footer-link button:hover{text-decoration:underline}
+.toast{position:fixed;bottom:24px;left:24px;z-index:9999;padding:14px 24px;border-radius:var(--r);background:#323232;color:#f5f5f5;font-size:.875rem;box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px rgba(0,0,0,.14),0 1px 18px rgba(0,0,0,.12);transform:translateY(80px);opacity:0;transition:all .25s cubic-bezier(0,0,.2,1);pointer-events:none;bottom:calc(24px + var(--safe-bottom))}
+.toast.show{transform:translateY(0);opacity:1}
+@media(max-width:900px){.header-nav{display:none}.hamburger{display:flex}.header{padding:0 16px}.footer-inner{grid-template-columns:1fr 1fr;gap:28px}}
+@media(max-width:600px){.pay-wrap{padding:24px 16px 60px}.footer-inner{grid-template-columns:1fr;gap:20px}.footer-bottom{flex-direction:column;text-align:center}.modal{padding:28px 22px}.locked-actions{flex-direction:column}.locked-actions .btn{width:100%}}
+</style>
+</head>
+<body>
+
+<header class="header" id="header">
+  <div class="header-left">
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <a href="/" class="logo-wrap">
+      <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
+      <span class="logo-text">Exalyte</span>
+    </a>
+    <nav class="header-nav" id="headerNav"></nav>
+  </div>
+  <div class="header-right" id="headerRight"></div>
+</header>
+
+<div class="mobile-nav-dropdown" id="mobileNavDropdown"></div>
+
+<main class="main">
+  <div class="pay-wrap">
+    <a href="batches.html" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back to Batches
+    </a>
+    <div id="pageContent">
+      <div class="skeleton" style="height:180px;margin-bottom:24px"></div>
+      <div class="skeleton" style="height:220px"></div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="fc">
+      <div class="footer-brand">
+        <img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'">
+        <span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t2)">Exalyte</span>
+      </div>
+      <p>A precision examination platform built for students who want to perform, not just prepare.</p>
+    </div>
+    <div class="fc">
+      <h4>Platform</h4>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="exam-history.html">Exam History</a>
+      <a href="batches.html">Batches</a>
+    </div>
+    <div class="fc">
+      <h4>Support</h4>
+      <a href="https://t.me/adamzamps" target="_blank" rel="noopener noreferrer">Telegram · @adamzamps</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="fc">
+      <h4>Legal</h4>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="tos.html">Terms of Service</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span id="footerYear">&copy; Exalyte. All rights reserved.</span>
+    <div class="footer-links">
+      <a href="privacy.html">Privacy</a>
+      <a href="tos.html">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <h2 id="authModalTitle">Sign in</h2>
+    <p class="subtitle" id="authModalSub">to continue to <strong>Exalyte</strong></p>
+    <div class="alert" id="modalAlert"></div>
+    <form id="authForm" autocomplete="off">
+      <div class="field" id="nameField" style="display:none">
+        <label class="field-label" for="authName">Full name</label>
+        <input type="text" class="field-input" style="text-transform:none;letter-spacing:normal;font-family:var(--rb)" id="authName" placeholder="Your name">
+      </div>
+      <div class="field">
+        <label class="field-label" for="authEmail">Email address</label>
+        <input type="email" class="field-input" style="text-transform:none;letter-spacing:normal;font-family:var(--rb)" id="authEmail" required placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label class="field-label" for="authPassword">Password</label>
+        <input type="password" class="field-input" style="text-transform:none;letter-spacing:normal;font-family:var(--rb)" id="authPassword" required placeholder="Your password" minlength="6">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="authSubmitBtn">
+        <span id="authBtnText">Next</span>
+        <span class="spinner-inline" id="authSpinner"></span>
+      </button>
+    </form>
+    <div class="modal-footer-link" id="authSwitch">
+      Don't have an account? <button onclick="switchAuthMode('signup')">Create one</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '/api';
+function getToken(){return localStorage.getItem('exalyte_token')}
+function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
+function logout(){localStorage.clear();window.location.href='/'}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+async function apiFetch(path,opts={}){
+  const token=getToken();
+  const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};
+  try{
+    const res=await fetch(API+path,{...opts,headers});
+    const text=await res.text();
+    if(!text||text.trim()==='')return{ok:false,data:{}};
+    try{const data=JSON.parse(text);return{ok:res.ok,data}}catch(e){return{ok:false,data:{}}}
+  }catch(error){return{ok:false,data:{}}}
+}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+document.getElementById('footerYear').textContent = '© ' + new Date().getFullYear() + ' Exalyte. All rights reserved.';
+
+let token = getToken();
+let user = getUser();
+let loggedIn = !!(token && user);
+
+function renderHeaderUI(){
+  const nav = document.getElementById('headerNav');
+  const hr = document.getElementById('headerRight');
+  const mobileNav = document.getElementById('mobileNavDropdown');
+  if (loggedIn) {
+    const dashboardUrl = user.is_admin ? 'admin.html' : 'dashboard.html';
+    const initial = (user.name || 'U')[0].toUpperCase();
+    nav.innerHTML = (user.is_admin ? '' : '<a href="dashboard.html">Dashboard</a><a href="exam-history.html">History</a>') + '<a href="batches.html">Batches</a>';
+    mobileNav.innerHTML = nav.innerHTML;
+    hr.innerHTML =
+      '<a href="' + dashboardUrl + '" class="btn btn-outline">Dashboard</a>' +
+      '<button class="icon-btn" onclick="logout()" title="Sign out" aria-label="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>' +
+      '<div class="avatar">' + initial + '</div>';
+  } else {
+    nav.innerHTML = '<a href="batches.html">Batches</a>';
+    mobileNav.innerHTML = nav.innerHTML;
+    hr.innerHTML =
+      '<button class="btn btn-outline" onclick="openAuth(\'login\')">Sign in</button>' +
+      '<button class="btn btn-primary" onclick="openAuth(\'signup\')">Create account</button>';
+  }
+}
+renderHeaderUI();
+function toggleMobileNav(){document.getElementById('mobileNavDropdown').classList.toggle('show')}
+
+function feeLabel(fee){ return (!fee || fee <= 0) ? 'Free' : ('৳' + fee); }
+
+const params = new URLSearchParams(window.location.search);
+const slug = params.get('batch');
+let currentBatch = null;
+
+function renderRedeemBox(){
+  if (currentBatch.enrolled) {
+    return `<div class="success-state">
+      <div class="success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <h3>You already have access</h3>
+      <p>You're enrolled in <strong>${esc(currentBatch.name)}</strong>.</p>
+      <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+    </div>`;
+  }
+  if (!loggedIn) {
+    return `<div class="locked-overlay">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <p>Sign in to enter your access code and unlock this batch.</p>
+      <div class="locked-actions">
+        <button class="btn btn-outline" onclick="openAuth('login')">Sign in</button>
+        <button class="btn btn-primary" onclick="openAuth('signup')">Create account</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="alert" id="redeemAlert"></div>
+    <div class="field">
+      <label class="field-label" for="codeInput">Access code</label>
+      <input type="text" class="field-input" id="codeInput" placeholder="XXXX-XXXX-XXXX" maxlength="20">
+    </div>
+    <button class="btn btn-primary btn-full" id="redeemBtn" onclick="redeemCode()">
+      <span id="redeemBtnText">Unlock Access</span>
+      <span class="spinner-inline" id="redeemSpinner"></span>
+    </button>`;
+}
+
+function renderPage(){
+  const b = currentBatch;
+  const thumb = b.image_url
+    ? `<img src="${esc(b.image_url)}" alt="${esc(b.name)}">`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`;
+  document.getElementById('pageContent').innerHTML = `
+    <div class="summary-card">
+      <div class="summary-thumb">${thumb}</div>
+      <div class="summary-body">
+        <div class="summary-name">${esc(b.name)}</div>
+        <div class="summary-desc">${b.description || ''}</div>
+        <div class="summary-meta">
+          <span class="chip chip-fee">${feeLabel(b.fee)}</span>
+          <span class="chip chip-exams">${b.exam_count||0} exams</span>
+        </div>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-head"><div class="step-num">1</div><div class="step-title">Contact us on Telegram</div></div>
+      <div class="step-body">Message <strong>@adamzamps</strong> on Telegram to confirm the fee and payment method. Once your payment is confirmed in the chat, you'll be sent a one-time access code.</div>
+      <a href="https://t.me/adamzamps" target="_blank" rel="noopener noreferrer" class="btn btn-tg btn-full">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        Message on Telegram
+      </a>
+    </div>
+    <div class="step-card">
+      <div class="step-head"><div class="step-num">2</div><div class="step-title">Enter your access code</div></div>
+      <div class="step-body">After you've paid and received your one-time code from us on Telegram, enter it below to unlock full, permanent access to this batch.</div>
+      <div id="redeemBox">${renderRedeemBox()}</div>
+    </div>`;
+}
+
+async function loadBatch(){
+  if (!slug) { showNotFound(); return; }
+  const { ok, data } = await apiFetch('/store/batches/' + encodeURIComponent(slug));
+  if (!ok || !data.slug) { showNotFound(); return; }
+  currentBatch = data;
+  renderPage();
+}
+
+function showNotFound(){
+  document.getElementById('pageContent').innerHTML = `<div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <h3>This offer is no longer available</h3>
+    <p>The batch you're looking for may have been removed or is no longer for sale.</p>
+    <div style="margin-top:18px"><a href="batches.html" class="btn btn-primary">Browse Batches</a></div>
+  </div>`;
+}
+
+async function redeemCode(){
+  const input = document.getElementById('codeInput');
+  const alertEl = document.getElementById('redeemAlert');
+  const code = input.value.trim();
+  alertEl.className = 'alert';
+  if (!code) { alertEl.textContent = 'Enter your access code.'; alertEl.className = 'alert alert-e'; return; }
+  const btn = document.getElementById('redeemBtn');
+  const btnText = document.getElementById('redeemBtnText');
+  const spinner = document.getElementById('redeemSpinner');
+  btn.disabled = true; btnText.style.display = 'none'; spinner.style.display = 'inline-block';
+  const { ok, data } = await apiFetch('/store/batches/' + encodeURIComponent(slug) + '/redeem', { method: 'POST', body: JSON.stringify({ code }) });
+  btn.disabled = false; btnText.style.display = 'inline'; spinner.style.display = 'none';
+  if (!ok) {
+    alertEl.textContent = data.error || 'Could not redeem this code.';
+    alertEl.className = 'alert alert-e';
+    return;
+  }
+  currentBatch.enrolled = true;
+  document.getElementById('redeemBox').innerHTML = renderRedeemBox();
+  toast('Access unlocked!');
+}
+
+loadBatch();
+
+// --- Auth modal ---
+var authMode = 'login';
+function openAuth(mode) {
+  authMode = mode;
+  document.getElementById('authModal').classList.add('open');
+  switchAuthMode(mode);
+  document.getElementById('authEmail').focus();
+}
+function closeAuth() {
+  document.getElementById('authModal').classList.remove('open');
+  clearModalAlert();
+  document.getElementById('authForm').reset();
+}
+function switchAuthMode(mode) {
+  authMode = mode;
+  clearModalAlert();
+  document.getElementById('authForm').reset();
+  if (mode === 'signup') {
+    document.getElementById('authModalTitle').textContent = 'Create account';
+    document.getElementById('authModalSub').innerHTML = 'Free forever — no credit card needed';
+    document.getElementById('nameField').style.display = 'block';
+    document.getElementById('authBtnText').textContent = 'Create account';
+    document.getElementById('authSwitch').innerHTML = 'Already have an account? <button onclick="switchAuthMode(\'login\')">Sign in</button>';
+  } else {
+    document.getElementById('authModalTitle').textContent = 'Sign in';
+    document.getElementById('authModalSub').innerHTML = 'to continue to <strong>Exalyte</strong>';
+    document.getElementById('nameField').style.display = 'none';
+    document.getElementById('authBtnText').textContent = 'Next';
+    document.getElementById('authSwitch').innerHTML = 'Don\'t have an account? <button onclick="switchAuthMode(\'signup\')">Create one</button>';
+  }
+}
+function modalAlert(msg) { const el = document.getElementById('modalAlert'); el.textContent = msg; el.className = 'alert alert-e'; }
+function clearModalAlert() { const el = document.getElementById('modalAlert'); el.className = 'alert'; el.textContent = ''; }
+function resetAuthBtn() { document.getElementById('authSubmitBtn').disabled = false; document.getElementById('authSpinner').style.display = 'none'; document.getElementById('authBtnText').style.display = 'inline'; }
+function setAuthLoading() { document.getElementById('authSubmitBtn').disabled = true; document.getElementById('authSpinner').style.display = 'inline-block'; document.getElementById('authBtnText').style.display = 'none'; }
+
+document.getElementById('authModal').addEventListener('click', function(e) { if (e.target === this) closeAuth(); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAuth(); });
+
+function getFingerprint() {
+  var data = [navigator.hardwareConcurrency || 'unknown', navigator.deviceMemory || 'unknown', screen.width + 'x' + screen.height, new Date().getTimezoneOffset(), navigator.language, navigator.platform || 'unknown', !!navigator.webdriver].join('|');
+  var hash = 0;
+  for (var i = 0; i < data.length; i++) { var char = data.charCodeAt(i); hash = ((hash << 5) - hash) + char; hash |= 0; }
+  return 'fp_' + Math.abs(hash).toString(36);
+}
+
+document.getElementById('authForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  clearModalAlert();
+  if (!navigator.onLine) { modalAlert('No internet connection.'); return; }
+  var email = document.getElementById('authEmail').value.trim();
+  var password = document.getElementById('authPassword').value;
+  if (!email || !password) { modalAlert('Please fill in all fields.'); return; }
+  if (authMode === 'signup') {
+    var name = document.getElementById('authName').value.trim();
+    if (!name) { modalAlert('Please enter your name.'); return; }
+    if (password.length < 6) { modalAlert('Password must be at least 6 characters.'); return; }
+    setAuthLoading();
+    try {
+      var res = await fetch(API + '/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, email: email, password: password, fingerprint: getFingerprint() }) });
+      var data = await res.json();
+      if (!res.ok) { modalAlert(data.error || 'Signup failed.'); resetAuthBtn(); return; }
+      localStorage.setItem('exalyte_token', data.token);
+      localStorage.setItem('exalyte_user', JSON.stringify(data.user));
+      afterAuthSuccess();
+    } catch(e) { modalAlert('Network error. Please try again.'); resetAuthBtn(); }
+  } else {
+    setAuthLoading();
+    try {
+      var res = await fetch(API + '/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, password: password }) });
+      var data = await res.json();
+      if (!res.ok) { modalAlert(data.error || 'Login failed.'); resetAuthBtn(); return; }
+      if (data.requires_master_key || data.setup_master_key) {
+        modalAlert('Please sign in from the homepage.');
+        resetAuthBtn();
+        return;
+      }
+      localStorage.setItem('exalyte_token', data.token);
+      localStorage.setItem('exalyte_user', JSON.stringify(data.user));
+      afterAuthSuccess();
+    } catch(e) { modalAlert('Network error. Please try again.'); resetAuthBtn(); }
+  }
+});
+
+function afterAuthSuccess(){
+  toast('Signed in successfully.');
+  token = getToken(); user = getUser(); loggedIn = true;
+  closeAuth();
+  renderHeaderUI();
+  if (currentBatch) {
+    document.getElementById('redeemBox').innerHTML = renderRedeemBox();
+  }
+}
+</script>
+</body>
+</html>
