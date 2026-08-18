@@ -198,9 +198,24 @@ tr:last-child td{border-bottom:none}
 .searchable-select-sm .searchable-select-option{padding:7px 10px;font-size:.73rem}
 @media(max-width:900px){.header{padding:0 16px}.hamburger{display:flex}.sidebar{display:none}.content{padding:20px 16px 80px}.stats-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.resource-item{flex-direction:column;align-items:flex-start}.resource-actions{width:100%;justify-content:flex-end}.inline-filter-input{width:140px}}
 @media(max-width:600px){.stats-grid{grid-template-columns:1fr}.card-header{flex-direction:column;align-items:flex-start}.modal{max-width:95vw}.section-row{flex-direction:column;align-items:stretch}.section-rules{grid-template-columns:1fr}}
+body{display:none}
 </style>
 </head>
 <body>
+<script>
+// Runs immediately, before any admin HTML below is painted — blocks the page
+// entirely for anyone without a valid admin session instead of letting the
+// admin UI flash on screen first. This is a UX/navigation guard only; every
+// actual admin API call is still independently protected server-side.
+(function(){
+  try{
+    var t=localStorage.getItem('exalyte_token');
+    var u=JSON.parse(localStorage.getItem('exalyte_user')||'null');
+    if(!t||!u||!u.is_admin){window.location.replace('/');return}
+  }catch(e){window.location.replace('/');return}
+  document.body.style.display='flex';
+})();
+</script>
 
 <header class="header">
   <div class="header-left">
@@ -698,6 +713,4 @@ function clearUserSearch(){document.getElementById('userSearchInput').value='';d
 
 async function loadResults(){const id=document.getElementById('resultFilterExam').value;const url=id?`/admin/results/${id}`:'/admin/results';const{data}=await apiFetch(url);const rsAll=data||[];let toolbar='';if(id){const exam=allExams.find(e=>e.id==id);toolbar=`<button class="btn btn-primary btn-sm" onclick="downloadResults(${id})">Download TXT</button> <button class="btn btn-danger btn-sm" onclick="deleteExamResults(${id},'${esc(exam?exam.name:'').replace(/'/g,"\\'")}')">Delete All Results (This Exam)</button>`}else if(rsAll.length){toolbar=`<button class="btn btn-danger btn-sm" onclick="deleteAllResultsEverywhere()">Delete ALL Results (Every Exam)</button>`}const{items:rs,page,totalPages,total}=paginateList(rsAll,resultsPageNum,PAGE_SIZE);resultsPageNum=page;document.getElementById('resultsTable').innerHTML=`<div style="margin-bottom:8px">${toolbar}</div><table><thead><tr><th>Rank</th><th>User</th><th>Exam</th><th>Score</th><th>%</th><th>Time</th><th>Date</th><th></th></tr></thead><tbody>${rs.map(r=>`<tr><td><strong>#${r.rank||'—'}</strong></td><td><strong>${esc(r.user_name)}</strong><br><span style="font-size:.65rem;color:var(--t4)">${esc(r.user_email)}</span></td><td>${esc(r.exam_name)}</td><td>${r.score}/${r.total_questions}</td><td><span style="color:${(r.percentage||0)>=80?'var(--green)':(r.percentage||0)>=50?'#e37400':'var(--red)'}">${(r.percentage||0).toFixed(1)}%</span></td><td>${formatTimeTaken(r.time_taken_seconds)}</td><td>${formatDate(r.submitted_at)}</td><td><button class="btn btn-danger btn-sm" onclick="deleteResult(${r.id},'${esc(r.user_name).replace(/'/g,"\\'")}','${esc(r.exam_name).replace(/'/g,"\\'")}')">Delete</button></td></tr>`).join('')||'<tr><td colspan="8">No results</td></tr>'}</tbody></table>${pagerHtml(page,totalPages,total,'goToResultsPage')}`}
 function goToResultsPage(p){resultsPageNum=p;loadResults()}
-function downloadResults(id){const t=getToken();fetch(API+'/admin/results/'+id+'/download',{headers:{'Authorization':'Bearer '+t}}).then(r=>r.blob()).then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='results.txt';a.click()})}
-async function deleteResult(resultId,userName,examName){if(!confirm(`Delete ${userName}'s result for "${examName}"?\n\nThis permanently removes this result from the backend. This cannot be undone.`))return;const{ok,data}=await apiFetch(`/admin/results/${resultId}`,{method:'DELETE'});if(ok){toast('Result deleted');await loadResults();await loadDashboard()}else alert(data.error||'Failed to delete result')}
-async function deleteExamResults(examId,examName){if(!confirm(`Delete ALL results for "${examName||'this exam'}"?\n\nEvery user's result for this exam will be pe
+function downloadResults(id){const t=getToken();fetch(API+'/admin/results/'+id+'/download',{headers:{'Authorization':'Bearer '+t}}).then(r=>r.blob()).then(b=>{const a=document.createElement('a');a.
