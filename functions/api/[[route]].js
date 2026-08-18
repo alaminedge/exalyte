@@ -42,6 +42,23 @@ async function verifyJWT(token) {
   } catch { return null; }
 }
 
+// Opaque, non-sequential, non-guessable identifiers — used for public batch URLs
+// (so ?batch= never leaks a sequential DB id) and for one-time redemption codes.
+const SLUG_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+function randomSlug(len) {
+  let s = '';
+  const arr = new Uint32Array(len);
+  crypto.getRandomValues(arr);
+  for (let i = 0; i < len; i++) s += SLUG_CHARS[arr[i] % SLUG_CHARS.length];
+  return s;
+}
+// Redemption codes: grouped for easy manual copy/paste over Telegram, excludes
+// visually-ambiguous characters (0/O, 1/I/l).
+function randomAccessCode() {
+  const g = () => randomSlug(4).toUpperCase();
+  return `${g()}-${g()}-${g()}`;
+}
+
 // ============================================================
 // CORS & RESPONSE HELPERS
 // ============================================================
@@ -222,6 +239,16 @@ async function initDB(db) {
       link TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
+    `CREATE TABLE IF NOT EXISTS batch_access_codes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      batch_id INTEGER NOT NULL REFERENCES batches(id) ON DELETE CASCADE,
+      code TEXT NOT NULL UNIQUE,
+      status TEXT DEFAULT 'active',
+      created_by INTEGER,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      used_by INTEGER,
+      used_at DATETIME
+    )`,
     `CREATE INDEX IF NOT EXISTS idx_results_user_exam ON exam_results_stored(user_id, exam_id, is_practice, is_first_attempt)`,
     `CREATE INDEX IF NOT EXISTS idx_results_exam_first ON exam_results_stored(exam_id, is_first_attempt, is_practice)`,
     `CREATE INDEX IF NOT EXISTS idx_premium_user ON premium_access(user_id)`,
@@ -234,7 +261,8 @@ async function initDB(db) {
     `CREATE INDEX IF NOT EXISTS idx_users_fp ON users(device_fingerprint)`,
     `CREATE INDEX IF NOT EXISTS idx_users_ip ON users(created_ip)`,
     `CREATE INDEX IF NOT EXISTS idx_exam_starts_user ON exam_starts(user_id, submitted)`,
-    `CREATE INDEX IF NOT EXISTS idx_exam_starts_expiry ON exam_starts(expires_at, submitted)`
+    `CREATE INDEX IF NOT EXISTS idx_exam_starts_expiry ON exam_starts(expires_at, submitted)`,
+    `CREATE INDEX IF NOT EXISTS idx_batch_codes_batch ON batch_access_codes(batch_id, status)`
   ];
 
   for (const sql of statements) {
@@ -257,6 +285,22 @@ async function initDB(db) {
   try { await db.prepare(`ALTER TABLE exams ADD COLUMN is_practice_exam INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE notifications ADD COLUMN target_type TEXT DEFAULT 'all'`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE notifications ADD COLUMN target_batch_id INTEGER REFERENCES batches(id) ON DELETE CASCADE`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE batches ADD COLUMN image_url TEXT DEFAULT ''`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE batches ADD COLUMN fee REAL DEFAULT 0`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE batches ADD COLUMN is_public INTEGER DEFAULT 0`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE batches ADD COLUMN public_slug TEXT`).run(); } catch (e) {}
+  try { await db.prepare(`CREATE UNIQUE INDEX IF NOT EXISTS idx_batches_slug ON batches(public_slug)`).run(); } catch (e) {}
+  
+  // Backfill opaque public slugs for any batch that doesn't have one yet
+  // (existing batches from before this feature, or a rare failed insert).
+  try {
+    const missingSlug = await db.prepare('SELECT id FROM batches WHERE public_slug IS NULL OR public_slug = ?').bind('').all();
+    for (const b of (missingSlug.results || [])) {
+      let slug, tries = 0;
+      do { slug = randomSlug(16); tries++; } while (tries < 5 && await db.prepare('SELECT id FROM batches WHERE public_slug = ?').bind(slug).first());
+      await db.prepare('UPDATE batches SET public_slug = ? WHERE id = ?').bind(slug, b.id).run();
+    }
+  } catch (e) {}
 
   const adminHash = await sha256('Admin@2024');
   const existing = await db.prepare('SELECT id FROM users WHERE email = ?').bind('admin@exalyte.com').first();
@@ -451,15 +495,19 @@ async function handleListBatches(db) {
 }
 
 async function handleCreateBatch(request, db) {
-  const { name, description } = await request.json();
-  if (!name) return err('Name required');
-  const r = await db.prepare('INSERT INTO batches (name, description) VALUES (?, ?) RETURNING *').bind(name, description || '').first();
+  const body = await request.json();
+  if (!body.name) return err('Name required');
+  let slug, tries = 0;
+  do { slug = randomSlug(16); tries++; } while (tries < 6 && await db.prepare('SELECT id FROM batches WHERE public_slug = ?').bind(slug).first());
+  const r = await db.prepare('INSERT INTO batches (name, description, image_url, fee, is_public, public_slug) VALUES (?, ?, ?, ?, ?, ?) RETURNING *')
+    .bind(body.name, body.description || '', body.image_url || '', body.fee || 0, body.is_public ? 1 : 0, slug).first();
   return json(r, 201);
 }
 
 async function handleUpdateBatch(batchId, request, db) {
-  const { name, description } = await request.json();
-  await db.prepare('UPDATE batches SET name = ?, description = ? WHERE id = ?').bind(name, description || '', batchId).run();
+  const body = await request.json();
+  await db.prepare('UPDATE batches SET name = ?, description = ?, image_url = ?, fee = ?, is_public = ? WHERE id = ?')
+    .bind(body.name, body.description || '', body.image_url || '', body.fee || 0, body.is_public ? 1 : 0, batchId).run();
   const r = await db.prepare('SELECT * FROM batches WHERE id = ?').bind(batchId).first();
   return json(r);
 }
@@ -468,7 +516,98 @@ async function handleDeleteBatch(batchId, db) {
   await db.prepare('UPDATE exams SET batch_id = NULL WHERE batch_id = ?').bind(batchId).run();
   await db.prepare('DELETE FROM batch_resources WHERE batch_id = ?').bind(batchId).run();
   await db.prepare('DELETE FROM premium_access WHERE batch_id = ?').bind(batchId).run();
+  await db.prepare('DELETE FROM batch_access_codes WHERE batch_id = ?').bind(batchId).run();
   await db.prepare('DELETE FROM batches WHERE id = ?').bind(batchId).run();
+  return json({ success: true });
+}
+
+// ============================================================
+// PUBLIC BATCH STOREFRONT (batches.html / payment.html)
+// ============================================================
+
+// Batches marked is_public=1, identified only by opaque slug — never exposes
+// the sequential DB id to the public storefront.
+async function handleStoreBatches(request, db) {
+  const rows = await db.prepare(`SELECT b.id, b.name, b.description, b.image_url, b.fee, b.public_slug, COUNT(DISTINCT e.id) as exam_count FROM batches b LEFT JOIN exams e ON e.batch_id = b.id WHERE b.is_public = 1 GROUP BY b.id ORDER BY b.created_at DESC`).all();
+  const user = await requireAuth(request);
+  let enrolled = new Set();
+  if (user) {
+    const now = new Date().toISOString();
+    const grants = await db.prepare('SELECT batch_id FROM premium_access WHERE user_id = ? AND batch_id IS NOT NULL AND (expires_at IS NULL OR expires_at > ?)').bind(user.id, now).all();
+    for (const g of (grants.results || [])) enrolled.add(g.batch_id);
+  }
+  const batches = (rows.results || []).map(b => ({
+    slug: b.public_slug, name: b.name, description: b.description, image_url: b.image_url,
+    fee: b.fee, exam_count: b.exam_count, enrolled: enrolled.has(b.id)
+  }));
+  return json({ batches }, 200, 20);
+}
+
+async function handleStoreBatchDetail(slug, request, db) {
+  const b = await db.prepare('SELECT id, name, description, image_url, fee, is_public, public_slug FROM batches WHERE public_slug = ?').bind(slug).first();
+  if (!b || !b.is_public) return err('This offer is no longer available.', 404);
+  const examCount = await db.prepare('SELECT COUNT(*) as c FROM exams WHERE batch_id = ?').bind(b.id).first();
+  const user = await requireAuth(request);
+  let enrolled = false;
+  if (user) {
+    const now = new Date().toISOString();
+    const grant = await db.prepare('SELECT id FROM premium_access WHERE user_id = ? AND batch_id = ? AND (expires_at IS NULL OR expires_at > ?)').bind(user.id, b.id, now).first();
+    enrolled = !!grant;
+  }
+  return json({ slug: b.public_slug, name: b.name, description: b.description, image_url: b.image_url, fee: b.fee, exam_count: examCount.c, enrolled, logged_in: !!user });
+}
+
+// Redeem a one-time access code — the only write path that grants store-purchased
+// batch access. Requires login (access is tied to a user id).
+async function handleStoreRedeemCode(slug, request, db) {
+  const user = await requireAuth(request);
+  if (!user) return err('Please sign in to redeem your code.', 401);
+  const { code } = await request.json();
+  if (!code || !code.trim()) return err('Enter your access code.');
+  const b = await db.prepare('SELECT id, name, is_public FROM batches WHERE public_slug = ?').bind(slug).first();
+  if (!b || !b.is_public) return err('This offer is no longer available.', 404);
+  const normalized = code.trim().toUpperCase();
+  const codeRow = await db.prepare('SELECT * FROM batch_access_codes WHERE code = ? AND batch_id = ?').bind(normalized, b.id).first();
+  if (!codeRow) return err('Invalid access code for this batch.');
+  if (codeRow.status === 'used') return err('This access code has already been used.');
+  await db.prepare('UPDATE batch_access_codes SET status = ?, used_by = ?, used_at = CURRENT_TIMESTAMP WHERE id = ?').bind('used', user.id, codeRow.id).run();
+  // Permanent grant by default. Deleting the code row later (admin cleanup) never touches this.
+  await db.prepare('INSERT OR REPLACE INTO premium_access (user_id, batch_id, grant_scope, granted_by, expires_at) VALUES (?, ?, ?, ?, NULL)')
+    .bind(user.id, b.id, 'batch', user.id).run();
+  return json({ success: true, batch_name: b.name });
+}
+
+// ============================================================
+// ADMIN — BATCH ACCESS CODES
+// ============================================================
+
+async function handleAdminListBatchCodes(batchId, db) {
+  const rows = await db.prepare(
+    `SELECT bac.*, u.name as used_by_name, u.email as used_by_email FROM batch_access_codes bac
+     LEFT JOIN users u ON bac.used_by = u.id WHERE bac.batch_id = ? ORDER BY bac.created_at DESC`
+  ).bind(batchId).all();
+  return json(rows.results || []);
+}
+
+async function handleAdminGenerateBatchCode(batchId, adminId, db) {
+  const batch = await db.prepare('SELECT id FROM batches WHERE id = ?').bind(batchId).first();
+  if (!batch) return err('Batch not found', 404);
+  let code, tries = 0;
+  do { code = randomAccessCode(); tries++; } while (tries < 6 && await db.prepare('SELECT id FROM batch_access_codes WHERE code = ?').bind(code).first());
+  const r = await db.prepare('INSERT INTO batch_access_codes (batch_id, code, status, created_by) VALUES (?, ?, ?, ?) RETURNING *')
+    .bind(batchId, code, 'active', adminId).first();
+  return json(r, 201);
+}
+
+async function handleAdminDeleteBatchCode(codeId, db) {
+  await db.prepare('DELETE FROM batch_access_codes WHERE id = ?').bind(codeId).run();
+  return json({ success: true });
+}
+
+// Cleanup only — removes redeemed code history to keep the table lean. Never
+// touches premium_access, so anyone already granted access keeps it.
+async function handleAdminClearUsedBatchCodes(batchId, db) {
+  await db.prepare(`DELETE FROM batch_access_codes WHERE batch_id = ? AND status = 'used'`).bind(batchId).run();
   return json({ success: true });
 }
 
@@ -1399,6 +1538,13 @@ export async function onRequest(context) {
     if (path === '/batches' && method === 'GET') return handleListBatches(db);
     if (path === '/exams' && method === 'GET') return handleListExams(request, db);
     
+    // PUBLIC STOREFRONT — batches.html / payment.html (viewable without login)
+    if (path === '/store/batches' && method === 'GET') return handleStoreBatches(request, db);
+    const storeBatchDetail = path.match(/^\/store\/batches\/([A-Za-z0-9]+)$/);
+    if (storeBatchDetail && method === 'GET') return handleStoreBatchDetail(storeBatchDetail[1], request, db);
+    const storeBatchRedeem = path.match(/^\/store\/batches\/([A-Za-z0-9]+)\/redeem$/);
+    if (storeBatchRedeem && method === 'POST') return handleStoreRedeemCode(storeBatchRedeem[1], request, db);
+    
     // USER
     if (path === '/history' && method === 'GET') return handleHistory(request, db);
     
@@ -1440,6 +1586,15 @@ export async function onRequest(context) {
     if (path === '/admin/batch-resources' && method === 'POST') { if (!admin) return err('Admin required', 403); return handleAddBatchResource(request, db); }
     const adminBatchResource = path.match(/^\/admin\/batch-resources\/(\d+)$/);
     if (adminBatchResource && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleDeleteBatchResource(adminBatchResource[1], db); }
+    
+    // BATCH ACCESS CODES (store purchase flow)
+    const adminBatchCodes = path.match(/^\/admin\/batches\/(\d+)\/codes$/);
+    if (adminBatchCodes && method === 'GET') { if (!admin) return err('Admin required', 403); return handleAdminListBatchCodes(adminBatchCodes[1], db); }
+    if (adminBatchCodes && method === 'POST') { if (!admin) return err('Admin required', 403); return handleAdminGenerateBatchCode(adminBatchCodes[1], admin.id, db); }
+    const adminBatchCodesUsed = path.match(/^\/admin\/batches\/(\d+)\/codes-used$/);
+    if (adminBatchCodesUsed && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminClearUsedBatchCodes(adminBatchCodesUsed[1], db); }
+    const adminBatchCode = path.match(/^\/admin\/batch-codes\/(\d+)$/);
+    if (adminBatchCode && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminDeleteBatchCode(adminBatchCode[1], db); }
     
     const adminExamResources = path.match(/^\/admin\/exams\/(\d+)\/resources$/);
     if (adminExamResources && method === 'GET') { if (!admin) return err('Admin required', 403); return handleGetExamResources(adminExamResources[1], db); }
