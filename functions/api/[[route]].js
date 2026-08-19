@@ -290,7 +290,7 @@ async function initDB(db) {
   try { await db.prepare(`ALTER TABLE batches ADD COLUMN is_public INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE batches ADD COLUMN public_slug TEXT`).run(); } catch (e) {}
   try { await db.prepare(`CREATE UNIQUE INDEX IF NOT EXISTS idx_batches_slug ON batches(public_slug)`).run(); } catch (e) {}
-  
+
   // Backfill opaque public slugs for any batch that doesn't have one yet
   // (existing batches from before this feature, or a rare failed insert).
   try {
@@ -1536,14 +1536,14 @@ export async function onRequest(context) {
     
     // PUBLIC
     if (path === '/batches' && method === 'GET') return handleListBatches(db);
-    if (path === '/exams' && method === 'GET') return handleListExams(request, db);
-    
+
     // PUBLIC STOREFRONT — batches.html / payment.html (viewable without login)
     if (path === '/store/batches' && method === 'GET') return handleStoreBatches(request, db);
     const storeBatchDetail = path.match(/^\/store\/batches\/([A-Za-z0-9]+)$/);
     if (storeBatchDetail && method === 'GET') return handleStoreBatchDetail(storeBatchDetail[1], request, db);
     const storeBatchRedeem = path.match(/^\/store\/batches\/([A-Za-z0-9]+)\/redeem$/);
     if (storeBatchRedeem && method === 'POST') return handleStoreRedeemCode(storeBatchRedeem[1], request, db);
+    if (path === '/exams' && method === 'GET') return handleListExams(request, db);
     
     // USER
     if (path === '/history' && method === 'GET') return handleHistory(request, db);
@@ -1577,6 +1577,15 @@ export async function onRequest(context) {
     const admin = await requireAdmin(request, db);
     
     if (path === '/admin/batches' && method === 'POST') { if (!admin) return err('Admin required', 403); return handleCreateBatch(request, db); }
+
+    // BATCH ACCESS CODES (store purchase flow)
+    const adminBatchCodes = path.match(/^\/admin\/batches\/(\d+)\/codes$/);
+    if (adminBatchCodes && method === 'GET') { if (!admin) return err('Admin required', 403); return handleAdminListBatchCodes(adminBatchCodes[1], db); }
+    if (adminBatchCodes && method === 'POST') { if (!admin) return err('Admin required', 403); return handleAdminGenerateBatchCode(adminBatchCodes[1], admin.id, db); }
+    const adminBatchCodesUsed = path.match(/^\/admin\/batches\/(\d+)\/codes-used$/);
+    if (adminBatchCodesUsed && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminClearUsedBatchCodes(adminBatchCodesUsed[1], db); }
+    const adminBatchCode = path.match(/^\/admin\/batch-codes\/(\d+)$/);
+    if (adminBatchCode && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminDeleteBatchCode(adminBatchCode[1], db); }
     const adminBatch = path.match(/^\/admin\/batches\/(\d+)$/);
     if (adminBatch && method === 'PUT') { if (!admin) return err('Admin required', 403); return handleUpdateBatch(adminBatch[1], request, db); }
     if (adminBatch && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleDeleteBatch(adminBatch[1], db); }
@@ -1586,15 +1595,6 @@ export async function onRequest(context) {
     if (path === '/admin/batch-resources' && method === 'POST') { if (!admin) return err('Admin required', 403); return handleAddBatchResource(request, db); }
     const adminBatchResource = path.match(/^\/admin\/batch-resources\/(\d+)$/);
     if (adminBatchResource && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleDeleteBatchResource(adminBatchResource[1], db); }
-    
-    // BATCH ACCESS CODES (store purchase flow)
-    const adminBatchCodes = path.match(/^\/admin\/batches\/(\d+)\/codes$/);
-    if (adminBatchCodes && method === 'GET') { if (!admin) return err('Admin required', 403); return handleAdminListBatchCodes(adminBatchCodes[1], db); }
-    if (adminBatchCodes && method === 'POST') { if (!admin) return err('Admin required', 403); return handleAdminGenerateBatchCode(adminBatchCodes[1], admin.id, db); }
-    const adminBatchCodesUsed = path.match(/^\/admin\/batches\/(\d+)\/codes-used$/);
-    if (adminBatchCodesUsed && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminClearUsedBatchCodes(adminBatchCodesUsed[1], db); }
-    const adminBatchCode = path.match(/^\/admin\/batch-codes\/(\d+)$/);
-    if (adminBatchCode && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminDeleteBatchCode(adminBatchCode[1], db); }
     
     const adminExamResources = path.match(/^\/admin\/exams\/(\d+)\/resources$/);
     if (adminExamResources && method === 'GET') { if (!admin) return err('Admin required', 403); return handleGetExamResources(adminExamResources[1], db); }
