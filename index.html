@@ -484,12 +484,12 @@ body{
       <h4>Platform</h4>
       <a href="#features">Features</a>
       <a href="#how-it-works">How It Works</a>
+      <a href="contact.html">Contact</a>
       <a href="batches.html">Batches</a>
     </div>
     <div class="fc">
       <h4>Support</h4>
       <a href="https://t.me/adamzamps" target="_blank" rel="noopener noreferrer">Telegram · @adamzamps</a>
-      <a href="contact.html">Contact</a>
     </div>
     <div class="fc">
       <h4>Legal</h4>
@@ -512,11 +512,11 @@ body{
 <div class="toast" id="toast"></div>
 
 <script>
-document.getElementById('footerYear').textContent = '© ' + new Date().getFullYear() + ' Exalyte. All rights reserved.';
 const API = '/api';
 const token = localStorage.getItem('exalyte_token');
 const user = JSON.parse(localStorage.getItem('exalyte_user') || 'null');
 const loggedIn = !!(token && user);
+document.getElementById('footerYear').textContent = '© ' + new Date().getFullYear() + ' Exalyte. All rights reserved.';
 
 const header = document.getElementById('header');
 let lastY = 0, ticking = false;
