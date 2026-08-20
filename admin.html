@@ -267,7 +267,7 @@ body{display:none}
     </div>
 
     <div class="section" id="sec-exams">
-      <div class="card"><div class="card-header"><span class="card-title">All Examinations</span><div style="display:flex;gap:10px;flex-wrap:wrap"><div class="inline-filter-wrap"><svg class="inline-filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="inline-filter-input" id="examSearchInput" placeholder="Filter exams..." oninput="onExamSearchInput()"></div><button class="btn btn-primary btn-sm" onclick="openExamModal()">+ New Exam</button></div></div><div class="card-body"><div class="table-wrap" id="examsTable"><div class="skeleton" style="height:40px"></div></div></div></div>
+      <div class="card"><div class="card-header"><span class="card-title">All Examinations</span><div style="display:flex;gap:10px;flex-wrap:wrap"><select class="form-select" id="examBatchFilter" onchange="renderExams()" style="min-width:150px"><option value="">All Batches</option></select><div class="inline-filter-wrap"><svg class="inline-filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="inline-filter-input" id="examSearchInput" placeholder="Filter exams..." oninput="onExamSearchInput()"></div><button class="btn btn-primary btn-sm" onclick="openExamModal()">+ New Exam</button></div></div><div class="card-body"><div class="table-wrap" id="examsTable"><div class="skeleton" style="height:40px"></div></div></div></div>
     </div>
 
     <div class="section" id="sec-batches">
@@ -316,7 +316,7 @@ body{display:none}
         <div class="form-group"><label class="form-check"><input type="checkbox" id="replaceQuestions"> Replace existing</label></div>
         <button class="btn btn-primary" onclick="uploadQuestions()">Upload</button><div id="questionUploadResult"></div>
       </div></div>
-      <div class="card"><div class="card-header"><span class="card-title">Current Questions</span><button class="btn btn-danger btn-sm" onclick="deleteAllQuestions()">Delete All</button></div><div class="card-body"><div id="questionsList"></div></div></div>
+      <div class="card"><div class="card-header"><span class="card-title">Current Questions</span><button class="btn btn-danger btn-sm" id="deleteAllQuestionsBtn" onclick="deleteAllQuestions()">Delete All</button></div><div class="card-body"><div id="questionsList"></div></div></div>
     </div>
 
     <div class="section" id="sec-resources">
