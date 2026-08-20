@@ -176,9 +176,6 @@ body{
     <button class="icon-btn" id="studentModeExitBtn" title="Exit to Admin" onclick="exitStudentMode()" aria-label="Exit to Admin" style="display:none">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/></svg>
     </button>
-    <button class="icon-btn" onclick="logout()" title="Sign out" aria-label="Sign out">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-    </button>
   </div>
 </header>
 
@@ -186,6 +183,7 @@ body{
   <a href="dashboard.html">Dashboard</a>
   <a href="exam-history.html" class="active">History</a>
   <a href="batches.html">Batches</a>
+  <a href="#" onclick="logout();return false" style="color:var(--red)">Sign out</a>
 </div>
 
 <main class="main">
