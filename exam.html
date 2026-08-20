@@ -128,6 +128,27 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.open{display:flex}
 .modal{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);width:100%;max-width:400px;padding:28px 24px;box-shadow:0 24px 50px rgba(0,0,0,.3)}
+.modal h2{font-family:var(--gs);font-size:1.4rem;font-weight:500;color:var(--t1);text-align:center;margin-bottom:4px}
+.modal .subtitle{font-size:.85rem;color:var(--t3);text-align:center;margin-bottom:24px}
+.field{margin-bottom:16px}
+.field-label{display:block;font-size:.75rem;font-weight:500;color:var(--t3);margin-bottom:4px;letter-spacing:.3px}
+.field-input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--rb);font-size:.95rem;color:var(--t1);background:var(--surf);outline:none;transition:border var(--tr);min-height:44px}
+.field-input:hover{border-color:var(--t3)}
+.field-input:focus{border:2px solid var(--blue);padding:11px 13px}
+.alert{padding:10px 14px;border-radius:var(--r);font-size:.8rem;margin-bottom:16px;display:none}
+.alert-e{display:block;background:var(--red-bg);color:var(--red);border:1px solid rgba(217,48,37,.2)}
+.spinner-inline{width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-full{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn-full:disabled{opacity:.6;cursor:not-allowed}
+.modal-footer-link{text-align:center;margin-top:20px;font-size:.85rem;color:var(--t3)}
+.modal-footer-link button{background:none;border:none;color:var(--blue);cursor:pointer;font-family:var(--rb);font-size:.85rem;font-weight:500;min-height:40px}
+.modal-footer-link button:hover{text-decoration:underline}
+.toast{position:fixed;bottom:24px;left:24px;z-index:9999;padding:14px 24px;border-radius:var(--r);background:#323232;color:#f5f5f5;font-size:.875rem;box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px rgba(0,0,0,.14),0 1px 18px rgba(0,0,0,.12);transform:translateY(80px);opacity:0;transition:all .25s cubic-bezier(0,0,.2,1);pointer-events:none;bottom:calc(24px + var(--safe-bottom))}
+.toast.show{transform:translateY(0);opacity:1}
+.signin-gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.signin-gate .modal{box-shadow:none;border:1px solid var(--border)}
+.signin-gate-note{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;font-size:.78rem;color:var(--t3);margin-bottom:20px;line-height:1.6}
 .modal h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1);margin-bottom:4px}
 .modal .subtitle{font-size:.8rem;color:var(--t3);margin-bottom:20px;line-height:1.5}
 .submit-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
@@ -224,6 +245,38 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 </head>
 <body>
 
+<div class="signin-gate" id="signinGate" style="display:none">
+  <div class="modal">
+    <h2 id="gateTitle">Sign in</h2>
+    <p class="subtitle" id="gateSub">to continue to this exam</p>
+    <div class="signin-gate-note">This link takes you straight to the exam — sign in and you'll land right back here, not on your dashboard.</div>
+    <div class="alert" id="gateAlert"></div>
+    <form id="gateForm" autocomplete="off">
+      <div class="field" id="gateNameField" style="display:none">
+        <label class="field-label" for="gateName">Full name</label>
+        <input type="text" class="field-input" id="gateName" placeholder="Your name">
+      </div>
+      <div class="field">
+        <label class="field-label" for="gateEmail">Email address</label>
+        <input type="email" class="field-input" id="gateEmail" required placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label class="field-label" for="gatePassword">Password</label>
+        <input type="password" class="field-input" id="gatePassword" required placeholder="Your password" minlength="6">
+      </div>
+      <button type="submit" class="btn-primary btn-full" id="gateSubmitBtn">
+        <span id="gateBtnText">Sign in</span>
+        <span class="spinner-inline" id="gateSpinner"></span>
+      </button>
+    </form>
+    <div class="modal-footer-link" id="gateSwitch">
+      Don't have an account? <button type="button" onclick="switchGateMode('signup')">Create one</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <header class="header" id="header">
   <div class="header-left">
     <a href="/" class="logo-wrap">
@@ -239,7 +292,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
     <button class="icon-btn" onclick="window.location.href='dashboard.html'" title="Dashboard" aria-label="Dashboard">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
     </button>
-    <button class="icon-btn leave" onclick="logout()" title="Leave Exam" aria-label="Sign out">
+    <button class="icon-btn leave" onclick="leaveExam()" title="Leave Exam" aria-label="Leave Exam">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </button>
   </div>
@@ -348,6 +401,15 @@ const API = '/api';
 
 function getToken() { return localStorage.getItem('exalyte_token'); }
 function logout() { localStorage.clear(); window.location.href = '/'; }
+function leaveExam() {
+  // "Leave Exam" must only navigate away — it must never sign the account out.
+  // Warn first if an exam is actually in progress (examStartTime gets set once
+  // the timer/questions load), since navigating away mid-exam can lose progress.
+  if (typeof examStartTime !== 'undefined' && examStartTime > 0) {
+    if (!confirm('Leave this exam? Your progress may be lost.')) return;
+  }
+  window.location.href = 'dashboard.html';
+}
 function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 function isImageURL(s) { if (!s) return false; const t = s.trim(); return t.startsWith('http') && (t.includes('.jpg') || t.includes('.jpeg') || t.includes('.png') || t.includes('.webp') || t.includes('.gif') || t.includes('ibb.co') || t.includes('images.unsplash.com') || t.includes('i.imgur.com')); }
 function renderOptionContent(text) { if (!text) return ''; if (isImageURL(text)) return '<img src="' + esc(text) + '" class="option-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">'; return text; }
@@ -366,7 +428,79 @@ const params = new URLSearchParams(location.search);
 const examId = params.get('id');
 let isPrac = params.get('practice') === '1';
 if (!examId) window.location.href = 'dashboard.html';
-if (!getToken()) window.location.href = '/';
+
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+
+// Instead of bouncing a logged-out visitor away (losing a shared exam link),
+// show a sign-in gate right here and reload in place once authenticated —
+// they land back on this exact exam, not on the dashboard.
+if (!getToken()) {
+  document.getElementById('signinGate').style.display = 'flex';
+}
+
+function getFingerprint() {
+  const data = [navigator.hardwareConcurrency || 'unknown', navigator.deviceMemory || 'unknown', screen.width + 'x' + screen.height, new Date().getTimezoneOffset(), navigator.language, navigator.platform || 'unknown', !!navigator.webdriver].join('|');
+  let hash = 0;
+  for (let i = 0; i < data.length; i++) { const char = data.charCodeAt(i); hash = ((hash << 5) - hash) + char; hash |= 0; }
+  return 'fp_' + Math.abs(hash).toString(36);
+}
+
+let gateMode = 'login';
+function switchGateMode(mode) {
+  gateMode = mode;
+  document.getElementById('gateAlert').className = 'alert';
+  document.getElementById('gateForm').reset();
+  if (mode === 'signup') {
+    document.getElementById('gateTitle').textContent = 'Create account';
+    document.getElementById('gateSub').textContent = 'Free forever — no credit card needed';
+    document.getElementById('gateNameField').style.display = 'block';
+    document.getElementById('gateBtnText').textContent = 'Create account';
+    document.getElementById('gateSwitch').innerHTML = 'Already have an account? <button type="button" onclick="switchGateMode(\'login\')">Sign in</button>';
+  } else {
+    document.getElementById('gateTitle').textContent = 'Sign in';
+    document.getElementById('gateSub').textContent = 'to continue to this exam';
+    document.getElementById('gateNameField').style.display = 'none';
+    document.getElementById('gateBtnText').textContent = 'Sign in';
+    document.getElementById('gateSwitch').innerHTML = 'Don\'t have an account? <button type="button" onclick="switchGateMode(\'signup\')">Create one</button>';
+  }
+}
+
+document.getElementById('gateForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const alertEl = document.getElementById('gateAlert');
+  alertEl.className = 'alert';
+  const email = document.getElementById('gateEmail').value.trim();
+  const password = document.getElementById('gatePassword').value;
+  if (!email || !password) { alertEl.textContent = 'Please fill in all fields.'; alertEl.className = 'alert alert-e'; return; }
+  const btn = document.getElementById('gateSubmitBtn'), btnText = document.getElementById('gateBtnText'), spinner = document.getElementById('gateSpinner');
+  btn.disabled = true; btnText.style.display = 'none'; spinner.style.display = 'inline-block';
+  try {
+    if (gateMode === 'signup') {
+      const name = document.getElementById('gateName').value.trim();
+      if (!name) { alertEl.textContent = 'Please enter your name.'; alertEl.className = 'alert alert-e'; btn.disabled = false; btnText.style.display = 'inline'; spinner.style.display = 'none'; return; }
+      const res = await fetch(API + '/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password, fingerprint: getFingerprint() }) });
+      const data = await res.json();
+      if (!res.ok) { alertEl.textContent = data.error || 'Signup failed.'; alertEl.className = 'alert alert-e'; btn.disabled = false; btnText.style.display = 'inline'; spinner.style.display = 'none'; return; }
+      localStorage.setItem('exalyte_token', data.token);
+      localStorage.setItem('exalyte_user', JSON.stringify(data.user));
+    } else {
+      const res = await fetch(API + '/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+      const data = await res.json();
+      if (!res.ok) { alertEl.textContent = data.error || 'Login failed.'; alertEl.className = 'alert alert-e'; btn.disabled = false; btnText.style.display = 'inline'; spinner.style.display = 'none'; return; }
+      if (data.requires_master_key || data.setup_master_key) {
+        // Admin accounts go through the homepage's full verification flow.
+        alertEl.textContent = 'Admin accounts should sign in from the homepage.';
+        alertEl.className = 'alert alert-e';
+        btn.disabled = false; btnText.style.display = 'inline'; spinner.style.display = 'none';
+        return;
+      }
+      localStorage.setItem('exalyte_token', data.token);
+      localStorage.setItem('exalyte_user', JSON.stringify(data.user));
+    }
+    toast('Signed in — loading your exam...');
+    setTimeout(() => window.location.reload(), 300);
+  } catch (err) { alertEl.textContent = 'Network error. Please try again.'; alertEl.className = 'alert alert-e'; btn.disabled = false; btnText.style.display = 'inline'; spinner.style.display = 'none'; }
+});
 
 let questions = [], answers = {}, marked = {}, exam = null;
 let timeLeft = 0, timerInt = null, examStartTime = 0;
@@ -899,7 +1033,7 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeSubmit();
 });
 
-loadAgreement();
+if (getToken()) loadAgreement();
 </script>
 </body>
 </html>
