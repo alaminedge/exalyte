@@ -233,10 +233,6 @@ body{display:none}
     <button class="btn btn-outline btn-sm" onclick="enterStudentMode()" title="Enter Student Mode — browse the app as a student would see it" aria-label="Enter Student Mode">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg>
     </button>
-    <button class="btn btn-danger btn-sm" onclick="logout()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      Sign out
-    </button>
   </div>
 </header>
 
@@ -245,9 +241,9 @@ body{display:none}
   <div class="sidebar-section"><div class="sidebar-label">Content</div><button class="sidebar-item" onclick="switchSection('exams')"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Exams</button><button class="sidebar-item" onclick="switchSection('batches')"><svg viewBox="0 0 24 24"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg>Batches</button><button class="sidebar-item" onclick="switchSection('batchcodes')"><svg viewBox="0 0 24 24"><path d="M15 5l4 4L9 19H5v-4z"/><path d="M12 8l4 4"/></svg>Batch Codes</button><button class="sidebar-item" onclick="switchSection('questions')"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Questions</button><button class="sidebar-item" onclick="switchSection('resources')"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Resources</button></div>
   <div class="sidebar-section"><div class="sidebar-label">Communication</div><button class="sidebar-item" onclick="switchSection('notifications')"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</button></div>
   <div class="sidebar-section"><div class="sidebar-label">People</div><button class="sidebar-item" onclick="switchSection('users')"><svg viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857"/></svg>Users</button><button class="sidebar-item" onclick="switchSection('results')"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg>Results</button></div>
+  <div class="sidebar-section"><button class="sidebar-item" onclick="logout()" style="color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button></div>
 </div>
 
-<div style="background:#000;color:#0f0;font-family:monospace;font-size:.75rem;padding:8px 16px;text-align:center;letter-spacing:1px">BUILD MARKER: EXALYTE-DEBUG-v3 — if you don't see this exact line, the new file is not live yet</div>
 <div id="debugErrorBanner" style="display:none;background:#fce8e6;color:#d93025;border:2px solid #d93025;border-radius:8px;padding:14px 16px;margin:16px;font-size:.82rem;line-height:1.7;font-family:monospace;word-break:break-word"></div>
 
 <main class="main">
@@ -256,6 +252,7 @@ body{display:none}
     <div class="sidebar-section"><div class="sidebar-label">Content</div><button class="sidebar-item" onclick="switchSection('exams')"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Exams</button><button class="sidebar-item" onclick="switchSection('batches')"><svg viewBox="0 0 24 24"><path d="M3 7a4 4 0 014-4h10a4 4 0 014 4v10a4 4 0 01-4 4H7a4 4 0 01-4-4V7z"/></svg>Batches</button><button class="sidebar-item" onclick="switchSection('batchcodes')"><svg viewBox="0 0 24 24"><path d="M15 5l4 4L9 19H5v-4z"/><path d="M12 8l4 4"/></svg>Batch Codes</button><button class="sidebar-item" onclick="switchSection('questions')"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Questions</button><button class="sidebar-item" onclick="switchSection('resources')"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Resources</button></div>
     <div class="sidebar-section"><div class="sidebar-label">Communication</div><button class="sidebar-item" onclick="switchSection('notifications')"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notifications</button></div>
     <div class="sidebar-section"><div class="sidebar-label">People</div><button class="sidebar-item" onclick="switchSection('users')"><svg viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857"/></svg>Users</button><button class="sidebar-item" onclick="switchSection('results')"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg>Results</button></div>
+    <div class="sidebar-section"><button class="sidebar-item" onclick="logout()" style="color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button></div>
   </aside>
 
   <div class="content">
