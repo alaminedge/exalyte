@@ -22,7 +22,8 @@ html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
   --safe-bottom:env(safe-area-inset-bottom,20px);
 }
 body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
-.header{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--surf);border-bottom:1px solid var(--border);z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.header{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--surf);border-bottom:1px solid var(--border);z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 24px;transition:transform .25s ease}
+.header.hidden{transform:translateY(-100%)}
 .header-left{display:flex;align-items:center;gap:24px}
 .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
 .logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
@@ -57,6 +58,11 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .page-head p{font-size:.95rem;color:var(--t3);max-width:620px;line-height:1.6}
 .batches-wrap{max-width:1080px;margin:0 auto;padding:32px 24px 80px}
 .batch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.search-wrap{position:relative;max-width:420px;margin-bottom:24px}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--t4);pointer-events:none}
+.search-input{width:100%;padding:12px 14px 12px 42px;border:1px solid var(--border);border-radius:24px;font-family:var(--rb);font-size:.88rem;color:var(--t1);background:var(--surf);outline:none;transition:border var(--tr),box-shadow var(--tr)}
+.search-input:hover{border-color:var(--t3)}
+.search-input:focus{border-color:var(--blue);box-shadow:0 1px 6px rgba(26,115,232,.15)}
 .batch-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow var(--tr)}
 .batch-card:hover{box-shadow:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15)}
 .batch-thumb{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#e8f0fe,#f3e8fd);display:flex;align-items:center;justify-content:center;color:var(--blue);overflow:hidden}
@@ -153,6 +159,10 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
     <p>Browse available batches below. Each unlocks its full set of exams once your enrollment is confirmed.</p>
   </div>
   <div class="batches-wrap">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" class="search-input" id="batchSearchInput" placeholder="Search batches..." oninput="onBatchSearchInput()">
+    </div>
     <div class="batch-grid" id="batchGrid">
       <div class="skeleton" style="height:340px"></div>
       <div class="skeleton" style="height:340px"></div>
@@ -225,6 +235,46 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
   </div>
 </div>
 
+<div class="modal-overlay" id="masterKeyModal">
+  <div class="modal">
+    <h2>Admin Verification</h2>
+    <p class="subtitle">Enter your master key to access the admin panel</p>
+    <div class="alert" id="masterKeyAlert"></div>
+    <form id="masterKeyForm" autocomplete="off">
+      <div class="field">
+        <label class="field-label" for="masterKeyInput">Master Key</label>
+        <input type="password" class="field-input" id="masterKeyInput" placeholder="Enter your secret phrase" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="masterKeySubmitBtn">
+        <span id="masterKeyBtnText">Verify</span>
+        <span class="spinner-inline" id="masterKeySpinner"></span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="masterKeySetupModal">
+  <div class="modal">
+    <h2>Set Master Key</h2>
+    <p class="subtitle">Create a secret phrase to protect admin access. Keep it safe — you'll need it every time you log in.</p>
+    <div class="alert" id="masterKeySetupAlert"></div>
+    <form id="masterKeySetupForm" autocomplete="off">
+      <div class="field">
+        <label class="field-label" for="setupKeyInput">Master Key Phrase</label>
+        <input type="password" class="field-input" id="setupKeyInput" placeholder="Minimum 6 characters" required minlength="6">
+      </div>
+      <div class="field">
+        <label class="field-label" for="setupKeyConfirm">Confirm Phrase</label>
+        <input type="password" class="field-input" id="setupKeyConfirm" placeholder="Re-enter your phrase" required minlength="6">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="masterKeySetupBtn">
+        <span id="masterKeySetupBtnText">Set Master Key</span>
+        <span class="spinner-inline" id="masterKeySetupSpinner"></span>
+      </button>
+    </form>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -265,10 +315,10 @@ function renderHeaderUI(){
     nav.innerHTML = links;
     mobileNav.innerHTML = (user.is_admin ? '' :
       '<a href="dashboard.html">Dashboard</a><a href="exam-history.html">History</a>') +
-      '<a href="batches.html" class="active">Batches</a>';
+      '<a href="batches.html" class="active">Batches</a>' +
+      '<a href="#" onclick="logout();return false" style="color:var(--red)">Sign out</a>';
     hr.innerHTML =
       '<a href="' + dashboardUrl + '" class="btn btn-outline">Dashboard</a>' +
-      '<button class="icon-btn" onclick="logout()" title="Sign out" aria-label="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>' +
       '<div class="avatar">' + initial + '</div>';
   } else {
     nav.innerHTML = '<a href="batches.html" class="active">Batches</a>';
@@ -281,6 +331,20 @@ function renderHeaderUI(){
 renderHeaderUI();
 
 function toggleMobileNav(){document.getElementById('mobileNavDropdown').classList.toggle('show')}
+
+const headerEl = document.getElementById('header');
+let lastY = 0, tickingHeader = false;
+window.addEventListener('scroll', function() {
+  if (!tickingHeader) {
+    requestAnimationFrame(function() {
+      const y = window.scrollY;
+      headerEl.classList.toggle('hidden', y > lastY && y > 80);
+      lastY = y;
+      tickingHeader = false;
+    });
+    tickingHeader = true;
+  }
+}, { passive: true });
 
 function feeLabel(fee){ return (!fee || fee <= 0) ? 'Free' : ('৳' + fee); }
 
@@ -314,21 +378,24 @@ function toggleDesc(id, btn){
   btn.textContent = expanded ? 'See less' : 'See more';
 }
 
-async function loadBatches(){
-  const { ok, data } = await apiFetch('/store/batches');
+function levenshtein(a,b){const m=a.length,n=b.length;if(m===0)return n;if(n===0)return m;const dp=new Array(n+1);for(let j=0;j<=n;j++)dp[j]=j;for(let i=1;i<=m;i++){let prev=dp[0];dp[0]=i;for(let j=1;j<=n;j++){const tmp=dp[j];dp[j]=a[i-1]===b[j-1]?prev:1+Math.min(prev,dp[j],dp[j-1]);prev=tmp}}return dp[n]}
+function normalizeSearch(s){return(s||'').toLowerCase().trim().replace(/\s+/g,' ')}
+function fieldMatchScore(query,field){if(!field)return -1;const q=normalizeSearch(query),f=normalizeSearch(field);if(!q)return -1;if(f.startsWith(q))return 100;if(f.includes(q))return 90-Math.min(20,f.length-q.length);let best=Infinity;const qLen=q.length;for(let i=0;i<=Math.max(0,f.length-1);i++){const win=f.substr(i,qLen);if(!win)continue;const d=levenshtein(q,win);if(d<best)best=d}best=Math.min(best,levenshtein(q,f));const threshold=qLen<=3?1:Math.ceil(qLen*0.34);if(best<=threshold)return 60-best*8;return -1}
+
+let allBatches = [];
+
+function renderBatchGrid(batches) {
   const grid = document.getElementById('batchGrid');
-  if (!ok || !data.batches) { grid.innerHTML = ''; return; }
-  const batches = data.batches;
   if (!batches.length) {
+    const q = document.getElementById('batchSearchInput').value.trim();
     grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      <h3>No batches available right now</h3>
-      <p>Check back soon — new batches are added regularly.</p>
+      <h3>${q ? 'No batches match your search' : 'No batches available right now'}</h3>
+      <p>${q ? 'Try a different name or check the spelling.' : 'Check back soon — new batches are added regularly.'}</p>
     </div>`;
     return;
   }
   grid.innerHTML = batches.map(batchCard).join('');
-  // Hide "See more" on descriptions short enough to not be clamped
   requestAnimationFrame(() => {
     document.querySelectorAll('.batch-desc').forEach(el => {
       if (el.scrollHeight <= el.clientHeight + 2) {
@@ -336,6 +403,24 @@ async function loadBatches(){
       }
     });
   });
+}
+
+function onBatchSearchInput() {
+  const q = normalizeSearch(document.getElementById('batchSearchInput').value);
+  if (!q) { renderBatchGrid(allBatches); return; }
+  const scored = allBatches
+    .map(b => ({ b, s: Math.max(fieldMatchScore(q, b.name), fieldMatchScore(q, b.description || '')) }))
+    .filter(x => x.s >= 0)
+    .sort((a, c) => c.s - a.s)
+    .map(x => x.b);
+  renderBatchGrid(scored);
+}
+
+async function loadBatches(){
+  const { ok, data } = await apiFetch('/store/batches');
+  if (!ok || !data.batches) { document.getElementById('batchGrid').innerHTML = ''; return; }
+  allBatches = data.batches;
+  renderBatchGrid(allBatches);
 }
 loadBatches();
 
@@ -376,7 +461,84 @@ function resetAuthBtn() { document.getElementById('authSubmitBtn').disabled = fa
 function setAuthLoading() { document.getElementById('authSubmitBtn').disabled = true; document.getElementById('authSpinner').style.display = 'inline-block'; document.getElementById('authBtnText').style.display = 'none'; }
 
 document.getElementById('authModal').addEventListener('click', function(e) { if (e.target === this) closeAuth(); });
-document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAuth(); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeAuth(); closeMasterKeyModal(); closeMasterKeySetupModal(); } });
+var tempToken = null;
+
+function masterKeyAlert(msg) { var el = document.getElementById('masterKeyAlert'); el.textContent = msg; el.className = 'alert alert-e'; }
+function clearMasterKeyAlert() { var el = document.getElementById('masterKeyAlert'); el.className = 'alert'; el.textContent = ''; }
+function masterKeySetupAlertFn(msg) { var el = document.getElementById('masterKeySetupAlert'); el.textContent = msg; el.className = 'alert alert-e'; }
+function clearMasterKeySetupAlert() { var el = document.getElementById('masterKeySetupAlert'); el.className = 'alert'; el.textContent = ''; }
+
+function openMasterKeyModal() {
+  clearMasterKeyAlert();
+  document.getElementById('masterKeyForm').reset();
+  document.getElementById('masterKeyModal').classList.add('open');
+  document.getElementById('masterKeyInput').focus();
+}
+function closeMasterKeyModal() {
+  document.getElementById('masterKeyModal').classList.remove('open');
+  clearMasterKeyAlert();
+  document.getElementById('masterKeyForm').reset();
+}
+document.getElementById('masterKeyModal').addEventListener('click', function(e) { if (e.target === this) closeMasterKeyModal(); });
+
+document.getElementById('masterKeyForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  clearMasterKeyAlert();
+  var masterKey = document.getElementById('masterKeyInput').value;
+  if (!masterKey) { masterKeyAlert('Please enter your master key.'); return; }
+  var btn = document.getElementById('masterKeySubmitBtn');
+  btn.disabled = true;
+  document.getElementById('masterKeySpinner').style.display = 'inline-block';
+  document.getElementById('masterKeyBtnText').style.display = 'none';
+  try {
+    var res = await fetch(API + '/auth/master-key/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ temp_token: tempToken, master_key: masterKey }) });
+    var data = await res.json();
+    if (!res.ok) { masterKeyAlert(data.error || 'Verification failed.'); btn.disabled = false; document.getElementById('masterKeySpinner').style.display = 'none'; document.getElementById('masterKeyBtnText').style.display = 'inline'; return; }
+    localStorage.setItem('exalyte_token', data.token);
+    localStorage.setItem('exalyte_user', JSON.stringify({ id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true }));
+    toast('Admin access granted.');
+    closeMasterKeyModal();
+    setTimeout(function() { window.location.href = 'admin.html'; }, 400);
+  } catch(e) { masterKeyAlert('Network error. Please try again.'); btn.disabled = false; document.getElementById('masterKeySpinner').style.display = 'none'; document.getElementById('masterKeyBtnText').style.display = 'inline'; }
+});
+
+function openMasterKeySetupModal() {
+  clearMasterKeySetupAlert();
+  document.getElementById('masterKeySetupForm').reset();
+  document.getElementById('masterKeySetupModal').classList.add('open');
+  document.getElementById('setupKeyInput').focus();
+}
+function closeMasterKeySetupModal() {
+  document.getElementById('masterKeySetupModal').classList.remove('open');
+  clearMasterKeySetupAlert();
+  document.getElementById('masterKeySetupForm').reset();
+}
+document.getElementById('masterKeySetupModal').addEventListener('click', function(e) { if (e.target === this) closeMasterKeySetupModal(); });
+
+document.getElementById('masterKeySetupForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  clearMasterKeySetupAlert();
+  var key = document.getElementById('setupKeyInput').value;
+  var confirmVal = document.getElementById('setupKeyConfirm').value;
+  if (!key || !confirmVal) { masterKeySetupAlertFn('Please fill in both fields.'); return; }
+  if (key.length < 6) { masterKeySetupAlertFn('Master key must be at least 6 characters.'); return; }
+  if (key !== confirmVal) { masterKeySetupAlertFn('Phrases do not match.'); return; }
+  var btn = document.getElementById('masterKeySetupBtn');
+  btn.disabled = true;
+  document.getElementById('masterKeySetupSpinner').style.display = 'inline-block';
+  document.getElementById('masterKeySetupBtnText').style.display = 'none';
+  try {
+    var res = await fetch(API + '/auth/master-key/set', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ temp_token: tempToken, master_key: key }) });
+    var data = await res.json();
+    if (!res.ok) { masterKeySetupAlertFn(data.error || 'Could not set master key.'); btn.disabled = false; document.getElementById('masterKeySetupSpinner').style.display = 'none'; document.getElementById('masterKeySetupBtnText').style.display = 'inline'; return; }
+    localStorage.setItem('exalyte_token', data.token);
+    localStorage.setItem('exalyte_user', JSON.stringify({ id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true }));
+    toast('Master key set. Admin access granted.');
+    closeMasterKeySetupModal();
+    setTimeout(function() { window.location.href = 'admin.html'; }, 400);
+  } catch(e) { masterKeySetupAlertFn('Network error. Please try again.'); btn.disabled = false; document.getElementById('masterKeySetupSpinner').style.display = 'none'; document.getElementById('masterKeySetupBtnText').style.display = 'inline'; }
+});
 
 function getFingerprint() {
   var data = [navigator.hardwareConcurrency || 'unknown', navigator.deviceMemory || 'unknown', screen.width + 'x' + screen.height, new Date().getTimezoneOffset(), navigator.language, navigator.platform || 'unknown', !!navigator.webdriver].join('|');
@@ -412,10 +574,16 @@ document.getElementById('authForm').addEventListener('submit', async function(e)
       var res = await fetch(API + '/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, password: password }) });
       var data = await res.json();
       if (!res.ok) { modalAlert(data.error || 'Login failed.'); resetAuthBtn(); return; }
-      if (data.requires_master_key || data.setup_master_key) {
-        // Admin accounts should sign in through the main site, not the storefront.
-        modalAlert('Please sign in from the homepage.');
-        resetAuthBtn();
+      if (data.requires_master_key) {
+        tempToken = data.temp_token;
+        closeAuth();
+        openMasterKeyModal();
+        return;
+      }
+      if (data.setup_master_key) {
+        tempToken = data.temp_token;
+        closeAuth();
+        openMasterKeySetupModal();
         return;
       }
       localStorage.setItem('exalyte_token', data.token);
