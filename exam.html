@@ -292,8 +292,9 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
     <button class="icon-btn" onclick="window.location.href='dashboard.html'" title="Dashboard" aria-label="Dashboard">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
     </button>
-    <button class="icon-btn leave" onclick="leaveExam()" title="Leave Exam" aria-label="Leave Exam">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    <button class="btn-secondary leave" onclick="leaveExam()" title="Leave Exam" aria-label="Leave Exam" style="display:inline-flex;align-items:center;gap:6px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Leave
     </button>
   </div>
 </header>
@@ -402,13 +403,10 @@ const API = '/api';
 function getToken() { return localStorage.getItem('exalyte_token'); }
 function logout() { localStorage.clear(); window.location.href = '/'; }
 function leaveExam() {
-  // "Leave Exam" must only navigate away — it must never sign the account out.
-  // Warn first if an exam is actually in progress (examStartTime gets set once
-  // the timer/questions load), since navigating away mid-exam can lose progress.
-  if (typeof examStartTime !== 'undefined' && examStartTime > 0) {
-    if (!confirm('Leave this exam? Your progress may be lost.')) return;
-  }
-  window.location.href = 'dashboard.html';
+  // Always confirm — leaving mid-exam can lose progress. Never signs the
+  // account out; only ever navigates to the homepage.
+  if (!confirm('Leave this exam? Your progress may be lost.')) return;
+  window.location.href = '/';
 }
 function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 function isImageURL(s) { if (!s) return false; const t = s.trim(); return t.startsWith('http') && (t.includes('.jpg') || t.includes('.jpeg') || t.includes('.png') || t.includes('.webp') || t.includes('.gif') || t.includes('ibb.co') || t.includes('images.unsplash.com') || t.includes('i.imgur.com')); }
@@ -901,6 +899,7 @@ function showPracticeResult(data) {
     '<div class="perf-bar"><div class="perf-fill" id="perfFill" style="width:0%;background:' + gc + '"></div></div>' +
     '<div class="result-actions">' +
     '<a href="dashboard.html" class="btn-secondary" style="text-decoration:none">Dashboard</a>' +
+    '<button class="btn-secondary" onclick="printSolution()">Solution Sheet</button>' +
     '<a href="exam.html?id=' + examId + '&practice=1" class="btn-primary" style="text-decoration:none">Practice Again</a>' +
     '</div></div>';
 
@@ -1023,6 +1022,241 @@ function filterReview(filter, btn) {
   document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
   if (btn) btn.classList.add('active');
   renderReviewList();
+}
+
+// --- Solution Sheet printing (ported from result.html; only depends on the
+// exam's questions/answer-key + exam metadata, both already loaded here) ---
+function solOptContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="sol-optimg" alt="">';return text}
+function solExpContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="sol-optimg" alt="">';return text}
+var SOL_PAGE_W_MM=192, SOL_PAGE_H_MM=271, SOL_PX_PER_MM=3.7795275591;
+var SOL_PAGE_W_PX=SOL_PAGE_W_MM*SOL_PX_PER_MM, SOL_PAGE_H_PX=SOL_PAGE_H_MM*SOL_PX_PER_MM;
+var SOL_COL_GAP_MM=5, SOL_COL_GAP_PX=SOL_COL_GAP_MM*SOL_PX_PER_MM;
+var SOL_COL_W_PX=(SOL_PAGE_W_PX-SOL_COL_GAP_PX)/2;
+
+// Self-contained, very dense CSS for the popup print window (no interference from the main page's layout)
+var SOL_PRINT_CSS=
+'*{margin:0;padding:0;box-sizing:border-box}'+
+'@page{size:A4;margin:13mm 9mm}'+
+'html,body{background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif}'+
+'body{background-repeat:repeat-y;background-position:top center;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+'.sol-page{position:relative;width:'+SOL_PAGE_W_MM+'mm;margin:0 auto}'+
+'.sol-header-full{text-align:center;border-bottom:1.2pt solid #000;padding-bottom:4pt;margin-bottom:6pt}'+
+'.sol-brand{display:flex;align-items:center;justify-content:center;gap:4pt;margin-bottom:2pt}'+
+'.sol-brand img{width:12pt;height:12pt;border-radius:50%}'+
+'.sol-brand span{font-weight:bold;font-size:8pt}'+
+'.sol-header-full h1{font-size:8pt;font-weight:bold;margin-bottom:2pt}'+
+'.sol-meta{font-size:6pt;color:#222;display:flex;justify-content:center;gap:6pt;flex-wrap:wrap}'+
+'.sol-meta b{font-weight:bold}'+
+'.sol-header-slim{display:flex;justify-content:space-between;align-items:baseline;border-bottom:.7pt solid #000;padding-bottom:2.5pt;margin-bottom:5pt;font-size:6pt;color:#333}'+
+'.sol-header-slim b{color:#000;font-size:6.6pt}'+
+'.sol-cols{display:flex;gap:'+SOL_COL_GAP_MM+'mm}'+
+'.sol-col{flex:1 1 0;min-width:0}'+
+'.sol-col:first-child{border-right:.4pt solid #ccc;padding-right:'+SOL_COL_GAP_MM+'mm}'+
+'.sol-q{break-inside:avoid;page-break-inside:avoid;-webkit-column-break-inside:avoid;margin:0 0 3.5pt;padding-bottom:2.5pt;border-bottom:.4pt dotted #ccc;font-size:6.3pt;line-height:1.22}'+
+'.sol-q:last-child{border-bottom:none;margin-bottom:0}'+
+'.sol-qtext{font-weight:bold;margin-bottom:1.2pt}'+
+'.sol-qtext b,.sol-qtext strong{font-weight:bold}'+
+'.sol-qimg{max-width:100%;max-height:40pt;object-fit:contain;display:block;margin:1.2pt 0}'+
+'.sol-opt{margin:.3pt 0;display:flex;gap:2.2pt}'+
+'.sol-ol{font-weight:bold;min-width:7pt;flex-shrink:0}'+
+'.sol-opt.sol-correct{font-weight:bold;color:#0b6b1e}'+
+'.sol-opt.sol-correct .sol-ol:after{content:" \\2713"}'+
+'.sol-optimg{max-width:100%;max-height:26pt;object-fit:contain}'+
+'.sol-exp{font-size:5.7pt;color:#333;font-style:italic;margin-top:1.2pt}'+
+'.sol-exp b{font-style:normal;font-weight:bold;color:#000}'+
+'#solMeasure{position:absolute;visibility:hidden;left:-9999px;top:0}';
+
+function solBuildFullHeader(pageCount){
+  var timeStr=exam.time_limit?exam.time_limit+' min':'—';
+  var perQ=exam.marks_per_question||1;
+  var totalMarks=perQ*questions.length;
+  var negStr=(exam.negative_marking&&exam.negative_marking>0)?('−'+exam.negative_marking+'/wrong'):'None';
+  var dateStr=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  return '<div class="sol-header-full">'+
+    '<div class="sol-brand"><img src="'+SOL_LOGO_URL+'" alt="" onerror="this.style.display=\'none\'"><span>Exalyte</span></div>'+
+    '<h1>'+esc(exam.name)+' — Solution Sheet</h1>'+
+    '<div class="sol-meta">'+
+    '<span><b>Q:</b> '+questions.length+'</span>'+
+    '<span><b>Time:</b> '+timeStr+'</span>'+
+    '<span><b>Marks:</b> '+totalMarks+' ('+perQ+'/Q)</span>'+
+    '<span><b>Negative:</b> '+negStr+'</span>'+
+    '<span><b>Date:</b> '+dateStr+'</span>'+
+    '<span>exalyte.pages.dev</span>'+
+    '</div></div>';
+}
+function solBuildSlimHeader(pageNum,pageCount){
+  return '<div class="sol-header-slim"><b>'+esc(exam.name)+'</b><span>Solution Sheet — exalyte.pages.dev</span><span>Page '+pageNum+(pageCount?(' / '+pageCount):'')+'</span></div>';
+}
+function solBuildQuestionHTML(q,i){
+  var qImg=q.image_url?'<img src="'+esc(q.image_url)+'" class="sol-qimg" alt="">':'';
+  var h='<div class="sol-q"><div class="sol-qtext">Q'+(i+1)+'. '+(q.question_text||'')+'</div>'+qImg;
+  ['A','B','C','D'].forEach(function(l){
+    var isC=l===q.correct_answer;
+    var ot=q['option_'+l.toLowerCase()]||'';
+    h+='<div class="sol-opt'+(isC?' sol-correct':'')+'"><span class="sol-ol">'+l+'.</span><span>'+solOptContent(ot)+'</span></div>';
+  });
+  if(q.explanation&&q.explanation.trim())h+='<div class="sol-exp"><b>Exp: </b>'+solExpContent(q.explanation)+'</div>';
+  h+='</div>';
+  return h;
+}
+
+function solWaitForImages(doc,container,timeoutMs){
+  var imgs=container.querySelectorAll('img');
+  if(!imgs.length)return Promise.resolve();
+  var promises=[];
+  imgs.forEach(function(img){
+    if(img.complete)return;
+    promises.push(new Promise(function(res){
+      img.addEventListener('load',res);
+      img.addEventListener('error',res);
+    }));
+  });
+  if(!promises.length)return Promise.resolve();
+  return Promise.race([Promise.all(promises),new Promise(function(res){setTimeout(res,timeoutMs)})]);
+}
+
+var SOL_LOGO_URL='';
+
+function printSolution(){
+  if(!questions||!questions.length)return;
+  SOL_LOGO_URL=new URL('images/exalyte.png',location.href).href;
+
+  var w=window.open('','_blank');
+  if(!w){alert('Please allow pop-ups for this site to print the Solution Sheet.');return}
+  w.document.open();
+  w.document.write(
+    '<!DOCTYPE html><html><head><meta charset="UTF-8">'+
+    '<title>'+esc(exam.name)+' - Solution Sheet</title>'+
+    '<style>'+SOL_PRINT_CSS+'</style></head><body><div id="solMeasure"></div></body></html>'
+  );
+  w.document.close();
+
+  // Centered watermark, sized to exactly one page — repeats down every page automatically
+  var wmSvg="<svg xmlns='http://www.w3.org/2000/svg' width='300' height='424'>"+
+    "<g transform='rotate(-28 150 212)' opacity='0.09' font-family='Arial'>"+
+    "<image href='"+SOL_LOGO_URL+"' x='130' y='148' width='40' height='40'/>"+
+    "<text x='150' y='232' font-weight='bold' font-size='34' fill='%231a73e8' text-anchor='middle'>EXALYTE</text>"+
+    "<text x='150' y='256' font-size='14' fill='%231a73e8' text-anchor='middle'>exalyte.pages.dev</text>"+
+    "</g></svg>";
+  w.document.body.style.backgroundImage='url("data:image/svg+xml;utf8,'+wmSvg+'")';
+  w.document.body.style.backgroundSize=SOL_PAGE_W_MM+'mm '+SOL_PAGE_H_MM+'mm';
+
+  var measureEl=w.document.getElementById('solMeasure');
+  var qHtmls=questions.map(solBuildQuestionHTML);
+
+  // Warm-up pass: load every image once so height measurements below are accurate
+  measureEl.style.width=SOL_COL_W_PX+'px';
+  measureEl.innerHTML=qHtmls.join('');
+  solWaitForImages(w.document,measureEl,3500).then(function(){
+    // Measure each question's real rendered height at column width
+    var heights=qHtmls.map(function(html){
+      measureEl.innerHTML=html;
+      return measureEl.firstElementChild.getBoundingClientRect().height;
+    });
+
+    // Measure header heights (full width)
+    measureEl.style.width=SOL_PAGE_W_MM+'mm';
+    measureEl.innerHTML=solBuildFullHeader();
+    var fullHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
+    measureEl.innerHTML=solBuildSlimHeader(1,1);
+    var slimHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
+
+    // ✅ FIX — globally balanced pagination (no stray/near-empty columns).
+    //
+    // The earlier per-page approach ("group what fits on this page, then
+    // split that group in half") could still leave an awkward outcome: if
+    // the greedy look-ahead landed on a small final group, one page could
+    // end up with a single lone question and a large blank column while a
+    // previous page still had spare room.
+    //
+    // The correct fix is to treat the WHOLE document as one sequence and
+    // solve "split N questions into exactly C ordered, contiguous columns,
+    // minimizing the tallest column" — a classic linear-partition problem,
+    // solved via binary search on the answer:
+    //
+    //   1. First, find the minimum number of columns C_min physically
+    //      required, by greedily packing each column as full as possible
+    //      (this also tells us how many pages we need — greedy-fill-max is
+    //      optimal for minimizing the column/page count).
+    //   2. Then, keeping that same column count C_min fixed (so we never
+    //      add extra pages), binary-search for the smallest possible
+    //      "max column height" that still lets everything fit in C_min
+    //      columns. This redistributes content so every column — including
+    //      the last one — ends up close to the same height, eliminating
+    //      lone-question / near-blank columns.
+    //
+    // Column 0 and 1 belong to page 1 (which has the taller full header,
+    // so a bit less usable height); every column after that belongs to a
+    // later page using the slim header.
+    var availH1=(SOL_PAGE_H_PX-fullHeaderH-4)*0.95;
+    var availHRest=(SOL_PAGE_H_PX-slimHeaderH-4)*0.95;
+    function capacityForCol(col){return col<2?availH1:availHRest}
+
+    var n=heights.length;
+    var maxSingle=0,totalHeight=0;
+    for(var i=0;i<n;i++){maxSingle=Math.max(maxSingle,heights[i]);totalHeight+=heights[i]}
+
+    // Try packing everything into `maxCols` columns, with each column capped
+    // at min(h, that column's physical capacity). Returns the resulting
+    // column groupings if it fits in <= maxCols columns, otherwise null.
+    function tryPack(h,maxCols){
+      var cols=[[]],col=0,cum=0;
+      for(var qi=0;qi<n;qi++){
+        var hh=heights[qi];
+        var cap=capacityForCol(col);
+        if(hh>cap)return null; // physically too tall for any column — shouldn't happen
+        var limit=Math.min(h,cap);
+        if(cols[col].length>0 && (cum+hh)>limit){
+          col++;
+          if(col>=maxCols)return null;
+          cols.push([]);
+          cum=0;
+        }
+        cols[col].push(qi);
+        cum+=hh;
+      }
+      return cols;
+    }
+
+    // Step 1: minimum number of columns needed at all (greedy-fill-max, h=Infinity)
+    var minimalCols=tryPack(Infinity,Number.MAX_SAFE_INTEGER);
+    var C=minimalCols.length;
+
+    // Step 2: binary-search the smallest max-column-height that still fits in C columns
+    var lo=maxSingle,hi=totalHeight,bestCols=minimalCols;
+    while(lo<hi){
+      var mid=Math.floor((lo+hi)/2);
+      var attempt=tryPack(mid,C);
+      if(attempt){bestCols=attempt;hi=mid}
+      else{lo=mid+1}
+    }
+    // Final pass at the converged value guarantees a valid, balanced packing
+    var finalAttempt=tryPack(lo,C);
+    if(finalAttempt)bestCols=finalAttempt;
+
+    // bestCols is now a balanced list of columns; pair them up into pages
+    var pages=[];
+    for(var c=0;c<bestCols.length;c+=2){
+      var pageNum=pages.length+1;
+      var col1=bestCols[c].map(function(i){return qHtmls[i]}).join('');
+      var col2=(bestCols[c+1]||[]).map(function(i){return qHtmls[i]}).join('');
+      pages.push({num:pageNum,col1:col1,col2:col2});
+    }
+
+    var totalPages=pages.length;
+    var finalHTML=pages.map(function(p,i){
+      var header=p.num===1?solBuildFullHeader(totalPages):solBuildSlimHeader(p.num,totalPages);
+      var last=i===pages.length-1;
+      return '<div class="sol-page"'+(last?'':' style="page-break-after:always"')+'>'+
+        header+
+        '<div class="sol-cols"><div class="sol-col">'+p.col1+'</div><div class="sol-col">'+p.col2+'</div></div>'+
+        '</div>';
+    }).join('');
+
+    w.document.body.innerHTML=finalHTML;
+
+    setTimeout(function(){w.focus();w.print()},150);
+  });
 }
 
 document.getElementById('submitModal').addEventListener('click', function(e) {
