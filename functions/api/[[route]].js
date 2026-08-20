@@ -26,7 +26,11 @@ function b64url(obj) {
 
 async function signJWT(payload) {
   const header = b64url({ alg: 'HS256', typ: 'JWT' });
-  const body = b64url({ ...payload, exp: Math.floor(Date.now() / 1000) + 7 * 86400 });
+  // Respect an explicit exp on the payload (used for short-lived master-key
+  // tokens); otherwise default to a long-lived session so users stay signed
+  // in until they manually sign out, not on a fixed timer.
+  const exp = payload.exp || Math.floor(Date.now() / 1000) + 5 * 365 * 86400;
+  const body = b64url({ ...payload, exp });
   const sig = await hmacSha256(JWT_SECRET, `${header}.${body}`);
   return `${header}.${body}.${sig}`;
 }
@@ -289,6 +293,7 @@ async function initDB(db) {
   try { await db.prepare(`ALTER TABLE batches ADD COLUMN fee REAL DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE batches ADD COLUMN is_public INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE batches ADD COLUMN public_slug TEXT`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE exams ADD COLUMN sort_order INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`CREATE UNIQUE INDEX IF NOT EXISTS idx_batches_slug ON batches(public_slug)`).run(); } catch (e) {}
 
   // Backfill opaque public slugs for any batch that doesn't have one yet
@@ -665,7 +670,7 @@ async function handleListExams(request, db) {
   const userId = user ? user.id : null;
   const isAdmin = user ? user.is_admin : false;
 
-  const exams = await db.prepare(`SELECT e.*, b.name as batch_name, (SELECT COUNT(*) FROM questions q WHERE q.exam_id = e.id) as total_questions_in_db FROM exams e LEFT JOIN batches b ON e.batch_id = b.id ORDER BY e.created_at DESC`).all();
+  const exams = await db.prepare(`SELECT e.*, b.name as batch_name, (SELECT COUNT(*) FROM questions q WHERE q.exam_id = e.id) as total_questions_in_db FROM exams e LEFT JOIN batches b ON e.batch_id = b.id ORDER BY e.sort_order ASC, e.created_at DESC`).all();
 
   // Calculate actual attemptable questions for sectional exams
   for (const exam of exams.results) {
@@ -1236,7 +1241,14 @@ async function handleMarkNotificationRead(notifId, request, db) {
 async function handleAdminCreateExam(request, db) {
   const body = await request.json();
   if (!body.name) return err('Name required');
-  const r = await db.prepare(`INSERT INTO exams (name, description, time_limit, is_premium, negative_marking, marks_per_question, allow_practice, batch_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled, scheduled_at, has_sections, section_config, is_practice_exam) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`).bind(body.name, body.description || '', body.time_limit || 30, body.is_premium ? 1 : 0, body.negative_marking || 0, body.marks_per_question || 1, body.allow_practice ? 1 : 0, body.batch_id || null, body.live_deadline_hours || 0, body.results_published ? 1 : 0, body.publish_after_hours || 0, body.leaderboard_enabled ? 1 : 0, body.scheduled_at || null, body.has_sections ? 1 : 0, body.section_config || '', body.is_practice_exam ? 1 : 0).first();
+  // New exams append to the end of their group (same batch, or no-batch group)
+  // so they don't jump ahead of existing exams in student-facing order.
+  const batchId = body.batch_id || null;
+  const groupClause = batchId === null ? 'batch_id IS NULL' : 'batch_id = ?';
+  const groupParams = batchId === null ? [] : [batchId];
+  const countRow = await db.prepare(`SELECT COUNT(*) as c FROM exams WHERE ${groupClause}`).bind(...groupParams).first();
+  const sortOrder = countRow.c;
+  const r = await db.prepare(`INSERT INTO exams (name, description, time_limit, is_premium, negative_marking, marks_per_question, allow_practice, batch_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled, scheduled_at, has_sections, section_config, is_practice_exam, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`).bind(body.name, body.description || '', body.time_limit || 30, body.is_premium ? 1 : 0, body.negative_marking || 0, body.marks_per_question || 1, body.allow_practice ? 1 : 0, batchId, body.live_deadline_hours || 0, body.results_published ? 1 : 0, body.publish_after_hours || 0, body.leaderboard_enabled ? 1 : 0, body.scheduled_at || null, body.has_sections ? 1 : 0, body.section_config || '', body.is_practice_exam ? 1 : 0, sortOrder).first();
   return json(r, 201);
 }
 
@@ -1245,6 +1257,28 @@ async function handleAdminUpdateExam(examId, request, db) {
   await db.prepare(`UPDATE exams SET name = ?, description = ?, time_limit = ?, is_premium = ?, negative_marking = ?, marks_per_question = ?, allow_practice = ?, batch_id = ?, live_deadline_hours = ?, results_published = ?, publish_after_hours = ?, leaderboard_enabled = ?, scheduled_at = ?, has_sections = ?, section_config = ?, is_practice_exam = ? WHERE id = ?`).bind(body.name, body.description || '', body.time_limit || 30, body.is_premium ? 1 : 0, body.negative_marking || 0, body.marks_per_question || 1, body.allow_practice ? 1 : 0, body.batch_id || null, body.live_deadline_hours || 0, body.results_published ? 1 : 0, body.publish_after_hours || 0, body.leaderboard_enabled ? 1 : 0, body.scheduled_at || null, body.has_sections ? 1 : 0, body.section_config || '', body.is_practice_exam ? 1 : 0, examId).run();
   const r = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   return json(r);
+}
+
+// Moves an exam one step up/down among its siblings (same batch, or the
+// no-batch group) and renumbers that whole group sequentially (0..N-1) so
+// the order always stays well-defined, even the first time this runs on
+// exams that have never been explicitly ordered before.
+async function handleAdminReorderExam(examId, direction, db) {
+  const exam = await db.prepare('SELECT id, batch_id FROM exams WHERE id = ?').bind(examId).first();
+  if (!exam) return err('Exam not found', 404);
+  const groupClause = exam.batch_id === null ? 'batch_id IS NULL' : 'batch_id = ?';
+  const groupParams = exam.batch_id === null ? [] : [exam.batch_id];
+  const group = await db.prepare(`SELECT id FROM exams WHERE ${groupClause} ORDER BY sort_order ASC, created_at DESC`).bind(...groupParams).all();
+  const ids = (group.results || []).map(r => r.id);
+  const idx = ids.indexOf(exam.id);
+  if (idx === -1) return err('Exam not found in its group', 404);
+  const swapWith = direction === 'up' ? idx - 1 : idx + 1;
+  if (swapWith < 0 || swapWith >= ids.length) return json({ success: true, moved: false });
+  [ids[idx], ids[swapWith]] = [ids[swapWith], ids[idx]];
+  for (let i = 0; i < ids.length; i++) {
+    await db.prepare('UPDATE exams SET sort_order = ? WHERE id = ?').bind(i, ids[i]).run();
+  }
+  return json({ success: true, moved: true });
 }
 
 async function handleAdminDeleteExam(examId, db) {
@@ -1606,6 +1640,8 @@ export async function onRequest(context) {
     const adminExam = path.match(/^\/admin\/exams\/(\d+)$/);
     if (adminExam && method === 'PUT') { if (!admin) return err('Admin required', 403); return handleAdminUpdateExam(adminExam[1], request, db); }
     if (adminExam && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminDeleteExam(adminExam[1], db); }
+    const adminExamReorder = path.match(/^\/admin\/exams\/(\d+)\/reorder$/);
+    if (adminExamReorder && method === 'PUT') { if (!admin) return err('Admin required', 403); const body = await request.json().catch(() => ({})); return handleAdminReorderExam(adminExamReorder[1], body.direction, db); }
     
     const adminToggle = path.match(/^\/admin\/exams\/(\d+)\/toggle$/);
     if (adminToggle && method === 'POST') { if (!admin) return err('Admin required', 403); return handleAdminToggleExam(adminToggle[1], request, db); }
