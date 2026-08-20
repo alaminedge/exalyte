@@ -503,9 +503,6 @@ body{
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
       <span class="badge" id="notifBadge">0</span>
     </button>
-    <button class="icon-btn" id="signOutBtn" title="Sign out" aria-label="Sign out">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-    </button>
     <div class="avatar" id="userAvatar">S</div>
   </div>
 </header>
@@ -514,6 +511,7 @@ body{
   <a href="dashboard.html" class="active">Dashboard</a>
   <a href="exam-history.html">History</a>
   <a href="batches.html">Batches</a>
+  <a href="#" id="signOutBtn" style="color:var(--red)">Sign out</a>
 </div>
 
 <main class="main">
@@ -713,7 +711,7 @@ document.addEventListener('click',function(e){
   if(dd&&!dd.contains(e.target)&&!hb.contains(e.target))dd.classList.remove('show');
 });
 
-document.getElementById('signOutBtn').addEventListener('click',logout);
+document.getElementById('signOutBtn').addEventListener('click',function(e){e.preventDefault();logout()});
 
 function scrollToResources(){
   const el=document.getElementById('resourcesContainer');
