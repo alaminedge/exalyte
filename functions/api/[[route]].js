@@ -1241,13 +1241,15 @@ async function handleMarkNotificationRead(notifId, request, db) {
 async function handleAdminCreateExam(request, db) {
   const body = await request.json();
   if (!body.name) return err('Name required');
-  // New exams append to the end of their group (same batch, or no-batch group)
-  // so they don't jump ahead of existing exams in student-facing order.
+  // New exams go to the FRONT of their group (same batch, or the no-batch
+  // group) so "latest created" naturally shows first by default — matching
+  // the original behavior — while still leaving room for admins to manually
+  // reorder afterward with the up/down controls.
   const batchId = body.batch_id || null;
   const groupClause = batchId === null ? 'batch_id IS NULL' : 'batch_id = ?';
   const groupParams = batchId === null ? [] : [batchId];
-  const countRow = await db.prepare(`SELECT COUNT(*) as c FROM exams WHERE ${groupClause}`).bind(...groupParams).first();
-  const sortOrder = countRow.c;
+  await db.prepare(`UPDATE exams SET sort_order = sort_order + 1 WHERE ${groupClause}`).bind(...groupParams).run();
+  const sortOrder = 0;
   const r = await db.prepare(`INSERT INTO exams (name, description, time_limit, is_premium, negative_marking, marks_per_question, allow_practice, batch_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled, scheduled_at, has_sections, section_config, is_practice_exam, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`).bind(body.name, body.description || '', body.time_limit || 30, body.is_premium ? 1 : 0, body.negative_marking || 0, body.marks_per_question || 1, body.allow_practice ? 1 : 0, batchId, body.live_deadline_hours || 0, body.results_published ? 1 : 0, body.publish_after_hours || 0, body.leaderboard_enabled ? 1 : 0, body.scheduled_at || null, body.has_sections ? 1 : 0, body.section_config || '', body.is_practice_exam ? 1 : 0, sortOrder).first();
   return json(r, 201);
 }
@@ -1296,8 +1298,14 @@ async function handleAdminGetQuestions(examId, db) {
   return json(qs.results, 200, 10);
 }
 
-async function handleAdminDeleteAllQuestions(examId, db) {
-  await db.prepare('DELETE FROM questions WHERE exam_id = ?').bind(examId).run();
+async function handleAdminDeleteAllQuestions(examId, section, db) {
+  if (section) {
+    // Scoped: only clear this one section (e.g. "Chemistry"), leaving every
+    // other section's questions (e.g. "Physics") completely untouched.
+    await db.prepare('DELETE FROM questions WHERE exam_id = ? AND section = ?').bind(examId, section).run();
+  } else {
+    await db.prepare('DELETE FROM questions WHERE exam_id = ?').bind(examId).run();
+  }
   return json({ success: true });
 }
 
@@ -1652,7 +1660,7 @@ export async function onRequest(context) {
     if (path === '/admin/questions/bulk' && method === 'POST') { if (!admin) return err('Admin required', 403); return handleAdminBulkQuestions(request, db); }
     const adminQs = path.match(/^\/admin\/questions\/(\d+)$/);
     if (adminQs && method === 'GET') { if (!admin) return err('Admin required', 403); return handleAdminGetQuestions(adminQs[1], db); }
-    if (adminQs && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminDeleteAllQuestions(adminQs[1], db); }
+    if (adminQs && method === 'DELETE') { if (!admin) return err('Admin required', 403); const section = url.searchParams.get('section') || null; return handleAdminDeleteAllQuestions(adminQs[1], section, db); }
     const adminSingleQ = path.match(/^\/admin\/questions\/single\/(\d+)$/);
     if (adminSingleQ && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminDeleteQuestion(adminSingleQ[1], db); }
     
