@@ -22,7 +22,8 @@ html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
   --safe-bottom:env(safe-area-inset-bottom,20px);
 }
 body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
-.header{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--surf);border-bottom:1px solid var(--border);z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.header{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--surf);border-bottom:1px solid var(--border);z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 24px;transition:transform .25s ease}
+.header.hidden{transform:translateY(-100%)}
 .header-left{display:flex;align-items:center;gap:24px}
 .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
 .logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
@@ -218,6 +219,46 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
   </div>
 </div>
 
+<div class="modal-overlay" id="masterKeyModal">
+  <div class="modal">
+    <h2>Admin Verification</h2>
+    <p class="subtitle">Enter your master key to access the admin panel</p>
+    <div class="alert" id="masterKeyAlert"></div>
+    <form id="masterKeyForm" autocomplete="off">
+      <div class="field">
+        <label class="field-label" for="masterKeyInput">Master Key</label>
+        <input type="password" class="field-input" id="masterKeyInput" placeholder="Enter your secret phrase" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="masterKeySubmitBtn">
+        <span id="masterKeyBtnText">Verify</span>
+        <span class="spinner-inline" id="masterKeySpinner"></span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="masterKeySetupModal">
+  <div class="modal">
+    <h2>Set Master Key</h2>
+    <p class="subtitle">Create a secret phrase to protect admin access. Keep it safe — you'll need it every time you log in.</p>
+    <div class="alert" id="masterKeySetupAlert"></div>
+    <form id="masterKeySetupForm" autocomplete="off">
+      <div class="field">
+        <label class="field-label" for="setupKeyInput">Master Key Phrase</label>
+        <input type="password" class="field-input" id="setupKeyInput" placeholder="Minimum 6 characters" required minlength="6">
+      </div>
+      <div class="field">
+        <label class="field-label" for="setupKeyConfirm">Confirm Phrase</label>
+        <input type="password" class="field-input" id="setupKeyConfirm" placeholder="Re-enter your phrase" required minlength="6">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="masterKeySetupBtn">
+        <span id="masterKeySetupBtnText">Set Master Key</span>
+        <span class="spinner-inline" id="masterKeySetupSpinner"></span>
+      </button>
+    </form>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -253,10 +294,9 @@ function renderHeaderUI(){
     const dashboardUrl = user.is_admin ? 'admin.html' : 'dashboard.html';
     const initial = (user.name || 'U')[0].toUpperCase();
     nav.innerHTML = (user.is_admin ? '' : '<a href="dashboard.html">Dashboard</a><a href="exam-history.html">History</a>') + '<a href="batches.html">Batches</a>';
-    mobileNav.innerHTML = nav.innerHTML;
+    mobileNav.innerHTML = nav.innerHTML + '<a href="#" onclick="logout();return false" style="color:var(--red)">Sign out</a>';
     hr.innerHTML =
       '<a href="' + dashboardUrl + '" class="btn btn-outline">Dashboard</a>' +
-      '<button class="icon-btn" onclick="logout()" title="Sign out" aria-label="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>' +
       '<div class="avatar">' + initial + '</div>';
   } else {
     nav.innerHTML = '<a href="batches.html">Batches</a>';
@@ -268,6 +308,20 @@ function renderHeaderUI(){
 }
 renderHeaderUI();
 function toggleMobileNav(){document.getElementById('mobileNavDropdown').classList.toggle('show')}
+
+const headerEl = document.getElementById('header');
+let lastY = 0, tickingHeader = false;
+window.addEventListener('scroll', function() {
+  if (!tickingHeader) {
+    requestAnimationFrame(function() {
+      const y = window.scrollY;
+      headerEl.classList.toggle('hidden', y > lastY && y > 80);
+      lastY = y;
+      tickingHeader = false;
+    });
+    tickingHeader = true;
+  }
+}, { passive: true });
 
 function feeLabel(fee){ return (!fee || fee <= 0) ? 'Free' : ('৳' + fee); }
 
@@ -415,7 +469,84 @@ function resetAuthBtn() { document.getElementById('authSubmitBtn').disabled = fa
 function setAuthLoading() { document.getElementById('authSubmitBtn').disabled = true; document.getElementById('authSpinner').style.display = 'inline-block'; document.getElementById('authBtnText').style.display = 'none'; }
 
 document.getElementById('authModal').addEventListener('click', function(e) { if (e.target === this) closeAuth(); });
-document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAuth(); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeAuth(); closeMasterKeyModal(); closeMasterKeySetupModal(); } });
+var tempToken = null;
+
+function masterKeyAlert(msg) { var el = document.getElementById('masterKeyAlert'); el.textContent = msg; el.className = 'alert alert-e'; }
+function clearMasterKeyAlert() { var el = document.getElementById('masterKeyAlert'); el.className = 'alert'; el.textContent = ''; }
+function masterKeySetupAlertFn(msg) { var el = document.getElementById('masterKeySetupAlert'); el.textContent = msg; el.className = 'alert alert-e'; }
+function clearMasterKeySetupAlert() { var el = document.getElementById('masterKeySetupAlert'); el.className = 'alert'; el.textContent = ''; }
+
+function openMasterKeyModal() {
+  clearMasterKeyAlert();
+  document.getElementById('masterKeyForm').reset();
+  document.getElementById('masterKeyModal').classList.add('open');
+  document.getElementById('masterKeyInput').focus();
+}
+function closeMasterKeyModal() {
+  document.getElementById('masterKeyModal').classList.remove('open');
+  clearMasterKeyAlert();
+  document.getElementById('masterKeyForm').reset();
+}
+document.getElementById('masterKeyModal').addEventListener('click', function(e) { if (e.target === this) closeMasterKeyModal(); });
+
+document.getElementById('masterKeyForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  clearMasterKeyAlert();
+  var masterKey = document.getElementById('masterKeyInput').value;
+  if (!masterKey) { masterKeyAlert('Please enter your master key.'); return; }
+  var btn = document.getElementById('masterKeySubmitBtn');
+  btn.disabled = true;
+  document.getElementById('masterKeySpinner').style.display = 'inline-block';
+  document.getElementById('masterKeyBtnText').style.display = 'none';
+  try {
+    var res = await fetch(API + '/auth/master-key/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ temp_token: tempToken, master_key: masterKey }) });
+    var data = await res.json();
+    if (!res.ok) { masterKeyAlert(data.error || 'Verification failed.'); btn.disabled = false; document.getElementById('masterKeySpinner').style.display = 'none'; document.getElementById('masterKeyBtnText').style.display = 'inline'; return; }
+    localStorage.setItem('exalyte_token', data.token);
+    localStorage.setItem('exalyte_user', JSON.stringify({ id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true }));
+    toast('Admin access granted.');
+    closeMasterKeyModal();
+    setTimeout(function() { window.location.href = 'admin.html'; }, 400);
+  } catch(e) { masterKeyAlert('Network error. Please try again.'); btn.disabled = false; document.getElementById('masterKeySpinner').style.display = 'none'; document.getElementById('masterKeyBtnText').style.display = 'inline'; }
+});
+
+function openMasterKeySetupModal() {
+  clearMasterKeySetupAlert();
+  document.getElementById('masterKeySetupForm').reset();
+  document.getElementById('masterKeySetupModal').classList.add('open');
+  document.getElementById('setupKeyInput').focus();
+}
+function closeMasterKeySetupModal() {
+  document.getElementById('masterKeySetupModal').classList.remove('open');
+  clearMasterKeySetupAlert();
+  document.getElementById('masterKeySetupForm').reset();
+}
+document.getElementById('masterKeySetupModal').addEventListener('click', function(e) { if (e.target === this) closeMasterKeySetupModal(); });
+
+document.getElementById('masterKeySetupForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  clearMasterKeySetupAlert();
+  var key = document.getElementById('setupKeyInput').value;
+  var confirmVal = document.getElementById('setupKeyConfirm').value;
+  if (!key || !confirmVal) { masterKeySetupAlertFn('Please fill in both fields.'); return; }
+  if (key.length < 6) { masterKeySetupAlertFn('Master key must be at least 6 characters.'); return; }
+  if (key !== confirmVal) { masterKeySetupAlertFn('Phrases do not match.'); return; }
+  var btn = document.getElementById('masterKeySetupBtn');
+  btn.disabled = true;
+  document.getElementById('masterKeySetupSpinner').style.display = 'inline-block';
+  document.getElementById('masterKeySetupBtnText').style.display = 'none';
+  try {
+    var res = await fetch(API + '/auth/master-key/set', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ temp_token: tempToken, master_key: key }) });
+    var data = await res.json();
+    if (!res.ok) { masterKeySetupAlertFn(data.error || 'Could not set master key.'); btn.disabled = false; document.getElementById('masterKeySetupSpinner').style.display = 'none'; document.getElementById('masterKeySetupBtnText').style.display = 'inline'; return; }
+    localStorage.setItem('exalyte_token', data.token);
+    localStorage.setItem('exalyte_user', JSON.stringify({ id: 1, name: 'Admin', email: 'admin@exalyte.com', is_admin: true }));
+    toast('Master key set. Admin access granted.');
+    closeMasterKeySetupModal();
+    setTimeout(function() { window.location.href = 'admin.html'; }, 400);
+  } catch(e) { masterKeySetupAlertFn('Network error. Please try again.'); btn.disabled = false; document.getElementById('masterKeySetupSpinner').style.display = 'none'; document.getElementById('masterKeySetupBtnText').style.display = 'inline'; }
+});
 
 function getFingerprint() {
   var data = [navigator.hardwareConcurrency || 'unknown', navigator.deviceMemory || 'unknown', screen.width + 'x' + screen.height, new Date().getTimezoneOffset(), navigator.language, navigator.platform || 'unknown', !!navigator.webdriver].join('|');
@@ -450,9 +581,16 @@ document.getElementById('authForm').addEventListener('submit', async function(e)
       var res = await fetch(API + '/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, password: password }) });
       var data = await res.json();
       if (!res.ok) { modalAlert(data.error || 'Login failed.'); resetAuthBtn(); return; }
-      if (data.requires_master_key || data.setup_master_key) {
-        modalAlert('Please sign in from the homepage.');
-        resetAuthBtn();
+      if (data.requires_master_key) {
+        tempToken = data.temp_token;
+        closeAuth();
+        openMasterKeyModal();
+        return;
+      }
+      if (data.setup_master_key) {
+        tempToken = data.temp_token;
+        closeAuth();
+        openMasterKeySetupModal();
         return;
       }
       localStorage.setItem('exalyte_token', data.token);
