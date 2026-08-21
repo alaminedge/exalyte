@@ -353,9 +353,10 @@ function batchCard(b){
     ? `<img src="${esc(b.image_url)}" alt="${esc(b.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><path d=\\'M4 19.5A2.5 2.5 0 0 1 6.5 17H20\\'/><path d=\\'M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z\\'/></svg>'">`
     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`;
   const descId = 'desc-' + Math.random().toString(36).slice(2, 9);
+  const isFree = !b.fee || b.fee <= 0;
   const cta = b.enrolled
     ? `<a href="dashboard.html" class="btn btn-outline btn-full">Enrolled · Go to Dashboard</a>`
-    : `<a href="payment.html?batch=${encodeURIComponent(b.slug)}" class="btn btn-primary btn-full">Enroll Now</a>`;
+    : `<a href="payment.html?batch=${encodeURIComponent(b.slug)}" class="btn btn-primary btn-full">${isFree ? 'Enroll for Free' : 'Enroll Now'}</a>`;
   return `<div class="batch-card">
     <div class="batch-thumb">${thumb}</div>
     <div class="batch-body">
