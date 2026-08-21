@@ -536,14 +536,22 @@ async function handleStoreBatches(request, db) {
   const rows = await db.prepare(`SELECT b.id, b.name, b.description, b.image_url, b.fee, b.public_slug, COUNT(DISTINCT e.id) as exam_count FROM batches b LEFT JOIN exams e ON e.batch_id = b.id WHERE b.is_public = 1 GROUP BY b.id ORDER BY b.created_at DESC`).all();
   const user = await requireAuth(request);
   let enrolled = new Set();
+  let isAdmin = false;
   if (user) {
-    const now = new Date().toISOString();
-    const grants = await db.prepare('SELECT batch_id FROM premium_access WHERE user_id = ? AND batch_id IS NOT NULL AND (expires_at IS NULL OR expires_at > ?)').bind(user.id, now).all();
-    for (const g of (grants.results || [])) enrolled.add(g.batch_id);
+    // Admins already have full access to everything server-side (see
+    // checkPremiumAccess) — the storefront should reflect that instead of
+    // prompting them for a code they'll never need.
+    const row = await db.prepare('SELECT is_admin FROM users WHERE id = ?').bind(user.id).first();
+    isAdmin = !!(row && row.is_admin);
+    if (!isAdmin) {
+      const now = new Date().toISOString();
+      const grants = await db.prepare('SELECT batch_id FROM premium_access WHERE user_id = ? AND batch_id IS NOT NULL AND (expires_at IS NULL OR expires_at > ?)').bind(user.id, now).all();
+      for (const g of (grants.results || [])) enrolled.add(g.batch_id);
+    }
   }
   const batches = (rows.results || []).map(b => ({
     slug: b.public_slug, name: b.name, description: b.description, image_url: b.image_url,
-    fee: b.fee, exam_count: b.exam_count, enrolled: enrolled.has(b.id)
+    fee: b.fee, exam_count: b.exam_count, enrolled: isAdmin || enrolled.has(b.id)
   }));
   return json({ batches }, 200, 20);
 }
@@ -555,9 +563,14 @@ async function handleStoreBatchDetail(slug, request, db) {
   const user = await requireAuth(request);
   let enrolled = false;
   if (user) {
-    const now = new Date().toISOString();
-    const grant = await db.prepare('SELECT id FROM premium_access WHERE user_id = ? AND batch_id = ? AND (expires_at IS NULL OR expires_at > ?)').bind(user.id, b.id, now).first();
-    enrolled = !!grant;
+    const row = await db.prepare('SELECT is_admin FROM users WHERE id = ?').bind(user.id).first();
+    if (row && row.is_admin) {
+      enrolled = true;
+    } else {
+      const now = new Date().toISOString();
+      const grant = await db.prepare('SELECT id FROM premium_access WHERE user_id = ? AND batch_id = ? AND (expires_at IS NULL OR expires_at > ?)').bind(user.id, b.id, now).first();
+      enrolled = !!grant;
+    }
   }
   return json({ slug: b.public_slug, name: b.name, description: b.description, image_url: b.image_url, fee: b.fee, exam_count: examCount.c, enrolled, logged_in: !!user });
 }
