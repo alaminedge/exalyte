@@ -359,23 +359,63 @@ function renderRedeemBox(){
     </button>`;
 }
 
+function renderFreeEnrollBox(){
+  if (currentBatch.enrolled) {
+    return `<div class="success-state">
+      <div class="success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <h3>You already have access</h3>
+      <p>You're enrolled in <strong>${esc(currentBatch.name)}</strong>.</p>
+      <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+    </div>`;
+  }
+  if (!loggedIn) {
+    return `<div class="locked-overlay">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <p>Sign in to enroll — this batch is free, no payment needed.</p>
+      <div class="locked-actions">
+        <button class="btn btn-outline" onclick="openAuth('login')">Sign in</button>
+        <button class="btn btn-primary" onclick="openAuth('signup')">Create account</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="alert" id="enrollFreeAlert"></div>
+    <button class="btn btn-primary btn-full" id="enrollFreeBtn" onclick="enrollFree()">
+      <span id="enrollFreeBtnText">Enroll for Free</span>
+      <span class="spinner-inline" id="enrollFreeSpinner"></span>
+    </button>`;
+}
+
+async function enrollFree(){
+  const alertEl = document.getElementById('enrollFreeAlert');
+  alertEl.className = 'alert';
+  const btn = document.getElementById('enrollFreeBtn');
+  const btnText = document.getElementById('enrollFreeBtnText');
+  const spinner = document.getElementById('enrollFreeSpinner');
+  btn.disabled = true; btnText.style.display = 'none'; spinner.style.display = 'inline-block';
+  const { ok, data } = await apiFetch('/store/batches/' + encodeURIComponent(slug) + '/enroll-free', { method: 'POST' });
+  btn.disabled = false; btnText.style.display = 'inline'; spinner.style.display = 'none';
+  if (!ok) {
+    alertEl.textContent = data.error || 'Could not enroll. Please try again.';
+    alertEl.className = 'alert alert-e';
+    return;
+  }
+  currentBatch.enrolled = true;
+  document.getElementById('freeEnrollBox').innerHTML = renderFreeEnrollBox();
+  toast('Enrolled — welcome aboard!');
+}
+
 function renderPage(){
   const b = currentBatch;
   const thumb = b.image_url
     ? `<img src="${esc(b.image_url)}" alt="${esc(b.name)}">`
     : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`;
-  document.getElementById('pageContent').innerHTML = `
-    <div class="summary-card">
-      <div class="summary-thumb">${thumb}</div>
-      <div class="summary-body">
-        <div class="summary-name">${esc(b.name)}</div>
-        <div class="summary-desc">${b.description || ''}</div>
-        <div class="summary-meta">
-          <span class="chip chip-fee">${feeLabel(b.fee)}</span>
-          <span class="chip chip-exams">${b.exam_count||0} exams</span>
-        </div>
-      </div>
-    </div>
+  const isFree = !b.fee || b.fee <= 0;
+  const stepsHtml = isFree ? `
+    <div class="step-card">
+      <div class="step-head"><div class="step-num">1</div><div class="step-title">Enroll — it's free</div></div>
+      <div class="step-body">This batch doesn't require any payment or access code. Enroll below and every exam in it unlocks immediately.</div>
+      <div id="freeEnrollBox">${renderFreeEnrollBox()}</div>
+    </div>` : `
     <div class="step-card">
       <div class="step-head"><div class="step-num">1</div><div class="step-title">Contact us on Telegram</div></div>
       <div class="step-body">Message <strong>@adamzamps</strong> on Telegram to confirm the fee and payment method. Once your payment is confirmed in the chat, you'll be sent a one-time access code.</div>
@@ -389,6 +429,18 @@ function renderPage(){
       <div class="step-body">After you've paid and received your one-time code from us on Telegram, enter it below to unlock full, permanent access to this batch.</div>
       <div id="redeemBox">${renderRedeemBox()}</div>
     </div>`;
+  document.getElementById('pageContent').innerHTML = `
+    <div class="summary-card">
+      <div class="summary-thumb">${thumb}</div>
+      <div class="summary-body">
+        <div class="summary-name">${esc(b.name)}</div>
+        <div class="summary-desc">${b.description || ''}</div>
+        <div class="summary-meta">
+          <span class="chip chip-fee">${feeLabel(b.fee)}</span>
+          <span class="chip chip-exams">${b.exam_count||0} exams</span>
+        </div>
+      </div>
+    </div>${stepsHtml}`;
 }
 
 async function loadBatch(){
@@ -606,7 +658,9 @@ function afterAuthSuccess(){
   closeAuth();
   renderHeaderUI();
   if (currentBatch) {
-    document.getElementById('redeemBox').innerHTML = renderRedeemBox();
+    const isFree = !currentBatch.fee || currentBatch.fee <= 0;
+    const box = document.getElementById(isFree ? 'freeEnrollBox' : 'redeemBox');
+    if (box) box.innerHTML = isFree ? renderFreeEnrollBox() : renderRedeemBox();
   }
 }
 </script>
