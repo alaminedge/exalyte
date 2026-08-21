@@ -582,6 +582,21 @@ async function handleStoreRedeemCode(slug, request, db) {
   return json({ success: true, batch_name: b.name });
 }
 
+// Free batches (fee <= 0) skip the whole Telegram/code flow entirely — no
+// payment to verify, so there's nothing to gate behind a manual code.
+// Server-side re-checks the fee itself; a paid batch can never be enrolled
+// through this path no matter what the client sends.
+async function handleStoreEnrollFree(slug, request, db) {
+  const user = await requireAuth(request);
+  if (!user) return err('Please sign in to continue.', 401);
+  const b = await db.prepare('SELECT id, name, fee, is_public FROM batches WHERE public_slug = ?').bind(slug).first();
+  if (!b || !b.is_public) return err('This offer is no longer available.', 404);
+  if (b.fee && b.fee > 0) return err('This batch requires payment — please use an access code instead.', 400);
+  await db.prepare('INSERT OR REPLACE INTO premium_access (user_id, batch_id, grant_scope, granted_by, expires_at) VALUES (?, ?, ?, ?, NULL)')
+    .bind(user.id, b.id, 'batch', user.id).run();
+  return json({ success: true, batch_name: b.name });
+}
+
 // ============================================================
 // ADMIN — BATCH ACCESS CODES
 // ============================================================
@@ -1585,6 +1600,8 @@ export async function onRequest(context) {
     if (storeBatchDetail && method === 'GET') return handleStoreBatchDetail(storeBatchDetail[1], request, db);
     const storeBatchRedeem = path.match(/^\/store\/batches\/([A-Za-z0-9]+)\/redeem$/);
     if (storeBatchRedeem && method === 'POST') return handleStoreRedeemCode(storeBatchRedeem[1], request, db);
+    const storeBatchEnrollFree = path.match(/^\/store\/batches\/([A-Za-z0-9]+)\/enroll-free$/);
+    if (storeBatchEnrollFree && method === 'POST') return handleStoreEnrollFree(storeBatchEnrollFree[1], request, db);
     if (path === '/exams' && method === 'GET') return handleListExams(request, db);
     
     // USER
