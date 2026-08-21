@@ -293,6 +293,7 @@ async function initDB(db) {
   try { await db.prepare(`ALTER TABLE batches ADD COLUMN fee REAL DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE batches ADD COLUMN is_public INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE batches ADD COLUMN public_slug TEXT`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE batches ADD COLUMN total_exams INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exams ADD COLUMN sort_order INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`CREATE UNIQUE INDEX IF NOT EXISTS idx_batches_slug ON batches(public_slug)`).run(); } catch (e) {}
 
@@ -504,15 +505,15 @@ async function handleCreateBatch(request, db) {
   if (!body.name) return err('Name required');
   let slug, tries = 0;
   do { slug = randomSlug(16); tries++; } while (tries < 6 && await db.prepare('SELECT id FROM batches WHERE public_slug = ?').bind(slug).first());
-  const r = await db.prepare('INSERT INTO batches (name, description, image_url, fee, is_public, public_slug) VALUES (?, ?, ?, ?, ?, ?) RETURNING *')
-    .bind(body.name, body.description || '', body.image_url || '', body.fee || 0, body.is_public ? 1 : 0, slug).first();
+  const r = await db.prepare('INSERT INTO batches (name, description, image_url, fee, is_public, public_slug, total_exams) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *')
+    .bind(body.name, body.description || '', body.image_url || '', body.fee || 0, body.is_public ? 1 : 0, slug, parseInt(body.total_exams) || 0).first();
   return json(r, 201);
 }
 
 async function handleUpdateBatch(batchId, request, db) {
   const body = await request.json();
-  await db.prepare('UPDATE batches SET name = ?, description = ?, image_url = ?, fee = ?, is_public = ? WHERE id = ?')
-    .bind(body.name, body.description || '', body.image_url || '', body.fee || 0, body.is_public ? 1 : 0, batchId).run();
+  await db.prepare('UPDATE batches SET name = ?, description = ?, image_url = ?, fee = ?, is_public = ?, total_exams = ? WHERE id = ?')
+    .bind(body.name, body.description || '', body.image_url || '', body.fee || 0, body.is_public ? 1 : 0, parseInt(body.total_exams) || 0, batchId).run();
   const r = await db.prepare('SELECT * FROM batches WHERE id = ?').bind(batchId).first();
   return json(r);
 }
@@ -533,7 +534,7 @@ async function handleDeleteBatch(batchId, db) {
 // Batches marked is_public=1, identified only by opaque slug — never exposes
 // the sequential DB id to the public storefront.
 async function handleStoreBatches(request, db) {
-  const rows = await db.prepare(`SELECT b.id, b.name, b.description, b.image_url, b.fee, b.public_slug, COUNT(DISTINCT e.id) as exam_count FROM batches b LEFT JOIN exams e ON e.batch_id = b.id WHERE b.is_public = 1 GROUP BY b.id ORDER BY b.created_at DESC`).all();
+  const rows = await db.prepare(`SELECT b.id, b.name, b.description, b.image_url, b.fee, b.public_slug, b.total_exams, COUNT(DISTINCT e.id) as live_exam_count FROM batches b LEFT JOIN exams e ON e.batch_id = b.id WHERE b.is_public = 1 GROUP BY b.id ORDER BY b.created_at DESC`).all();
   const user = await requireAuth(request);
   let enrolled = new Set();
   let isAdmin = false;
@@ -549,17 +550,21 @@ async function handleStoreBatches(request, db) {
       for (const g of (grants.results || [])) enrolled.add(g.batch_id);
     }
   }
+  // The admin's own planned total (set when creating/editing the batch) is
+  // what students see — it reflects the outlined course plan, not just
+  // however many exams happen to be uploaded so far. Falls back to the live
+  // count only for older batches that never had this set.
   const batches = (rows.results || []).map(b => ({
     slug: b.public_slug, name: b.name, description: b.description, image_url: b.image_url,
-    fee: b.fee, exam_count: b.exam_count, enrolled: isAdmin || enrolled.has(b.id)
+    fee: b.fee, exam_count: b.total_exams > 0 ? b.total_exams : b.live_exam_count, enrolled: isAdmin || enrolled.has(b.id)
   }));
   return json({ batches }, 200, 20);
 }
 
 async function handleStoreBatchDetail(slug, request, db) {
-  const b = await db.prepare('SELECT id, name, description, image_url, fee, is_public, public_slug FROM batches WHERE public_slug = ?').bind(slug).first();
+  const b = await db.prepare('SELECT id, name, description, image_url, fee, is_public, public_slug, total_exams FROM batches WHERE public_slug = ?').bind(slug).first();
   if (!b || !b.is_public) return err('This offer is no longer available.', 404);
-  const examCount = await db.prepare('SELECT COUNT(*) as c FROM exams WHERE batch_id = ?').bind(b.id).first();
+  const liveCount = await db.prepare('SELECT COUNT(*) as c FROM exams WHERE batch_id = ?').bind(b.id).first();
   const user = await requireAuth(request);
   let enrolled = false;
   if (user) {
@@ -572,7 +577,8 @@ async function handleStoreBatchDetail(slug, request, db) {
       enrolled = !!grant;
     }
   }
-  return json({ slug: b.public_slug, name: b.name, description: b.description, image_url: b.image_url, fee: b.fee, exam_count: examCount.c, enrolled, logged_in: !!user });
+  const examCount = b.total_exams > 0 ? b.total_exams : liveCount.c;
+  return json({ slug: b.public_slug, name: b.name, description: b.description, image_url: b.image_url, fee: b.fee, exam_count: examCount, enrolled, logged_in: !!user });
 }
 
 // Redeem a one-time access code — the only write path that grants store-purchased
