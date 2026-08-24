@@ -1116,6 +1116,25 @@ function solWaitForImages(doc,container,timeoutMs){
 }
 
 var SOL_LOGO_URL='';
+var SOL_LOGO_DATA_URI=null; // cached after first successful fetch, so repeat prints don't refetch
+
+// SVGs used as a CSS background-image are blocked by browsers from loading any
+// external resource referenced inside them (a deliberate security restriction,
+// not a bug) — that's why the header <img> logo loads fine but a plain
+// external href inside the watermark SVG silently gets dropped. Fetching the
+// logo once and inlining it as a base64 data URI makes it fully self-contained,
+// so there's nothing external left for the browser to block.
+function solGetLogoDataURI(){
+  if(SOL_LOGO_DATA_URI)return Promise.resolve(SOL_LOGO_DATA_URI);
+  return fetch(SOL_LOGO_URL).then(function(r){return r.blob()}).then(function(blob){
+    return new Promise(function(resolve,reject){
+      var reader=new FileReader();
+      reader.onload=function(){SOL_LOGO_DATA_URI=reader.result;resolve(SOL_LOGO_DATA_URI)};
+      reader.onerror=reject;
+      reader.readAsDataURL(blob);
+    });
+  }).catch(function(){return null});
+}
 
 function printSolution(){
   if(!questions||!questions.length)return;
@@ -1131,15 +1150,20 @@ function printSolution(){
   );
   w.document.close();
 
-  // Centered watermark, sized to exactly one page — repeats down every page automatically
-  var wmSvg="<svg xmlns='http://www.w3.org/2000/svg' width='300' height='424'>"+
-    "<g transform='rotate(-28 150 212)' opacity='0.09' font-family='Arial'>"+
-    "<image href='"+SOL_LOGO_URL+"' x='130' y='148' width='40' height='40'/>"+
-    "<text x='150' y='232' font-weight='bold' font-size='34' fill='%231a73e8' text-anchor='middle'>EXALYTE</text>"+
-    "<text x='150' y='256' font-size='14' fill='%231a73e8' text-anchor='middle'>exalyte.pages.dev</text>"+
-    "</g></svg>";
-  w.document.body.style.backgroundImage='url("data:image/svg+xml;utf8,'+wmSvg+'")';
-  w.document.body.style.backgroundSize=SOL_PAGE_W_MM+'mm '+SOL_PAGE_H_MM+'mm';
+  // Centered watermark, sized to exactly one page — repeats down every page automatically.
+  // The logo is only added in once we have it inlined as a data URI (see above);
+  // the EXALYTE text still appears immediately either way since plain SVG text
+  // isn't subject to the same external-resource restriction.
+  solGetLogoDataURI().then(function(logoDataUri){
+    var wmSvg="<svg xmlns='http://www.w3.org/2000/svg' width='300' height='424'>"+
+      "<g transform='rotate(-28 150 212)' opacity='0.09' font-family='Arial'>"+
+      (logoDataUri?"<image href='"+logoDataUri+"' x='130' y='148' width='40' height='40'/>":"")+
+      "<text x='150' y='232' font-weight='bold' font-size='34' fill='#1a73e8' text-anchor='middle'>EXALYTE</text>"+
+      "<text x='150' y='256' font-size='14' fill='#1a73e8' text-anchor='middle'>exalyte.pages.dev</text>"+
+      "</g></svg>";
+    w.document.body.style.backgroundImage='url("data:image/svg+xml,'+encodeURIComponent(wmSvg)+'")';
+    w.document.body.style.backgroundSize=SOL_PAGE_W_MM+'mm '+SOL_PAGE_H_MM+'mm';
+  });
 
   var measureEl=w.document.getElementById('solMeasure');
   var qHtmls=questions.map(solBuildQuestionHTML);
