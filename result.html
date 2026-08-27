@@ -2,152 +2,501 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Result — Exalyte</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;--green:#1e8e3e;--grn-bg:#e6f4ea;--yellow:#f9ab00;--yel-bg:#fef7e0;--bg:#f8f9fa;--surf:#fff;--hov:#f1f3f4;--border:#dadce0;--t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;--gs:'Google Sans','Roboto',system-ui,sans-serif;--rb:'Roboto',system-ui,sans-serif;--hh:64px;--r:4px;--rl:8px;--tr:.2s cubic-bezier(.4,0,.2,1);--safe-bottom:env(safe-area-inset-bottom,20px)}
-body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
-.header{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--surf);border-bottom:1px solid var(--border);z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 24px;transition:transform .25s ease}
+:root{
+  --blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;
+  --green:#1e8e3e;--grn-bg:#e6f4ea;--yellow:#f9ab00;--yel-bg:#fef7e0;
+  --bg:#f8f9fa;--surf:#ffffff;--hov:#f1f3f4;--border:#dadce0;
+  --t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
+  --gs:'Google Sans','Roboto',system-ui,sans-serif;
+  --rb:'Roboto',system-ui,sans-serif;
+  --hh:64px;--r:4px;--rl:8px;--tr:.2s cubic-bezier(.4,0,.2,1);
+  --safe-bottom:env(safe-area-inset-bottom,20px);
+}
+body{
+  font-family:var(--rb);background:var(--bg);color:var(--t2);
+  -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
+  display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;
+}
+.header{
+  position:fixed;top:0;left:0;right:0;height:var(--hh);
+  background:var(--surf);border-bottom:1px solid var(--border);
+  z-index:1000;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;
+  transition:transform .25s ease;
+}
 .header.hidden{transform:translateY(-100%)}
-.header-left{display:flex;align-items:center;gap:24px}.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}.logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1)}
-.header-nav{display:flex;align-items:center;gap:4px}.header-nav a{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t3);text-decoration:none;padding:8px 16px;border-radius:var(--r);transition:all var(--tr)}.header-nav a:hover{background:var(--hov);color:var(--t1)}.header-nav a.active{color:var(--blue);background:#e8f0fe}
-.hamburger{display:none;background:none;border:0;cursor:pointer;color:var(--t3);padding:8px;border-radius:50%;align-items:center;justify-content:center}.hamburger:hover{background:var(--hov)}.hamburger svg{width:22px;height:22px}
-.mobile-nav-dropdown{display:none;position:fixed;top:var(--hh);left:0;right:0;background:var(--surf);border-bottom:1px solid var(--border);box-shadow:0 4px 16px rgba(0,0,0,.1);padding:8px 16px;z-index:999}.mobile-nav-dropdown.show{display:block}.mobile-nav-dropdown a{display:block;padding:14px 16px;font-family:var(--gs);font-size:.9rem;color:var(--t2);text-decoration:none;border-radius:var(--r)}.mobile-nav-dropdown a:hover{background:var(--hov)}
-.header-right{display:flex;align-items:center;gap:8px}.icon-btn{width:44px;height:44px;border:0;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3)}.icon-btn:hover{background:var(--hov)}.icon-btn svg{width:20px;height:20px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 22px;font-family:var(--gs);font-size:.85rem;font-weight:500;border:0;border-radius:var(--r);cursor:pointer;text-decoration:none;min-height:44px}.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue-h)}.btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}.btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
-.main{flex:1;padding-top:var(--hh)}.content{max-width:860px;margin:0 auto;padding:32px 24px calc(60px + var(--safe-bottom));width:100%}
-.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}@keyframes spin{to{transform:rotate(360deg)}}.loading-state{text-align:center;padding:80px 20px;color:var(--t3)}
-.score-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:36px 28px;text-align:center;margin-bottom:20px}.score-ring-wrap{width:120px;height:120px;margin:0 auto 16px;position:relative}.score-ring-wrap svg{transform:rotate(-90deg);width:120px;height:120px}.ring-bg{fill:none;stroke:var(--hov);stroke-width:8}.ring-fill{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:339.29;stroke-dashoffset:339.29;transition:stroke-dashoffset 1.4s ease}.ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}.ring-pct{font-family:var(--gs);font-size:1.8rem;font-weight:500;color:var(--t1)}.ring-lbl{font-size:.62rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}.score-grade{font-family:var(--gs);font-size:1.2rem;font-weight:500;margin-bottom:4px}.score-exam{font-size:.82rem;color:var(--t3);margin-bottom:20px}.score-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:360px;margin:0 auto 18px}.sc-stat{background:var(--bg);border-radius:var(--r);padding:14px 8px;text-align:center}.sc-stat-val{font-family:var(--gs);font-size:1.3rem;font-weight:500}.sc-stat-lbl{font-size:.62rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}.sc-correct .sc-stat-val{color:var(--green)}.sc-wrong .sc-stat-val{color:var(--red)}.sc-skip .sc-stat-val{color:var(--t3)}.perf-bar{height:6px;background:var(--hov);border-radius:4px;max-width:360px;margin:0 auto 20px;overflow:hidden}.perf-fill{height:100%;border-radius:4px;width:0;transition:width 1.4s ease}.result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.time-info{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:8px;font-size:.75rem;color:var(--t3)}.time-info span,.sections-info span{display:flex;align-items:center;gap:4px}.time-info svg,.sections-info svg{width:12px;height:12px;stroke:currentColor;fill:none;flex-shrink:0}.sections-info{display:flex;justify-content:center;flex-wrap:wrap;margin-top:8px;font-size:.75rem;color:var(--t3)}
-.lb-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}.lb-badge{width:56px;height:56px;border-radius:50%;background:var(--blue);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}.lb-rank{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:#fff}.lb-lbl{font-size:.5rem;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px;font-weight:500}.lb-info{flex:1;min-width:0}.lb-title{font-family:var(--gs);font-size:.88rem;font-weight:500;color:var(--t1)}.lb-sub{font-size:.76rem;color:var(--t3)}.lb-pct{text-align:right}.lb-pct-val{font-family:var(--gs);font-size:1.5rem;font-weight:500;color:var(--blue)}.lb-pct-lbl{font-size:.6rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px}
-.pending-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:48px 28px;text-align:center;margin-bottom:20px}.pending-icon{width:56px;height:56px;border-radius:50%;background:var(--yel-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}.pending-icon svg{width:24px;height:24px;stroke:#e37400;fill:none;stroke-width:2}.pending-title{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:#e37400;margin-bottom:6px}.pending-sub{font-size:.85rem;color:var(--t3);max-width:400px;margin:0 auto 20px;line-height:1.6}.pending-countdown{font-family:var(--gs);font-size:1.4rem;font-weight:500;color:#e37400;margin:8px 0}.pending-countdown-sub{font-size:.78rem;color:var(--t4);margin-bottom:20px}
-.review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}.review-head h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1)}.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{padding:7px 14px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.72rem;font-weight:500;color:var(--t3);background:var(--surf);cursor:pointer;min-height:36px;display:flex;align-items:center}.chip:hover{border-color:var(--blue);color:var(--blue)}.chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
-.review-list{display:flex;flex-direction:column;gap:8px}.rv-card{background:var(--surf);border:2px solid var(--border);border-radius:var(--rl);overflow:hidden}.rv-card.rv-correct{border-color:rgba(30,142,62,.4)}.rv-card.rv-wrong{border-color:rgba(217,48,37,.3)}.rv-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;min-height:44px}.rv-status{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}.rv-status svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5}.rv-correct .rv-status{background:var(--grn-bg);color:var(--green)}.rv-wrong .rv-status{background:var(--red-bg);color:var(--red)}.rv-skip .rv-status{background:var(--hov);color:var(--t3)}.rv-q{font-size:.84rem;color:var(--t2);flex:1;line-height:1.5;text-align:left}.rv-q p,.rv-q strong{display:inline}.rv-q-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:6px;border:1px solid var(--border);object-fit:contain;display:block}.rv-arrow{width:16px;height:16px;stroke:var(--t3);fill:none;stroke-width:2;flex-shrink:0;transition:transform .2s}.rv-card.open .rv-arrow{transform:rotate(180deg)}.rv-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);text-align:left}.rv-card.open .rv-body{display:block}.rv-opts{display:flex;flex-direction:column;gap:6px;margin-top:12px}.rv-opt{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;border-radius:var(--r);background:var(--bg);border:1.5px solid var(--border);font-size:.8rem;color:var(--t2);line-height:1.4}.rv-opt.rv-opt-correct{background:var(--grn-bg);border-color:rgba(30,142,62,.4);color:var(--green)}.rv-opt.rv-opt-wrong{background:var(--red-bg);border-color:rgba(217,48,37,.3);color:var(--red)}.rv-opt p,.rv-opt strong{display:inline}.rv-ol{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.72rem;font-weight:500;flex-shrink:0;color:var(--t3)}.rv-opt-correct .rv-ol{background:rgba(30,142,62,.2);color:var(--green)}.rv-opt-wrong .rv-ol{background:rgba(217,48,37,.15);color:var(--red)}.rv-opt-img{max-width:100%;max-height:120px;border-radius:var(--r);border:1px solid var(--border);object-fit:contain}.rv-ans-note{font-size:.68rem;font-weight:500;color:var(--t4);text-transform:uppercase;letter-spacing:.3px;margin-top:10px}.rv-explanation{margin-top:10px;padding:12px 14px;background:#e8f0fe;border:1px solid rgba(26,115,232,.2);border-radius:var(--r);font-size:.78rem;color:var(--blue);line-height:1.6}.rv-explanation strong{color:var(--t1);display:block;margin-bottom:3px;font-size:.68rem;text-transform:uppercase}.rv-explanation p{margin:0;display:inline}.rv-explanation-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:10px;border:1px solid var(--border);object-fit:contain}.empty-review{text-align:center;padding:40px;color:var(--t3);font-size:.82rem}
-.footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}.footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}.fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}.fc p{font-size:.8rem;color:var(--t3);line-height:1.7}.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2.2;padding:2px 0}.fc a:hover{color:var(--blue)}.footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}.footer-bottom{max-width:1080px;margin:0 auto;padding:16px 24px calc(16px + var(--safe-bottom));border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px}.footer-links{display:flex;gap:20px}.footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
-@media(max-width:768px){.header{padding:0 16px}.header-nav{display:none}.hamburger{display:flex}.content{padding:20px 16px calc(80px + var(--safe-bottom))}.score-card{padding:28px 20px}.score-ring-wrap,.score-ring-wrap svg{width:100px;height:100px}.ring-pct{font-size:1.4rem}.lb-card{padding:16px;gap:12px}.lb-badge{width:48px;height:48px}.lb-pct{text-align:left}.review-head{flex-direction:column;align-items:flex-start}.pending-card{padding:36px 20px}.footer-inner{grid-template-columns:1fr 1fr;gap:28px}}
-@media(max-width:480px){.score-stats{grid-template-columns:1fr 1fr}.score-stats .sc-stat:last-child{grid-column:span 2}.result-actions .btn{flex:1}.rv-header{padding:12px 14px}.rv-q{font-size:.78rem}.rv-body{padding:0 12px 14px}.rv-opt{font-size:.75rem;padding:8px 12px}.footer-inner{grid-template-columns:1fr;gap:20px}.footer-bottom{flex-direction:column;text-align:center}.lb-pct-val{font-size:1.3rem}.pending-countdown{font-size:1.2rem}}
+.header-left{display:flex;align-items:center;gap:24px}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1)}
+.header-nav{display:flex;align-items:center;gap:4px}
+.header-nav a{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t3);text-decoration:none;padding:8px 16px;border-radius:var(--r);transition:all var(--tr)}
+.header-nav a:hover{background:var(--hov);color:var(--t1)}
+.header-nav a.active{color:var(--blue);background:#e8f0fe}
+.hamburger{display:none;background:none;border:none;cursor:pointer;color:var(--t3);padding:8px;border-radius:50%;align-items:center;justify-content:center;transition:background var(--tr)}
+.hamburger:hover{background:var(--hov)}
+.hamburger svg{width:22px;height:22px}
+.mobile-nav-dropdown{display:none;position:fixed;top:var(--hh);left:0;right:0;background:var(--surf);border-bottom:1px solid var(--border);box-shadow:0 4px 16px rgba(0,0,0,.1);padding:8px 16px;z-index:999}
+.mobile-nav-dropdown.show{display:block}
+.mobile-nav-dropdown a{display:block;padding:14px 16px;font-family:var(--gs);font-size:.9rem;color:var(--t2);text-decoration:none;border-radius:var(--r)}
+.mobile-nav-dropdown a:hover{background:var(--hov)}
+.mobile-nav-dropdown a.active{color:var(--blue);background:#e8f0fe}
+.header-right{display:flex;align-items:center;gap:8px}
+.icon-btn{width:44px;height:44px;border:none;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);transition:background var(--tr)}
+.icon-btn:hover{background:var(--hov)}
+.icon-btn svg{width:20px;height:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 22px;font-family:var(--gs);font-size:.85rem;font-weight:500;border:none;border-radius:var(--r);cursor:pointer;text-decoration:none;transition:all var(--tr);min-height:44px}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-h);box-shadow:0 1px 2px rgba(60,64,67,.3),0 2px 6px rgba(60,64,67,.15)}
+.btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
+.btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
+.main{flex:1;padding-top:var(--hh)}
+.content{max-width:860px;margin:0 auto;padding:32px 24px 60px;width:100%;padding-bottom:calc(60px + var(--safe-bottom))}
+
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-state{text-align:center;padding:80px 20px;color:var(--t3)}
+
+.score-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:36px 28px;text-align:center;margin-bottom:20px}
+.score-ring-wrap{width:120px;height:120px;margin:0 auto 16px;position:relative}
+.score-ring-wrap svg{transform:rotate(-90deg);width:120px;height:120px}
+.ring-bg{fill:none;stroke:var(--hov);stroke-width:8}
+.ring-fill{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:339.29;stroke-dashoffset:339.29;transition:stroke-dashoffset 1.4s ease}
+.ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-family:var(--gs);font-size:1.8rem;font-weight:500;color:var(--t1)}
+.ring-lbl{font-size:.62rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
+.score-grade{font-family:var(--gs);font-size:1.2rem;font-weight:500;margin-bottom:4px}
+.score-exam{font-size:.82rem;color:var(--t3);margin-bottom:20px}
+.score-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:360px;margin:0 auto 18px}
+.sc-stat{background:var(--bg);border-radius:var(--r);padding:14px 8px;text-align:center}
+.sc-stat-val{font-family:var(--gs);font-size:1.3rem;font-weight:500}
+.sc-stat-lbl{font-size:.62rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
+.sc-correct .sc-stat-val{color:var(--green)}
+.sc-wrong .sc-stat-val{color:var(--red)}
+.sc-skip .sc-stat-val{color:var(--t3)}
+.perf-bar{height:6px;background:var(--hov);border-radius:4px;max-width:360px;margin:0 auto 20px;overflow:hidden}
+.perf-fill{height:100%;border-radius:4px;width:0;transition:width 1.4s ease}
+.result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.time-info{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:8px;font-size:.75rem;color:var(--t3)}
+.time-info span{display:flex;align-items:center;gap:4px}
+.time-info svg{width:12px;height:12px;stroke:currentColor;fill:none;flex-shrink:0}
+.sections-info{display:flex;justify-content:center;flex-wrap:wrap;margin-top:8px;font-size:.75rem;color:var(--t3)}
+.sections-info span{display:flex;align-items:center;gap:4px}
+.sections-info svg{width:12px;height:12px;stroke:currentColor;fill:none;flex-shrink:0}
+
+.lb-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.lb-badge{width:56px;height:56px;border-radius:50%;background:var(--blue);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.lb-rank{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:#fff}
+.lb-lbl{font-size:.5rem;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px;font-weight:500}
+.lb-info{flex:1;min-width:0}
+.lb-title{font-family:var(--gs);font-size:.88rem;font-weight:500;color:var(--t1)}
+.lb-sub{font-size:.76rem;color:var(--t3)}
+.lb-pct{text-align:right}
+.lb-pct-val{font-family:var(--gs);font-size:1.5rem;font-weight:500;color:var(--blue)}
+.lb-pct-lbl{font-size:.6rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500}
+
+.pending-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:48px 28px;text-align:center;margin-bottom:20px}
+.pending-icon{width:56px;height:56px;border-radius:50%;background:var(--yel-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.pending-icon svg{width:24px;height:24px;stroke:#e37400;fill:none;stroke-width:2}
+.pending-title{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:#e37400;margin-bottom:6px}
+.pending-sub{font-size:.85rem;color:var(--t3);max-width:400px;margin:0 auto 20px;line-height:1.6}
+.pending-countdown{font-family:var(--gs);font-size:1.4rem;font-weight:500;color:#e37400;margin:8px 0}
+.pending-countdown-sub{font-size:.78rem;color:var(--t4);margin-bottom:20px}
+
+.review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.review-head h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:7px 14px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.72rem;font-weight:500;color:var(--t3);background:var(--surf);cursor:pointer;transition:all var(--tr);min-height:36px;display:flex;align-items:center}
+.chip:hover{border-color:var(--blue);color:var(--blue)}
+.chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
+.review-list{display:flex;flex-direction:column;gap:8px}
+.rv-card{background:var(--surf);border:2px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.rv-card.rv-correct{border-color:rgba(30,142,62,.4)}
+.rv-card.rv-wrong{border-color:rgba(217,48,37,.3)}
+.rv-card.rv-skip{border-color:var(--border)}
+.rv-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;min-height:44px}
+.rv-status{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rv-status svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5}
+.rv-correct .rv-status{background:var(--grn-bg);color:var(--green)}
+.rv-wrong .rv-status{background:var(--red-bg);color:var(--red)}
+.rv-skip .rv-status{background:var(--hov);color:var(--t3)}
+.rv-q{font-size:.84rem;color:var(--t2);flex:1;line-height:1.5;text-align:left}
+.rv-q strong{font-weight:700}
+.rv-q p{margin:0;display:inline}
+.rv-q-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:6px;border:1px solid var(--border);object-fit:contain;display:block}
+.rv-arrow{width:16px;height:16px;stroke:var(--t3);fill:none;stroke-width:2;flex-shrink:0;transition:transform .2s}
+.rv-card.open .rv-arrow{transform:rotate(180deg)}
+.rv-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);text-align:left}
+.rv-card.open .rv-body{display:block}
+.rv-opts{display:flex;flex-direction:column;gap:6px;margin-top:12px;text-align:left}
+.rv-opt{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;border-radius:var(--r);background:var(--bg);border:1.5px solid var(--border);font-size:.8rem;color:var(--t2);line-height:1.4}
+.rv-opt.rv-opt-correct{background:var(--grn-bg);border-color:rgba(30,142,62,.4);color:var(--green)}
+.rv-opt.rv-opt-wrong{background:var(--red-bg);border-color:rgba(217,48,37,.3);color:var(--red)}
+.rv-opt p{margin:0;display:inline}
+.rv-opt strong{font-weight:700}
+.rv-ol{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.72rem;font-weight:500;flex-shrink:0;color:var(--t3)}
+.rv-opt-correct .rv-ol{background:rgba(30,142,62,.2);color:var(--green)}
+.rv-opt-wrong .rv-ol{background:rgba(217,48,37,.15);color:var(--red)}
+.rv-opt-img{max-width:100%;max-height:120px;border-radius:var(--r);border:1px solid var(--border);object-fit:contain}
+.rv-ans-note{font-size:.68rem;font-weight:500;color:var(--t4);text-transform:uppercase;letter-spacing:.3px;margin-top:10px;text-align:left}
+.rv-explanation{margin-top:10px;padding:12px 14px;background:#e8f0fe;border:1px solid rgba(26,115,232,.2);border-radius:var(--r);font-size:.78rem;color:var(--blue);line-height:1.6;text-align:left}
+.rv-explanation strong{color:var(--t1);display:block;margin-bottom:3px;font-size:.68rem;text-transform:uppercase}
+.rv-explanation p{margin:0;display:inline}
+.rv-explanation-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:10px;border:1px solid var(--border);object-fit:contain}
+.empty-review{text-align:center;padding:40px;color:var(--t3);font-size:.82rem}
+
+.footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
+.footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
+.fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
+.fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
+.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2.2;padding:2px 0}
+.fc a:hover{color:var(--blue)}
+.footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.footer-bottom{max-width:1080px;margin:0 auto;padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px;padding-bottom:calc(16px + var(--safe-bottom))}
+.footer-links{display:flex;gap:20px}
+.footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
+
+@media(max-width:768px){
+  .header{padding:0 16px}
+  .header-nav{display:none}
+  .hamburger{display:flex}
+  .content{padding:20px 16px 80px;padding-bottom:calc(80px + var(--safe-bottom))}
+  .score-card{padding:28px 20px}
+  .score-ring-wrap{width:100px;height:100px}
+  .score-ring-wrap svg{width:100px;height:100px}
+  .ring-pct{font-size:1.4rem}
+  .lb-card{padding:16px;gap:12px}
+  .lb-badge{width:48px;height:48px}
+  .lb-pct{text-align:left}
+  .review-head{flex-direction:column;align-items:flex-start}
+  .pending-card{padding:36px 20px}
+  .footer-inner{grid-template-columns:1fr 1fr;gap:28px}
+}
+@media(max-width:480px){
+  .score-stats{grid-template-columns:1fr 1fr}
+  .score-stats .sc-stat:last-child{grid-column:span 2}
+  .result-actions .btn{flex:1;justify-content:center}
+  .rv-header{padding:12px 14px}
+  .rv-q{font-size:.78rem}
+  .rv-body{padding:0 12px 14px}
+  .rv-opt{font-size:.75rem;padding:8px 12px}
+  .footer-inner{grid-template-columns:1fr;gap:20px}
+  .footer-bottom{flex-direction:column;text-align:center}
+  .lb-pct-val{font-size:1.3rem}
+  .pending-countdown{font-size:1.2rem}
+}
+
 </style>
 </head>
 <body>
 
 <header class="header" id="header">
-<div class="header-left">
-<button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-<a href="/" class="logo-wrap"><img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'"><span class="logo-text">Exalyte</span></a>
-<nav class="header-nav"><a href="dashboard.html">Dashboard</a><a href="exam-history.html">History</a><a href="batches.html">Batches</a></nav>
-</div>
-<div class="header-right"><button class="icon-btn" id="studentModeExitBtn" title="Exit to Admin" onclick="exitStudentMode()" aria-label="Exit to Admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/></svg></button></div>
+  <div class="header-left">
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <a href="/" class="logo-wrap">
+      <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
+      <span class="logo-text">Exalyte</span>
+    </a>
+    <nav class="header-nav">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="exam-history.html">History</a>
+      <a href="batches.html">Batches</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <button class="icon-btn" id="studentModeExitBtn" title="Exit to Admin" onclick="exitStudentMode()" aria-label="Exit to Admin" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/></svg>
+    </button>
+  </div>
 </header>
 
 <div class="mobile-nav-dropdown" id="mobileNavDropdown">
-<a href="dashboard.html">Dashboard</a><a href="exam-history.html">History</a><a href="batches.html">Batches</a><a href="#" onclick="logout();return false" style="color:var(--red)">Sign out</a>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="exam-history.html">History</a>
+  <a href="batches.html">Batches</a>
+  <a href="#" onclick="logout();return false" style="color:var(--red)">Sign out</a>
 </div>
 
-<main class="main"><div class="content" id="resultWrap"><div class="loading-state"><div class="spinner"></div><span>Loading your result...</span></div></div></main>
+<main class="main">
+  <div class="content" id="resultWrap">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <span>Loading your result...</span>
+    </div>
+  </div>
+</main>
 
 <footer class="footer">
-<div class="footer-inner">
-<div class="fc"><div class="footer-brand"><img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'"><span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t2)">Exalyte</span></div><p>A precision examination platform built for students who want to perform, not just prepare.</p></div>
-<div class="fc"><h4>Platform</h4><a href="dashboard.html">Dashboard</a><a href="exam-history.html">Exam History</a></div>
-<div class="fc"><h4>Legal</h4><a href="privacy.html">Privacy Policy</a><a href="tos.html">Terms of Service</a><a href="contact.html">Contact</a></div>
-</div>
-<div class="footer-bottom"><span>&copy; 2025 Exalyte. All rights reserved.</span><div class="footer-links"><a href="privacy.html">Privacy</a><a href="tos.html">Terms</a></div></div>
+  <div class="footer-inner">
+    <div class="fc"><div class="footer-brand"><img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'"><span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t2)">Exalyte</span></div><p>A precision examination platform built for students who want to perform, not just prepare.</p></div>
+    <div class="fc"><h4>Platform</h4><a href="dashboard.html">Dashboard</a><a href="exam-history.html">Exam History</a></div>
+    <div class="fc"><h4>Legal</h4><a href="privacy.html">Privacy Policy</a><a href="tos.html">Terms of Service</a><a href="contact.html">Contact</a></div>
+  </div>
+  <div class="footer-bottom"><span>&copy; 2025 Exalyte. All rights reserved.</span><div class="footer-links"><a href="privacy.html">Privacy</a><a href="tos.html">Terms</a></div></div>
 </footer>
 
 <script>
 const API='/api';
 function getToken(){return localStorage.getItem('exalyte_token')}
 function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
-function logout(){localStorage.clear();location.href='/'}
+function logout(){localStorage.clear();window.location.href='/'}
 function isStudentMode(){return localStorage.getItem('exalyte_student_mode')==='1'}
-function exitStudentMode(){localStorage.removeItem('exalyte_student_mode');location.href='admin.html'}
-function initStudentModeBar(){if(isStudentMode()&&getUser()?.is_admin){let b=document.getElementById('studentModeExitBtn');if(b)b.style.display='flex'}}
+function exitStudentMode(){localStorage.removeItem('exalyte_student_mode');window.location.href='admin.html'}
+function initStudentModeBar(){if(isStudentMode()&&getUser()?.is_admin){const btn=document.getElementById('studentModeExitBtn');if(btn)btn.style.display='flex'}}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function formatCountdown(sec){if(sec<=0)return'0s';let h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60,p=[];if(h)p.push(h+'h');if(m)p.push(m+'m');if(s||!p.length)p.push(s+'s');return p.join(' ')}
-function formatAvgTime(sec,total){if(!sec||!total||sec<=0||total<=0)return'';let a=sec/total;return a<60?Math.round(a)+'s/Q':(a/60).toFixed(1)+'m/Q'}
-function isImageURL(str){if(!str)return false;let s=str.trim();return s.startsWith('http')&&(s.includes('.jpg')||s.includes('.jpeg')||s.includes('.png')||s.includes('.webp')||s.includes('.gif')||s.includes('ibb.co')||s.includes('images.unsplash.com')||s.includes('i.imgur.com'))}
-function renderOptionContent(text){if(!text)return'';return isImageURL(text)?'<img src="'+esc(text)+'" class="rv-opt-img" alt="Option" onerror="this.style.display=\'none\'" loading="lazy">':text}
-function renderExplanationContent(text){if(!text)return'';return isImageURL(text)?'<img src="'+esc(text)+'" class="rv-explanation-img" alt="Explanation" onerror="this.style.display=\'none\'" loading="lazy">':text}
-async function apiFetch(path,opts){opts=opts||{};let token=getToken(),headers={'Content-Type':'application/json'};if(token)headers.Authorization='Bearer '+token;let res=await fetch(API+path,{...opts,headers}),text=await res.text();if(!text.trim())return{ok:false,data:{error:'Empty response'}};try{return{ok:res.ok,data:JSON.parse(text)}}catch(e){return{ok:false,data:{error:text.substring(0,200)}}}}
+function formatCountdown(sec){if(sec<=0)return'0s';const h=Math.floor(sec/3600);const m=Math.floor((sec%3600)/60);const s=sec%60;const p=[];if(h>0)p.push(h+'h');if(m>0)p.push(m+'m');if(s>0||p.length===0)p.push(s+'s');return p.join(' ')}
+function formatTimeTaken(sec){if(!sec||sec<=0)return'';const m=Math.floor(sec/60);const s=Math.floor(sec%60);if(m>0)return m+'m '+s+'s';return s+'s'}
+function formatAvgTime(sec,total){if(!sec||!total||sec<=0||total<=0)return'';const a=sec/total;if(a<60)return Math.round(a)+'s/Q';return (a/60).toFixed(1)+'m/Q'}
+function isImageURL(str){if(!str)return false;const s=str.trim();return s.startsWith('http')&&(s.includes('.jpg')||s.includes('.jpeg')||s.includes('.png')||s.includes('.webp')||s.includes('.gif')||s.includes('ibb.co')||s.includes('images.unsplash.com')||s.includes('i.imgur.com'))}
+// ✅ FIX: Allow HTML tags for question/option/explanation content
+function renderOptionContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-opt-img" alt="Option" onerror="this.style.display=\'none\'" loading="lazy">';return text}
+function renderExplanationContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-explanation-img" alt="Explanation" onerror="this.style.display=\'none\'" loading="lazy">';return text}
 
-const params=new URLSearchParams(location.search),examId=params.get('examId'),attemptId=params.get('attemptId')||'0';
-if(!examId)location.href='dashboard.html';
-if(!getToken())location.href='/';
+async function apiFetch(path,opts){
+  opts=opts||{};
+  const token=getToken();
+  const headers={'Content-Type':'application/json'};
+  if(token)headers['Authorization']='Bearer '+token;
+  const res=await fetch(API+path,{...opts,headers});
+  const text=await res.text();
+  if(!text||text.trim()==='')return{ok:false,data:{error:'Empty response'}};
+  try{return{ok:res.ok,data:JSON.parse(text)}}
+  catch(e){return{ok:false,data:{error:text.substring(0,200)}}}
+}
+
+const params=new URLSearchParams(location.search);
+const examId=params.get('examId');
+const attemptId=params.get('attemptId')||'0';
+
+if(!examId){window.location.href='dashboard.html'}
+if(!getToken()){window.location.href='/'}
 initStudentModeBar();
 
-let attempt,questions,exam,userAnswers={},reviewFilter='all',pendingCountdown=null;
-const header=document.getElementById('header');let lastY=0,ticking=false;
-addEventListener('scroll',()=>{if(!ticking)requestAnimationFrame(()=>{let y=scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;ticking=false}),ticking=true},{passive:true});
+let attempt,questions,exam,userAnswers={},reviewFilter='all';
+let pendingCountdown=null;
+
+const header=document.getElementById('header');
+let lastY=0,ticking=false;
+window.addEventListener('scroll',function(){if(!ticking){requestAnimationFrame(function(){var y=window.scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;ticking=false});ticking=true}},{passive:true});
+
 function toggleMobileNav(){document.getElementById('mobileNavDropdown').classList.toggle('show')}
-document.addEventListener('click',e=>{let d=document.getElementById('mobileNavDropdown'),h=document.getElementById('hamburger');if(d&&!d.contains(e.target)&&!h.contains(e.target))d.classList.remove('show')});
-function gradeInfo(p){if(p>=90)return{label:'Outstanding',color:'#1e8e3e'};if(p>=80)return{label:'Excellent',color:'#1e8e3e'};if(p>=60)return{label:'Good',color:'#1a73e8'};if(p>=40)return{label:'Needs Work',color:'#f9ab00'};return{label:'Keep Trying',color:'#d93025'}}
-function showError(msg){document.getElementById('resultWrap').innerHTML='<div class="pending-card"><div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="pending-title">Could not load result</div><div class="pending-sub">'+esc(msg)+'</div><a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a></div>'}
-function showPending(msg,liveSeconds,examName){let h='<div class="pending-card"><div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="pending-title">Results Pending</div>';h+=examName?'<div class="pending-sub">'+esc(examName)+'</div>':'<div class="pending-sub">'+esc(msg)+'</div>';if(liveSeconds>0)h+='<div class="pending-countdown" id="pendingCountdown">'+formatCountdown(liveSeconds)+'</div><div class="pending-countdown-sub">until results are published</div>';h+='<a href="dashboard.html" class="btn btn-primary" style="margin-top:20px">Back to Dashboard</a></div>';document.getElementById('resultWrap').innerHTML=h;if(liveSeconds>0){let r=liveSeconds;pendingCountdown=setInterval(()=>{r--;let el=document.getElementById('pendingCountdown');if(!el)return;if(r<=0){el.innerHTML='<span style="color:var(--green)">Results available now!</span>';clearInterval(pendingCountdown);let b=document.createElement('button');b.className='btn btn-primary';b.textContent='Refresh to View Results';b.style.marginTop='12px';b.onclick=()=>location.reload();el.parentNode.insertBefore(b,el.nextSibling)}else el.textContent=formatCountdown(r)},1000)}}
+document.addEventListener('click',function(e){var dd=document.getElementById('mobileNavDropdown');var hb=document.getElementById('hamburger');if(dd&&!dd.contains(e.target)&&!hb.contains(e.target))dd.classList.remove('show')});
+
+function gradeInfo(pct){if(pct>=90)return{label:'Outstanding',color:'#1e8e3e'};if(pct>=80)return{label:'Excellent',color:'#1e8e3e'};if(pct>=60)return{label:'Good',color:'#1a73e8'};if(pct>=40)return{label:'Needs Work',color:'#f9ab00'};return{label:'Keep Trying',color:'#d93025'}}
+
+function showError(msg){
+  document.getElementById('resultWrap').innerHTML='<div class="pending-card"><div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="pending-title">Could not load result</div><div class="pending-sub">'+esc(msg)+'</div><a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a></div>';
+}
+
+function showPending(msg,liveSeconds,examName){
+  var h='<div class="pending-card">';
+  h+='<div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>';
+  h+='<div class="pending-title">Results Pending</div>';
+  if(examName)h+='<div class="pending-sub">'+esc(examName)+'</div>';
+  else h+='<div class="pending-sub">'+esc(msg)+'</div>';
+  if(liveSeconds>0){h+='<div class="pending-countdown" id="pendingCountdown">'+formatCountdown(liveSeconds)+'</div>';h+='<div class="pending-countdown-sub">until results are published</div>';}
+  h+='<a href="dashboard.html" class="btn btn-primary" style="margin-top:20px">Back to Dashboard</a></div>';
+  document.getElementById('resultWrap').innerHTML=h;
+  if(liveSeconds>0){var r=liveSeconds;pendingCountdown=setInterval(function(){r--;var el=document.getElementById('pendingCountdown');if(el){if(r<=0){el.innerHTML='<span style="color:var(--green)">Results available now!</span>';clearInterval(pendingCountdown);var refreshBtn=document.createElement('button');refreshBtn.className='btn btn-primary';refreshBtn.textContent='Refresh to View Results';refreshBtn.style.marginTop='12px';refreshBtn.onclick=function(){location.reload();};el.parentNode.insertBefore(refreshBtn,el.nextSibling)}else{el.textContent=formatCountdown(r)}}},1000)}
+}
 
 function renderReview(){
-let filtered=questions.filter(q=>{let a=userAnswers[q.id],g=typeof a==='object'&&a!==null?a.given||'':typeof a==='string'?a:'';if(reviewFilter==='correct')return g&&g===q.correct_answer;if(reviewFilter==='wrong')return g&&g!==q.correct_answer;if(reviewFilter==='skipped')return!g;return true});
-if(!filtered.length){document.getElementById('reviewList').innerHTML='<div class="empty-review">No questions in this filter.</div>';return}
-let icons={correct:'<polyline points="20 6 9 17 4 12"/>',wrong:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',skipped:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'};
-document.getElementById('reviewList').innerHTML=filtered.map(q=>{
-let a=userAnswers[q.id],g=typeof a==='object'&&a!==null?a.given||'':typeof a==='string'?a:'',st=g===q.correct_answer?'correct':g?'wrong':'skip',cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
-let opts=['A','B','C','D'].map(l=>{let c=l===q.correct_answer,y=l===g&&!c,ot=q['option_'+l.toLowerCase()]||'';return'<div class="rv-opt '+(c?'rv-opt-correct':y?'rv-opt-wrong':'')+'"><div class="rv-ol">'+l+'</div><div style="flex:1;line-height:1.4">'+renderOptionContent(ot)+'</div></div>'}).join('');
-let note=g&&g!==q.correct_answer?'<div class="rv-ans-note">Your answer: '+g+' — Correct: '+q.correct_answer+'</div>':!g?'<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: '+q.correct_answer+'</div>':'';
-let exp=q.explanation&&q.explanation.trim()?'<div class="rv-explanation"><strong>Explanation</strong>'+renderExplanationContent(q.explanation)+'</div>':'';
-let qi=q.image_url?'<img src="'+esc(q.image_url)+'" class="rv-q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">':'';
-return'<div class="rv-card '+cls+'" id="rv'+q.id+'"><div class="rv-header" onclick="toggleReview(\''+q.id+'\')" role="button" tabindex="0"><div class="rv-status"><svg viewBox="0 0 24 24">'+icons[st]+'</svg></div><div class="rv-q">'+(q.question_text||'')+qi+'</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="rv-body"><div class="rv-opts">'+opts+'</div>'+note+exp+'</div></div>'
-}).join('')
+  var filtered=questions.filter(function(q){
+    var a=userAnswers[q.id];
+    var g='';
+    if(typeof a==='object'&&a!==null){g=a.given||'';}
+    else if(typeof a==='string'){g=a;}
+    
+    if(reviewFilter==='correct')return g&&g===q.correct_answer;
+    if(reviewFilter==='wrong')return g&&g!==q.correct_answer;
+    if(reviewFilter==='skipped')return !g;
+    return true;
+  });
+  
+  if(!filtered.length){document.getElementById('reviewList').innerHTML='<div class="empty-review">No questions in this filter.</div>';return}
+  
+  var icons={correct:'<polyline points="20 6 9 17 4 12"/>',wrong:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',skipped:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'};
+  
+  document.getElementById('reviewList').innerHTML=filtered.map(function(q){
+    var a=userAnswers[q.id];
+    var g='';
+    if(typeof a==='object'&&a!==null){g=a.given||'';}
+    else if(typeof a==='string'){g=a;}
+    
+    var st=g===q.correct_answer?'correct':g?'wrong':'skip';
+    var cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
+    
+    var opts=['A','B','C','D'].map(function(l){
+      var isC=l===q.correct_answer;
+      var isY=l===g&&!isC;
+      var oc=isC?'rv-opt-correct':isY?'rv-opt-wrong':'';
+      var ot=q['option_'+l.toLowerCase()]||'';
+      return '<div class="rv-opt '+oc+'"><div class="rv-ol">'+l+'</div><div style="flex:1;line-height:1.4">'+renderOptionContent(ot)+'</div></div>';
+    }).join('');
+    
+    var note='';
+    if(g&&g!==q.correct_answer)note='<div class="rv-ans-note">Your answer: '+g+' — Correct: '+q.correct_answer+'</div>';
+    else if(!g)note='<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: '+q.correct_answer+'</div>';
+    
+    var exp='';
+    if(q.explanation&&q.explanation.trim())exp='<div class="rv-explanation"><strong>Explanation</strong>'+renderExplanationContent(q.explanation)+'</div>';
+    
+    var qImg=q.image_url?'<img src="'+esc(q.image_url)+'" class="rv-q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">':'';
+    
+    // ✅ FIX: No esc() for question_text - allow HTML tags
+    return '<div class="rv-card '+cls+'" id="rv'+q.id+'"><div class="rv-header" onclick="toggleReview(\''+q.id+'\')" role="button" tabindex="0"><div class="rv-status"><svg viewBox="0 0 24 24">'+icons[st]+'</svg></div><div class="rv-q">'+(q.question_text||'')+qImg+'</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="rv-body"><div class="rv-opts">'+opts+'</div>'+note+exp+'</div></div>';
+  }).join('');
 }
+
 function toggleReview(id){document.getElementById('rv'+id)?.classList.toggle('open')}
-function setFilter(btn,filter){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));btn.classList.add('active');reviewFilter=filter;renderReview()}
+
+function setFilter(btn,filter){
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active')});
+  btn.classList.add('active');
+  reviewFilter=filter;
+  renderReview();
+}
 
 async function loadResult(){
-if(pendingCountdown)clearInterval(pendingCountdown);
-try{
-let result=await apiFetch('/exams/'+examId+'/result/'+attemptId);
-if(!result.ok||result.data.pending){showPending(result.data?.message||result.data?.error||'Results will be available after publication.',result.data?.live_seconds_remaining||0,result.data?.exam_name||'');return}
-let data=result.data;if(!data.attempt||!data.questions){showError('No result data found');return}
-attempt=data.attempt;questions=data.questions||[];exam=data.exam;
-userAnswers=typeof attempt.answers==='string'?JSON.parse(attempt.answers||'{}'):attempt.answers||{};
-let correct=0,wrong=0,skipped=0;
-questions.forEach(q=>{let a=userAnswers[q.id],g=typeof a==='object'&&a!==null?a.given||'':typeof a==='string'?a:'';if(!g)skipped++;else if(g===q.correct_answer)correct++;else wrong++});
-let pct=attempt.percentage||0,grade=gradeInfo(pct),timeTaken=attempt.time_taken_seconds||0,totalQ=questions.length;
-let selectedSections=[];try{selectedSections=JSON.parse(attempt.selected_sections||'[]')}catch(e){}
-let sectionsHTML=selectedSections.length?'<div class="sections-info"><span><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Sections: '+selectedSections.map(esc).join(', ')+'</span></div>':'';
-let timeHTML=timeTaken?'<div class="time-info"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: '+(timeTaken/60).toFixed(1)+' min / '+exam.time_limit+' min</span><span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: '+formatAvgTime(timeTaken,totalQ)+'</span></div>':'';
-let html='<div class="score-card"><div class="score-ring-wrap"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-fill" id="ringFill" cx="60" cy="60" r="54" stroke="'+grade.color+'"/></svg><div class="ring-inner"><div class="ring-pct">'+pct.toFixed(1)+'%</div><div class="ring-lbl">Score</div></div></div><div class="score-grade" style="color:'+grade.color+'">'+grade.label+'</div><div class="score-exam">'+esc(exam.name)+(attempt.is_practice?' — Practice':'')+'</div><div class="score-stats"><div class="sc-stat sc-correct"><div class="sc-stat-val">'+correct+'</div><div class="sc-stat-lbl">Correct</div></div><div class="sc-stat sc-wrong"><div class="sc-stat-val">'+wrong+'</div><div class="sc-stat-lbl">Wrong</div></div><div class="sc-stat sc-skip"><div class="sc-stat-val">'+skipped+'</div><div class="sc-stat-lbl">Skipped</div></div></div>'+timeHTML+sectionsHTML+'<div class="perf-bar"><div class="perf-fill" id="perfFill" style="background:'+grade.color+'"></div></div><div class="result-actions"><a href="dashboard.html" class="btn btn-outline">Dashboard</a><button class="btn btn-outline" onclick="printSolution()">Solution Sheet</button>'+(exam.allow_practice?'<a href="exam.html?id='+examId+'&practice=1" class="btn btn-primary">Practice Mode</a>':'')+'</div></div>';
-
-if(exam.leaderboard_enabled)try{let lbRes=await apiFetch('/leaderboard/'+examId);if(lbRes.ok&&lbRes.data?.rank&&!lbRes.data.disabled){let lb=lbRes.data;html+='<div class="lb-card"><div class="lb-badge"><div class="lb-rank">#'+lb.rank+'</div><div class="lb-lbl">Rank</div></div><div class="lb-info"><div class="lb-title">Your Leaderboard Position</div><div class="lb-sub">Out of '+lb.total_participants+' participant'+(lb.total_participants!==1?'s':'')+'</div></div><div class="lb-pct"><div class="lb-pct-val">Top '+lb.percentile+'%</div><div class="lb-pct-lbl">Percentile</div></div></div>'}}catch(e){}
-
-html+='<div class="review-head"><h2>Question Review</h2><div class="chips"><button class="chip active" onclick="setFilter(this,\'all\')">All</button><button class="chip" onclick="setFilter(this,\'correct\')">Correct</button><button class="chip" onclick="setFilter(this,\'wrong\')">Wrong</button><button class="chip" onclick="setFilter(this,\'skipped\')">Skipped</button></div></div><div class="review-list" id="reviewList"></div>';
-document.getElementById('resultWrap').innerHTML=html;
-setTimeout(()=>{let r=document.getElementById('ringFill');if(r)r.style.strokeDashoffset=339.29-(pct/100*339.29);let p=document.getElementById('perfFill');if(p)p.style.width=Math.max(pct,2)+'%'},100);
-renderReview()
-}catch(e){showError(e.message||'Network error')}
+  if(pendingCountdown)clearInterval(pendingCountdown);
+  try{
+    var result=await apiFetch('/exams/'+examId+'/result/'+attemptId);
+    if(!result.ok||result.data.pending){
+      var msg=result.data?.message||result.data?.error||'Results will be available after publication.';
+      var liveSeconds=result.data?.live_seconds_remaining||0;
+      var examName=result.data?.exam_name||'';
+      showPending(msg,liveSeconds,examName);
+      return;
+    }
+    
+    var data=result.data;
+    if(!data.attempt||!data.questions){showError('No result data found');return}
+    
+    attempt=data.attempt;
+    questions=data.questions||[];
+    exam=data.exam;
+    
+    if(typeof attempt.answers==='string'){
+      try{userAnswers=JSON.parse(attempt.answers||'{}')}catch(e){userAnswers={}}
+    }else{
+      userAnswers=attempt.answers||{};
+    }
+    
+    var correct=0,wrong=0,skipped=0;
+    questions.forEach(function(q){
+      var a=userAnswers[q.id];
+      var g='';
+      if(typeof a==='object'&&a!==null){g=a.given||'';}
+      else if(typeof a==='string'){g=a;}
+      
+      if(!g)skipped++;
+      else if(g===q.correct_answer)correct++;
+      else wrong++;
+    });
+    
+    var pct=attempt.percentage||0;
+    var grade=gradeInfo(pct);
+    var timeTaken=attempt.time_taken_seconds||0;
+    var totalQ=questions.length;
+    
+    var sectionsHTML='';
+    var selectedSections=[];
+    try{selectedSections=JSON.parse(attempt.selected_sections||'[]')}catch(e){selectedSections=[]}
+    if(selectedSections.length>0){
+      sectionsHTML='<div class="sections-info"><span><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>Sections: '+selectedSections.map(function(s){return esc(s)}).join(', ')+'</span></div>';
+    }
+    
+    var timeHTML='';
+    if(timeTaken>0){
+      var tm=(timeTaken/60).toFixed(1);
+      timeHTML='<div class="time-info"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: '+tm+' min / '+exam.time_limit+' min</span><span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: '+formatAvgTime(timeTaken,totalQ)+'</span></div>';
+    }
+    
+    // ✅ Score ring with ID for animation
+    var html='<div class="score-card">'+
+      '<div class="score-ring-wrap"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-fill" id="ringFill" cx="60" cy="60" r="54" stroke="'+grade.color+'" stroke-dasharray="339.29" stroke-dashoffset="339.29"/></svg><div class="ring-inner"><div class="ring-pct">'+pct.toFixed(1)+'%</div><div class="ring-lbl">Score</div></div></div>'+
+      '<div class="score-grade" style="color:'+grade.color+'">'+grade.label+'</div>'+
+      '<div class="score-exam">'+esc(exam.name)+(attempt.is_practice?' — Practice':'')+'</div>'+
+      '<div class="score-stats">'+
+      '<div class="sc-stat sc-correct"><div class="sc-stat-val">'+correct+'</div><div class="sc-stat-lbl">Correct</div></div>'+
+      '<div class="sc-stat sc-wrong"><div class="sc-stat-val">'+wrong+'</div><div class="sc-stat-lbl">Wrong</div></div>'+
+      '<div class="sc-stat sc-skip"><div class="sc-stat-val">'+skipped+'</div><div class="sc-stat-lbl">Skipped</div></div>'+
+      '</div>'+
+      timeHTML+
+      sectionsHTML+
+      '<div class="perf-bar"><div class="perf-fill" id="perfFill" style="width:0%;background:'+grade.color+'"></div></div>'+
+      '<div class="result-actions">'+
+      '<a href="dashboard.html" class="btn btn-outline"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>'+
+      '<button class="btn btn-outline" onclick="printSolution()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Solution Sheet</button>'+
+      (exam.allow_practice?'<a href="exam.html?id='+examId+'&practice=1" class="btn btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Mode</a>':'')+
+      '</div></div>';
+    
+    if(exam.leaderboard_enabled){
+      try{
+        var lbRes=await apiFetch('/leaderboard/'+examId);
+        if(lbRes.ok&&lbRes.data?.rank&&!lbRes.data.disabled){
+          var lb=lbRes.data;
+          html+='<div class="lb-card"><div class="lb-badge"><div class="lb-rank">#'+lb.rank+'</div><div class="lb-lbl">Rank</div></div><div class="lb-info"><div class="lb-title">Your Leaderboard Position</div><div class="lb-sub">Out of '+lb.total_participants+' participant'+(lb.total_participants!==1?'s':'')+'</div></div><div class="lb-pct"><div class="lb-pct-val">Top '+lb.percentile+'%</div><div class="lb-pct-lbl">Percentile</div></div></div>';
+        }
+      }catch(e){}
+    }
+    
+    html+='<div class="review-head"><h2>Question Review</h2><div class="chips">'+
+      '<button class="chip active" data-f="all" onclick="setFilter(this,\'all\')">All</button>'+
+      '<button class="chip" data-f="correct" onclick="setFilter(this,\'correct\')">Correct</button>'+
+      '<button class="chip" data-f="wrong" onclick="setFilter(this,\'wrong\')">Wrong</button>'+
+      '<button class="chip" data-f="skipped" onclick="setFilter(this,\'skipped\')">Skipped</button>'+
+      '</div></div><div class="review-list" id="reviewList"></div>';
+    
+    document.getElementById('resultWrap').innerHTML=html;
+    
+    // ✅ Trigger score ring animation
+    setTimeout(function() {
+      var ring = document.getElementById('ringFill');
+      if (ring) {
+        var circumference = 2 * Math.PI * 54;
+        var targetOffset = circumference - (pct / 100) * circumference;
+        ring.style.strokeDashoffset = targetOffset;
+      }
+      var perfBar = document.getElementById('perfFill');
+      if (perfBar) {
+        perfBar.style.width = Math.max(pct, 2) + '%';
+      }
+    }, 100);
+    
+    renderReview();
+  }catch(e){
+    showError(e.message||'Network error');
+  }
 }
 
-/* =========================
-   SOLUTION PRINT ENGINE
-   ========================= */
+function solOptContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="sol-optimg" alt="">';return text}
+function solExpContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="sol-optimg" alt="">';return text}
 
-let SOL_LOGO_URL='',SOL_LOGO_DATA_URI=null;
-const MM=3.7795275591;
-const SOL_PAGE_W_MM=192;
-const SOL_PAGE_H_MM=271;
-const SOL_PAGE_W_PX=SOL_PAGE_W_MM*MM;
-const SOL_PAGE_H_PX=SOL_PAGE_H_MM*MM;
-const SOL_COL_GAP_MM=5;
-const SOL_COL_GAP_PX=SOL_COL_GAP_MM*MM;
-const SOL_COL_W_PX=(SOL_PAGE_W_PX-SOL_COL_GAP_PX)/2;
+// Page geometry — must match the @page rule below (A4, 13mm top/bottom, 9mm left/right)
+var SOL_PAGE_W_MM=192, SOL_PAGE_H_MM=271, SOL_PX_PER_MM=3.7795275591;
+var SOL_PAGE_W_PX=SOL_PAGE_W_MM*SOL_PX_PER_MM, SOL_PAGE_H_PX=SOL_PAGE_H_MM*SOL_PX_PER_MM;
+var SOL_COL_GAP_MM=5, SOL_COL_GAP_PX=SOL_COL_GAP_MM*SOL_PX_PER_MM;
+var SOL_COL_W_PX=(SOL_PAGE_W_PX-SOL_COL_GAP_PX)/2;
 
-const SOL_PRINT_CSS=
+// Self-contained, very dense CSS for the popup print window (no interference from the main page's layout)
+var SOL_PRINT_CSS=
 '*{margin:0;padding:0;box-sizing:border-box}'+
 '@page{size:A4;margin:13mm 9mm}'+
 'html,body{background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif}'+
 'body{background-repeat:repeat-y;background-position:top center;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
-'.sol-page{position:relative;width:'+SOL_PAGE_W_MM+'mm;height:'+SOL_PAGE_H_MM+'mm;margin:0 auto;overflow:hidden}'+
+'.sol-page{position:relative;width:'+SOL_PAGE_W_MM+'mm;margin:0 auto}'+
 '.sol-header-full{text-align:center;border-bottom:1.2pt solid #000;padding-bottom:4pt;margin-bottom:6pt}'+
 '.sol-brand{display:flex;align-items:center;justify-content:center;gap:4pt;margin-bottom:2pt}'+
 '.sol-brand img{width:12pt;height:12pt;border-radius:50%}'+
@@ -157,11 +506,11 @@ const SOL_PRINT_CSS=
 '.sol-meta b{font-weight:bold}'+
 '.sol-header-slim{display:flex;justify-content:space-between;align-items:baseline;border-bottom:.7pt solid #000;padding-bottom:2.5pt;margin-bottom:5pt;font-size:6pt;color:#333}'+
 '.sol-header-slim b{color:#000;font-size:6.6pt}'+
-'.sol-cols{display:flex;gap:'+SOL_COL_GAP_MM+'mm;height:calc(100% - 25pt)}'+
-'.sol-col{flex:1 1 0;min-width:0;overflow:hidden}'+
+'.sol-cols{display:flex;gap:'+SOL_COL_GAP_MM+'mm}'+
+'.sol-col{flex:1 1 0;min-width:0}'+
 '.sol-col:first-child{border-right:.4pt solid #ccc;padding-right:'+SOL_COL_GAP_MM+'mm}'+
-'.sol-q{display:block;margin:0 0 3.5pt;padding-bottom:2.5pt;border-bottom:.4pt dotted #ccc;font-size:6.3pt;line-height:1.22}'+
-'.sol-q.last{border-bottom:none}'+
+'.sol-q{break-inside:avoid;page-break-inside:avoid;-webkit-column-break-inside:avoid;margin:0 0 3.5pt;padding-bottom:2.5pt;border-bottom:.4pt dotted #ccc;font-size:6.3pt;line-height:1.22}'+
+'.sol-q:last-child{border-bottom:none;margin-bottom:0}'+
 '.sol-qtext{font-weight:bold;margin-bottom:1.2pt}'+
 '.sol-qtext b,.sol-qtext strong{font-weight:bold}'+
 '.sol-qimg{max-width:100%;max-height:40pt;object-fit:contain;display:block;margin:1.2pt 0}'+
@@ -172,260 +521,223 @@ const SOL_PRINT_CSS=
 '.sol-optimg{max-width:100%;max-height:26pt;object-fit:contain}'+
 '.sol-exp{font-size:5.7pt;color:#333;font-style:italic;margin-top:1.2pt}'+
 '.sol-exp b{font-style:normal;font-weight:bold;color:#000}'+
-'.sol-frag{display:block}'+
-'#solMeasure{position:absolute;visibility:hidden;left:-99999px;top:0}';
+'#solMeasure{position:absolute;visibility:hidden;left:-9999px;top:0}';
 
-function solOptContent(text){if(!text)return'';return isImageURL(text)?'<img src="'+esc(text)+'" class="sol-optimg" alt="">':text}
-function solExpContent(text){if(!text)return'';return isImageURL(text)?'<img src="'+esc(text)+'" class="sol-optimg" alt="">':text}
-
-function solBuildHeader(full,page,total){
-let time=exam.time_limit?exam.time_limit+' min':'—',perQ=exam.marks_per_question||1,totalMarks=perQ*questions.length;
-let neg=exam.negative_marking&&exam.negative_marking>0?'−'+exam.negative_marking+'/wrong':'None';
-let date=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-if(!full)return'<div class="sol-header-slim"><b>'+esc(exam.name)+'</b><span>Solution Sheet — exalyte.pages.dev</span><span>Page '+page+' / '+total+'</span></div>';
-return'<div class="sol-header-full"><div class="sol-brand"><img src="'+SOL_LOGO_URL+'" alt="" onerror="this.style.display=\'none\'"><span>Exalyte</span></div><h1>'+esc(exam.name)+' — Solution Sheet</h1><div class="sol-meta"><span><b>Q:</b> '+questions.length+'</span><span><b>Time:</b> '+time+'</span><span><b>Marks:</b> '+totalMarks+' ('+perQ+'/Q)</span><span><b>Negative:</b> '+neg+'</span><span><b>Date:</b> '+date+'</span><span>exalyte.pages.dev</span></div></div>'
+function solBuildFullHeader(pageCount){
+  var timeStr=exam.time_limit?exam.time_limit+' min':'—';
+  var perQ=exam.marks_per_question||1;
+  var totalMarks=perQ*questions.length;
+  var negStr=(exam.negative_marking&&exam.negative_marking>0)?('−'+exam.negative_marking+'/wrong'):'None';
+  var dateStr=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  return '<div class="sol-header-full">'+
+    '<div class="sol-brand"><img src="'+SOL_LOGO_URL+'" alt="" onerror="this.style.display=\'none\'"><span>Exalyte</span></div>'+
+    '<h1>'+esc(exam.name)+' — Solution Sheet</h1>'+
+    '<div class="sol-meta">'+
+    '<span><b>Q:</b> '+questions.length+'</span>'+
+    '<span><b>Time:</b> '+timeStr+'</span>'+
+    '<span><b>Marks:</b> '+totalMarks+' ('+perQ+'/Q)</span>'+
+    '<span><b>Negative:</b> '+negStr+'</span>'+
+    '<span><b>Date:</b> '+dateStr+'</span>'+
+    '<span>exalyte.pages.dev</span>'+
+    '</div></div>';
+}
+function solBuildSlimHeader(pageNum,pageCount){
+  return '<div class="sol-header-slim"><b>'+esc(exam.name)+'</b><span>Solution Sheet — exalyte.pages.dev</span><span>Page '+pageNum+(pageCount?(' / '+pageCount):'')+'</span></div>';
+}
+function solBuildQuestionHTML(q,i){
+  var qImg=q.image_url?'<img src="'+esc(q.image_url)+'" class="sol-qimg" alt="">':'';
+  var h='<div class="sol-q"><div class="sol-qtext">Q'+(i+1)+'. '+(q.question_text||'')+'</div>'+qImg;
+  ['A','B','C','D'].forEach(function(l){
+    var isC=l===q.correct_answer;
+    var ot=q['option_'+l.toLowerCase()]||'';
+    h+='<div class="sol-opt'+(isC?' sol-correct':'')+'"><span class="sol-ol">'+l+'.</span><span>'+solOptContent(ot)+'</span></div>';
+  });
+  if(q.explanation&&q.explanation.trim())h+='<div class="sol-exp"><b>Exp: </b>'+solExpContent(q.explanation)+'</div>';
+  h+='</div>';
+  return h;
 }
 
-/*
-  Each question is divided into logical pieces:
-
-  PART 1:
-  Question + image + A + B
-
-  PART 2:
-  C + D + Explanation
-
-  If the entire question fits, both parts remain together.
-  If it doesn't, PART 2 can move to the next column.
-
-  This gives the desired result:
-  
-  COLUMN 1              COLUMN 2
-  5. Question...        C) ...
-  A) ...                D) ...
-  B) ...                Explanation...
-*/
-function solBuildParts(q,i){
-let qImg=q.image_url?'<img src="'+esc(q.image_url)+'" class="sol-qimg" alt="">':'';
-let first='<div class="sol-q sol-frag"><div class="sol-qtext">Q'+(i+1)+'. '+(q.question_text||'')+'</div>'+qImg;
-['A','B'].forEach(l=>{
-let c=l===q.correct_answer,ot=q['option_'+l.toLowerCase()]||'';
-first+='<div class="sol-opt'+(c?' sol-correct':'')+'"><span class="sol-ol">'+l+'.</span><span>'+solOptContent(ot)+'</span></div>'
-});
-first+='</div>';
-
-let second='';
-['C','D'].forEach(l=>{
-let c=l===q.correct_answer,ot=q['option_'+l.toLowerCase()]||'';
-second+='<div class="sol-opt"><span class="sol-ol'+(c?' sol-correct':'')+'">'+l+'.</span><span class="'+(c?'sol-correct':'')+'">'+solOptContent(ot)+'</span></div>'
-});
-if(q.explanation&&q.explanation.trim())second+='<div class="sol-exp"><b>Exp: </b>'+solExpContent(q.explanation)+'</div>';
-second='<div class="sol-q sol-frag">'+second+'</div>';
-return{first:first,second:second}
+function solWaitForImages(doc,container,timeoutMs){
+  var imgs=container.querySelectorAll('img');
+  if(!imgs.length)return Promise.resolve();
+  var promises=[];
+  imgs.forEach(function(img){
+    if(img.complete)return;
+    promises.push(new Promise(function(res){
+      img.addEventListener('load',res);
+      img.addEventListener('error',res);
+    }));
+  });
+  if(!promises.length)return Promise.resolve();
+  return Promise.race([Promise.all(promises),new Promise(function(res){setTimeout(res,timeoutMs)})]);
 }
 
-function solWaitImages(container,timeout){
-let imgs=container.querySelectorAll('img');
-if(!imgs.length)return Promise.resolve();
-return Promise.race([
-Promise.all([...imgs].map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=r;img.onerror=r}))),
-new Promise(r=>setTimeout(r,timeout))
-])
-}
+var SOL_LOGO_URL='';
+var SOL_LOGO_DATA_URI=null; // cached after first successful fetch, so repeat prints don't refetch
 
+// SVGs used as a CSS background-image are blocked by browsers from loading any
+// external resource referenced inside them (a deliberate security restriction,
+// not a bug) — that's why the header <img> logo loads fine but a plain
+// external href inside the watermark SVG silently gets dropped. Fetching the
+// logo once and inlining it as a base64 data URI makes it fully self-contained,
+// so there's nothing external left for the browser to block.
 function solGetLogoDataURI(){
-if(SOL_LOGO_DATA_URI)return Promise.resolve(SOL_LOGO_DATA_URI);
-return fetch(SOL_LOGO_URL).then(r=>r.blob()).then(blob=>new Promise((resolve,reject)=>{
-let reader=new FileReader();reader.onload=()=>{SOL_LOGO_DATA_URI=reader.result;resolve(reader.result)};reader.onerror=reject;reader.readAsDataURL(blob)
-})).catch(()=>null)
+  if(SOL_LOGO_DATA_URI)return Promise.resolve(SOL_LOGO_DATA_URI);
+  return fetch(SOL_LOGO_URL).then(function(r){return r.blob()}).then(function(blob){
+    return new Promise(function(resolve,reject){
+      var reader=new FileReader();
+      reader.onload=function(){SOL_LOGO_DATA_URI=reader.result;resolve(SOL_LOGO_DATA_URI)};
+      reader.onerror=reject;
+      reader.readAsDataURL(blob);
+    });
+  }).catch(function(){return null});
 }
 
 function printSolution(){
-if(!questions||!questions.length)return;
-SOL_LOGO_URL=new URL('images/exalyte.png',location.href).href;
+  if(!questions||!questions.length)return;
+  SOL_LOGO_URL=new URL('images/exalyte.png',location.href).href;
 
-let w=window.open('','_blank');
-if(!w){alert('Please allow pop-ups for this site to print the Solution Sheet.');return}
+  var w=window.open('','_blank');
+  if(!w){alert('Please allow pop-ups for this site to print the Solution Sheet.');return}
+  w.document.open();
+  w.document.write(
+    '<!DOCTYPE html><html><head><meta charset="UTF-8">'+
+    '<title>'+esc(exam.name)+' - Solution Sheet</title>'+
+    '<style>'+SOL_PRINT_CSS+'</style></head><body><div id="solMeasure"></div></body></html>'
+  );
+  w.document.close();
 
-w.document.open();
-w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+esc(exam.name)+' - Solution Sheet</title><style>'+SOL_PRINT_CSS+'</style></head><body><div id="solMeasure"></div></body></html>');
-w.document.close();
+  // Centered watermark, sized to exactly one page — repeats down every page automatically.
+  // The logo is only added in once we have it inlined as a data URI (see above);
+  // the EXALYTE text still appears immediately either way since plain SVG text
+  // isn't subject to the same external-resource restriction.
+  solGetLogoDataURI().then(function(logoDataUri){
+    var wmSvg="<svg xmlns='http://www.w3.org/2000/svg' width='300' height='424'>"+
+      "<g transform='rotate(-28 150 212)' opacity='0.09' font-family='Arial'>"+
+      (logoDataUri?"<image href='"+logoDataUri+"' x='130' y='148' width='40' height='40'/>":"")+
+      "<text x='150' y='232' font-weight='bold' font-size='34' fill='#1a73e8' text-anchor='middle'>EXALYTE</text>"+
+      "<text x='150' y='256' font-size='14' fill='#1a73e8' text-anchor='middle'>exalyte.pages.dev</text>"+
+      "</g></svg>";
+    w.document.body.style.backgroundImage='url("data:image/svg+xml,'+encodeURIComponent(wmSvg)+'")';
+    w.document.body.style.backgroundSize=SOL_PAGE_W_MM+'mm '+SOL_PAGE_H_MM+'mm';
+  });
 
-solGetLogoDataURI().then(logo=>{
-let svg="<svg xmlns='http://www.w3.org/2000/svg' width='300' height='424'><g transform='rotate(-28 150 212)' opacity='.09' font-family='Arial'>"+(logo?"<image href='"+logo+"' x='130' y='148' width='40' height='40'/>":"")+"<text x='150' y='232' font-weight='bold' font-size='34' fill='#1a73e8' text-anchor='middle'>EXALYTE</text><text x='150' y='256' font-size='14' fill='#1a73e8' text-anchor='middle'>exalyte.pages.dev</text></g></svg>";
-w.document.body.style.backgroundImage='url("data:image/svg+xml,'+encodeURIComponent(svg)+'")';
-w.document.body.style.backgroundSize=SOL_PAGE_W_MM+'mm '+SOL_PAGE_H_MM+'mm'
-});
+  var measureEl=w.document.getElementById('solMeasure');
+  var qHtmls=questions.map(solBuildQuestionHTML);
 
-let measure=w.document.getElementById('solMeasure');
-let parts=questions.map((q,i)=>solBuildParts(q,i));
+  // Warm-up pass: load every image once so height measurements below are accurate
+  measureEl.style.width=SOL_COL_W_PX+'px';
+  measureEl.innerHTML=qHtmls.join('');
+  solWaitForImages(w.document,measureEl,3500).then(function(){
+    // Measure each question's real rendered height at column width
+    var heights=qHtmls.map(function(html){
+      measureEl.innerHTML=html;
+      return measureEl.firstElementChild.getBoundingClientRect().height;
+    });
 
-/*
-  Measure every logical piece at the real column width.
-*/
-measure.style.width=SOL_COL_W_PX+'px';
-measure.innerHTML=parts.map(p=>p.first+p.second).join('');
+    // Measure header heights (full width)
+    measureEl.style.width=SOL_PAGE_W_MM+'mm';
+    measureEl.innerHTML=solBuildFullHeader();
+    var fullHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
+    measureEl.innerHTML=solBuildSlimHeader(1,1);
+    var slimHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
 
-solWaitImages(measure,4000).then(()=>{
-let heights=parts.map(p=>{
-measure.innerHTML=p.first;
-let a=measure.firstElementChild.getBoundingClientRect().height;
-measure.innerHTML=p.second;
-let b=measure.firstElementChild.getBoundingClientRect().height;
-return{a:a,b:b,total:a+b}
-});
+    // ✅ FIX — globally balanced pagination (no stray/near-empty columns).
+    //
+    // The earlier per-page approach ("group what fits on this page, then
+    // split that group in half") could still leave an awkward outcome: if
+    // the greedy look-ahead landed on a small final group, one page could
+    // end up with a single lone question and a large blank column while a
+    // previous page still had spare room.
+    //
+    // The correct fix is to treat the WHOLE document as one sequence and
+    // solve "split N questions into exactly C ordered, contiguous columns,
+    // minimizing the tallest column" — a classic linear-partition problem,
+    // solved via binary search on the answer:
+    //
+    //   1. First, find the minimum number of columns C_min physically
+    //      required, by greedily packing each column as full as possible
+    //      (this also tells us how many pages we need — greedy-fill-max is
+    //      optimal for minimizing the column/page count).
+    //   2. Then, keeping that same column count C_min fixed (so we never
+    //      add extra pages), binary-search for the smallest possible
+    //      "max column height" that still lets everything fit in C_min
+    //      columns. This redistributes content so every column — including
+    //      the last one — ends up close to the same height, eliminating
+    //      lone-question / near-blank columns.
+    //
+    // Column 0 and 1 belong to page 1 (which has the taller full header,
+    // so a bit less usable height); every column after that belongs to a
+    // later page using the slim header.
+    var availH1=(SOL_PAGE_H_PX-fullHeaderH-4)*0.95;
+    var availHRest=(SOL_PAGE_H_PX-slimHeaderH-4)*0.95;
+    function capacityForCol(col){return col<2?availH1:availHRest}
 
-measure.style.width=SOL_PAGE_W_MM+'mm';
-measure.innerHTML=solBuildHeader(true,1,1);
-let fullHeaderH=measure.firstElementChild.getBoundingClientRect().height;
-measure.innerHTML=solBuildHeader(false,1,1);
-let slimHeaderH=measure.firstElementChild.getBoundingClientRect().height;
+    var n=heights.length;
+    var maxSingle=0,totalHeight=0;
+    for(var i=0;i<n;i++){maxSingle=Math.max(maxSingle,heights[i]);totalHeight+=heights[i]}
 
-/*
-  Important:
-  We intentionally keep a generous safety zone at the bottom.
-  This prevents the browser/PDF renderer from clipping the final
-  few pixels/lines of an MCQ.
-*/
-let SAFE=16;
-let availFirst=Math.max(100,(SOL_PAGE_H_PX-fullHeaderH-SAFE)*.94);
-let availRest=Math.max(100,(SOL_PAGE_H_PX-slimHeaderH-SAFE)*.94);
+    // Try packing everything into `maxCols` columns, with each column capped
+    // at min(h, that column's physical capacity). Returns the resulting
+    // column groupings if it fits in <= maxCols columns, otherwise null.
+    function tryPack(h,maxCols){
+      var cols=[[]],col=0,cum=0;
+      for(var qi=0;qi<n;qi++){
+        var hh=heights[qi];
+        var cap=capacityForCol(col);
+        if(hh>cap)return null; // physically too tall for any column — shouldn't happen
+        var limit=Math.min(h,cap);
+        if(cols[col].length>0 && (cum+hh)>limit){
+          col++;
+          if(col>=maxCols)return null;
+          cols.push([]);
+          cum=0;
+        }
+        cols[col].push(qi);
+        cum+=hh;
+      }
+      return cols;
+    }
 
-/*
-  A column contains fragments.
+    // Step 1: minimum number of columns needed at all (greedy-fill-max, h=Infinity)
+    var minimalCols=tryPack(Infinity,Number.MAX_SAFE_INTEGER);
+    var C=minimalCols.length;
 
-  A = Question + A + B
-  B = C + D + Explanation
+    // Step 2: binary-search the smallest max-column-height that still fits in C columns
+    var lo=maxSingle,hi=totalHeight,bestCols=minimalCols;
+    while(lo<hi){
+      var mid=Math.floor((lo+hi)/2);
+      var attempt=tryPack(mid,C);
+      if(attempt){bestCols=attempt;hi=mid}
+      else{lo=mid+1}
+    }
+    // Final pass at the converged value guarantees a valid, balanced packing
+    var finalAttempt=tryPack(lo,C);
+    if(finalAttempt)bestCols=finalAttempt;
 
-  We first try to keep A+B together.
-  If A+B cannot fit in the current column but A fits,
-  A stays and B goes to the next column.
+    // bestCols is now a balanced list of columns; pair them up into pages
+    var pages=[];
+    for(var c=0;c<bestCols.length;c+=2){
+      var pageNum=pages.length+1;
+      var col1=bestCols[c].map(function(i){return qHtmls[i]}).join('');
+      var col2=(bestCols[c+1]||[]).map(function(i){return qHtmls[i]}).join('');
+      pages.push({num:pageNum,col1:col1,col2:col2});
+    }
 
-  This is the key behaviour requested.
-*/
-let columns=[];
-let current=[];
-let used=0;
+    var totalPages=pages.length;
+    var finalHTML=pages.map(function(p,i){
+      var header=p.num===1?solBuildFullHeader(totalPages):solBuildSlimHeader(p.num,totalPages);
+      var last=i===pages.length-1;
+      return '<div class="sol-page"'+(last?'':' style="page-break-after:always"')+'>'+
+        header+
+        '<div class="sol-cols"><div class="sol-col">'+p.col1+'</div><div class="sol-col">'+p.col2+'</div></div>'+
+        '</div>';
+    }).join('');
 
-function capFor(colIndex){return colIndex<2?availFirst:availRest}
+    w.document.body.innerHTML=finalHTML;
 
-function newColumn(){
-if(current.length)columns.push(current);
-current=[];used=0;
-}
-
-for(let i=0;i<parts.length;i++){
-let h=heights[i],cap=capFor(columns.length);
-
-/* Whole question fits in current column */
-if(used+h.total<=cap){
-current.push({type:'whole',i:i});
-used+=h.total;
-continue;
-}
-
-/* If current column already has content, try Q+A+B first in next column */
-if(current.length){
-/*
-  If A itself fits here, but whole doesn't, use A here.
-  This is intentionally allowed only when there is enough room
-  for the question + A + B as a logical first half.
-*/
-if(used+h.a<=cap && h.b>0){
-current.push({type:'first',i:i});
-used+=h.a;
-newColumn();
-
-let nextCap=capFor(columns.length);
-if(h.b<=nextCap){
-current.push({type:'second',i:i});
-used+=h.b;
-}else{
-/* Extremely tall explanation: let it occupy its own column */
-current.push({type:'second',i:i});
-used+=h.b;
-}
-continue;
-}
-
-/* Nothing currently in column: keep first half here */
-current.push({type:'first',i:i});
-used+=h.a;
-newColumn();
-
-let nextCap=capFor(columns.length);
-current.push({type:'second',i:i});
-used+=h.b;
-continue;
-}
-
-/* If a question is too tall for a normal column, don't clip it */
-if(h.a+h.b>capFor(columns.length)){
-if(current.length)newColumn();
-current.push({type:'first',i:i});
-used+=h.a;
-newColumn();
-current.push({type:'second',i:i});
-used+=h.b;
-}
-}
-
-if(current.length)columns.push(current);
-
-/*
-  Remove empty columns.
-*/
-columns=columns.filter(c=>c.length);
-
-/*
-  Build pages: two columns per page.
-*/
-let pages=[];
-for(let i=0;i<columns.length;i+=2){
-pages.push({
-c1:columns[i]||[],
-c2:columns[i+1]||[]
-})
-}
-
-let totalPages=pages.length;
-
-function renderColumn(items,lastColumn){
-return items.map((item,idx)=>{
-let p=parts[item.i];
-if(item.type==='whole'){
-/* Whole question */
-let html=p.first+p.second;
-return html.replace('class="sol-q sol-frag"','class="sol-q"').replace('class="sol-q sol-frag"','class="sol-q"')
-}
-if(item.type==='first'){
-return p.first
-}
-return p.second
-}).join('')
-}
-
-let finalHTML=pages.map((p,pi)=>{
-let page=pi+1;
-let header=solBuildHeader(page===1,page,totalPages);
-let c1=renderColumn(p.c1,pi===pages.length-1);
-let c2=renderColumn(p.c2,pi===pages.length-1);
-return'<div class="sol-page"'+(page<totalPages?' style="page-break-after:always"':'')+'>'+header+'<div class="sol-cols"><div class="sol-col">'+c1+'</div><div class="sol-col">'+c2+'</div></div></div>'
-}).join('');
-
-w.document.body.innerHTML=finalHTML;
-
-/*
-  Final safety check:
-  Images may finish loading after the initial measurement.
-  Give the print window a little time before invoking print.
-*/
-setTimeout(()=>{
-w.focus();
-w.print();
-},500);
-
-});
+    setTimeout(function(){w.focus();w.print()},150);
+  });
 }
 
 loadResult();
