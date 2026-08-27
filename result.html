@@ -192,7 +192,6 @@ body{
   .lb-pct-val{font-size:1.3rem}
   .pending-countdown{font-size:1.2rem}
 }
-
 </style>
 </head>
 <body>
@@ -259,9 +258,18 @@ function formatCountdown(sec){if(sec<=0)return'0s';const h=Math.floor(sec/3600);
 function formatTimeTaken(sec){if(!sec||sec<=0)return'';const m=Math.floor(sec/60);const s=Math.floor(sec%60);if(m>0)return m+'m '+s+'s';return s+'s'}
 function formatAvgTime(sec,total){if(!sec||!total||sec<=0||total<=0)return'';const a=sec/total;if(a<60)return Math.round(a)+'s/Q';return (a/60).toFixed(1)+'m/Q'}
 function isImageURL(str){if(!str)return false;const s=str.trim();return s.startsWith('http')&&(s.includes('.jpg')||s.includes('.jpeg')||s.includes('.png')||s.includes('.webp')||s.includes('.gif')||s.includes('ibb.co')||s.includes('images.unsplash.com')||s.includes('i.imgur.com'))}
-// ✅ FIX: Allow HTML tags for question/option/explanation content
-function renderOptionContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-opt-img" alt="Option" onerror="this.style.display=\'none\'" loading="lazy">';return text}
-function renderExplanationContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-explanation-img" alt="Explanation" onerror="this.style.display=\'none\'" loading="lazy">';return text}
+
+function renderOptionContent(text){
+  if(!text)return'';
+  if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-opt-img" alt="Option" onerror="this.style.display=\'none\'" loading="lazy">';
+  return text;
+}
+
+function renderExplanationContent(text){
+  if(!text)return'';
+  if(isImageURL(text))return'<img src="'+esc(text)+'" class="rv-explanation-img" alt="Explanation" onerror="this.style.display=\'none\'" loading="lazy">';
+  return text;
+}
 
 async function apiFetch(path,opts){
   opts=opts||{};
@@ -354,7 +362,6 @@ function renderReview(){
     
     var qImg=q.image_url?'<img src="'+esc(q.image_url)+'" class="rv-q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">':'';
     
-    // ✅ FIX: No esc() for question_text - allow HTML tags
     return '<div class="rv-card '+cls+'" id="rv'+q.id+'"><div class="rv-header" onclick="toggleReview(\''+q.id+'\')" role="button" tabindex="0"><div class="rv-status"><svg viewBox="0 0 24 24">'+icons[st]+'</svg></div><div class="rv-q">'+(q.question_text||'')+qImg+'</div><svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div><div class="rv-body"><div class="rv-opts">'+opts+'</div>'+note+exp+'</div></div>';
   }).join('');
 }
@@ -423,7 +430,6 @@ async function loadResult(){
       timeHTML='<div class="time-info"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Time taken: '+tm+' min / '+exam.time_limit+' min</span><span><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Avg: '+formatAvgTime(timeTaken,totalQ)+'</span></div>';
     }
     
-    // ✅ Score ring with ID for animation
     var html='<div class="score-card">'+
       '<div class="score-ring-wrap"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="54"/><circle class="ring-fill" id="ringFill" cx="60" cy="60" r="54" stroke="'+grade.color+'" stroke-dasharray="339.29" stroke-dashoffset="339.29"/></svg><div class="ring-inner"><div class="ring-pct">'+pct.toFixed(1)+'%</div><div class="ring-lbl">Score</div></div></div>'+
       '<div class="score-grade" style="color:'+grade.color+'">'+grade.label+'</div>'+
@@ -461,7 +467,6 @@ async function loadResult(){
     
     document.getElementById('resultWrap').innerHTML=html;
     
-    // ✅ Trigger score ring animation
     setTimeout(function() {
       var ring = document.getElementById('ringFill');
       if (ring) {
@@ -481,106 +486,14 @@ async function loadResult(){
   }
 }
 
+// Solution Sheet Print Functions
 function solOptContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="sol-optimg" alt="">';return text}
 function solExpContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="sol-optimg" alt="">';return text}
 
-// Page geometry — must match the @page rule below (A4, 13mm top/bottom, 9mm left/right)
-var SOL_PAGE_W_MM=192, SOL_PAGE_H_MM=271, SOL_PX_PER_MM=3.7795275591;
-var SOL_PAGE_W_PX=SOL_PAGE_W_MM*SOL_PX_PER_MM, SOL_PAGE_H_PX=SOL_PAGE_H_MM*SOL_PX_PER_MM;
-var SOL_COL_GAP_MM=5, SOL_COL_GAP_PX=SOL_COL_GAP_MM*SOL_PX_PER_MM;
-var SOL_COL_W_PX=(SOL_PAGE_W_PX-SOL_COL_GAP_PX)/2;
-
-// Self-contained, very dense CSS for the popup print window (no interference from the main page's layout)
-var SOL_PRINT_CSS=
-'*{margin:0;padding:0;box-sizing:border-box}'+
-'@page{size:A4;margin:13mm 9mm}'+
-'html,body{background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif}'+
-'body{background-repeat:repeat-y;background-position:top center;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
-'.sol-page{position:relative;width:'+SOL_PAGE_W_MM+'mm;margin:0 auto}'+
-'.sol-header-full{text-align:center;border-bottom:1.2pt solid #000;padding-bottom:4pt;margin-bottom:6pt}'+
-'.sol-brand{display:flex;align-items:center;justify-content:center;gap:4pt;margin-bottom:2pt}'+
-'.sol-brand img{width:12pt;height:12pt;border-radius:50%}'+
-'.sol-brand span{font-weight:bold;font-size:8pt}'+
-'.sol-header-full h1{font-size:8pt;font-weight:bold;margin-bottom:2pt}'+
-'.sol-meta{font-size:6pt;color:#222;display:flex;justify-content:center;gap:6pt;flex-wrap:wrap}'+
-'.sol-meta b{font-weight:bold}'+
-'.sol-header-slim{display:flex;justify-content:space-between;align-items:baseline;border-bottom:.7pt solid #000;padding-bottom:2.5pt;margin-bottom:5pt;font-size:6pt;color:#333}'+
-'.sol-header-slim b{color:#000;font-size:6.6pt}'+
-'.sol-cols{display:flex;gap:'+SOL_COL_GAP_MM+'mm}'+
-'.sol-col{flex:1 1 0;min-width:0}'+
-'.sol-col:first-child{border-right:.4pt solid #ccc;padding-right:'+SOL_COL_GAP_MM+'mm}'+
-'.sol-q{break-inside:avoid;page-break-inside:avoid;-webkit-column-break-inside:avoid;margin:0 0 3.5pt;padding-bottom:2.5pt;border-bottom:.4pt dotted #ccc;font-size:6.3pt;line-height:1.22}'+
-'.sol-q:last-child{border-bottom:none;margin-bottom:0}'+
-'.sol-qtext{font-weight:bold;margin-bottom:1.2pt}'+
-'.sol-qtext b,.sol-qtext strong{font-weight:bold}'+
-'.sol-qimg{max-width:100%;max-height:40pt;object-fit:contain;display:block;margin:1.2pt 0}'+
-'.sol-opt{margin:.3pt 0;display:flex;gap:2.2pt}'+
-'.sol-ol{font-weight:bold;min-width:7pt;flex-shrink:0}'+
-'.sol-opt.sol-correct{font-weight:bold;color:#0b6b1e}'+
-'.sol-opt.sol-correct .sol-ol:after{content:" \\2713"}'+
-'.sol-optimg{max-width:100%;max-height:26pt;object-fit:contain}'+
-'.sol-exp{font-size:5.7pt;color:#333;font-style:italic;margin-top:1.2pt}'+
-'.sol-exp b{font-style:normal;font-weight:bold;color:#000}'+
-'#solMeasure{position:absolute;visibility:hidden;left:-9999px;top:0}';
-
-function solBuildFullHeader(pageCount){
-  var timeStr=exam.time_limit?exam.time_limit+' min':'—';
-  var perQ=exam.marks_per_question||1;
-  var totalMarks=perQ*questions.length;
-  var negStr=(exam.negative_marking&&exam.negative_marking>0)?('−'+exam.negative_marking+'/wrong'):'None';
-  var dateStr=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-  return '<div class="sol-header-full">'+
-    '<div class="sol-brand"><img src="'+SOL_LOGO_URL+'" alt="" onerror="this.style.display=\'none\'"><span>Exalyte</span></div>'+
-    '<h1>'+esc(exam.name)+' — Solution Sheet</h1>'+
-    '<div class="sol-meta">'+
-    '<span><b>Q:</b> '+questions.length+'</span>'+
-    '<span><b>Time:</b> '+timeStr+'</span>'+
-    '<span><b>Marks:</b> '+totalMarks+' ('+perQ+'/Q)</span>'+
-    '<span><b>Negative:</b> '+negStr+'</span>'+
-    '<span><b>Date:</b> '+dateStr+'</span>'+
-    '<span>exalyte.pages.dev</span>'+
-    '</div></div>';
-}
-function solBuildSlimHeader(pageNum,pageCount){
-  return '<div class="sol-header-slim"><b>'+esc(exam.name)+'</b><span>Solution Sheet — exalyte.pages.dev</span><span>Page '+pageNum+(pageCount?(' / '+pageCount):'')+'</span></div>';
-}
-function solBuildQuestionHTML(q,i){
-  var qImg=q.image_url?'<img src="'+esc(q.image_url)+'" class="sol-qimg" alt="">':'';
-  var h='<div class="sol-q"><div class="sol-qtext">Q'+(i+1)+'. '+(q.question_text||'')+'</div>'+qImg;
-  ['A','B','C','D'].forEach(function(l){
-    var isC=l===q.correct_answer;
-    var ot=q['option_'+l.toLowerCase()]||'';
-    h+='<div class="sol-opt'+(isC?' sol-correct':'')+'"><span class="sol-ol">'+l+'.</span><span>'+solOptContent(ot)+'</span></div>';
-  });
-  if(q.explanation&&q.explanation.trim())h+='<div class="sol-exp"><b>Exp: </b>'+solExpContent(q.explanation)+'</div>';
-  h+='</div>';
-  return h;
-}
-
-function solWaitForImages(doc,container,timeoutMs){
-  var imgs=container.querySelectorAll('img');
-  if(!imgs.length)return Promise.resolve();
-  var promises=[];
-  imgs.forEach(function(img){
-    if(img.complete)return;
-    promises.push(new Promise(function(res){
-      img.addEventListener('load',res);
-      img.addEventListener('error',res);
-    }));
-  });
-  if(!promises.length)return Promise.resolve();
-  return Promise.race([Promise.all(promises),new Promise(function(res){setTimeout(res,timeoutMs)})]);
-}
-
+var SOL_PAGE_W_MM=192, SOL_PAGE_H_MM=271;
 var SOL_LOGO_URL='';
-var SOL_LOGO_DATA_URI=null; // cached after first successful fetch, so repeat prints don't refetch
+var SOL_LOGO_DATA_URI=null;
 
-// SVGs used as a CSS background-image are blocked by browsers from loading any
-// external resource referenced inside them (a deliberate security restriction,
-// not a bug) — that's why the header <img> logo loads fine but a plain
-// external href inside the watermark SVG silently gets dropped. Fetching the
-// logo once and inlining it as a base64 data URI makes it fully self-contained,
-// so there's nothing external left for the browser to block.
 function solGetLogoDataURI(){
   if(SOL_LOGO_DATA_URI)return Promise.resolve(SOL_LOGO_DATA_URI);
   return fetch(SOL_LOGO_URL).then(function(r){return r.blob()}).then(function(blob){
@@ -593,24 +506,186 @@ function solGetLogoDataURI(){
   }).catch(function(){return null});
 }
 
+function solBuildFullHeader(){
+  var timeStr=exam.time_limit?exam.time_limit+' min':'—';
+  var perQ=exam.marks_per_question||1;
+  var totalMarks=perQ*questions.length;
+  var negStr=(exam.negative_marking&&exam.negative_marking>0)?('−'+exam.negative_marking+'/wrong'):'None';
+  var dateStr=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  
+  return '<div class="sol-brand"><img src="'+SOL_LOGO_URL+'" alt="" onerror="this.style.display=\'none\'"><span>Exalyte</span></div>'+
+    '<h1>'+esc(exam.name)+' — Solution Sheet</h1>'+
+    '<div class="sol-meta">'+
+    '<span><b>Q:</b> '+questions.length+'</span>'+
+    '<span><b>Time:</b> '+timeStr+'</span>'+
+    '<span><b>Marks:</b> '+totalMarks+' ('+perQ+'/Q)</span>'+
+    '<span><b>Negative:</b> '+negStr+'</span>'+
+    '<span><b>Date:</b> '+dateStr+'</span>'+
+    '<span>exalyte.pages.dev</span>'+
+    '</div>';
+}
+
+function solBuildQuestionHTML(q,i){
+  var qImg=q.image_url?'<img src="'+esc(q.image_url)+'" class="sol-qimg" alt="">':'';
+  var h='<div class="sol-q"><div class="sol-qtext">Q'+(i+1)+'. '+(q.question_text||'')+'</div>'+qImg;
+  
+  ['A','B','C','D'].forEach(function(l){
+    var isC=l===q.correct_answer;
+    var ot=q['option_'+l.toLowerCase()]||'';
+    h+='<div class="sol-opt'+(isC?' sol-correct':'')+'"><span class="sol-ol">'+l+'.</span><span>'+solOptContent(ot)+'</span></div>';
+  });
+  
+  if(q.explanation&&q.explanation.trim()){
+    h+='<div class="sol-exp"><b>Exp: </b>'+solExpContent(q.explanation)+'</div>';
+  }
+  h+='</div>';
+  return h;
+}
+
 function printSolution(){
   if(!questions||!questions.length)return;
   SOL_LOGO_URL=new URL('images/exalyte.png',location.href).href;
 
   var w=window.open('','_blank');
   if(!w){alert('Please allow pop-ups for this site to print the Solution Sheet.');return}
+  
+  var allQuestionsHTML = questions.map(function(q, i) {
+    return solBuildQuestionHTML(q, i);
+  }).join('');
+  
   w.document.open();
   w.document.write(
     '<!DOCTYPE html><html><head><meta charset="UTF-8">'+
     '<title>'+esc(exam.name)+' - Solution Sheet</title>'+
-    '<style>'+SOL_PRINT_CSS+'</style></head><body><div id="solMeasure"></div></body></html>'
+    '<style>'+
+    '*{margin:0;padding:0;box-sizing:border-box}'+
+    '@page{size:A4;margin:13mm 9mm}'+
+    'html,body{background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif}'+
+    'body{-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+    
+    // ✅ CSS MULTI-COLUMN LAYOUT
+    '.solution-container{'+
+      'column-count:2;'+
+      'column-gap:5mm;'+
+      'column-fill:auto;'+
+      'height:'+SOL_PAGE_H_MM+'mm;'+
+      '-webkit-column-count:2;'+
+      '-webkit-column-gap:5mm;'+
+      '-webkit-column-fill:auto;'+
+    '}'+
+    
+    '.sol-q{'+
+      'break-inside:auto;'+
+      'page-break-inside:auto;'+
+      '-webkit-column-break-inside:auto;'+
+      'margin:0 0 3.5pt;'+
+      'padding-bottom:2.5pt;'+
+      'border-bottom:.4pt dotted #ccc;'+
+      'font-size:6.3pt;'+
+      'line-height:1.22;'+
+    '}'+
+    
+    '.sol-qtext{'+
+      'font-weight:bold;'+
+      'margin-bottom:1.2pt;'+
+    '}'+
+    
+    '.sol-opt{'+
+      'margin:.3pt 0;'+
+      'display:flex;'+
+      'gap:2.2pt;'+
+    '}'+
+    '.sol-ol{'+
+      'font-weight:bold;'+
+      'min-width:7pt;'+
+      'flex-shrink:0;'+
+    '}'+
+    '.sol-opt.sol-correct{'+
+      'font-weight:bold;'+
+      'color:#0b6b1e;'+
+    '}'+
+    '.sol-opt.sol-correct .sol-ol:after{'+
+      'content:" ✓";'+
+    '}'+
+    
+    '.sol-qimg{'+
+      'max-width:100%;'+
+      'max-height:40pt;'+
+      'object-fit:contain;'+
+      'display:block;'+
+      'margin:1.2pt 0;'+
+    '}'+
+    '.sol-optimg{'+
+      'max-width:100%;'+
+      'max-height:26pt;'+
+      'object-fit:contain;'+
+    '}'+
+    
+    '.sol-exp{'+
+      'font-size:5.7pt;'+
+      'color:#333;'+
+      'font-style:italic;'+
+      'margin-top:1.2pt;'+
+    '}'+
+    '.sol-exp b{'+
+      'font-style:normal;'+
+      'font-weight:bold;'+
+      'color:#000;'+
+    '}'+
+    
+    '.sol-header-full{'+
+      'text-align:center;'+
+      'border-bottom:1.2pt solid #000;'+
+      'padding-bottom:4pt;'+
+      'margin-bottom:6pt;'+
+    '}'+
+    '.sol-brand{'+
+      'display:flex;'+
+      'align-items:center;'+
+      'justify-content:center;'+
+      'gap:4pt;'+
+      'margin-bottom:2pt;'+
+    '}'+
+    '.sol-brand img{'+
+      'width:12pt;'+
+      'height:12pt;'+
+      'border-radius:50%;'+
+    '}'+
+    '.sol-brand span{'+
+      'font-weight:bold;'+
+      'font-size:8pt;'+
+    '}'+
+    '.sol-header-full h1{'+
+      'font-size:8pt;'+
+      'font-weight:bold;'+
+      'margin-bottom:2pt;'+
+    '}'+
+    '.sol-meta{'+
+      'font-size:6pt;'+
+      'color:#222;'+
+      'display:flex;'+
+      'justify-content:center;'+
+      'gap:6pt;'+
+      'flex-wrap:wrap;'+
+    '}'+
+    '.sol-meta b{'+
+      'font-weight:bold;'+
+    '}'+
+    
+    '</style></head><body>'+
+    
+    '<div class="sol-header-full">'+
+      solBuildFullHeader()+
+    '</div>'+
+    '<div class="solution-container">'+
+      allQuestionsHTML+
+    '</div>'+
+    
+    '</body></html>'
   );
   w.document.close();
-
-  // Centered watermark, sized to exactly one page — repeats down every page automatically.
-  // The logo is only added in once we have it inlined as a data URI (see above);
-  // the EXALYTE text still appears immediately either way since plain SVG text
-  // isn't subject to the same external-resource restriction.
+  
+  // Add watermark
   solGetLogoDataURI().then(function(logoDataUri){
     var wmSvg="<svg xmlns='http://www.w3.org/2000/svg' width='300' height='424'>"+
       "<g transform='rotate(-28 150 212)' opacity='0.09' font-family='Arial'>"+
@@ -621,123 +696,12 @@ function printSolution(){
     w.document.body.style.backgroundImage='url("data:image/svg+xml,'+encodeURIComponent(wmSvg)+'")';
     w.document.body.style.backgroundSize=SOL_PAGE_W_MM+'mm '+SOL_PAGE_H_MM+'mm';
   });
-
-  var measureEl=w.document.getElementById('solMeasure');
-  var qHtmls=questions.map(solBuildQuestionHTML);
-
-  // Warm-up pass: load every image once so height measurements below are accurate
-  measureEl.style.width=SOL_COL_W_PX+'px';
-  measureEl.innerHTML=qHtmls.join('');
-  solWaitForImages(w.document,measureEl,3500).then(function(){
-    // Measure each question's real rendered height at column width
-    var heights=qHtmls.map(function(html){
-      measureEl.innerHTML=html;
-      return measureEl.firstElementChild.getBoundingClientRect().height;
-    });
-
-    // Measure header heights (full width)
-    measureEl.style.width=SOL_PAGE_W_MM+'mm';
-    measureEl.innerHTML=solBuildFullHeader();
-    var fullHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
-    measureEl.innerHTML=solBuildSlimHeader(1,1);
-    var slimHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
-
-    // ✅ FIX — globally balanced pagination (no stray/near-empty columns).
-    //
-    // The earlier per-page approach ("group what fits on this page, then
-    // split that group in half") could still leave an awkward outcome: if
-    // the greedy look-ahead landed on a small final group, one page could
-    // end up with a single lone question and a large blank column while a
-    // previous page still had spare room.
-    //
-    // The correct fix is to treat the WHOLE document as one sequence and
-    // solve "split N questions into exactly C ordered, contiguous columns,
-    // minimizing the tallest column" — a classic linear-partition problem,
-    // solved via binary search on the answer:
-    //
-    //   1. First, find the minimum number of columns C_min physically
-    //      required, by greedily packing each column as full as possible
-    //      (this also tells us how many pages we need — greedy-fill-max is
-    //      optimal for minimizing the column/page count).
-    //   2. Then, keeping that same column count C_min fixed (so we never
-    //      add extra pages), binary-search for the smallest possible
-    //      "max column height" that still lets everything fit in C_min
-    //      columns. This redistributes content so every column — including
-    //      the last one — ends up close to the same height, eliminating
-    //      lone-question / near-blank columns.
-    //
-    // Column 0 and 1 belong to page 1 (which has the taller full header,
-    // so a bit less usable height); every column after that belongs to a
-    // later page using the slim header.
-    var availH1=(SOL_PAGE_H_PX-fullHeaderH-4)*0.95;
-    var availHRest=(SOL_PAGE_H_PX-slimHeaderH-4)*0.95;
-    function capacityForCol(col){return col<2?availH1:availHRest}
-
-    var n=heights.length;
-    var maxSingle=0,totalHeight=0;
-    for(var i=0;i<n;i++){maxSingle=Math.max(maxSingle,heights[i]);totalHeight+=heights[i]}
-
-    // Try packing everything into `maxCols` columns, with each column capped
-    // at min(h, that column's physical capacity). Returns the resulting
-    // column groupings if it fits in <= maxCols columns, otherwise null.
-    function tryPack(h,maxCols){
-      var cols=[[]],col=0,cum=0;
-      for(var qi=0;qi<n;qi++){
-        var hh=heights[qi];
-        var cap=capacityForCol(col);
-        if(hh>cap)return null; // physically too tall for any column — shouldn't happen
-        var limit=Math.min(h,cap);
-        if(cols[col].length>0 && (cum+hh)>limit){
-          col++;
-          if(col>=maxCols)return null;
-          cols.push([]);
-          cum=0;
-        }
-        cols[col].push(qi);
-        cum+=hh;
-      }
-      return cols;
-    }
-
-    // Step 1: minimum number of columns needed at all (greedy-fill-max, h=Infinity)
-    var minimalCols=tryPack(Infinity,Number.MAX_SAFE_INTEGER);
-    var C=minimalCols.length;
-
-    // Step 2: binary-search the smallest max-column-height that still fits in C columns
-    var lo=maxSingle,hi=totalHeight,bestCols=minimalCols;
-    while(lo<hi){
-      var mid=Math.floor((lo+hi)/2);
-      var attempt=tryPack(mid,C);
-      if(attempt){bestCols=attempt;hi=mid}
-      else{lo=mid+1}
-    }
-    // Final pass at the converged value guarantees a valid, balanced packing
-    var finalAttempt=tryPack(lo,C);
-    if(finalAttempt)bestCols=finalAttempt;
-
-    // bestCols is now a balanced list of columns; pair them up into pages
-    var pages=[];
-    for(var c=0;c<bestCols.length;c+=2){
-      var pageNum=pages.length+1;
-      var col1=bestCols[c].map(function(i){return qHtmls[i]}).join('');
-      var col2=(bestCols[c+1]||[]).map(function(i){return qHtmls[i]}).join('');
-      pages.push({num:pageNum,col1:col1,col2:col2});
-    }
-
-    var totalPages=pages.length;
-    var finalHTML=pages.map(function(p,i){
-      var header=p.num===1?solBuildFullHeader(totalPages):solBuildSlimHeader(p.num,totalPages);
-      var last=i===pages.length-1;
-      return '<div class="sol-page"'+(last?'':' style="page-break-after:always"')+'>'+
-        header+
-        '<div class="sol-cols"><div class="sol-col">'+p.col1+'</div><div class="sol-col">'+p.col2+'</div></div>'+
-        '</div>';
-    }).join('');
-
-    w.document.body.innerHTML=finalHTML;
-
-    setTimeout(function(){w.focus();w.print()},150);
-  });
+  
+  // Wait for images then print
+  setTimeout(function(){
+    w.focus();
+    w.print();
+  }, 500);
 }
 
 loadResult();
