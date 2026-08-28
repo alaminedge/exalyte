@@ -141,6 +141,11 @@ async function initDB(db) {
       description TEXT DEFAULT '',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
+    `CREATE TABLE IF NOT EXISTS subjects (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL UNIQUE,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
     `CREATE TABLE IF NOT EXISTS exams (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -296,6 +301,7 @@ async function initDB(db) {
   try { await db.prepare(`ALTER TABLE batches ADD COLUMN total_exams INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exams ADD COLUMN sort_order INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`CREATE UNIQUE INDEX IF NOT EXISTS idx_batches_slug ON batches(public_slug)`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE exams ADD COLUMN subject_id INTEGER REFERENCES subjects(id) ON DELETE SET NULL`).run(); } catch (e) {}
 
   // Backfill opaque public slugs for any batch that doesn't have one yet
   // (existing batches from before this feature, or a rare failed insert).
@@ -528,6 +534,44 @@ async function handleDeleteBatch(batchId, db) {
 }
 
 // ============================================================
+// SUBJECTS (Physics, Chemistry, Higher Math, Biology, English, etc.)
+// ============================================================
+
+async function handleListSubjects(db) {
+  const rows = await db.prepare(`SELECT s.*, COUNT(e.id) as exam_count FROM subjects s LEFT JOIN exams e ON e.subject_id = s.id GROUP BY s.id ORDER BY s.name ASC`).all();
+  return json(rows.results, 200, 30);
+}
+
+async function handleAdminCreateSubject(request, db) {
+  const body = await request.json();
+  const name = (body.name || '').trim();
+  if (!name) return err('Name required');
+  const existing = await db.prepare('SELECT id FROM subjects WHERE name = ?').bind(name).first();
+  if (existing) return err('A subject with this name already exists');
+  const r = await db.prepare('INSERT INTO subjects (name) VALUES (?) RETURNING *').bind(name).first();
+  return json(r, 201);
+}
+
+async function handleAdminUpdateSubject(subjectId, request, db) {
+  const body = await request.json();
+  const name = (body.name || '').trim();
+  if (!name) return err('Name required');
+  const existing = await db.prepare('SELECT id FROM subjects WHERE name = ? AND id != ?').bind(name, subjectId).first();
+  if (existing) return err('A subject with this name already exists');
+  await db.prepare('UPDATE subjects SET name = ? WHERE id = ?').bind(name, subjectId).run();
+  const r = await db.prepare('SELECT * FROM subjects WHERE id = ?').bind(subjectId).first();
+  return json(r);
+}
+
+async function handleAdminDeleteSubject(subjectId, db) {
+  // Exams that had this subject just fall back to "no subject" — deleting a
+  // subject never deletes exams or their questions/results.
+  await db.prepare('UPDATE exams SET subject_id = NULL WHERE subject_id = ?').bind(subjectId).run();
+  await db.prepare('DELETE FROM subjects WHERE id = ?').bind(subjectId).run();
+  return json({ success: true });
+}
+
+// ============================================================
 // PUBLIC BATCH STOREFRONT (batches.html / payment.html)
 // ============================================================
 
@@ -704,7 +748,7 @@ async function handleListExams(request, db) {
   const userId = user ? user.id : null;
   const isAdmin = user ? user.is_admin : false;
 
-  const exams = await db.prepare(`SELECT e.*, b.name as batch_name, (SELECT COUNT(*) FROM questions q WHERE q.exam_id = e.id) as total_questions_in_db FROM exams e LEFT JOIN batches b ON e.batch_id = b.id ORDER BY e.sort_order ASC, e.created_at DESC`).all();
+  const exams = await db.prepare(`SELECT e.*, b.name as batch_name, s.name as subject_name, (SELECT COUNT(*) FROM questions q WHERE q.exam_id = e.id) as total_questions_in_db FROM exams e LEFT JOIN batches b ON e.batch_id = b.id LEFT JOIN subjects s ON e.subject_id = s.id ORDER BY e.sort_order ASC, e.created_at DESC`).all();
 
   // Calculate actual attemptable questions for sectional exams
   for (const exam of exams.results) {
@@ -1206,7 +1250,7 @@ async function handleLeaderboard(examId, request, db) {
 async function handleHistory(request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
-  const rows = await db.prepare(`SELECT ers.*, e.name as exam_name, e.results_published, e.live_deadline_hours, e.scheduled_at, e.created_at as exam_created_at, e.allow_practice, e.is_practice_exam, e.is_closed, e.batch_id, b.name as batch_name FROM exam_results_stored ers JOIN exams e ON ers.exam_id = e.id LEFT JOIN batches b ON e.batch_id = b.id WHERE ers.user_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0 ORDER BY ers.submitted_at DESC`).bind(user.id).all();
+  const rows = await db.prepare(`SELECT ers.*, e.name as exam_name, e.results_published, e.live_deadline_hours, e.scheduled_at, e.created_at as exam_created_at, e.allow_practice, e.is_practice_exam, e.is_closed, e.batch_id, b.name as batch_name, e.subject_id, s.name as subject_name FROM exam_results_stored ers JOIN exams e ON ers.exam_id = e.id LEFT JOIN batches b ON e.batch_id = b.id LEFT JOIN subjects s ON e.subject_id = s.id WHERE ers.user_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0 ORDER BY ers.submitted_at DESC`).bind(user.id).all();
   const result = [];
   for (const r of rows.results) {
     const examForLive = { live_deadline_hours: r.live_deadline_hours, created_at: r.exam_created_at, scheduled_at: r.scheduled_at };
@@ -1284,13 +1328,13 @@ async function handleAdminCreateExam(request, db) {
   const groupParams = batchId === null ? [] : [batchId];
   await db.prepare(`UPDATE exams SET sort_order = sort_order + 1 WHERE ${groupClause}`).bind(...groupParams).run();
   const sortOrder = 0;
-  const r = await db.prepare(`INSERT INTO exams (name, description, time_limit, is_premium, negative_marking, marks_per_question, allow_practice, batch_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled, scheduled_at, has_sections, section_config, is_practice_exam, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`).bind(body.name, body.description || '', body.time_limit || 30, body.is_premium ? 1 : 0, body.negative_marking || 0, body.marks_per_question || 1, body.allow_practice ? 1 : 0, batchId, body.live_deadline_hours || 0, body.results_published ? 1 : 0, body.publish_after_hours || 0, body.leaderboard_enabled ? 1 : 0, body.scheduled_at || null, body.has_sections ? 1 : 0, body.section_config || '', body.is_practice_exam ? 1 : 0, sortOrder).first();
+  const r = await db.prepare(`INSERT INTO exams (name, description, time_limit, is_premium, negative_marking, marks_per_question, allow_practice, batch_id, subject_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled, scheduled_at, has_sections, section_config, is_practice_exam, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`).bind(body.name, body.description || '', body.time_limit || 30, body.is_premium ? 1 : 0, body.negative_marking || 0, body.marks_per_question || 1, body.allow_practice ? 1 : 0, batchId, body.subject_id || null, body.live_deadline_hours || 0, body.results_published ? 1 : 0, body.publish_after_hours || 0, body.leaderboard_enabled ? 1 : 0, body.scheduled_at || null, body.has_sections ? 1 : 0, body.section_config || '', body.is_practice_exam ? 1 : 0, sortOrder).first();
   return json(r, 201);
 }
 
 async function handleAdminUpdateExam(examId, request, db) {
   const body = await request.json();
-  await db.prepare(`UPDATE exams SET name = ?, description = ?, time_limit = ?, is_premium = ?, negative_marking = ?, marks_per_question = ?, allow_practice = ?, batch_id = ?, live_deadline_hours = ?, results_published = ?, publish_after_hours = ?, leaderboard_enabled = ?, scheduled_at = ?, has_sections = ?, section_config = ?, is_practice_exam = ? WHERE id = ?`).bind(body.name, body.description || '', body.time_limit || 30, body.is_premium ? 1 : 0, body.negative_marking || 0, body.marks_per_question || 1, body.allow_practice ? 1 : 0, body.batch_id || null, body.live_deadline_hours || 0, body.results_published ? 1 : 0, body.publish_after_hours || 0, body.leaderboard_enabled ? 1 : 0, body.scheduled_at || null, body.has_sections ? 1 : 0, body.section_config || '', body.is_practice_exam ? 1 : 0, examId).run();
+  await db.prepare(`UPDATE exams SET name = ?, description = ?, time_limit = ?, is_premium = ?, negative_marking = ?, marks_per_question = ?, allow_practice = ?, batch_id = ?, subject_id = ?, live_deadline_hours = ?, results_published = ?, publish_after_hours = ?, leaderboard_enabled = ?, scheduled_at = ?, has_sections = ?, section_config = ?, is_practice_exam = ? WHERE id = ?`).bind(body.name, body.description || '', body.time_limit || 30, body.is_premium ? 1 : 0, body.negative_marking || 0, body.marks_per_question || 1, body.allow_practice ? 1 : 0, body.batch_id || null, body.subject_id || null, body.live_deadline_hours || 0, body.results_published ? 1 : 0, body.publish_after_hours || 0, body.leaderboard_enabled ? 1 : 0, body.scheduled_at || null, body.has_sections ? 1 : 0, body.section_config || '', body.is_practice_exam ? 1 : 0, examId).run();
   const r = await db.prepare('SELECT * FROM exams WHERE id = ?').bind(examId).first();
   return json(r);
 }
@@ -1612,6 +1656,7 @@ export async function onRequest(context) {
     
     // PUBLIC
     if (path === '/batches' && method === 'GET') return handleListBatches(db);
+    if (path === '/subjects' && method === 'GET') return handleListSubjects(db);
 
     // PUBLIC STOREFRONT — batches.html / payment.html (viewable without login)
     if (path === '/store/batches' && method === 'GET') return handleStoreBatches(request, db);
@@ -1655,6 +1700,12 @@ export async function onRequest(context) {
     const admin = await requireAdmin(request, db);
     
     if (path === '/admin/batches' && method === 'POST') { if (!admin) return err('Admin required', 403); return handleCreateBatch(request, db); }
+
+    // SUBJECTS
+    if (path === '/admin/subjects' && method === 'POST') { if (!admin) return err('Admin required', 403); return handleAdminCreateSubject(request, db); }
+    const adminSubject = path.match(/^\/admin\/subjects\/(\d+)$/);
+    if (adminSubject && method === 'PUT') { if (!admin) return err('Admin required', 403); return handleAdminUpdateSubject(adminSubject[1], request, db); }
+    if (adminSubject && method === 'DELETE') { if (!admin) return err('Admin required', 403); return handleAdminDeleteSubject(adminSubject[1], db); }
 
     // BATCH ACCESS CODES (store purchase flow)
     const adminBatchCodes = path.match(/^\/admin\/batches\/(\d+)\/codes$/);
