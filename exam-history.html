@@ -226,6 +226,9 @@ body{
       <select class="batch-filter-select" id="batchFilterSelect" onchange="renderHistory()" aria-label="Filter by batch">
         <option value="">All Batches</option>
       </select>
+      <select class="batch-filter-select" id="subjectFilterSelect" onchange="renderHistory()" aria-label="Filter by subject">
+        <option value="">All Subjects</option>
+      </select>
       <button class="filter-chip active" data-filter="all" onclick="setFilter(this)">All</button>
       <button class="filter-chip" data-filter="recent" onclick="setFilter(this)">Recent</button>
       <button class="filter-chip" data-filter="published" onclick="setFilter(this)">Published</button>
@@ -308,6 +311,17 @@ function populateBatchFilter(){
   sel.innerHTML=opts;
   if(current&&seen[current])sel.value=current;
 }
+function populateSubjectFilter(){
+  var sel=document.getElementById('subjectFilterSelect');
+  if(!sel)return;
+  var current=sel.value;
+  var seen={};
+  historyData.forEach(function(h){if(h.subject_id&&!seen[h.subject_id])seen[h.subject_id]=h.subject_name||'Subject'});
+  var opts='<option value="">All Subjects</option>';
+  Object.keys(seen).sort(function(a,b){return seen[a].localeCompare(seen[b])}).forEach(function(id){opts+='<option value="'+id+'">'+esc(seen[id])+'</option>'});
+  sel.innerHTML=opts;
+  if(current&&seen[current])sel.value=current;
+}
 
 const header=document.getElementById('header');
 let lastY=0,ticking=false;
@@ -350,6 +364,7 @@ async function loadHistory(){
   if(!result.ok){logout();return}
   historyData=result.data||[];
   populateBatchFilter();
+  populateSubjectFilter();
   updateStats();
   renderHistory();
 }
@@ -373,11 +388,13 @@ function updateStats(){
 function renderHistory(){
   var search=document.getElementById('searchInput').value.toLowerCase();
   var batchFilterId=document.getElementById('batchFilterSelect')?document.getElementById('batchFilterSelect').value:'';
-  var sig=search+'|'+currentFilter+'|'+batchFilterId;
+  var subjectFilterId=document.getElementById('subjectFilterSelect')?document.getElementById('subjectFilterSelect').value:'';
+  var sig=search+'|'+currentFilter+'|'+batchFilterId+'|'+subjectFilterId;
   if(sig!==lastHistoryFilterSig){historyPageNum=1;lastHistoryFilterSig=sig}
   var filteredAll=historyData.filter(function(h){
     if(search&&h.exam_name.toLowerCase().indexOf(search)===-1)return false;
     if(batchFilterId&&String(h.batch_id)!==String(batchFilterId))return false;
+    if(subjectFilterId&&String(h.subject_id)!==String(subjectFilterId))return false;
     if(currentFilter==='published')return h.results_visible===true;
     if(currentFilter==='pending')return h.results_visible===false;
     if(currentFilter==='recent')return h.submitted_at&&(Date.now()-new Date(h.submitted_at).getTime())<14*86400000;
