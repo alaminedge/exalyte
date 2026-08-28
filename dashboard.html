@@ -581,6 +581,9 @@ body{
       <select class="batch-filter-select" id="batchFilterSelect" onchange="renderExams()" aria-label="Filter by batch">
         <option value="">All Batches</option>
       </select>
+      <select class="batch-filter-select" id="subjectFilterSelect" onchange="renderExams()" aria-label="Filter by subject">
+        <option value="">All Subjects</option>
+      </select>
       <button class="filter-chip active" data-filter="all" onclick="setFilter(this)">All</button>
       <button class="filter-chip" data-filter="recent" onclick="setFilter(this)">Recent</button>
       <button class="filter-chip" data-filter="free" onclick="setFilter(this)">Free</button>
@@ -714,6 +717,15 @@ function populateBatchFilter(){
   sel.innerHTML='<option value="">All Batches</option>'+Array.from(seen.entries()).sort((a,b)=>a[1].localeCompare(b[1])).map(([id,name])=>`<option value="${id}">${esc(name)}</option>`).join('');
   if(current&&Array.from(seen.keys()).some(id=>String(id)===String(current)))sel.value=current;
 }
+function populateSubjectFilter(){
+  const sel=document.getElementById('subjectFilterSelect');
+  if(!sel)return;
+  const current=sel.value;
+  const seen=new Map();
+  allExams.forEach(e=>{if(e.subject_id&&!seen.has(e.subject_id))seen.set(e.subject_id,e.subject_name||'Subject')});
+  sel.innerHTML='<option value="">All Subjects</option>'+Array.from(seen.entries()).sort((a,b)=>a[1].localeCompare(b[1])).map(([id,name])=>`<option value="${id}">${esc(name)}</option>`).join('');
+  if(current&&Array.from(seen.keys()).some(id=>String(id)===String(current)))sel.value=current;
+}
 let scheduledIntervals={};
 
 const header=document.getElementById('header');
@@ -771,6 +783,7 @@ async function loadDashboard(){
     allExams=(data.exams||[]).filter(e=>e.accessible!==false);
     allBatchResources=data.batch_resources||[];
     populateBatchFilter();
+    populateSubjectFilter();
     
     updateStats();
     renderLiveStrip();
@@ -899,11 +912,13 @@ async function renderRankings(){
 function renderExams(){
   const search=document.getElementById('searchInput').value.toLowerCase();
   const batchFilterId=document.getElementById('batchFilterSelect')?.value||'';
-  const sig=search+'|'+currentFilter+'|'+batchFilterId;
+  const subjectFilterId=document.getElementById('subjectFilterSelect')?.value||'';
+  const sig=search+'|'+currentFilter+'|'+batchFilterId+'|'+subjectFilterId;
   if(sig!==lastExamFilterSig){examGroupPage={};lastExamFilterSig=sig}
   let filtered=allExams.filter(e=>{
     if(search&&!e.name.toLowerCase().includes(search)&&!(e.description||'').toLowerCase().includes(search))return false;
     if(batchFilterId&&String(e.batch_id)!==String(batchFilterId))return false;
+    if(subjectFilterId&&String(e.subject_id)!==String(subjectFilterId))return false;
     if(currentFilter==='free')return!e.is_premium;
     if(currentFilter==='premium')return e.is_premium;
     if(currentFilter==='live')return e.is_live;
