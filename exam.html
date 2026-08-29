@@ -198,7 +198,10 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .rv-card.rv-correct{border-color:rgba(30,142,62,.4)}
 .rv-card.rv-wrong{border-color:rgba(217,48,37,.3)}
 .rv-card.rv-skip{border-color:var(--border)}
-.rv-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none;min-height:44px}
+.rv-header{display:flex;align-items:center;gap:10px;padding:14px 16px;user-select:none;min-height:44px}
+.rv-num{min-width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.72rem;font-weight:700;background:var(--hov);color:var(--t3);flex-shrink:0}
+.rv-card.rv-correct .rv-num{background:var(--grn-bg);color:var(--green)}
+.rv-card.rv-wrong .rv-num{background:var(--red-bg);color:var(--red)}
 .rv-status{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .rv-status svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5}
 .rv-correct .rv-status{background:var(--grn-bg);color:var(--green)}
@@ -208,10 +211,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .rv-q strong{font-weight:700}
 .rv-q p{margin:0;display:inline}
 .rv-q-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:6px;border:1px solid var(--border);object-fit:contain;display:block}
-.rv-arrow{width:16px;height:16px;stroke:var(--t3);fill:none;stroke-width:2;flex-shrink:0;transition:transform .2s}
-.rv-card.open .rv-arrow{transform:rotate(180deg)}
-.rv-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
-.rv-card.open .rv-body{display:block}
+.rv-body{padding:0 16px 16px;border-top:1px solid var(--border)}
 .rv-opts{display:flex;flex-direction:column;gap:6px;margin-top:12px;text-align:left}
 .rv-opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:var(--r);background:var(--bg);border:1.5px solid var(--border);font-size:.8rem;color:var(--t2);line-height:1.4}
 .rv-opt.rv-opt-correct{background:var(--grn-bg);border-color:rgba(30,142,62,.4);color:var(--green)}
@@ -946,7 +946,7 @@ function renderReviewList() {
   const det = window._detailed || {};
   const filter = window._reviewFilter || 'all';
 
-  const filtered = qs.filter(function(q) {
+  const filtered = qs.map(function(q, idx) { return Object.assign({}, q, { _num: idx + 1 }); }).filter(function(q) {
     const d = det[q.id] || det[String(q.id)] || {};
     const given = String(d.given || '').trim().toUpperCase();
     const isCorrect = d.isCorrect === true;
@@ -1003,18 +1003,14 @@ function renderReviewList() {
     const qImg = q.image_url ? '<img src="' + esc(q.image_url) + '" class="rv-q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">' : '';
 
     return '<div class="rv-card ' + cls + '" id="rv' + q.id + '">' +
-      '<div class="rv-header" onclick="toggleReview(\'' + q.id + '\')" role="button" tabindex="0">' +
+      '<div class="rv-header">' +
+      '<div class="rv-num">' + q._num + '</div>' +
       '<div class="rv-status"><svg viewBox="0 0 24 24">' + icons[st] + '</svg></div>' +
       '<div class="rv-q">' + (q.question_text || '') + qImg + '</div>' +
-      '<svg class="rv-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>' +
       '</div>' +
       '<div class="rv-body"><div class="rv-opts">' + opts + '</div>' + note + exp + '</div>' +
       '</div>';
   }).join('');
-}
-
-function toggleReview(id) {
-  document.getElementById('rv' + id)?.classList.toggle('open');
 }
 
 function filterReview(filter, btn) {
