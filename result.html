@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;overflow-wrap:break-word}
 :root{
   --blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;
   --green:#1e8e3e;--grn-bg:#e6f4ea;--yellow:#f9ab00;--yel-bg:#fef7e0;
@@ -22,7 +22,7 @@
 body{
   font-family:var(--rb);background:var(--bg);color:var(--t2);
   -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
-  display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;
+  display:flex;flex-direction:column;overflow-x:hidden;-webkit-tap-highlight-color:transparent;
 }
 .header{
   position:fixed;top:0;left:0;right:0;height:var(--hh);
@@ -130,7 +130,7 @@ body{
 .rv-correct .rv-status{background:var(--grn-bg);color:var(--green)}
 .rv-wrong .rv-status{background:var(--red-bg);color:var(--red)}
 .rv-skip .rv-status{background:var(--hov);color:var(--t3)}
-.rv-q{font-size:.84rem;color:var(--t2);flex:1;line-height:1.5;text-align:left}
+.rv-q{font-size:.84rem;color:var(--t2);flex:1;min-width:0;line-height:1.5;text-align:left}
 .rv-q strong{font-weight:700}
 .rv-q p{margin:0;display:inline}
 .rv-q-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:6px;border:1px solid var(--border);object-fit:contain;display:block}
