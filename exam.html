@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;overflow-wrap:break-word}
 html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
 :root{
   --blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;
@@ -100,7 +100,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .q-num{min-width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.7rem;font-weight:500;background:var(--hov);color:var(--t3);flex-shrink:0}
 .q-card.answered .q-num{background:var(--grn-bg);color:var(--green)}
 .q-card.active .q-num{background:#e8f0fe;color:var(--blue)}
-.q-text{font-size:.9rem;color:var(--t1);line-height:1.6;font-weight:400}
+.q-text{font-size:.9rem;color:var(--t1);line-height:1.6;font-weight:400;flex:1;min-width:0}
 .q-text strong{font-weight:700}
 .q-text p{margin:0;display:inline}
 .q-section{display:inline-block;font-size:.65rem;background:#e8f0fe;color:var(--blue);padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle}
@@ -207,7 +207,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .rv-correct .rv-status{background:var(--grn-bg);color:var(--green)}
 .rv-wrong .rv-status{background:var(--red-bg);color:var(--red)}
 .rv-skip .rv-status{background:var(--hov);color:var(--t3)}
-.rv-q{font-size:.84rem;color:var(--t2);flex:1;line-height:1.5;text-align:left}
+.rv-q{font-size:.84rem;color:var(--t2);flex:1;min-width:0;line-height:1.5;text-align:left}
 .rv-q strong{font-weight:700}
 .rv-q p{margin:0;display:inline}
 .rv-q-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:6px;border:1px solid var(--border);object-fit:contain;display:block}
