@@ -202,11 +202,6 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .rv-num{min-width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.72rem;font-weight:700;background:var(--hov);color:var(--t3);flex-shrink:0}
 .rv-card.rv-correct .rv-num{background:var(--grn-bg);color:var(--green)}
 .rv-card.rv-wrong .rv-num{background:var(--red-bg);color:var(--red)}
-.rv-status{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.rv-status svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5}
-.rv-correct .rv-status{background:var(--grn-bg);color:var(--green)}
-.rv-wrong .rv-status{background:var(--red-bg);color:var(--red)}
-.rv-skip .rv-status{background:var(--hov);color:var(--t3)}
 .rv-q{font-size:.84rem;color:var(--t2);flex:1;min-width:0;line-height:1.5;text-align:left}
 .rv-q strong{font-weight:700}
 .rv-q p{margin:0;display:inline}
@@ -962,12 +957,6 @@ function renderReviewList() {
     return;
   }
 
-  const icons = {
-    correct: '<polyline points="20 6 9 17 4 12"/>',
-    wrong: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
-    skipped: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
-  };
-
   list.innerHTML = filtered.map(function(q) {
     const d = det[q.id] || det[String(q.id)] || {};
     const given = String(d.given || '').trim().toUpperCase();
@@ -1005,7 +994,6 @@ function renderReviewList() {
     return '<div class="rv-card ' + cls + '" id="rv' + q.id + '">' +
       '<div class="rv-header">' +
       '<div class="rv-num">' + q._num + '</div>' +
-      '<div class="rv-status"><svg viewBox="0 0 24 24">' + icons[st] + '</svg></div>' +
       '<div class="rv-q">' + (q.question_text || '') + qImg + '</div>' +
       '</div>' +
       '<div class="rv-body"><div class="rv-opts">' + opts + '</div>' + note + exp + '</div>' +
