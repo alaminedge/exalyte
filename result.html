@@ -60,9 +60,22 @@ body{
 .main{flex:1;padding-top:var(--hh)}
 .content{max-width:860px;margin:0 auto;padding:32px 24px 60px;width:100%;padding-bottom:calc(60px + var(--safe-bottom))}
 
-.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-state{text-align:center;padding:80px 20px;color:var(--t3)}
+@keyframes skeleton-pulse{0%,100%{opacity:1}50%{opacity:.55}}
+.sk{background:var(--hov);border-radius:6px;animation:skeleton-pulse 1.4s ease-in-out infinite}
+.sk-score-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:36px 28px;text-align:center;margin-bottom:20px}
+.sk-ring{width:120px;height:120px;border-radius:50%;margin:0 auto 16px}
+.sk-line{height:14px;margin:0 auto;border-radius:6px}
+.sk-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:360px;margin:20px auto 18px}
+.sk-stat{height:58px;border-radius:var(--r)}
+.sk-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.sk-btn{width:120px;height:38px;border-radius:var(--r)}
+.sk-review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.sk-chips{display:flex;gap:6px}
+.sk-chip{width:64px;height:32px;border-radius:20px}
+.sk-rv{background:var(--surf);border:2px solid var(--border);border-radius:var(--rl);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;min-height:44px}
+.sk-rv-num{width:26px;height:26px;border-radius:50%;flex-shrink:0}
+.sk-rv-line{height:12px;flex:1;min-width:0}
+@media(max-width:480px){.sk-score-card{padding:28px 20px}.sk-ring{width:100px;height:100px}.sk-stats{grid-template-columns:1fr 1fr}}
 
 .score-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:36px 28px;text-align:center;margin-bottom:20px}
 .score-ring-wrap{width:120px;height:120px;margin:0 auto 16px;position:relative}
@@ -225,14 +238,34 @@ body{
 
 <main class="main">
   <div class="content" id="resultWrap">
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <span>Loading your result...</span>
+    <div class="sk-score-card">
+      <div class="sk sk-ring"></div>
+      <div class="sk sk-line" style="width:140px;height:20px;margin-bottom:10px"></div>
+      <div class="sk sk-line" style="width:200px;margin-bottom:4px"></div>
+      <div class="sk-stats">
+        <div class="sk sk-stat"></div><div class="sk sk-stat"></div><div class="sk sk-stat"></div>
+      </div>
+      <div class="sk-actions">
+        <div class="sk sk-btn"></div><div class="sk sk-btn"></div>
+      </div>
+    </div>
+    <div class="sk-review-head">
+      <div class="sk sk-line" style="width:150px;height:20px"></div>
+      <div class="sk-chips">
+        <div class="sk sk-chip"></div><div class="sk sk-chip"></div><div class="sk sk-chip"></div><div class="sk sk-chip"></div>
+      </div>
+    </div>
+    <div>
+      <div class="sk-rv"><div class="sk sk-rv-num"></div><div class="sk sk-rv-line" style="width:85%"></div></div>
+      <div class="sk-rv"><div class="sk sk-rv-num"></div><div class="sk sk-rv-line" style="width:70%"></div></div>
+      <div class="sk-rv"><div class="sk sk-rv-num"></div><div class="sk sk-rv-line" style="width:92%"></div></div>
+      <div class="sk-rv"><div class="sk sk-rv-num"></div><div class="sk sk-rv-line" style="width:60%"></div></div>
+      <div class="sk-rv"><div class="sk sk-rv-num"></div><div class="sk sk-rv-line" style="width:80%"></div></div>
     </div>
   </div>
 </main>
 
-<footer class="footer">
+<footer class="footer" id="pageFooter">
   <div class="footer-inner">
     <div class="fc"><div class="footer-brand"><img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'"><span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t2)">Exalyte</span></div><p>A precision examination platform built for students who want to perform, not just prepare.</p></div>
     <div class="fc"><h4>Platform</h4><a href="dashboard.html">Dashboard</a><a href="exam-history.html">Exam History</a></div>
