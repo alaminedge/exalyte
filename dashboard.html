@@ -350,7 +350,13 @@ body{
 .notif-item.unread{background:#e8f0fe;border-left:3px solid var(--blue)}
 .notif-item-title{font-family:var(--gs);font-size:.9rem;font-weight:500;color:var(--t1);margin-bottom:4px}
 .notif-item-body{font-size:.8rem;color:var(--t3);line-height:1.5;margin-bottom:4px}
-.notif-item-img{max-width:100%;max-height:160px;border-radius:var(--r);margin-bottom:6px;border:1px solid var(--border);object-fit:contain}
+.notif-item-img{max-width:100%;max-height:160px;border-radius:var(--r);margin-bottom:6px;border:1px solid var(--border);object-fit:contain;display:block}
+.notif-img-wrap{position:relative;display:inline-block;max-width:100%;margin-bottom:6px}
+.notif-img-wrap .notif-item-img{margin-bottom:0}
+.notif-img-download{position:absolute;bottom:8px;right:8px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.6);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s ease}
+.notif-img-download:hover{background:rgba(0,0,0,.8)}
+.notif-img-download svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2}
+.notif-img-download.downloading{pointer-events:none;opacity:.6}
 .notif-item-link{
   display:inline-flex;align-items:center;gap:4px;font-size:.75rem;
   color:var(--blue);text-decoration:none;font-weight:500;
@@ -1150,7 +1156,7 @@ async function openNotifModal(){
       <div class="notif-item ${n.is_read?'':'unread'}" onclick="markRead(${n.id})" role="button" tabindex="0">
         <div class="notif-item-title">${esc(n.title)}</div>
         ${n.body?`<div class="notif-item-body">${esc(n.body)}</div>`:''}
-        ${n.image_url?`<img src="${esc(n.image_url)}" class="notif-item-img" onerror="this.style.display='none'" alt="" loading="lazy">`:''}
+        ${n.image_url?`<div class="notif-img-wrap"><img src="${esc(n.image_url)}" class="notif-item-img" onerror="this.parentElement.style.display='none'" alt="" loading="lazy"><button class="notif-img-download" data-url="${esc(n.image_url)}" onclick="event.stopPropagation();downloadNotifImage(this)" title="Download image"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button></div>`:''}
         ${n.link_url?`<a href="${esc(n.link_url)}" target="_blank" rel="noopener" class="notif-item-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open</a>`:''}
         <div class="notif-item-meta">
           <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${new Date(n.created_at).toLocaleDateString()}</span>
@@ -1162,6 +1168,31 @@ async function openNotifModal(){
 
 function closeNotifModal(){document.getElementById('notifModal').classList.remove('open');loadNotifBadge()}
 async function markRead(id){await apiFetch('/notifications/'+id+'/read',{method:'POST'});loadNotifBadge()}
+async function downloadNotifImage(btn){
+  const url=btn.dataset.url;
+  if(!url)return;
+  btn.classList.add('downloading');
+  try{
+    const resp=await fetch(url,{mode:'cors'});
+    if(!resp.ok)throw new Error('fetch failed');
+    const blob=await resp.blob();
+    const ext=(blob.type&&blob.type.split('/')[1])||(url.split('.').pop()||'png').split('?')[0].slice(0,4);
+    const blobUrl=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=blobUrl;
+    a.download='notification-image.'+ext;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(blobUrl),1000);
+  }catch(e){
+    // Cross-origin host may block fetch; fall back to opening the image
+    // directly so the user can still save it manually (long-press / right-click).
+    window.open(url,'_blank');
+  }finally{
+    btn.classList.remove('downloading');
+  }
+}
 async function markAllRead(){
   const{data}=await apiFetch('/notifications');
   for(const n of(data.notifications||[])){if(!n.is_read)await apiFetch('/notifications/'+n.id+'/read',{method:'POST'})}
