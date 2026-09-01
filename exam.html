@@ -221,6 +221,13 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .rv-explanation strong{color:var(--t1);display:block;margin-bottom:3px;font-size:.68rem;text-transform:uppercase;letter-spacing:.3px}
 .rv-explanation p{margin:0;display:inline}
 .rv-explanation-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:10px;border:1px solid var(--border);object-fit:contain}
+/* Safety net: some explanations/options/questions arrive as raw pasted HTML
+   that already contains an <img> tag with its own inline width/height
+   (e.g. style="width:357px" from a rich-text editor). Those inline styles
+   would otherwise override our classes and overflow the box or blow up
+   the print sheet, so force every embedded image to fit no matter what
+   size or inline style it was given. */
+.rv-explanation img,.rv-opts img,.q-text img,.option-text img,.rv-q img{max-width:100% !important;width:auto !important;height:auto !important;max-height:280px !important;object-fit:contain !important;display:block;margin-top:8px;border-radius:var(--r);border:1px solid var(--border)}
 
 .footer{background:var(--surf);border-top:1px solid var(--border);flex-shrink:0}
 .footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
@@ -1046,6 +1053,12 @@ var SOL_PRINT_CSS=
 '.sol-opt.sol-correct{font-weight:bold;color:#0b6b1e}'+
 '.sol-opt.sol-correct .sol-ol:after{content:" \\2713"}'+
 '.sol-optimg{max-width:100%;max-height:26pt;object-fit:contain}'+
+/* Safety net: raw pasted <img> tags in explanations/options can carry
+   their own inline width/height from the source editor. Without this,
+   an inline style="width:357px" would ignore .sol-qimg/.sol-optimg and
+   overflow the printed column. !important forces every image in the
+   sheet, no matter how it was sized originally, to fit inside its box. */
+'.sol-q img{max-width:100% !important;width:auto !important;height:auto !important;max-height:40pt !important;object-fit:contain !important;display:block;margin:1.2pt 0}'+
 '.sol-exp{font-size:5.7pt;color:#333;font-style:italic;margin-top:1.2pt}'+
 '.sol-exp b{font-style:normal;font-weight:bold;color:#000}'+
 '#solMeasure{position:absolute;visibility:hidden;left:-9999px;top:0}';
