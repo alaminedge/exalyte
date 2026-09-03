@@ -1026,7 +1026,7 @@ var SOL_COL_W_PX=(SOL_PAGE_W_PX-SOL_COL_GAP_PX)/2;
 
 // Self-contained, very dense CSS for the popup print window (no interference from the main page's layout)
 var SOL_PRINT_CSS=
-'*{margin:0;padding:0;box-sizing:border-box}'+
+'*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}'+
 '@page{size:A4;margin:13mm 9mm}'+
 'html,body{background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif}'+
 'body{background-repeat:repeat-y;background-position:top center;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
@@ -1050,7 +1050,7 @@ var SOL_PRINT_CSS=
 '.sol-qimg{max-width:100%;max-height:40pt;object-fit:contain;display:block;margin:1.2pt 0}'+
 '.sol-opt{margin:.3pt 0;display:flex;gap:2.2pt;border-radius:2pt;padding:.6pt 2pt}'+
 '.sol-ol{font-weight:bold;min-width:7pt;flex-shrink:0}'+
-'.sol-opt.sol-correct{background:#e6f4ea;font-weight:bold;color:#0b6b1e}'+
+'.sol-opt.sol-correct{background:#e6f4ea;font-weight:bold;color:#0b6b1e;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}'+
 '.sol-opt.sol-correct .sol-ol:after{content:" \\2713"}'+
 '.sol-optimg{max-width:100%;max-height:26pt;object-fit:contain}'+
 /* Safety net: raw pasted <img> tags in explanations/options can carry
