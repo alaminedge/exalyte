@@ -1087,8 +1087,14 @@ function solBuildSlimHeader(pageNum,pageCount){
 function solBuildQuestionHTML(q,i){
   var qImg=q.image_url?'<img src="'+esc(q.image_url)+'" class="sol-qimg" alt="">':'';
   var h='<div class="sol-q"><div class="sol-qtext">Q'+(i+1)+'. '+(q.question_text||'')+'</div>'+qImg;
+  // During an active/practice exam, questions never carry the correct answer
+  // directly (anti-cheat) — it's only revealed per-question in window._detailed
+  // after submission, same source the on-screen review list already uses.
+  var det=window._detailed||{};
+  var d=det[q.id]||det[String(q.id)]||{};
+  var correctAns=q.correct_answer||String(d.correct||'').trim().toUpperCase();
   ['A','B','C','D'].forEach(function(l){
-    var isC=l===q.correct_answer;
+    var isC=l===correctAns;
     var ot=q['option_'+l.toLowerCase()]||'';
     h+='<div class="sol-opt'+(isC?' sol-correct':'')+'"><span class="sol-ol">'+l+'.</span><span>'+solOptContent(ot)+'</span></div>';
   });
