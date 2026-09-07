@@ -1,0 +1,137 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Create package.json
+        run: |
+          cat > package.json << 'PKGJSON'
+          {
+            "name": "exalyte",
+            "version": "1.0.0",
+            "scripts": { "build": "node build.js" },
+            "dependencies": {
+              "@capacitor/core": "^6.0.0",
+              "@capacitor/cli": "^6.0.0",
+              "@capacitor/android": "^6.0.0"
+            }
+          }
+          PKGJSON
+
+      - name: Create build.js
+        run: |
+          cat > build.js << 'BUILDJS'
+          const fs = require('fs');
+          const path = require('path');
+          // Only the client-side files matter here. functions/ (Cloudflare
+          // Pages Functions) and wrangler.toml are backend/deploy config —
+          // they never run inside the APK, so they're intentionally left out.
+          const ITEMS = [
+            'index.html','admin.html','admin.js','dashboard.html',
+            'exam.html','exam-history.html','result.html','batches.html',
+            'payment.html','contact.html','privacy.html','tos.html',
+            'ph.html','s.html','images'
+          ];
+          function copy(src, dest) {
+            if (!fs.existsSync(src)) return;
+            const stat = fs.statSync(src);
+            if (stat.isDirectory()) {
+              if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+              fs.readdirSync(src).forEach(f => copy(path.join(src,f), path.join(dest,f)));
+            } else {
+              fs.copyFileSync(src, dest);
+            }
+          }
+          if (!fs.existsSync('dist')) fs.mkdirSync('dist');
+          ITEMS.forEach(item => { copy(item, path.join('dist', item)); });
+          console.log('Build complete');
+          BUILDJS
+
+      - name: Create capacitor.config.json
+        run: |
+          cat > capacitor.config.json << 'CAPJSON'
+          {
+            "appId": "dev.exalyte.app",
+            "appName": "Exalyte",
+            "webDir": "dist",
+            "server": {
+              "androidScheme": "https",
+              "hostname": "exalyte.pages.dev",
+              "cleartext": true
+            },
+            "android": {
+              "allowMixedContent": true
+            }
+          }
+          CAPJSON
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Web Project
+        run: npm run build
+
+      - name: Setup Capacitor Android
+        run: |
+          npx cap add android 2>/dev/null || true
+          npx cap sync android
+
+      - name: Set App Icon
+        run: |
+          mkdir -p android/app/src/main/res/mipmap-mdpi
+          mkdir -p android/app/src/main/res/mipmap-hdpi
+          mkdir -p android/app/src/main/res/mipmap-xhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxxhdpi
+          for size in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            cp images/logo_exalyte.png android/app/src/main/res/mipmap-${size}/ic_launcher.png
+            cp images/logo_exalyte.png android/app/src/main/res/mipmap-${size}/ic_launcher_round.png
+            cp images/logo_exalyte.png android/app/src/main/res/mipmap-${size}/ic_launcher_foreground.png
+          done
+
+      - name: Build Android APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug \
+            -Dorg.gradle.jvmargs="-Xmx2048m" \
+            --no-daemon
+
+      - name: Rename APK
+        run: |
+          DATE=$(date +'%Y%m%d-%H%M')
+          cp android/app/build/outputs/apk/debug/app-debug.apk \
+             android/app/build/outputs/apk/debug/Exalyte-${DATE}.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Exalyte-APK
+          path: android/app/build/outputs/apk/debug/Exalyte-*.apk
+          retention-days: 30
+
+      - name: Build Complete
+        run: |
+          echo "APK built successfully"
+          ls -lh android/app/build/outputs/apk/debug/*.apk
