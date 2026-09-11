@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Physics Hunters · Course Navigator</title>
-  <!-- Font Awesome for clean icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     /* ---------- WHITE THEME · ELITE MINIMAL RESET ---------- */
@@ -30,7 +29,6 @@
         radial-gradient(circle at 80% 90%, rgba(0, 180, 255, 0.03) 0%, transparent 50%);
     }
 
-    /* subtle light grain */
     body::before {
       content: '';
       position: fixed;
@@ -120,7 +118,7 @@
     /* ---------- GRID LAYOUT ---------- */
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
       gap: 1.5rem;
       margin-top: 1rem;
     }
@@ -160,6 +158,7 @@
       opacity: 1;
     }
 
+    /* ---------- CARD HEADER WITH SERIAL NUMBER ---------- */
     .card-header {
       display: flex;
       align-items: center;
@@ -167,12 +166,29 @@
       margin-bottom: 0.2rem;
     }
 
-    .card-header i {
-      font-size: 1.7rem;
+    .serial-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0d8eff 0%, #0066dd 100%);
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      box-shadow: 0 4px 12px -4px rgba(0, 120, 255, 0.4);
+      flex-shrink: 0;
+    }
+
+    .card-header .card-icon {
+      font-size: 1.6rem;
       color: #0d8eff;
       text-shadow: 0 2px 12px rgba(0, 160, 255, 0.2);
       width: 2rem;
       text-align: center;
+      flex-shrink: 0;
     }
 
     .card-header h2 {
@@ -180,6 +196,7 @@
       font-weight: 700;
       letter-spacing: -0.01em;
       color: #0a1e32;
+      flex: 1;
     }
 
     .card-sub {
@@ -200,6 +217,7 @@
       margin-top: 0.3rem;
     }
 
+    /* ---------- LINK ITEM ---------- */
     .link-item {
       display: flex;
       align-items: center;
@@ -213,22 +231,56 @@
       color: #1a2e44;
       font-weight: 600;
       font-size: 0.95rem;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .link-item i {
+    .link-item i:first-child {
       color: #0d8eff;
       font-size: 1.1rem;
       transition: transform 0.2s ease;
       min-width: 1.4rem;
       text-align: center;
+      flex-shrink: 0;
     }
 
-    .link-item span {
+    .link-item .link-text {
       flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .link-item .link-title {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      font-size: 0.95rem;
+    }
+
+    /* ---------- CLASS TAG (only for full courses) ---------- */
+    .class-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #eef6ff;
+      color: #1a5fa8;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      padding: 0.15rem 0.55rem;
+      border-radius: 100px;
+      text-transform: uppercase;
+      border: 1px solid #c0dbff;
+      width: fit-content;
+    }
+
+    .class-tag i {
+      font-size: 0.55rem;
+      color: #0d8eff;
+      width: auto;
+      text-shadow: none;
+      min-width: auto;
     }
 
     .link-item .arrow {
@@ -236,6 +288,7 @@
       font-size: 0.85rem;
       transition: all 0.2s ease;
       opacity: 0.8;
+      flex-shrink: 0;
     }
 
     .link-item:hover {
@@ -244,7 +297,7 @@
       box-shadow: 0 4px 12px -4px rgba(0, 140, 255, 0.2);
     }
 
-    .link-item:hover i {
+    .link-item:hover i:first-child {
       transform: scale(1.1);
       color: #0066dd;
     }
@@ -318,11 +371,15 @@
       .link-item { padding: 0.8rem 1rem; font-size: 0.9rem; }
       .extras { flex-direction: column; align-items: stretch; }
       .extra-link { justify-content: center; }
+      .card-header h2 { font-size: 1.15rem; }
+      .link-item .link-title { font-size: 0.9rem; }
+      .serial-number { width: 1.9rem; height: 1.9rem; font-size: 0.85rem; }
     }
 
     @media (max-width: 400px) {
       .brand h1 { font-size: 1.1rem; }
       .badge { font-size: 0.7rem; padding: 0.4rem 0.8rem; }
+      .class-tag { font-size: 0.6rem; padding: 0.12rem 0.45rem; }
     }
 
     /* ---------- MICRO-INTERACTION ---------- */
@@ -351,19 +408,25 @@
       <!-- CARD 1: Campus Exam Batch (Math) -->
       <div class="card">
         <div class="card-header">
-          <i class="fas fa-graduation-cap"></i>
+          <span class="serial-number">1</span>
+          <i class="fas fa-graduation-cap card-icon"></i>
           <h2>Campus Exam Batch</h2>
         </div>
         <div class="card-sub">MATH · Campus 6.0</div>
         <div class="link-list">
           <a href="https://www.phyhunt.com/course/course-track/cmp6exammath" class="link-item" target="_blank" rel="noopener">
             <i class="fas fa-flask"></i>
-            <span>ক্যাম্পাস এক্সাম ব্যাচ [MATH]</span>
+            <div class="link-text">
+              <span class="link-title">ক্যাম্পাস এক্সাম ব্যাচ [MATH]</span>
+            </div>
             <i class="fas fa-arrow-right arrow"></i>
           </a>
           <a href="https://www.phyhunt.com/course/lms-v2/dashboard/campus6math/" class="link-item" target="_blank" rel="noopener">
             <i class="fas fa-chart-line"></i>
-            <span>ক্যাম্পাস ৬.০ পূর্ণাঙ্গ ভার্সিটি প্রস্তুতি [MATH]</span>
+            <div class="link-text">
+              <span class="link-title">ক্যাম্পাস ৬.০ পূর্ণাঙ্গ ভার্সিটি প্রস্তুতি [MATH]</span>
+              <span class="class-tag"><i class="fas fa-star"></i> Class</span>
+            </div>
             <i class="fas fa-arrow-right arrow"></i>
           </a>
         </div>
@@ -372,19 +435,25 @@
       <!-- CARD 2: Campus Exam Batch (PCBE) -->
       <div class="card">
         <div class="card-header">
-          <i class="fas fa-microscope"></i>
+          <span class="serial-number">2</span>
+          <i class="fas fa-microscope card-icon"></i>
           <h2>Campus Exam Batch</h2>
         </div>
         <div class="card-sub">PCBE · Campus 6.0</div>
         <div class="link-list">
           <a href="https://www.phyhunt.com/course/course-track/cmp6exampcbe" class="link-item" target="_blank" rel="noopener">
             <i class="fas fa-dna"></i>
-            <span>ক্যাম্পাস এক্সাম ব্যাচ [PCBE]</span>
+            <div class="link-text">
+              <span class="link-title">ক্যাম্পাস এক্সাম ব্যাচ [PCBE]</span>
+            </div>
             <i class="fas fa-arrow-right arrow"></i>
           </a>
           <a href="https://www.phyhunt.com/course/lms-v2/dashboard/campus6pcb/" class="link-item" target="_blank" rel="noopener">
             <i class="fas fa-cogs"></i>
-            <span>ক্যাম্পাস ৬.০ পূর্ণাঙ্গ ভার্সিটি প্রস্তুতি (PCBE)</span>
+            <div class="link-text">
+              <span class="link-title">ক্যাম্পাস ৬.০ পূর্ণাঙ্গ ভার্সিটি প্রস্তুতি (PCBE)</span>
+              <span class="class-tag"><i class="fas fa-star"></i> Class</span>
+            </div>
             <i class="fas fa-arrow-right arrow"></i>
           </a>
         </div>
@@ -393,19 +462,25 @@
       <!-- CARD 3: Protaborton (Math) -->
       <div class="card">
         <div class="card-header">
-          <i class="fas fa-redo-alt"></i>
+          <span class="serial-number">3</span>
+          <i class="fas fa-redo-alt card-icon"></i>
           <h2>প্রত্যাবর্তন · Protaborton</h2>
         </div>
         <div class="card-sub">Math · 5.0 Exam Batch</div>
         <div class="link-list">
           <a href="https://www.phyhunt.com/course/course-track/prottaborton5exammath" class="link-item" target="_blank" rel="noopener">
             <i class="fas fa-calculator"></i>
-            <span>Protaborton Exam Batch [Math]</span>
+            <div class="link-text">
+              <span class="link-title">Protaborton Exam Batch [Math]</span>
+            </div>
             <i class="fas fa-arrow-right arrow"></i>
           </a>
           <a href="https://www.phyhunt.com/course/lms-v2/dashboard/prottaborton5math/" class="link-item" target="_blank" rel="noopener">
             <i class="fas fa-square-root-variable"></i>
-            <span>প্রত্যাবর্তন ৫.০ — Math Course</span>
+            <div class="link-text">
+              <span class="link-title">প্রত্যাবর্তন ৫.০ — Math Course</span>
+              <span class="class-tag"><i class="fas fa-star"></i> Class</span>
+            </div>
             <i class="fas fa-arrow-right arrow"></i>
           </a>
         </div>
@@ -414,19 +489,25 @@
       <!-- CARD 4: Protaborton (PCBE) -->
       <div class="card">
         <div class="card-header">
-          <i class="fas fa-atom"></i>
+          <span class="serial-number">4</span>
+          <i class="fas fa-atom card-icon"></i>
           <h2>প্রত্যাবর্তন · Protaborton</h2>
         </div>
         <div class="card-sub">PCBE · 5.0 Exam Batch</div>
         <div class="link-list">
           <a href="https://www.phyhunt.com/course/course-track/prottaborton5exampcbe" class="link-item" target="_blank" rel="noopener">
             <i class="fas fa-vial"></i>
-            <span>Protaborton EXAM Batch [PCBE]</span>
+            <div class="link-text">
+              <span class="link-title">Protaborton EXAM Batch [PCBE]</span>
+            </div>
             <i class="fas fa-arrow-right arrow"></i>
           </a>
           <a href="https://www.phyhunt.com/course/lms-v2/dashboard/prottaborton5phchembioeng/" class="link-item" target="_blank" rel="noopener">
             <i class="fas fa-leaf"></i>
-            <span>প্রত্যাবর্তন ৫.০ — PCBE (Without Math)</span>
+            <div class="link-text">
+              <span class="link-title">প্রত্যাবর্তন ৫.০ — PCBE (Without Math)</span>
+              <span class="class-tag"><i class="fas fa-star"></i> Class</span>
+            </div>
             <i class="fas fa-arrow-right arrow"></i>
           </a>
         </div>
