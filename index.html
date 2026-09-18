@@ -347,11 +347,6 @@ body{
         <p>Track percentile rank across every exam. Detailed score reports identify exactly where to improve.</p>
       </div>
       <div class="g-card">
-        <div class="g-card-icon icon-yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-        <h3>Anti-Cheat Protection</h3>
-        <p>Tab-switch detection during live exams ensures a fair testing environment for all participants.</p>
-      </div>
-      <div class="g-card">
         <div class="g-card-icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
         <h3>Study Resources</h3>
         <p>Access shared notes, reference sheets, and video links organised by exam and batch.</p>
@@ -844,9 +839,7 @@ function renderUI() {
     var initial = (user.name || 'U')[0].toUpperCase();
     var dashboardUrl = user.is_admin ? 'admin.html' : 'dashboard.html';
     hr.innerHTML = 
-      '<button class="icon-btn" onclick="logout()" title="Sign out" aria-label="Sign out">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>' +
-      '</button>' +
+      '<button class="btn btn-outline" onclick="logout()">Sign out</button>' +
       '<div class="avatar">' + initial + '</div>';
     document.getElementById('heroSubtitle').textContent = 'Welcome back! Continue your preparation journey.';
     heroActions.innerHTML = '<a href="' + dashboardUrl + '" class="btn btn-primary btn-lg">Go to Dashboard</a><a href="#features" class="btn btn-outline btn-lg">Learn more</a>';
@@ -873,4 +866,4 @@ function logout() {
 renderUI();
 </script>
 </body>
-  </html>
+</html>
