@@ -188,47 +188,73 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .time-info{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:4px;font-size:.75rem;color:var(--t3)}
 .time-info span{display:flex;align-items:center;gap:4px}
 .time-info svg{width:12px;height:12px;stroke:currentColor;fill:none}
-.review-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+
+.q-text img,.option-text img{max-width:100% !important;width:auto !important;height:auto !important;max-height:280px !important;object-fit:contain !important;display:block;margin-top:8px;border-radius:var(--r);border:1px solid var(--border)}
+
+
+/* ---- Review sheet: same "paper" look as the exam, checked ---- */
+.review-head{display:flex;align-items:center;justify-content:space-between;margin:28px 0 12px;flex-wrap:wrap;gap:10px}
 .review-head h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1)}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{padding:5px 14px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.72rem;font-weight:500;color:var(--t3);background:var(--surf);cursor:pointer;transition:all var(--tr);min-height:36px;display:flex;align-items:center}
 .chip:hover{border-color:var(--blue);color:var(--blue)}
 .chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
-.review-list{display:flex;flex-direction:column;gap:8px}
-.rv-card{background:var(--surf);border:2px solid var(--border);border-radius:var(--rl);overflow:hidden}
-.rv-card.rv-correct{border-color:rgba(30,142,62,.4)}
-.rv-card.rv-wrong{border-color:rgba(217,48,37,.3)}
-.rv-card.rv-skip{border-color:var(--border)}
-.rv-header{display:flex;align-items:center;gap:10px;padding:14px 16px;user-select:none;min-height:44px}
-.rv-num{min-width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.72rem;font-weight:700;background:var(--hov);color:var(--t3);flex-shrink:0}
+.qmap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.qdot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.72rem;font-weight:500;text-decoration:none;border:1.5px solid var(--border);color:var(--t3);background:var(--surf);transition:transform .1s}
+.qdot:active{transform:scale(.92)}
+.qdot.d-correct{background:var(--grn-bg);border-color:rgba(30,142,62,.5);color:var(--green)}
+.qdot.d-wrong{background:var(--red-bg);border-color:rgba(217,48,37,.45);color:var(--red)}
+.qdot.d-skip{background:var(--hov);color:var(--t4)}
+.qlegend{display:flex;gap:14px;flex-wrap:wrap;font-size:.72rem;color:var(--t3);margin-bottom:14px}
+.qlegend span{display:flex;align-items:center;gap:5px}
+.qlegend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.review-list{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:0 28px}
+.rv-card{padding:24px 0;border-bottom:1px solid var(--border);scroll-margin-top:80px}
+.rv-card:last-child{border-bottom:none}
+.rv-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.rv-num{min-width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.7rem;font-weight:500;background:var(--hov);color:var(--t3);flex-shrink:0}
 .rv-card.rv-correct .rv-num{background:var(--grn-bg);color:var(--green)}
 .rv-card.rv-wrong .rv-num{background:var(--red-bg);color:var(--red)}
-.rv-q{font-size:.84rem;color:var(--t2);flex:1;min-width:0;line-height:1.5;text-align:left}
+.rv-q{font-size:.9rem;color:var(--t1);flex:1;min-width:0;line-height:1.6;text-align:left}
 .rv-q strong{font-weight:700}
 .rv-q p{margin:0;display:inline}
 .rv-q-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:6px;border:1px solid var(--border);object-fit:contain;display:block}
-.rv-body{padding:0 16px 16px;border-top:1px solid var(--border)}
-.rv-opts{display:flex;flex-direction:column;gap:6px;margin-top:12px;text-align:left}
-.rv-opt{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-radius:var(--r);background:var(--bg);border:1.5px solid var(--border);font-size:.8rem;color:var(--t2);line-height:1.4}
-.rv-opt.rv-opt-correct{background:var(--grn-bg);border-color:rgba(30,142,62,.4);color:var(--green)}
-.rv-opt.rv-opt-wrong{background:var(--red-bg);border-color:rgba(217,48,37,.3);color:var(--red)}
+.rv-body{margin-left:38px;text-align:left}
+.rv-opts{display:flex;flex-direction:column;gap:2px}
+.rv-opts.grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 16px}
+.rv-opt{display:flex;align-items:center;gap:12px;padding:6px 8px 6px 4px;min-height:44px;font-size:.82rem;color:var(--t2);line-height:1.4}
+.rv-opt.rv-faded{opacity:.5}
+.rv-ol{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.8rem;font-weight:500;flex-shrink:0;color:var(--t3);background:var(--surf);border:1.5px solid var(--t4)}
+.rv-ol svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.rv-opt.rv-opt-correct{color:var(--t1);font-weight:500}
+.rv-opt.rv-opt-correct .rv-ol{background:var(--green);border-color:var(--green);color:#fff}
+.rv-opt.rv-opt-wrong{color:var(--red)}
+.rv-opt.rv-opt-wrong .rv-ot{text-decoration:line-through;text-decoration-thickness:1px}
+.rv-opt.rv-opt-wrong .rv-ol{background:var(--red);border-color:var(--red);color:#fff}
 .rv-opt p{margin:0;display:inline}
 .rv-opt strong{font-weight:700}
-.rv-ol{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.7rem;font-weight:500;flex-shrink:0;color:var(--t3)}
-.rv-opt-correct .rv-ol{background:rgba(30,142,62,.2);color:var(--green)}
-.rv-opt-wrong .rv-ol{background:rgba(217,48,37,.15);color:var(--red)}
-.rv-ans-note{font-size:.68rem;font-weight:500;color:var(--t4);text-transform:uppercase;letter-spacing:.3px;margin-top:10px;text-align:left}
-.rv-explanation{margin-top:10px;padding:10px 14px;background:#e8f0fe;border:1px solid rgba(26,115,232,.2);border-radius:var(--r);font-size:.78rem;color:var(--blue);line-height:1.6;text-align:left}
-.rv-explanation strong{color:var(--t1);display:block;margin-bottom:3px;font-size:.68rem;text-transform:uppercase;letter-spacing:.3px}
+.rv-opt-img{max-width:100%;max-height:120px;border-radius:var(--r);border:1px solid var(--border);object-fit:contain}
+.rv-ans-note{font-size:.78rem;font-weight:500;color:var(--t3);margin-top:8px;text-align:left}
+.rv-ans-note.n-wrong{color:var(--red)}
+.rv-ans-note.n-ok{color:var(--green)}
+.rv-exp-toggle{background:none;border:none;color:var(--blue);font-family:var(--gs);font-size:.78rem;font-weight:500;cursor:pointer;padding:8px 0;min-height:36px;display:inline-flex;align-items:center;gap:4px}
+.rv-exp-toggle svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;transition:transform .2s}
+.rv-exp-toggle[aria-expanded=true] svg{transform:rotate(180deg)}
+.rv-explanation{display:none;margin-top:4px;padding:2px 0 2px 14px;border-left:3px solid var(--blue);font-size:.82rem;color:var(--t2);line-height:1.65;text-align:left}
+.rv-explanation.open{display:block}
 .rv-explanation p{margin:0;display:inline}
 .rv-explanation-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-top:10px;border:1px solid var(--border);object-fit:contain}
-/* Safety net: some explanations/options/questions arrive as raw pasted HTML
-   that already contains an <img> tag with its own inline width/height
-   (e.g. style="width:357px" from a rich-text editor). Those inline styles
-   would otherwise override our classes and overflow the box or blow up
-   the print sheet, so force every embedded image to fit no matter what
-   size or inline style it was given. */
-.rv-explanation img,.rv-opts img,.q-text img,.option-text img,.rv-q img{max-width:100% !important;width:auto !important;height:auto !important;max-height:280px !important;object-fit:contain !important;display:block;margin-top:8px;border-radius:var(--r);border:1px solid var(--border)}
+/* Safety net: raw pasted HTML may carry inline image sizes; force every embedded image to fit. */
+.rv-explanation img,.rv-opts img,.rv-q img{max-width:100% !important;width:auto !important;height:auto !important;max-height:280px !important;object-fit:contain !important;display:block;margin-top:8px;border-radius:var(--r);border:1px solid var(--border)}
+@media(max-width:900px){.review-list{padding:0 16px}}
+@media(max-width:600px){.rv-body{margin-left:0}.rv-opts.grid{grid-template-columns:1fr}.rv-opt{font-size:.8rem}.rv-q{font-size:.85rem}}
+
+/* ---- Marks summary (inside score card) ---- */
+.marks-line{display:flex;align-items:baseline;justify-content:center;gap:10px;flex-wrap:wrap;margin:2px 0 6px}
+.marks-val{font-family:var(--gs);font-size:1.7rem;font-weight:500;color:var(--t1)}
+.marks-val small{font-size:1rem;color:var(--t3);font-weight:400}
+.marks-pct{font-family:var(--gs);font-size:1.05rem;font-weight:500;padding:3px 12px;border-radius:20px;background:var(--hov)}
+.marks-note{font-size:.72rem;color:var(--t4);margin-bottom:14px}
 
 .footer{background:var(--surf);border-top:1px solid var(--border);flex-shrink:0}
 .footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
@@ -906,6 +932,7 @@ function showPracticeResult(data) {
     '</svg><div class="ring-inner"><div class="ring-pct">' + pct.toFixed(1) + '%</div><div class="ring-lbl">Score</div></div></div>' +
     '<div class="score-grade" style="color:' + gc + '">' + gl + '</div>' +
     '<div class="score-exam">Practice Result</div>' +
+    rvMarksHTML(data.score, data.max_score != null ? data.max_score : totalQuestions * (exam.marks_per_question || 1), pct, exam).replace('GRADE_COLOR', gc) +
     sectionInfoHTML +
     '<div class="score-stats">' +
     '<div class="sc-stat sc-correct"><div class="sc-stat-val">' + correct + '</div><div class="sc-stat-lbl">Correct</div></div>' +
@@ -921,11 +948,18 @@ function showPracticeResult(data) {
     '</div></div>';
 
   if (questions.length > 0) {
-    html += '<div class="review-head"><h2>Review</h2><div class="chips">' +
-      '<button class="chip active" onclick="filterReview(\'all\',this)">All</button>' +
-      '<button class="chip" onclick="filterReview(\'correct\',this)">Correct</button>' +
-      '<button class="chip" onclick="filterReview(\'wrong\',this)">Wrong</button>' +
-      '<button class="chip" onclick="filterReview(\'skipped\',this)">Skipped</button>' +
+    const det0 = data.detailed || {};
+    const mapItems = questions.map(function(q, i) {
+      const d = det0[q.id] || det0[String(q.id)] || {};
+      const g = String(d.given || '').trim().toUpperCase();
+      return { id: q.id, num: i + 1, st: g === '' ? 'skip' : d.isCorrect === true ? 'correct' : 'wrong' };
+    });
+    html += '<div class="review-head"><h2>Review</h2></div>' + rvMapHTML(mapItems) +
+      '<div class="review-head" style="margin-top:0"><div class="chips">' +
+      '<button class="chip active" data-f="all" onclick="filterReview(\'all\',this)">All</button>' +
+      '<button class="chip" data-f="correct" onclick="filterReview(\'correct\',this)">Correct</button>' +
+      '<button class="chip" data-f="wrong" onclick="filterReview(\'wrong\',this)">Wrong</button>' +
+      '<button class="chip" data-f="skipped" onclick="filterReview(\'skipped\',this)">Skipped</button>' +
       '</div></div><div class="review-list" id="reviewList"></div>';
   }
 
@@ -952,6 +986,68 @@ function showPracticeResult(data) {
   window._questions = questions;
   window._detailed = data.detailed || {};
   window._reviewFilter = 'all';
+  renderReviewList();
+}
+
+
+var RV_ICON_OK='<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+var RV_ICON_X='<svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
+function rvIsShort(t){if(!t||isImageURL(t)||/<img/i.test(t))return false;return t.replace(/<[^>]*>/g,'').trim().length<=26}
+function fmtMarks(n){n=Number(n)||0;return (Math.round(n*100)/100).toString()}
+function rvMarksHTML(score,maxScore,pct,exam){
+  var nm=exam&&exam.negative_marking>0;
+  return '<div class="marks-line"><div class="marks-val">'+fmtMarks(score)+' <small>/ '+fmtMarks(maxScore)+' marks</small></div>'+
+    '<div class="marks-pct" style="color:GRADE_COLOR">'+(Number(pct)||0).toFixed(1)+'%</div></div>'+
+    (nm?'<div class="marks-note">Includes negative marking (−'+exam.negative_marking+' per wrong answer)</div>':'');
+}
+function rvMapHTML(items){
+  return '<div class="qmap" id="qmap">'+items.map(function(it){
+    var c=it.st==='correct'?'d-correct':it.st==='wrong'?'d-wrong':'d-skip';
+    var label=it.st==='correct'?'correct':it.st==='wrong'?'wrong':'skipped';
+    return '<a class="qdot '+c+'" href="#rv'+it.id+'" aria-label="Question '+it.num+', '+label+'" onclick="return rvJump('+it.id+')">'+it.num+'</a>';
+  }).join('')+'</div>'+
+  '<div class="qlegend"><span><i style="background:var(--green)"></i>Correct</span><span><i style="background:var(--red)"></i>Wrong</span><span><i style="background:var(--t4)"></i>Skipped</span></div>';
+}
+function rvJump(id){
+  var el=document.getElementById('rv'+id);
+  if(!el){ // filtered out: show all first
+    if(typeof rvShowAll==='function')rvShowAll();
+    el=document.getElementById('rv'+id);
+  }
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  return false;
+}
+function rvToggleExp(btn){
+  var box=btn.nextElementSibling;var open=box.classList.toggle('open');
+  btn.setAttribute('aria-expanded',open);
+  btn.firstChild.nodeValue=open?'Hide explanation':'Explanation';
+}
+// q: question, given: 'A'..'D' or '', correct: 'A'..'D'
+function rvCardHTML(q,num,given,correct){
+  var st=given===''?'skip':given===correct?'correct':'wrong';
+  var cls={correct:'rv-correct',wrong:'rv-wrong',skip:'rv-skip'}[st];
+  var letters=['A','B','C','D'];
+  var grid=letters.every(function(l){return rvIsShort(q['option_'+l.toLowerCase()])});
+  var opts=letters.map(function(l){
+    var isC=l===correct, isW=l===given&&!isC;
+    var c=isC?'rv-opt-correct':isW?'rv-opt-wrong':'rv-faded';
+    var mark=isC?RV_ICON_OK:isW?RV_ICON_X:l;
+    return '<div class="rv-opt '+c+'"><div class="rv-ol">'+mark+'</div><div class="rv-ot" style="flex:1;min-width:0">'+renderOptionContent(q['option_'+l.toLowerCase()])+'</div></div>';
+  }).join('');
+  var note='';
+  if(st==='wrong')note='<div class="rv-ans-note n-wrong">You chose '+given+' · Correct: '+correct+'</div>';
+  else if(st==='skip')note='<div class="rv-ans-note">Skipped · Correct: '+correct+'</div>';
+  else note='<div class="rv-ans-note n-ok">Correct</div>';
+  var exp='';
+  if(q.explanation&&q.explanation.trim())exp='<button class="rv-exp-toggle" aria-expanded="false" onclick="rvToggleExp(this)">Explanation<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="rv-explanation">'+renderExplanationContent(q.explanation)+'</div>';
+  var qImg=q.image_url?'<img src="'+esc(q.image_url)+'" class="rv-q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">':'';
+  return '<div class="rv-card '+cls+'" id="rv'+q.id+'"><div class="rv-header"><div class="rv-num">'+num+'</div><div class="rv-q">'+(q.question_text||'')+qImg+'</div></div>'+
+    '<div class="rv-body"><div class="rv-opts'+(grid?' grid':'')+'">'+opts+'</div>'+note+exp+'</div></div>';
+}
+
+function rvShowAll() {
+  window._reviewFilter = 'all';
+  document.querySelectorAll('.chip').forEach(function(c) { c.classList.toggle('active', c.getAttribute('data-f') === 'all'); });
   renderReviewList();
 }
 
@@ -983,43 +1079,7 @@ function renderReviewList() {
     const d = det[q.id] || det[String(q.id)] || {};
     const given = String(d.given || '').trim().toUpperCase();
     const correctAns = String(d.correct || '').trim().toUpperCase();
-    const isCorrect = d.isCorrect === true;
-
-    const st = given === '' ? 'skip' : isCorrect ? 'correct' : 'wrong';
-    const cls = { correct: 'rv-correct', wrong: 'rv-wrong', skip: 'rv-skip' }[st];
-
-    const opts = ['A', 'B', 'C', 'D'].map(function(l) {
-      const isC = l === correctAns;
-      const isW = l === given && l !== correctAns;
-      let c = '';
-      if (isC) c = 'rv-opt-correct';
-      else if (isW) c = 'rv-opt-wrong';
-      return '<div class="rv-opt ' + c + '"><div class="rv-ol">' + l + '</div><div style="flex:1">' + renderOptionContent(q['option_' + l.toLowerCase()]) + '</div></div>';
-    }).join('');
-
-    let note = '';
-    if (given !== '' && !isCorrect) {
-      note = '<div class="rv-ans-note">Your answer: ' + given + ' — Correct: ' + correctAns + '</div>';
-    } else if (given === '') {
-      note = '<div class="rv-ans-note" style="color:var(--t3)">Not answered — Correct: ' + correctAns + '</div>';
-    } else if (given !== '' && isCorrect) {
-      note = '<div class="rv-ans-note" style="color:var(--green)">Correct answer: ' + correctAns + '</div>';
-    }
-
-    let exp = '';
-    if (q.explanation && q.explanation.trim()) {
-      exp = '<div class="rv-explanation"><strong>Explanation</strong>' + renderExplanationContent(q.explanation) + '</div>';
-    }
-
-    const qImg = q.image_url ? '<img src="' + esc(q.image_url) + '" class="rv-q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">' : '';
-
-    return '<div class="rv-card ' + cls + '" id="rv' + q.id + '">' +
-      '<div class="rv-header">' +
-      '<div class="rv-num">' + q._num + '</div>' +
-      '<div class="rv-q">' + (q.question_text || '') + qImg + '</div>' +
-      '</div>' +
-      '<div class="rv-body"><div class="rv-opts">' + opts + '</div>' + note + exp + '</div>' +
-      '</div>';
+    return rvCardHTML(q, q._num, given, correctAns);
   }).join('');
 }
 
