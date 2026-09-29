@@ -81,45 +81,46 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .section-rules-info strong{color:var(--blue)}
 
 #examUI{display:none;flex-direction:column;flex:1}
-.exam-stats-bar{display:flex;border-bottom:1px solid var(--border);background:var(--surf);flex-shrink:0}
-.stat-chip{flex:1;text-align:center;padding:10px 8px;font-size:.68rem;font-weight:500;color:var(--t3);border-right:1px solid var(--border)}
-.stat-chip:last-child{border-right:none}
-.stat-chip strong{display:block;font-family:var(--gs);font-size:.9rem;font-weight:500;margin-bottom:1px}
-.stat-chip.answered strong{color:var(--green)}
-.stat-chip.remaining strong{color:var(--t3)}
-.stat-chip.marked strong{color:var(--blue)}
-.prog-wrap{height:3px;background:var(--hov);flex-shrink:0}
-.prog-fill{height:100%;background:var(--blue);transition:width .3s}
-.questions-area{flex:1;overflow-y:auto;padding:20px 20px 40px;display:flex;flex-direction:column;gap:14px}
-.questions-area::-webkit-scrollbar{width:4px}
-.questions-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.q-card{background:var(--surf);border:2px solid var(--border);border-radius:var(--rl);padding:18px;transition:border-color var(--tr);scroll-margin-top:20px}
-.q-card.active{border-color:var(--blue)}
-.q-card.answered{border-color:rgba(30,142,62,.4)}
 .q-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
 .q-num{min-width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.7rem;font-weight:500;background:var(--hov);color:var(--t3);flex-shrink:0}
-.q-card.answered .q-num{background:var(--grn-bg);color:var(--green)}
-.q-card.active .q-num{background:#e8f0fe;color:var(--blue)}
 .q-text{font-size:.9rem;color:var(--t1);line-height:1.6;font-weight:400;flex:1;min-width:0}
 .q-text strong{font-weight:700}
 .q-text p{margin:0;display:inline}
 .q-section{display:inline-block;font-size:.65rem;background:#e8f0fe;color:var(--blue);padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle}
 .q-img{max-width:100%;max-height:200px;border-radius:var(--r);margin-bottom:12px;border:1px solid var(--border);object-fit:contain}
-.options{display:flex;flex-direction:column;gap:8px}
-.option{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);cursor:pointer;transition:all .15s;min-height:44px}
-.option:hover:not(.selected):not(.locked){border-color:var(--blue);background:#e8f0fe}
-.option.selected{border-color:var(--blue);background:#e8f0fe}
-.option.locked{cursor:default;opacity:.7}
-.option-letter{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.72rem;font-weight:500;background:var(--surf);color:var(--t3);flex-shrink:0;transition:all .15s}
-.option.selected .option-letter{background:var(--blue);color:#fff}
 .option-text{font-size:.82rem;color:var(--t2);line-height:1.4;flex:1}
 .option-text p{margin:0;display:inline}
 .option-text strong{font-weight:700}
 .option-img{max-width:100%;max-height:160px;border-radius:var(--r);border:1px solid var(--border);object-fit:contain}
-.q-footer{display:flex;align-items:center;gap:8px;margin-top:12px}
-.btn-mark{background:none;border:1px solid var(--border);color:var(--t3);padding:6px 14px;border-radius:20px;font-family:var(--gs);font-size:.7rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all var(--tr);min-height:36px}
-.btn-mark:hover,.btn-mark.active{border-color:var(--blue);color:var(--blue);background:#e8f0fe}
-.btn-mark svg{width:12px;height:12px;stroke:currentColor;fill:none}
+
+/* ---- Exam sheet: one "paper" with plain questions, OMR-style circled options ---- */
+.questions-area{flex:none;width:100%;max-width:780px;margin:16px auto 0;background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:0 28px;padding-bottom:0}
+.q-card{padding:24px 0;border-bottom:1px solid var(--border);scroll-margin-top:80px;border-radius:0;position:relative}
+.q-card:last-child{border-bottom:none}
+.q-card.answered .q-num{background:var(--grn-bg);color:var(--green)}
+.q-card.active .q-num{background:#e8f0fe;color:var(--blue)}
+.q-card.active::before{content:'';position:absolute;left:-28px;top:16px;bottom:16px;width:3px;border-radius:2px;background:var(--blue)}
+.options{display:flex;flex-direction:column;gap:2px;margin-left:38px}
+.options.grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 16px}
+.option{display:flex;align-items:center;gap:12px;padding:6px 8px 6px 4px;background:none;border:none;border-radius:999px 8px 8px 999px;cursor:pointer;transition:background .15s;min-height:44px;-webkit-user-select:none;user-select:none}
+.option:hover:not(.locked){background:var(--hov)}
+.option:active:not(.locked) .option-letter{transform:scale(.92)}
+.option.selected .option-text{color:var(--t1);font-weight:500}
+.option.locked{cursor:default}
+.option.locked:not(.selected){opacity:.5}
+.option-letter{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.8rem;font-weight:500;background:var(--surf);color:var(--t3);border:1.5px solid var(--t4);flex-shrink:0;transition:background .15s,color .15s,border-color .15s,transform .1s}
+.option:hover:not(.locked):not(.selected) .option-letter{border-color:var(--blue);color:var(--blue)}
+.option.selected .option-letter{background:var(--blue);border-color:var(--blue);color:#fff}
+/* three-bar menu */
+.menu-wrap{position:relative}
+.menu{position:absolute;right:0;top:calc(100% + 8px);min-width:210px;background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);box-shadow:0 8px 24px rgba(0,0,0,.16);padding:6px;display:none;z-index:1100}
+.menu.open{display:block}
+.menu-item{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;background:none;border:none;border-radius:var(--r);font-family:var(--gs);font-size:.88rem;font-weight:500;color:var(--t2);cursor:pointer;text-align:left;min-height:44px}
+.menu-item:hover{background:var(--hov)}
+.menu-item svg{width:18px;height:18px;stroke:currentColor;fill:none;flex-shrink:0}
+.menu-item.danger{color:var(--red)}
+.menu-item.danger:hover{background:var(--red-bg)}
+.menu-sep{height:1px;background:var(--border);margin:4px 6px}
 
 .floating-submit{position:fixed;bottom:24px;right:24px;z-index:50;background:var(--blue);color:#fff;border:none;padding:14px 28px;border-radius:28px;font-family:var(--gs);font-size:.88rem;font-weight:500;cursor:pointer;display:none;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(26,115,232,.35);transition:all var(--tr);min-height:48px;bottom:calc(24px + var(--safe-bottom))}
 .floating-submit:hover{background:var(--blue-h);transform:translateY(-2px);box-shadow:0 6px 24px rgba(26,115,232,.45)}
@@ -151,7 +152,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .signin-gate-note{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;font-size:.78rem;color:var(--t3);margin-bottom:20px;line-height:1.6}
 .modal h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1);margin-bottom:4px}
 .modal .subtitle{font-size:.8rem;color:var(--t3);margin-bottom:20px;line-height:1.5}
-.submit-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.submit-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
 .sub-stat{text-align:center;background:var(--bg);border-radius:var(--r);padding:12px 8px}
 .sub-stat .n{font-family:var(--gs);font-size:1.4rem;font-weight:500;color:var(--t1)}
 .sub-stat .l{font-size:.6rem;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;font-weight:500;margin-top:2px}
@@ -241,8 +242,8 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
 .footer-links a:hover{text-decoration:underline;color:var(--blue)}
 
-@media(max-width:900px){.header{padding:0 16px}.questions-area{padding:14px 14px 40px}.q-card{padding:14px}.agree-card{padding:28px 20px}.practice-result-page{padding:24px 16px 80px}.score-card{padding:28px 20px}.score-ring-wrap{width:100px;height:100px}.score-ring-wrap svg{width:100px;height:100px}.ring-pct{font-size:1.4rem}.footer-inner{grid-template-columns:1fr 1fr;gap:28px}}
-@media(max-width:600px){.agree-title{font-size:1.2rem}.modal{padding:20px 16px}.submit-stats{grid-template-columns:1fr 1fr}.option{padding:8px 12px}.option-text{font-size:.78rem}.q-text{font-size:.82rem}.score-stats{grid-template-columns:1fr 1fr}.score-stats .sc-stat:last-child{grid-column:span 2}.result-actions .btn{flex:1;justify-content:center}.footer-inner{grid-template-columns:1fr;gap:20px}.footer-bottom{flex-direction:column;text-align:center}.floating-submit{bottom:calc(12px + var(--safe-bottom));right:12px;padding:10px 18px;font-size:.75rem;gap:4px;border-radius:20px}.floating-submit svg{width:14px;height:14px}}
+@media(max-width:900px){.header{padding:0 16px}.questions-area{margin-top:0;border-left:none;border-right:none;border-radius:0;padding:0 16px}.q-card{padding:20px 0}.q-card.active::before{left:-16px}.agree-card{padding:28px 20px}.practice-result-page{padding:24px 16px 80px}.score-card{padding:28px 20px}.score-ring-wrap{width:100px;height:100px}.score-ring-wrap svg{width:100px;height:100px}.ring-pct{font-size:1.4rem}.footer-inner{grid-template-columns:1fr 1fr;gap:28px}}
+@media(max-width:600px){.options{margin-left:0}.options.grid{grid-template-columns:1fr}.agree-title{font-size:1.2rem}.modal{padding:20px 16px}.submit-stats{grid-template-columns:1fr 1fr}.option{padding:8px 12px}.option-text{font-size:.78rem}.q-text{font-size:.82rem}.score-stats{grid-template-columns:1fr 1fr}.score-stats .sc-stat:last-child{grid-column:span 2}.result-actions .btn{flex:1;justify-content:center}.footer-inner{grid-template-columns:1fr;gap:20px}.footer-bottom{flex-direction:column;text-align:center}.floating-submit{bottom:calc(12px + var(--safe-bottom));right:12px;padding:10px 18px;font-size:.75rem;gap:4px;border-radius:20px}.floating-submit svg{width:14px;height:14px}}
 </style>
 </head>
 <body>
@@ -291,13 +292,20 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span class="timer-val" id="timerVal">--:--</span>
     </div>
-    <button class="icon-btn" onclick="window.location.href='dashboard.html'" title="Dashboard" aria-label="Dashboard">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-    </button>
-    <button class="btn-secondary leave" onclick="leaveExam()" title="Leave Exam" aria-label="Leave Exam" style="display:inline-flex;align-items:center;gap:6px">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      Leave
-    </button>
+    <div class="menu-wrap">
+      <button class="icon-btn" id="menuBtn" onclick="toggleMenu(event)" title="Menu" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      </button>
+      <div class="menu" id="menu" role="menu">
+        <button class="menu-item" role="menuitem" onclick="goDashboard()">
+          <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard
+        </button>
+        <div class="menu-sep"></div>
+        <button class="menu-item danger" role="menuitem" onclick="leaveExam()">
+          <svg viewBox="0 0 24 24" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Leave exam
+        </button>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -328,7 +336,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
         <div class="agree-rule"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Once submitted, your answers cannot be changed.</span></div>
         <div class="agree-rule" id="negRule" style="display:none"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg><span id="negRuleText">Negative marking applies to wrong answers.</span></div>
       </div>
-      <div class="agree-check" id="agreeCheckWrap" onclick="toggleAgree()">
+      <div class="agree-check" id="agreeCheckWrap" onclick="if(!event.target.closest('label'))toggleAgree()">
         <input type="checkbox" id="agreeCheck" onclick="event.stopPropagation()">
         <label for="agreeCheck">I have read and understood the exam rules. I agree to attempt this exam honestly.</label>
       </div>
@@ -337,12 +345,6 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
   </div>
 
   <div id="examUI">
-    <div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
-    <div class="exam-stats-bar">
-      <div class="stat-chip answered"><strong id="cAnswered">0</strong>Answered</div>
-      <div class="stat-chip remaining"><strong id="cRemaining">0</strong>Remaining</div>
-      <div class="stat-chip marked"><strong id="cMarked">0</strong>Marked</div>
-    </div>
     <div class="questions-area" id="questionsArea"></div>
   </div>
   
@@ -380,7 +382,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 
 <button class="floating-submit" id="floatingSubmit" onclick="openSubmit()">
   <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-  Submit Exam
+  <span id="submitLabel">Submit</span>
 </button>
 
 <div class="modal-overlay" id="submitModal">
@@ -390,7 +392,6 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
     <div class="submit-stats">
       <div class="sub-stat"><div class="n" id="sAns">0</div><div class="l">Answered</div></div>
       <div class="sub-stat warn"><div class="n" id="sUnans">0</div><div class="l">Unanswered</div></div>
-      <div class="sub-stat"><div class="n" id="sMark">0</div><div class="l">Marked</div></div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeSubmit()">Go Back</button>
@@ -404,12 +405,32 @@ const API = '/api';
 
 function getToken() { return localStorage.getItem('exalyte_token'); }
 function logout() { localStorage.clear(); window.location.href = '/'; }
+let examActive = false;
 function leaveExam() {
   // Always confirm — leaving mid-exam can lose progress. Never signs the
   // account out; only ever navigates to the homepage.
+  closeMenu();
   if (!confirm('Leave this exam? Your progress may be lost.')) return;
+  window.removeEventListener('beforeunload', onBeforeUnload);
   window.location.href = '/';
 }
+function goDashboard() {
+  closeMenu();
+  if (examActive && !confirm('Go to the dashboard? Your exam progress may be lost.')) return;
+  window.removeEventListener('beforeunload', onBeforeUnload);
+  window.location.href = 'dashboard.html';
+}
+function toggleMenu(e) {
+  e.stopPropagation();
+  const m = document.getElementById('menu');
+  const open = m.classList.toggle('open');
+  document.getElementById('menuBtn').setAttribute('aria-expanded', open);
+}
+function closeMenu() {
+  document.getElementById('menu').classList.remove('open');
+  document.getElementById('menuBtn').setAttribute('aria-expanded', 'false');
+}
+document.addEventListener('click', e => { if (!e.target.closest('.menu-wrap')) closeMenu(); });
 function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 function isImageURL(s) { if (!s) return false; const t = s.trim(); return t.startsWith('http') && (t.includes('.jpg') || t.includes('.jpeg') || t.includes('.png') || t.includes('.webp') || t.includes('.gif') || t.includes('ibb.co') || t.includes('images.unsplash.com') || t.includes('i.imgur.com')); }
 function renderOptionContent(text) { if (!text) return ''; if (isImageURL(text)) return '<img src="' + esc(text) + '" class="option-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">'; return text; }
@@ -502,7 +523,7 @@ document.getElementById('gateForm').addEventListener('submit', async function(e)
   } catch (err) { alertEl.textContent = 'Network error. Please try again.'; alertEl.className = 'alert alert-e'; btn.disabled = false; btnText.style.display = 'inline'; spinner.style.display = 'none'; }
 });
 
-let questions = [], answers = {}, marked = {}, exam = null;
+let questions = [], answers = {}, exam = null;
 let timeLeft = 0, timerInt = null, examStartTime = 0;
 let sectionConfig = null, selectedSections = [];
 
@@ -512,7 +533,9 @@ window.addEventListener('scroll', () => {
   if (!ticking) {
     requestAnimationFrame(() => {
       const y = window.scrollY;
-      header.classList.toggle('hidden', y > lastY && y > 80);
+      const hide = y > lastY && y > 80;
+      header.classList.toggle('hidden', hide);
+      if (hide) closeMenu();
       lastY = y;
       ticking = false;
     });
@@ -704,6 +727,7 @@ async function startExam() {
   document.getElementById('examUI').style.display = 'flex';
   document.getElementById('timerBox').style.display = 'flex';
   document.getElementById('floatingSubmit').style.display = 'flex';
+  examActive = true;
   examStartTime = Date.now();
   timeLeft = exam.time_limit * 60;
   buildUI();
@@ -711,16 +735,22 @@ async function startExam() {
   window.addEventListener('beforeunload', onBeforeUnload);
 }
 
+function isShortOption(t) {
+  if (!t || isImageURL(t) || /<img/i.test(t)) return false;
+  return t.replace(/<[^>]*>/g, '').trim().length <= 26;
+}
+
 function buildUI() {
   document.getElementById('questionsArea').innerHTML = questions.map((q, i) => {
     const secLabel = q.section ? '<span class="q-section">' + esc(q.section) + '</span>' : '';
+    const letters = ['A', 'B', 'C', 'D'];
+    const grid = letters.every(l => isShortOption(q['option_' + l.toLowerCase()]));
     return '<div class="q-card" id="qc' + q.id + '">' +
       '<div class="q-top"><div class="q-num">' + (i + 1) + '</div><div class="q-text">' + (q.question_text || '') + secLabel + '</div></div>' +
-      (q.image_url ? '<img src="' + esc(q.image_url) + '" class="q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">' : '') +
-      '<div class="options">' + ['A', 'B', 'C', 'D'].map(l =>
-        '<div class="option" id="opt' + q.id + l + '" onclick="pick(event,' + q.id + ',\'' + l + '\')"><div class="option-letter">' + l + '</div><div class="option-text">' + renderOptionContent(q['option_' + l.toLowerCase()]) + '</div></div>').join('') +
+      (q.image_url ? '<img src="' + esc(q.image_url) + '" class="q-img" alt="" style="margin-left:38px" onerror="this.style.display=\'none\'" loading="lazy">' : '') +
+      '<div class="options' + (grid ? ' grid' : '') + '">' + letters.map(l =>
+        '<div class="option" id="opt' + q.id + l + '" role="button" tabindex="0" onclick="pick(event,' + q.id + ',\'' + l + '\')"><div class="option-letter">' + l + '</div><div class="option-text">' + renderOptionContent(q['option_' + l.toLowerCase()]) + '</div></div>').join('') +
       '</div>' +
-      '<div class="q-footer"><button class="btn-mark" id="mark' + q.id + '" onclick="toggleMark(event,' + q.id + ')"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review</button></div>' +
       '</div>';
   }).join('');
   updateStats();
@@ -739,23 +769,9 @@ function pick(e, qId, letter) {
   updateStats();
 }
 
-function toggleMark(e, qId) {
-  e.stopPropagation();
-  marked[qId] = !marked[qId];
-  const btn = document.getElementById('mark' + qId);
-  btn?.classList.toggle('active', marked[qId]);
-  btn.innerHTML = marked[qId] ? '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg>Marked' : '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Mark for review';
-  updateStats();
-}
-
 function updateStats() {
   const ans = Object.keys(answers).length;
-  const rem = questions.length - ans;
-  const mrk = Object.values(marked).filter(Boolean).length;
-  document.getElementById('cAnswered').textContent = ans;
-  document.getElementById('cRemaining').textContent = rem;
-  document.getElementById('cMarked').textContent = mrk;
-  document.getElementById('progFill').style.width = (questions.length ? ans / questions.length * 100 : 0) + '%';
+  document.getElementById('submitLabel').textContent = 'Submit ' + ans + '/' + questions.length;
 }
 
 document.addEventListener('keydown', e => {
@@ -807,10 +823,8 @@ function onBeforeUnload(e) {
 function openSubmit() {
   const ans = Object.keys(answers).length;
   const unans = questions.length - ans;
-  const mrk = Object.values(marked).filter(Boolean).length;
   document.getElementById('sAns').textContent = ans;
   document.getElementById('sUnans').textContent = unans;
-  document.getElementById('sMark').textContent = mrk;
   document.getElementById('submitModal').classList.add('open');
 }
 
@@ -835,6 +849,7 @@ async function doSubmit() {
       document.getElementById('confirmSubmitBtn').textContent = 'Submit Now';
       return;
     }
+    examActive = false;
     if (isPrac) {
       showPracticeResult(data);
     } else {
@@ -1291,7 +1306,9 @@ document.getElementById('submitModal').addEventListener('click', function(e) {
 });
 
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeSubmit();
+  if (e.key === 'Escape') { closeSubmit(); closeMenu(); }
+  const o = e.target.closest && e.target.closest('.option');
+  if (o && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); o.click(); }
 });
 
 if (getToken()) loadAgreement();
