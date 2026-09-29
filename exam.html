@@ -249,12 +249,27 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 @media(max-width:900px){.review-list{padding:0 16px}}
 @media(max-width:600px){.rv-body{margin-left:0}.rv-opts.grid{grid-template-columns:1fr}.rv-opt{font-size:.8rem}.rv-q{font-size:.85rem}}
 
+
+/* ---- Explanations: shown by default, one switch to hide/show all ---- */
+.exp-switch{display:inline-flex;align-items:center;gap:9px;min-height:36px;cursor:pointer;font-family:var(--gs);font-size:.78rem;font-weight:500;color:var(--t2);-webkit-user-select:none;user-select:none}
+.exp-switch input{position:absolute;opacity:0;width:1px;height:1px}
+.exp-switch .sw{width:36px;height:20px;border-radius:20px;background:var(--t4);position:relative;transition:background .2s;flex-shrink:0}
+.exp-switch .sw:after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3);transition:transform .2s}
+.exp-switch input:checked+.sw{background:var(--blue)}
+.exp-switch input:checked+.sw:after{transform:translateX(16px)}
+.exp-switch input:focus-visible+.sw{outline:2px solid var(--blue);outline-offset:2px}
+
 /* ---- Marks summary (inside score card) ---- */
+.marks-break{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
+.mb{font-size:.76rem;padding:5px 12px;border-radius:20px;font-family:var(--gs)}
+.mb b{font-weight:700}.mb em{font-style:normal;opacity:.75}
+.mb-earn{background:var(--grn-bg);color:var(--green)}
+.mb-neg{background:var(--red-bg);color:var(--red)}
+.marks-note{font-size:.72rem;color:var(--t4);margin:-4px 0 12px}
 .marks-line{display:flex;align-items:baseline;justify-content:center;gap:10px;flex-wrap:wrap;margin:2px 0 6px}
 .marks-val{font-family:var(--gs);font-size:1.7rem;font-weight:500;color:var(--t1)}
 .marks-val small{font-size:1rem;color:var(--t3);font-weight:400}
 .marks-pct{font-family:var(--gs);font-size:1.05rem;font-weight:500;padding:3px 12px;border-radius:20px;background:var(--hov)}
-.marks-note{font-size:.72rem;color:var(--t4);margin-bottom:14px}
 
 .footer{background:var(--surf);border-top:1px solid var(--border);flex-shrink:0}
 .footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
@@ -932,7 +947,7 @@ function showPracticeResult(data) {
     '</svg><div class="ring-inner"><div class="ring-pct">' + pct.toFixed(1) + '%</div><div class="ring-lbl">Score</div></div></div>' +
     '<div class="score-grade" style="color:' + gc + '">' + gl + '</div>' +
     '<div class="score-exam">Practice Result</div>' +
-    rvMarksHTML(data.score, data.max_score != null ? data.max_score : totalQuestions * (exam.marks_per_question || 1), pct, exam).replace('GRADE_COLOR', gc) +
+    rvMarksHTML({ score: data.score, maxScore: data.max_score != null ? data.max_score : totalQuestions * (exam.marks_per_question || 1), pct: pct, exam: exam, correct: correct, wrong: wrong, color: gc }) +
     sectionInfoHTML +
     '<div class="score-stats">' +
     '<div class="sc-stat sc-correct"><div class="sc-stat-val">' + correct + '</div><div class="sc-stat-lbl">Correct</div></div>' +
@@ -960,7 +975,7 @@ function showPracticeResult(data) {
       '<button class="chip" data-f="correct" onclick="filterReview(\'correct\',this)">Correct</button>' +
       '<button class="chip" data-f="wrong" onclick="filterReview(\'wrong\',this)">Wrong</button>' +
       '<button class="chip" data-f="skipped" onclick="filterReview(\'skipped\',this)">Skipped</button>' +
-      '</div></div><div class="review-list" id="reviewList"></div>';
+      '</div>' + rvExpSwitchHTML(questions) + '</div><div class="review-list" id="reviewList"></div>';
   }
 
   html += '</div>';
@@ -984,6 +999,7 @@ function showPracticeResult(data) {
 
   window.scrollTo({ top: 0 });
   window._questions = questions;
+  window._solData = data;
   window._detailed = data.detailed || {};
   window._reviewFilter = 'all';
   renderReviewList();
@@ -994,11 +1010,15 @@ var RV_ICON_OK='<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></sv
 var RV_ICON_X='<svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
 function rvIsShort(t){if(!t||isImageURL(t)||/<img/i.test(t))return false;return t.replace(/<[^>]*>/g,'').trim().length<=26}
 function fmtMarks(n){n=Number(n)||0;return (Math.round(n*100)/100).toString()}
-function rvMarksHTML(score,maxScore,pct,exam){
-  var nm=exam&&exam.negative_marking>0;
-  return '<div class="marks-line"><div class="marks-val">'+fmtMarks(score)+' <small>/ '+fmtMarks(maxScore)+' marks</small></div>'+
-    '<div class="marks-pct" style="color:GRADE_COLOR">'+(Number(pct)||0).toFixed(1)+'%</div></div>'+
-    (nm?'<div class="marks-note">Includes negative marking (−'+exam.negative_marking+' per wrong answer)</div>':'');
+function rvMarksHTML(o){
+  var ex=o.exam||{}, nm=Number(ex.negative_marking)||0, mpq=Number(ex.marks_per_question)||1;
+  var wrong=o.wrong||0, earned=(o.correct||0)*mpq, neg=wrong*nm;
+  var h='<div class="marks-line"><div class="marks-val">'+fmtMarks(o.score)+' <small>/ '+fmtMarks(o.maxScore)+' marks</small></div>'+
+    '<div class="marks-pct" style="color:'+(o.color||'inherit')+'">'+(Number(o.pct)||0).toFixed(1)+'%</div></div>'+
+    '<div class="marks-break"><span class="mb mb-earn">Earned <b>+'+fmtMarks(earned)+'</b></span>'+
+    '<span class="mb mb-neg">Negative marks <b>'+(neg>0?'&minus;'+fmtMarks(neg):'0')+'</b> <em>'+(nm>0?'('+wrong+' wrong &times; '+fmtMarks(nm)+')':'(no negative marking)')+'</em></span></div>';
+  if(nm>0&&earned-neg<0)h+='<div class="marks-note">Final marks cannot go below 0.</div>';
+  return h;
 }
 function rvMapHTML(items){
   return '<div class="qmap" id="qmap">'+items.map(function(it){
@@ -1017,11 +1037,25 @@ function rvJump(id){
   if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
   return false;
 }
-function rvToggleExp(btn){
-  var box=btn.nextElementSibling;var open=box.classList.toggle('open');
-  btn.setAttribute('aria-expanded',open);
-  btn.firstChild.nodeValue=open?'Hide explanation':'Explanation';
+var rvShowExp = true;
+try { if (localStorage.getItem('exalyte_rv_exp') === '0') rvShowExp = false; } catch (e) {}
+function rvHasExp(qs) { return (qs || []).some(function (q) { return q.explanation && String(q.explanation).trim(); }); }
+function rvExpSwitchHTML(qs) {
+  if (!rvHasExp(qs)) return '';
+  return '<label class="exp-switch"><input type="checkbox" id="expAll"' + (rvShowExp ? ' checked' : '') + ' onchange="rvSetAllExp(this.checked)"><span class="sw"></span>Show explanations</label>';
 }
+function rvSetExp(btn, open) {
+  var box = btn.nextElementSibling;
+  box.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+  btn.firstChild.nodeValue = open ? 'Hide explanation' : 'Explanation';
+}
+function rvSetAllExp(on) {
+  rvShowExp = !!on;
+  try { localStorage.setItem('exalyte_rv_exp', on ? '1' : '0'); } catch (e) {}
+  document.querySelectorAll('.rv-exp-toggle').forEach(function (b) { rvSetExp(b, rvShowExp); });
+}
+function rvToggleExp(btn){rvSetExp(btn,!btn.nextElementSibling.classList.contains('open'))}
 // q: question, given: 'A'..'D' or '', correct: 'A'..'D'
 function rvCardHTML(q,num,given,correct){
   var st=given===''?'skip':given===correct?'correct':'wrong';
@@ -1039,7 +1073,7 @@ function rvCardHTML(q,num,given,correct){
   else if(st==='skip')note='<div class="rv-ans-note">Skipped · Correct: '+correct+'</div>';
   else note='<div class="rv-ans-note n-ok">Correct</div>';
   var exp='';
-  if(q.explanation&&q.explanation.trim())exp='<button class="rv-exp-toggle" aria-expanded="false" onclick="rvToggleExp(this)">Explanation<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="rv-explanation">'+renderExplanationContent(q.explanation)+'</div>';
+  if(q.explanation&&q.explanation.trim())exp='<button class="rv-exp-toggle" aria-expanded="'+rvShowExp+'" onclick="rvToggleExp(this)">'+(rvShowExp?'Hide explanation':'Explanation')+'<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="rv-explanation'+(rvShowExp?' open':'')+'">'+renderExplanationContent(q.explanation)+'</div>';
   var qImg=q.image_url?'<img src="'+esc(q.image_url)+'" class="rv-q-img" alt="" onerror="this.style.display=\'none\'" loading="lazy">':'';
   return '<div class="rv-card '+cls+'" id="rv'+q.id+'"><div class="rv-header"><div class="rv-num">'+num+'</div><div class="rv-q">'+(q.question_text||'')+qImg+'</div></div>'+
     '<div class="rv-body"><div class="rv-opts'+(grid?' grid':'')+'">'+opts+'</div>'+note+exp+'</div></div>';
@@ -1090,275 +1124,253 @@ function filterReview(filter, btn) {
   renderReviewList();
 }
 
-// --- Solution Sheet printing (ported from result.html; only depends on the
-// exam's questions/answer-key + exam metadata, both already loaded here) ---
-function solOptContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="sol-optimg" alt="">';return text}
-function solExpContent(text){if(!text)return'';if(isImageURL(text))return'<img src="'+esc(text)+'" class="sol-optimg" alt="">';return text}
-var SOL_PAGE_W_MM=192, SOL_PAGE_H_MM=271, SOL_PX_PER_MM=3.7795275591;
-var SOL_PAGE_W_PX=SOL_PAGE_W_MM*SOL_PX_PER_MM, SOL_PAGE_H_PX=SOL_PAGE_H_MM*SOL_PX_PER_MM;
-var SOL_COL_GAP_MM=5, SOL_COL_GAP_PX=SOL_COL_GAP_MM*SOL_PX_PER_MM;
-var SOL_COL_W_PX=(SOL_PAGE_W_PX-SOL_COL_GAP_PX)/2;
+// --- Solution Sheet (print / save as PDF) — same module as result.html ---
+/* ============================================================
+   SOLUTION SHEET — print / save as PDF (shared by exam.html & result.html)
+   Page supplies solContext() -> {exam, questions, correct(q)->'A'..'D'}
+   ============================================================ */
+var SOL_MM = 3.7795275591;
+var SOL_W_MM = 192, SOL_H_MM = 268, SOL_GAP_MM = 6;
+var SOL_W_PX = SOL_W_MM * SOL_MM, SOL_H_PX = SOL_H_MM * SOL_MM, SOL_GAP_PX = SOL_GAP_MM * SOL_MM;
+var SOL_COL_PX = (SOL_W_PX - SOL_GAP_PX) / 2;
+var SOL_FOOT_PX = 24;      // room reserved at the bottom of every page for the footer
+var SOL_LOGO_URL = '', SOL_LOGO_DATA_URI = null;
 
-// Self-contained, very dense CSS for the popup print window (no interference from the main page's layout)
-var SOL_PRINT_CSS=
-'*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}'+
-'@page{size:A4;margin:13mm 9mm}'+
-'html,body{background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif}'+
-'body{background-repeat:repeat-y;background-position:top center;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
-'.sol-page{position:relative;width:'+SOL_PAGE_W_MM+'mm;margin:0 auto}'+
-'.sol-header-full{text-align:center;border-bottom:1.2pt solid #000;padding-bottom:4pt;margin-bottom:6pt}'+
-'.sol-brand{display:flex;align-items:center;justify-content:center;gap:4pt;margin-bottom:2pt}'+
-'.sol-brand img{width:12pt;height:12pt;border-radius:50%}'+
-'.sol-brand span{font-weight:bold;font-size:8pt}'+
-'.sol-header-full h1{font-size:8pt;font-weight:bold;margin-bottom:2pt}'+
-'.sol-meta{font-size:6pt;color:#222;display:flex;justify-content:center;gap:6pt;flex-wrap:wrap}'+
-'.sol-meta b{font-weight:bold}'+
-'.sol-header-slim{display:flex;justify-content:space-between;align-items:baseline;border-bottom:.7pt solid #000;padding-bottom:2.5pt;margin-bottom:5pt;font-size:6pt;color:#333}'+
-'.sol-header-slim b{color:#000;font-size:6.6pt}'+
-'.sol-cols{display:flex;gap:'+SOL_COL_GAP_MM+'mm}'+
-'.sol-col{flex:1 1 0;min-width:0}'+
-'.sol-col:first-child{border-right:.4pt solid #ccc;padding-right:'+SOL_COL_GAP_MM+'mm}'+
-'.sol-q{break-inside:avoid;page-break-inside:avoid;-webkit-column-break-inside:avoid;margin:0 0 3.5pt;padding-bottom:2.5pt;border-bottom:.4pt dotted #ccc;font-size:6.3pt;line-height:1.22}'+
-'.sol-q:last-child{border-bottom:none;margin-bottom:0}'+
-'.sol-qtext{font-weight:bold;margin-bottom:1.2pt}'+
-'.sol-qtext b,.sol-qtext strong{font-weight:bold}'+
-'.sol-qimg{max-width:100%;max-height:40pt;object-fit:contain;display:block;margin:1.2pt 0}'+
-'.sol-opt{margin:.3pt 0;display:flex;gap:2.2pt;border-radius:2pt;padding:.6pt 2pt}'+
-'.sol-ol{font-weight:bold;min-width:7pt;flex-shrink:0}'+
-'.sol-opt.sol-correct{background:#e6f4ea;font-weight:bold;color:#0b6b1e;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}'+
-'.sol-opt.sol-correct .sol-ol:after{content:" \\2713"}'+
-'.sol-optimg{max-width:100%;max-height:26pt;object-fit:contain}'+
-/* Safety net: raw pasted <img> tags in explanations/options can carry
-   their own inline width/height from the source editor. Without this,
-   an inline style="width:357px" would ignore .sol-qimg/.sol-optimg and
-   overflow the printed column. !important forces every image in the
-   sheet, no matter how it was sized originally, to fit inside its box. */
-'.sol-q img{max-width:100% !important;width:auto !important;height:auto !important;max-height:40pt !important;object-fit:contain !important;display:block;margin:1.2pt 0}'+
-'.sol-exp{font-size:5.7pt;color:#333;font-style:italic;margin-top:1.2pt}'+
-'.sol-exp b{font-style:normal;font-weight:bold;color:#000}'+
-'#solMeasure{position:absolute;visibility:hidden;left:-9999px;top:0}';
+var SOL_CSS =
+'*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}' +
+'@page{size:A4;margin:13mm 9mm}' +
+'html,body{background:#fff;color:#111;font-family:Arial,Helvetica,"Noto Sans Bengali","Nirmala UI","Kalpurush",sans-serif;-webkit-text-size-adjust:100%}' +
+'.sol-page{position:relative;width:' + SOL_W_MM + 'mm;height:' + SOL_H_MM + 'mm;overflow:hidden;margin:0 auto;background-color:#fff;background-repeat:no-repeat;background-position:center 58%;background-size:105mm auto;page-break-after:always;break-after:page}' +
+'.sol-page:last-child{page-break-after:auto;break-after:auto}' +
+/* header, page 1 */
+'.sol-h1{padding-bottom:8pt;border-bottom:1.4pt solid #111;margin-bottom:2pt}' +
+'.sol-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6pt}' +
+'.sol-brand{display:flex;align-items:center;gap:5pt;font-weight:bold;font-size:10pt;letter-spacing:.2pt}' +
+'.sol-brand img{width:16pt;height:16pt;border-radius:50%}' +
+'.sol-doc{font-size:7.4pt;font-weight:bold;letter-spacing:.8pt;text-transform:uppercase;color:#1a73e8;border:.8pt solid #1a73e8;border-radius:10pt;padding:2pt 8pt}' +
+'.sol-title{font-size:15pt;font-weight:bold;line-height:1.2;margin-bottom:4pt}' +
+'.sol-meta{display:flex;flex-wrap:wrap;gap:2pt 14pt;font-size:8pt;color:#555}' +
+'.sol-meta b{color:#000;margin-left:2pt}' +
+/* header, later pages */
+'.sol-hs{display:flex;justify-content:space-between;align-items:baseline;border-bottom:.9pt solid #111;padding-bottom:4pt;margin-bottom:2pt;font-size:7.6pt;color:#444}' +
+'.sol-hs b{color:#000;font-size:8.6pt}' +
+/* footer */
+'.sol-foot{position:absolute;left:0;right:0;bottom:0;height:' + (SOL_FOOT_PX - 4) + 'px;display:flex;justify-content:space-between;align-items:flex-end;border-top:.5pt solid #cfd4da;font-size:6.8pt;color:#666;padding-top:2pt}' +
+/* columns */
+'.sol-cols{position:relative;display:grid;grid-template-columns:1fr 1fr;column-gap:' + SOL_GAP_MM + 'mm}' +
+'.sol-cols:before{content:"";position:absolute;left:50%;top:4pt;bottom:0;border-left:.5pt solid #cfd4da}' +
+'.sol-col{min-width:0}' +
+/* question */
+'.sol-q{padding:7pt 0 6pt;border-bottom:.5pt solid #e1e4e8;font-size:8.4pt;line-height:1.34;break-inside:avoid;page-break-inside:avoid;overflow-wrap:anywhere}' +
+'.sol-col .sol-q:last-child{border-bottom:none}' +
+'.sol-qh{display:flex;gap:5pt;align-items:flex-start;margin-bottom:3.5pt}' +
+'.sol-qn{flex:none;min-width:17pt;height:13pt;padding:0 4pt;border-radius:7pt;background:#1f2937;color:#fff;font-weight:bold;font-size:7.6pt;line-height:13pt;text-align:center;margin-top:.5pt}' +
+'.sol-qt{flex:1;min-width:0;font-weight:bold;font-size:8.7pt}' +
+'.sol-qt p{display:inline;margin:0}' +
+'.sol-opts{margin-left:22pt}' +
+'.sol-opts.g{display:grid;grid-template-columns:1fr 1fr;column-gap:4pt}' +
+'.sol-o{display:flex;gap:5pt;align-items:flex-start;padding:1.6pt 4pt 1.6pt 2pt;border-radius:3pt;margin:.6pt 0}' +
+'.sol-ol{flex:none;width:11.5pt;height:11.5pt;border:.8pt solid #555;border-radius:50%;text-align:center;font-size:6.9pt;line-height:10.4pt;font-weight:bold;color:#333;background:#fff}' +
+'.sol-ot{flex:1;min-width:0}' +
+'.sol-ot p{display:inline;margin:0}' +
+'.sol-o.c{background:#e6f4ea;color:#0b5d1e;font-weight:bold}' +
+'.sol-o.c .sol-ol{background:#1e8e3e;border-color:#1e8e3e;color:#fff}' +
+'.sol-o.c .sol-ic{color:#1e8e3e}' +
+'.sol-ic{width:8pt;height:8pt;margin-left:4pt;vertical-align:-1pt;stroke:currentColor;fill:none;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}' +
+'.sol-exp{margin:4pt 0 0 22pt;padding:1.5pt 0 1.5pt 6pt;border-left:1.6pt solid #1a73e8;font-size:7.7pt;line-height:1.38;color:#2b2b2b}' +
+'.sol-exp .lbl{display:block;font-weight:bold;color:#1a73e8;font-size:6.8pt;letter-spacing:.4pt;text-transform:uppercase;margin-bottom:1pt}' +
+'.sol-exp p{display:inline;margin:0}' +
+/* images: always fit, whatever inline size they were pasted with */
+'.sol-q img{max-width:100% !important;width:auto !important;height:auto !important;max-height:74pt !important;object-fit:contain !important;display:block;margin:2.5pt 0}' +
+'.sol-o img{max-height:42pt !important}' +
+'.sol-q table{max-width:100%;border-collapse:collapse}.sol-q td,.sol-q th{border:.5pt solid #999;padding:1pt 3pt}' +
+'.sol-q sub,.sol-q sup{font-size:70%;line-height:0}' +
+/* screen-only chrome */
+'#solMeasure{position:absolute;visibility:hidden;left:-99999px;top:0;font-family:inherit}' +
+'.sol-bar{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;background:#202124;color:#fff;font-size:13px}' +
+'.sol-bar span{display:block;opacity:.7;font-size:11.5px;margin-top:2px}' +
+'.sol-bar button{background:#1a73e8;color:#fff;border:none;border-radius:20px;padding:10px 20px;font-size:13px;font-weight:bold;cursor:pointer;flex:none;min-height:40px}' +
+'.sol-load{font-family:Arial,sans-serif;text-align:center;padding:90px 20px;color:#444;font-size:15px}' +
+'@media screen{html,body{background:#dfe3e8}#sheets{padding:14px 0 30px;transform-origin:top center}.sol-page{box-sizing:content-box;padding:13mm 9mm;margin:0 auto 14px;box-shadow:0 2px 10px rgba(0,0,0,.18)}}' +
+'@media print{.no-print{display:none !important}#sheets{zoom:1 !important;padding:0 !important}}';
 
-function solBuildFullHeader(pageCount){
-  var timeStr=exam.time_limit?exam.time_limit+' min':'—';
-  var perQ=exam.marks_per_question||1;
-  var totalMarks=perQ*questions.length;
-  var negStr=(exam.negative_marking&&exam.negative_marking>0)?('−'+exam.negative_marking+'/wrong'):'None';
-  var dateStr=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-  return '<div class="sol-header-full">'+
-    '<div class="sol-brand"><img src="'+SOL_LOGO_URL+'" alt="" onerror="this.style.display=\'none\'"><span>Exalyte</span></div>'+
-    '<h1>'+esc(exam.name)+' — Solution Sheet</h1>'+
-    '<div class="sol-meta">'+
-    '<span><b>Q:</b> '+questions.length+'</span>'+
-    '<span><b>Time:</b> '+timeStr+'</span>'+
-    '<span><b>Marks:</b> '+totalMarks+' ('+perQ+'/Q)</span>'+
-    '<span><b>Negative:</b> '+negStr+'</span>'+
-    '<span><b>Date:</b> '+dateStr+'</span>'+
-    '<span>exalyte.pages.dev</span>'+
-    '</div></div>';
+function solEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function solFmt(n) { n = Number(n) || 0; return (Math.round(n * 100) / 100).toString(); }
+function solRich(text) { // question / option / explanation content: image URLs become <img>, everything else is trusted HTML (as elsewhere on the site)
+  if (!text) return '';
+  return isImageURL(text) ? '<img src="' + esc(text) + '" alt="">' : text;
 }
-function solBuildSlimHeader(pageNum,pageCount){
-  return '<div class="sol-header-slim"><b>'+esc(exam.name)+'</b><span>Solution Sheet — exalyte.pages.dev</span><span>Page '+pageNum+(pageCount?(' / '+pageCount):'')+'</span></div>';
+function solIsShort(t) { if (!t || isImageURL(t) || /<img/i.test(t)) return false; return t.replace(/<[^>]*>/g, '').trim().length <= 14; }
+
+function solQuestionHTML(ctx, q, idx) {
+  var correct = ctx.correct(q);
+  var letters = ['A', 'B', 'C', 'D'];
+  var grid = letters.every(function (l) { return solIsShort(q['option_' + l.toLowerCase()]); });
+  var tick = '<svg class="sol-ic" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+  var opts = letters.map(function (l) {
+    var isC = l === correct;
+    return '<div class="sol-o' + (isC ? ' c' : '') + '"><span class="sol-ol">' + l + '</span><span class="sol-ot">' + solRich(q['option_' + l.toLowerCase()] || '') + (isC ? tick : '') + '</span></div>';
+  }).join('');
+  var qImg = q.image_url ? '<img src="' + esc(q.image_url) + '" alt="" style="margin-left:22pt">' : '';
+  var exp = (q.explanation && String(q.explanation).trim()) ? '<div class="sol-exp"><span class="lbl">Explanation</span>' + solRich(q.explanation) + '</div>' : '';
+  return '<div class="sol-q"><div class="sol-qh"><span class="sol-qn">' + (idx + 1) + '</span><div class="sol-qt">' + (q.question_text || '') + '</div></div>' +
+    qImg + '<div class="sol-opts' + (grid ? ' g' : '') + '">' + opts + '</div>' + exp + '</div>';
 }
-function solBuildQuestionHTML(q,i){
-  var qImg=q.image_url?'<img src="'+esc(q.image_url)+'" class="sol-qimg" alt="">':'';
-  var h='<div class="sol-q"><div class="sol-qtext">Q'+(i+1)+'. '+(q.question_text||'')+'</div>'+qImg;
-  // During an active/practice exam, questions never carry the correct answer
-  // directly (anti-cheat) — it's only revealed per-question in window._detailed
-  // after submission, same source the on-screen review list already uses.
-  var det=window._detailed||{};
-  var d=det[q.id]||det[String(q.id)]||{};
-  var correctAns=q.correct_answer||String(d.correct||'').trim().toUpperCase();
-  ['A','B','C','D'].forEach(function(l){
-    var isC=l===correctAns;
-    var ot=q['option_'+l.toLowerCase()]||'';
-    h+='<div class="sol-opt'+(isC?' sol-correct':'')+'"><span class="sol-ol">'+l+'.</span><span>'+solOptContent(ot)+'</span></div>';
+
+// Generic exam header — the same for every student (exam details only, nothing personal).
+function solFullHeader(ctx) {
+  var ex = ctx.exam, n = ctx.questions.length;
+  var perQ = Number(ex.marks_per_question) || 1;
+  var nm = Number(ex.negative_marking) || 0;
+  var date = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  var meta = [
+    '<span>Questions <b>' + n + '</b></span>',
+    '<span>Time <b>' + (ex.time_limit ? ex.time_limit + ' min' : '&mdash;') + '</b></span>',
+    '<span>Marks <b>' + solFmt(perQ * n) + '</b> (' + solFmt(perQ) + '/Q)</span>',
+    '<span>Negative <b>' + (nm > 0 ? '&minus;' + solFmt(nm) + '/wrong' : 'None') + '</b></span>',
+    '<span>Date <b>' + date + '</b></span>'
+  ];
+  return '<div class="sol-h1"><div class="sol-top"><div class="sol-brand"><img src="' + (SOL_LOGO_DATA_URI || SOL_LOGO_URL) + '" alt="" onerror="this.style.display=\'none\'"><span>Exalyte</span></div><div class="sol-doc">Solution Sheet</div></div>' +
+    '<div class="sol-title">' + solEsc(ex.name) + '</div><div class="sol-meta">' + meta.join('') + '</div></div>';
+}
+function solSlimHeader(ctx) {
+  return '<div class="sol-hs"><b>' + solEsc(ctx.exam.name) + '</b><span>Solution Sheet</span></div>';
+}
+function solFooter(num, total) {
+  return '<div class="sol-foot"><span>exalyte.pages.dev</span><span>Page ' + num + ' of ' + total + '</span></div>';
+}
+
+function solWaitForImages(container, timeoutMs) {
+  var pending = [];
+  container.querySelectorAll('img').forEach(function (img) {
+    if (img.complete) return;
+    pending.push(new Promise(function (res) { img.addEventListener('load', res); img.addEventListener('error', res); }));
   });
-  if(q.explanation&&q.explanation.trim())h+='<div class="sol-exp"><b>Exp: </b>'+solExpContent(q.explanation)+'</div>';
-  h+='</div>';
-  return h;
+  if (!pending.length) return Promise.resolve();
+  return Promise.race([Promise.all(pending), new Promise(function (res) { setTimeout(res, timeoutMs); })]);
 }
 
-function solWaitForImages(doc,container,timeoutMs){
-  var imgs=container.querySelectorAll('img');
-  if(!imgs.length)return Promise.resolve();
-  var promises=[];
-  imgs.forEach(function(img){
-    if(img.complete)return;
-    promises.push(new Promise(function(res){
-      img.addEventListener('load',res);
-      img.addEventListener('error',res);
-    }));
-  });
-  if(!promises.length)return Promise.resolve();
-  return Promise.race([Promise.all(promises),new Promise(function(res){setTimeout(res,timeoutMs)})]);
-}
-
-var SOL_LOGO_URL='';
-var SOL_LOGO_DATA_URI=null; // cached after first successful fetch, so repeat prints don't refetch
-
-// SVGs used as a CSS background-image are blocked by browsers from loading any
-// external resource referenced inside them (a deliberate security restriction,
-// not a bug) — that's why the header <img> logo loads fine but a plain
-// external href inside the watermark SVG silently gets dropped. Fetching the
-// logo once and inlining it as a base64 data URI makes it fully self-contained,
-// so there's nothing external left for the browser to block.
-function solGetLogoDataURI(){
-  if(SOL_LOGO_DATA_URI)return Promise.resolve(SOL_LOGO_DATA_URI);
-  return fetch(SOL_LOGO_URL).then(function(r){return r.blob()}).then(function(blob){
-    return new Promise(function(resolve,reject){
-      var reader=new FileReader();
-      reader.onload=function(){SOL_LOGO_DATA_URI=reader.result;resolve(SOL_LOGO_DATA_URI)};
-      reader.onerror=reject;
-      reader.readAsDataURL(blob);
+// SVG backgrounds cannot load external files, so the logo is inlined as a data URI once.
+function solGetLogoDataURI() {
+  if (SOL_LOGO_DATA_URI) return Promise.resolve(SOL_LOGO_DATA_URI);
+  return fetch(SOL_LOGO_URL).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (blob) {
+    return new Promise(function (resolve, reject) {
+      var fr = new FileReader();
+      fr.onload = function () { SOL_LOGO_DATA_URI = fr.result; resolve(SOL_LOGO_DATA_URI); };
+      fr.onerror = reject; fr.readAsDataURL(blob);
     });
-  }).catch(function(){return null});
+  }).catch(function () { return null; });
 }
 
-function printSolution(){
-  if(!questions||!questions.length)return;
-  SOL_LOGO_URL=new URL('images/exalyte.png',location.href).href;
+// Split N questions into the fewest pages, with columns of near-equal height (no lone question / blank column).
+function solPaginate(heights, capFirst, capRest) {
+  var n = heights.length;
+  function cap(col) { return col < 2 ? capFirst : capRest; }
+  var maxSingle = 0, total = 0;
+  heights.forEach(function (h) { if (h > maxSingle) maxSingle = h; total += h; });
+  function tryPack(limitH, maxCols) {
+    var cols = [[]], col = 0, cum = 0;
+    for (var i = 0; i < n; i++) {
+      var h = heights[i], lim = Math.min(limitH, cap(col));
+      if (cols[col].length > 0 && cum + h > lim) {
+        col++; if (col >= maxCols) return null;
+        cols.push([]); cum = 0;
+      }
+      cols[col].push(i); cum += h;
+    }
+    return cols;
+  }
+  var minimal = tryPack(Infinity, 1e9), C = minimal.length;
+  var lo = Math.ceil(maxSingle), hi = Math.ceil(total), best = minimal;
+  while (lo < hi) {
+    var mid = Math.floor((lo + hi) / 2), a = tryPack(mid, C);
+    if (a) { best = a; hi = mid; } else lo = mid + 1;
+  }
+  var fin = tryPack(lo, C); if (fin) best = fin;
+  return best;
+}
 
-  var w=window.open('','_blank');
-  if(!w){alert('Please allow pop-ups for this site to print the Solution Sheet.');return}
+function printSolution() {
+  var ctx = (typeof solContext === 'function') ? solContext() : null;
+  if (!ctx || !ctx.questions || !ctx.questions.length) return;
+  SOL_LOGO_URL = new URL('images/exalyte.png', location.href).href;
+
+  // Must open synchronously inside the click so pop-up blockers allow it.
+  var w = window.open('', '_blank');
+  if (!w) { alert('Please allow pop-ups for this site to save the Solution Sheet.'); return; }
+  var title = String(ctx.exam.name || 'Exam').replace(/[\\\/:*?"<>|]+/g, ' ').trim() + ' - Solution Sheet';
   w.document.open();
-  w.document.write(
-    '<!DOCTYPE html><html><head><meta charset="UTF-8">'+
-    '<title>'+esc(exam.name)+' - Solution Sheet</title>'+
-    '<style>'+SOL_PRINT_CSS+'</style></head><body><div id="solMeasure"></div></body></html>'
-  );
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + solEsc(title) + '</title>' +
+    '<style>' + SOL_CSS + '</style><style id="wmStyle"></style></head><body><div class="sol-load no-print" id="solLoad">Preparing your solution sheet&hellip;</div><div id="solMeasure"></div><div id="sheets"></div></body></html>');
   w.document.close();
 
-  // Centered watermark, sized to exactly one page — repeats down every page automatically.
-  // The logo is only added in once we have it inlined as a data URI (see above);
-  // the EXALYTE text still appears immediately either way since plain SVG text
-  // isn't subject to the same external-resource restriction.
-  solGetLogoDataURI().then(function(logoDataUri){
-    var wmSvg="<svg xmlns='http://www.w3.org/2000/svg' width='300' height='424'>"+
-      "<g transform='rotate(-28 150 212)' opacity='0.09' font-family='Arial'>"+
-      (logoDataUri?"<image href='"+logoDataUri+"' x='130' y='148' width='40' height='40'/>":"")+
-      "<text x='150' y='232' font-weight='bold' font-size='34' fill='#1a73e8' text-anchor='middle'>EXALYTE</text>"+
-      "<text x='150' y='256' font-size='14' fill='#1a73e8' text-anchor='middle'>exalyte.pages.dev</text>"+
-      "</g></svg>";
-    w.document.body.style.backgroundImage='url("data:image/svg+xml,'+encodeURIComponent(wmSvg)+'")';
-    w.document.body.style.backgroundSize=SOL_PAGE_W_MM+'mm '+SOL_PAGE_H_MM+'mm';
-  });
+  function fail(msg) { try { w.document.getElementById('solLoad').textContent = msg || 'Could not prepare the sheet. Please close this tab and try again.'; } catch (e) {} }
 
-  var measureEl=w.document.getElementById('solMeasure');
-  var qHtmls=questions.map(solBuildQuestionHTML);
+  solGetLogoDataURI().then(function (logo) {
+    var d = w.document;
+    // faint diagonal watermark, drawn once per page
+    var wm = "<svg xmlns='http://www.w3.org/2000/svg' width='420' height='300'><g transform='rotate(-28 210 150)' opacity='0.07' font-family='Arial'>" +
+      (logo ? "<image href='" + logo + "' x='170' y='70' width='80' height='80'/>" : '') +
+      "<text x='210' y='190' font-weight='bold' font-size='44' fill='#1a73e8' text-anchor='middle'>EXALYTE</text></g></svg>";
+    d.getElementById('wmStyle').textContent = '.sol-page{background-image:url("data:image/svg+xml,' + encodeURIComponent(wm) + '")}';
 
-  // Warm-up pass: load every image once so height measurements below are accurate
-  measureEl.style.width=SOL_COL_W_PX+'px';
-  measureEl.innerHTML=qHtmls.join('');
-  solWaitForImages(w.document,measureEl,3500).then(function(){
-    // Measure each question's real rendered height at column width
-    var heights=qHtmls.map(function(html){
-      measureEl.innerHTML=html;
-      return measureEl.firstElementChild.getBoundingClientRect().height;
-    });
+    var measure = d.getElementById('solMeasure');
+    var qHtmls = ctx.questions.map(function (q, i) { return solQuestionHTML(ctx, q, i); });
 
-    // Measure header heights (full width)
-    measureEl.style.width=SOL_PAGE_W_MM+'mm';
-    measureEl.innerHTML=solBuildFullHeader();
-    var fullHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
-    measureEl.innerHTML=solBuildSlimHeader(1,1);
-    var slimHeaderH=measureEl.firstElementChild.getBoundingClientRect().height;
+    measure.style.width = SOL_COL_PX + 'px';
+    measure.innerHTML = qHtmls.join('');
+    return solWaitForImages(measure, 4000).then(function () {
+      var kids = measure.children, heights = [];
+      for (var k = 0; k < kids.length; k++) heights.push(Math.ceil(kids[k].getBoundingClientRect().height) + 1);
 
-    // ✅ FIX — globally balanced pagination (no stray/near-empty columns).
-    //
-    // The earlier per-page approach ("group what fits on this page, then
-    // split that group in half") could still leave an awkward outcome: if
-    // the greedy look-ahead landed on a small final group, one page could
-    // end up with a single lone question and a large blank column while a
-    // previous page still had spare room.
-    //
-    // The correct fix is to treat the WHOLE document as one sequence and
-    // solve "split N questions into exactly C ordered, contiguous columns,
-    // minimizing the tallest column" — a classic linear-partition problem,
-    // solved via binary search on the answer:
-    //
-    //   1. First, find the minimum number of columns C_min physically
-    //      required, by greedily packing each column as full as possible
-    //      (this also tells us how many pages we need — greedy-fill-max is
-    //      optimal for minimizing the column/page count).
-    //   2. Then, keeping that same column count C_min fixed (so we never
-    //      add extra pages), binary-search for the smallest possible
-    //      "max column height" that still lets everything fit in C_min
-    //      columns. This redistributes content so every column — including
-    //      the last one — ends up close to the same height, eliminating
-    //      lone-question / near-blank columns.
-    //
-    // Column 0 and 1 belong to page 1 (which has the taller full header,
-    // so a bit less usable height); every column after that belongs to a
-    // later page using the slim header.
-    var availH1=(SOL_PAGE_H_PX-fullHeaderH-4)*0.95;
-    var availHRest=(SOL_PAGE_H_PX-slimHeaderH-4)*0.95;
-    function capacityForCol(col){return col<2?availH1:availHRest}
+      measure.style.width = SOL_W_PX + 'px';
+      measure.innerHTML = solFullHeader(ctx);
+      solWaitForImages(measure, 1500);
+      var h1 = Math.ceil(measure.firstElementChild.getBoundingClientRect().height) + 4;
+      measure.innerHTML = solSlimHeader(ctx);
+      var hs = Math.ceil(measure.firstElementChild.getBoundingClientRect().height) + 4;
+      measure.innerHTML = '';
 
-    var n=heights.length;
-    var maxSingle=0,totalHeight=0;
-    for(var i=0;i<n;i++){maxSingle=Math.max(maxSingle,heights[i]);totalHeight+=heights[i]}
+      var capFirst = SOL_H_PX - h1 - SOL_FOOT_PX, capRest = SOL_H_PX - hs - SOL_FOOT_PX;
+      var minCap = Math.min(capFirst, capRest);
+      // A single question taller than a column can never fit: clip it rather than spill onto a blank page.
+      var clipped = {};
+      heights = heights.map(function (h, i) { if (h > minCap) { clipped[i] = true; return minCap; } return h; });
 
-    // Try packing everything into `maxCols` columns, with each column capped
-    // at min(h, that column's physical capacity). Returns the resulting
-    // column groupings if it fits in <= maxCols columns, otherwise null.
-    function tryPack(h,maxCols){
-      var cols=[[]],col=0,cum=0;
-      for(var qi=0;qi<n;qi++){
-        var hh=heights[qi];
-        var cap=capacityForCol(col);
-        if(hh>cap)return null; // physically too tall for any column — shouldn't happen
-        var limit=Math.min(h,cap);
-        if(cols[col].length>0 && (cum+hh)>limit){
-          col++;
-          if(col>=maxCols)return null;
-          cols.push([]);
-          cum=0;
-        }
-        cols[col].push(qi);
-        cum+=hh;
+      var cols = solPaginate(heights, capFirst, capRest);
+      var pages = [];
+      for (var c = 0; c < cols.length; c += 2) {
+        pages.push([cols[c] || [], cols[c + 1] || []]);
       }
-      return cols;
-    }
+      var totalPages = pages.length;
+      function colHtml(list) {
+        return list.map(function (i) {
+          var html = qHtmls[i];
+          return clipped[i] ? '<div style="max-height:' + minCap + 'px;overflow:hidden">' + html + '</div>' : html;
+        }).join('');
+      }
+      var out = pages.map(function (pg, pi) {
+        return '<div class="sol-page">' + (pi === 0 ? solFullHeader(ctx) : solSlimHeader(ctx)) +
+          '<div class="sol-cols"><div class="sol-col">' + colHtml(pg[0]) + '</div><div class="sol-col">' + colHtml(pg[1]) + '</div></div>' +
+          solFooter(pi + 1, totalPages) + '</div>';
+      }).join('');
 
-    // Step 1: minimum number of columns needed at all (greedy-fill-max, h=Infinity)
-    var minimalCols=tryPack(Infinity,Number.MAX_SAFE_INTEGER);
-    var C=minimalCols.length;
+      var bar = '<div class="sol-bar no-print"><div><b>' + solEsc(title) + '</b><span>' + totalPages + ' page' + (totalPages > 1 ? 's' : '') + ' &middot; In the print window choose &ldquo;Save as PDF&rdquo;, paper A4, scale 100%</span></div><button onclick="window.print()">Save as PDF</button></div>';
+      d.getElementById('solLoad').style.display = 'none';
+      d.getElementById('sheets').innerHTML = out;
+      d.body.insertAdjacentHTML('afterbegin', bar);
+      // small screens: shrink the on-screen preview to fit (never affects the printed size)
+      var z = Math.min(1, (w.innerWidth - 12) / ((SOL_W_MM + 18) * SOL_MM));
+      if (z < 1) d.getElementById('sheets').style.zoom = z;
+      d.title = title;
+      setTimeout(function () { try { w.focus(); w.print(); } catch (e) {} }, 400);
+    });
+  }).catch(function (e) { fail(); if (window.console) console.error(e); });
+}
 
-    // Step 2: binary-search the smallest max-column-height that still fits in C columns
-    var lo=maxSingle,hi=totalHeight,bestCols=minimalCols;
-    while(lo<hi){
-      var mid=Math.floor((lo+hi)/2);
-      var attempt=tryPack(mid,C);
-      if(attempt){bestCols=attempt;hi=mid}
-      else{lo=mid+1}
-    }
-    // Final pass at the converged value guarantees a valid, balanced packing
-    var finalAttempt=tryPack(lo,C);
-    if(finalAttempt)bestCols=finalAttempt;
-
-    // bestCols is now a balanced list of columns; pair them up into pages
-    var pages=[];
-    for(var c=0;c<bestCols.length;c+=2){
-      var pageNum=pages.length+1;
-      var col1=bestCols[c].map(function(i){return qHtmls[i]}).join('');
-      var col2=(bestCols[c+1]||[]).map(function(i){return qHtmls[i]}).join('');
-      pages.push({num:pageNum,col1:col1,col2:col2});
-    }
-
-    var totalPages=pages.length;
-    var finalHTML=pages.map(function(p,i){
-      var header=p.num===1?solBuildFullHeader(totalPages):solBuildSlimHeader(p.num,totalPages);
-      var last=i===pages.length-1;
-      return '<div class="sol-page"'+(last?'':' style="page-break-after:always"')+'>'+
-        header+
-        '<div class="sol-cols"><div class="sol-col">'+p.col1+'</div><div class="sol-col">'+p.col2+'</div></div>'+
-        '</div>';
-    }).join('');
-
-    w.document.body.innerHTML=finalHTML;
-
-    setTimeout(function(){w.focus();w.print()},150);
-  });
+function solContext(){
+  var det=window._detailed||{};
+  return { exam:exam, questions:questions, correct:function(q){var x=det[q.id]||det[String(q.id)]||{};return String(q.correct_answer||x.correct||'').trim().toUpperCase()} };
 }
 
 document.getElementById('submitModal').addEventListener('click', function(e) {
