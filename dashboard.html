@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dashboard — Exalyte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;overflow-wrap:break-word}
+
+html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+
+:root{
+  --blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;
+  --green:#1e8e3e;--grn-bg:#e6f4ea;--yellow:#f9ab00;--yel-bg:#fef7e0;
+  --bg:#f8f9fa;--surf:#ffffff;--hov:#f1f3f4;--border:#dadce0;
+  --t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
+  --gs:'Google Sans','Roboto',system-ui,sans-serif;
+  --rb:'Roboto',system-ui,sans-serif;
+  --hh:64px;--r:4px;--rl:8px;--tr:.2s cubic-bezier(.4,0,.2,1);
+  --safe-bottom:env(safe-area-inset-bottom,20px);
+}
+
+body{
+  font-family:var(--rb);background:var(--bg);color:var(--t2);
+  -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
+  display:flex;flex-direction:column;overflow-x:hidden;-webkit-tap-highlight-color:transparent;
+}
+
+.header{
+  position:fixed;top:0;left:0;right:0;height:var(--hh);
+  background:var(--surf);border-bottom:1px solid var(--border);
+  z-index:1000;display:flex;align-items:center;
+  justify-content:space-between;padding:0 24px;
+  transition:transform .25s ease;
+}
+
+.header.hidden{transform:translateY(-100%)}
+
+.header-left{display:flex;align-items:center;gap:24px}
+
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+
+.logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
+
+.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
+
+.header-nav{display:flex;align-items:center;gap:4px}
+
+.header-nav a{
+  font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t3);
+  text-decoration:none;padding:8px 16px;border-radius:var(--r);
+  transition:all var(--tr);
+}
+
+.header-nav a:hover{background:var(--hov);color:var(--t1)}
+
+.header-nav a.active{color:var(--blue);background:#e8f0fe}
+
+.hamburger{
+  display:none;background:none;border:none;cursor:pointer;
+  color:var(--t3);padding:8px;border-radius:50%;
+  align-items:center;justify-content:center;transition:background var(--tr);
+}
+
+.hamburger:hover{background:var(--hov)}
+
+.hamburger svg{width:22px;height:22px}
+
+.mobile-nav-dropdown{
+  display:none;position:fixed;top:var(--hh);left:0;right:0;
+  background:var(--surf);border-bottom:1px solid var(--border);
+  box-shadow:0 4px 16px rgba(0,0,0,.1);padding:8px 16px;z-index:999;
+}
+
+.mobile-nav-dropdown.show{display:block}
+
+.mobile-nav-dropdown a{
+  display:block;padding:14px 16px;font-family:var(--gs);font-size:.9rem;
+  color:var(--t2);text-decoration:none;border-radius:var(--r);
+}
+
+.mobile-nav-dropdown a:hover{background:var(--hov)}
+
+.mobile-nav-dropdown a.active{color:var(--blue);background:#e8f0fe}
+
+.header-right{display:flex;align-items:center;gap:8px}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 20px;font-family:var(--gs);font-size:.85rem;font-weight:500;
+  border:none;border-radius:var(--r);cursor:pointer;
+  transition:all var(--tr);text-decoration:none;white-space:nowrap;
+  min-height:44px;
+}
+
+.btn-primary{background:var(--blue);color:#fff}
+
+.btn-primary:hover{background:var(--blue-h);box-shadow:0 1px 2px rgba(60,64,67,.3),0 2px 6px rgba(60,64,67,.15)}
+
+.btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
+
+.btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
+
+.icon-btn{
+  width:44px;height:44px;border:none;background:none;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--t3);transition:background var(--tr);flex-shrink:0;
+  position:relative;
+}
+
+.icon-btn:hover{background:var(--hov)}
+
+.icon-btn svg{width:20px;height:20px}
+
+.icon-btn .badge{
+  position:absolute;top:2px;right:2px;min-width:18px;height:18px;
+  background:var(--red);color:#fff;border-radius:10px;
+  font-size:.65rem;font-weight:700;display:none;
+  align-items:center;justify-content:center;padding:0 5px;
+}
+
+.icon-btn .badge.show{display:flex}
+
+.avatar{
+  width:36px;height:36px;border-radius:50%;background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--gs);font-weight:500;font-size:14px;
+  color:#fff;cursor:pointer;flex-shrink:0;border:2px solid transparent;
+}
+
+.avatar:hover{border-color:var(--border)}
+
+.main{flex:1;padding-top:var(--hh)}
+
+.content{max-width:1080px;margin:0 auto;padding:32px 24px 60px;width:100%;padding-bottom:calc(60px + var(--safe-bottom))}
+
+
+.live-strip{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  padding:0;margin-bottom:24px;display:none;overflow:hidden;
+}
+
+.live-strip.show{display:block}
+
+.live-strip-header{
+  display:flex;align-items:center;gap:10px;padding:14px 20px;
+  background:#fef7e0;border-bottom:1px solid rgba(249,171,0,.2);
+}
+
+.live-dot{width:8px;height:8px;background:#e37400;border-radius:50%;animation:pulse 1.5s infinite;flex-shrink:0}
+
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+.live-strip-title{font-family:var(--gs);font-size:.85rem;font-weight:500;color:#e37400}
+
+.live-strip-count{font-size:.72rem;color:var(--t4);margin-left:auto}
+
+.live-exam-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  flex-wrap:wrap;gap:12px;transition:background var(--tr);
+}
+
+.live-exam-item:last-child{border-bottom:none}
+
+.live-exam-item:hover{background:var(--hov)}
+
+.live-exam-info{display:flex;flex-direction:column;gap:3px;min-width:0}
+
+.live-exam-name{font-family:var(--gs);font-size:.9rem;font-weight:500;color:var(--t1)}
+
+.live-exam-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+.live-countdown-timer{font-family:var(--gs);font-size:.82rem;font-weight:500;color:#e37400}
+
+.live-ends-label{font-size:.7rem;color:var(--t4)}
+
+.btn-live{
+  background:var(--blue);color:#fff;border:none;padding:10px 22px;
+  border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;
+  cursor:pointer;transition:all var(--tr);white-space:nowrap;flex-shrink:0;
+  min-height:44px;
+}
+
+.btn-live:hover{background:var(--blue-h);box-shadow:0 1px 2px rgba(60,64,67,.3),0 2px 6px rgba(60,64,67,.15)}
+
+
+.scheduled-strip{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  padding:0;margin-bottom:24px;display:none;overflow:hidden;
+}
+
+.scheduled-strip.show{display:block}
+
+.scheduled-strip-header{
+  display:flex;align-items:center;gap:10px;padding:14px 20px;
+  background:#e8f0fe;border-bottom:1px solid rgba(26,115,232,.15);
+}
+
+.scheduled-strip-dot{width:8px;height:8px;background:var(--blue);border-radius:50%;flex-shrink:0}
+
+.scheduled-strip-title{font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--blue)}
+
+.scheduled-exam-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  flex-wrap:wrap;gap:12px;transition:background var(--tr);
+}
+
+.scheduled-exam-item:last-child{border-bottom:none}
+
+.scheduled-exam-info{display:flex;flex-direction:column;gap:3px;min-width:0}
+
+.scheduled-countdown-timer{font-family:var(--gs);font-size:.82rem;font-weight:500;color:var(--blue)}
+
+.scheduled-date-label{font-size:.7rem;color:var(--t4)}
+
+.scheduled-live-info{font-size:.7rem;color:var(--t3);margin-top:2px}
+
+.btn-scheduled-info{
+  background:transparent;color:var(--blue);border:1px solid var(--border);
+  padding:10px 16px;border-radius:var(--r);font-family:var(--gs);font-size:.78rem;
+  font-weight:500;cursor:default;white-space:nowrap;flex-shrink:0;
+  min-height:44px;display:flex;align-items:center;
+}
+
+
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+
+.section-header h2{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1)}
+
+.pager{display:flex;gap:6px;justify-content:center;align-items:center;padding:14px 4px 4px;flex-wrap:wrap}
+
+.pager-btn{min-width:32px;height:32px;padding:0 8px;border:1px solid var(--border);background:var(--surf);border-radius:var(--r);font-size:.78rem;cursor:pointer;color:var(--t2);font-family:var(--rb)}
+
+.pager-btn:hover:not(:disabled){border-color:var(--t3)}
+
+.pager-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+.pager-btn:disabled{opacity:.4;cursor:not-allowed}
+
+.pager-ellipsis{color:var(--t4);font-size:.78rem;padding:0 2px}
+
+.pager-info{font-size:.68rem;color:var(--t4);text-align:center;padding-top:2px}
+
+
+.exam-list{display:flex;flex-direction:column;gap:20px}
+
+.batch-group{margin-bottom:20px}
+
+.batch-group:last-child{margin-bottom:0}
+
+.exam-card{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  padding:24px;transition:box-shadow var(--tr);
+}
+
+.exam-card:hover{box-shadow:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15)}
+
+.exam-card-inner{display:flex;gap:24px;flex-wrap:wrap}
+
+
+.exam-body{flex:1;min-width:0}
+
+.exam-badge{
+  display:inline-flex;align-items:center;gap:4px;padding:3px 10px;
+  border-radius:20px;font-family:var(--gs);font-size:.72rem;font-weight:500;
+  margin-bottom:8px;
+}
+
+.badge-free{background:var(--grn-bg);color:var(--green)}
+
+.badge-premium{background:#f3e8fd;color:#9333ea}
+
+.badge-live{background:var(--red-bg);color:var(--red)}
+
+.badge-closed{background:var(--red-bg);color:var(--red)}
+
+.badge-scheduled{background:var(--yel-bg);color:#e37400}
+
+.badge-practice{background:#e0e7ff;color:#4338ca}
+
+.exam-name{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1);margin-bottom:4px}
+
+.exam-desc{font-size:.8rem;color:var(--t3);margin-bottom:10px;line-height:1.5}
+
+.exam-meta{display:flex;gap:16px;flex-wrap:wrap}
+
+.meta-item{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--t3)}
+
+.meta-item svg{width:14px;height:14px;stroke:currentColor;fill:none;flex-shrink:0}
+
+.exam-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end;flex-shrink:0}
+
+.score-pill{
+  padding:4px 12px;border-radius:20px;font-family:var(--gs);
+  font-size:.8rem;font-weight:500;
+}
+
+.score-pill.good{background:var(--grn-bg);color:var(--green)}
+
+.score-pill.pending{background:var(--yel-bg);color:#e37400}
+
+.btn-take{
+  background:var(--blue);color:#fff;border:none;padding:10px 22px;
+  border-radius:var(--r);font-family:var(--gs);font-size:.8rem;font-weight:500;
+  cursor:pointer;transition:all var(--tr);text-decoration:none;display:inline-block;text-align:center;
+  min-height:44px;line-height:1.4;
+}
+
+.btn-take:hover{background:var(--blue-h)}
+
+.btn-take:disabled{background:var(--hov);color:var(--t4);cursor:not-allowed}
+
+.btn-practice{
+  background:transparent;color:var(--blue);border:1px solid var(--border);
+  padding:9px 18px;border-radius:var(--r);font-family:var(--gs);font-size:.75rem;
+  font-weight:500;cursor:pointer;transition:all var(--tr);
+  min-height:44px;display:flex;align-items:center;
+}
+
+.btn-practice:hover{background:#e8f0fe;border-color:var(--blue)}
+
+
+.scheduled-info{
+  background:var(--yel-bg);border:1px solid rgba(249,171,0,.25);
+  border-radius:var(--r);padding:12px 14px;margin-top:10px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+
+.scheduled-info svg{width:16px;height:16px;stroke:#e37400;fill:none;flex-shrink:0}
+
+.scheduled-countdown-text{font-family:var(--gs);font-size:.82rem;font-weight:500;color:#e37400}
+
+.scheduled-date-text{font-size:.7rem;color:var(--t3)}
+
+
+.batch-header{
+  display:flex;align-items:center;gap:10px;padding:12px 4px;
+  cursor:pointer;user-select:none;min-height:44px;
+}
+
+.batch-arrow{
+  width:18px;height:18px;stroke:var(--t3);fill:none;stroke-width:2;
+  transition:transform .2s;flex-shrink:0;
+}
+
+.batch-group.collapsed .batch-arrow{transform:rotate(-90deg)}
+
+.batch-name{font-family:var(--gs);font-size:.9rem;font-weight:500;color:var(--t1)}
+
+.batch-count{font-size:.72rem;color:var(--t4);background:var(--hov);padding:2px 8px;border-radius:10px}
+
+.batch-group.collapsed .exams-list{display:none}
+
+
+.resources-section{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  margin-top:40px;overflow:hidden;scroll-margin-top:80px;
+}
+
+.resources-header{
+  padding:16px 20px;background:var(--bg);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+
+.resources-header svg{width:20px;height:20px;stroke:var(--blue);flex-shrink:0}
+
+.resources-header h2{font-family:var(--gs);font-size:.95rem;font-weight:500;color:var(--t1)}
+
+.resources-filter select{
+  padding:8px 14px;border:1px solid var(--border);border-radius:var(--r);
+  font-family:var(--rb);font-size:.8rem;color:var(--t2);outline:none;
+  cursor:pointer;background:var(--surf);min-height:40px;
+}
+
+.resources-filter select:focus{border-color:var(--blue)}
+
+.resources-grid{padding:20px}
+
+.resource-group{margin-bottom:20px}
+
+.resource-group:last-child{margin-bottom:0}
+
+.resource-group-title{
+  display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;
+}
+
+.resource-group-title svg{width:16px;height:16px;stroke:var(--blue);flex-shrink:0}
+
+.resource-group-name{font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t1)}
+
+.resource-group-type{
+  font-size:.62rem;padding:3px 8px;border-radius:10px;font-weight:500;
+}
+
+.type-exam{background:#e8f0fe;color:var(--blue)}
+
+.type-batch{background:var(--yel-bg);color:#e37400}
+
+.resource-chips{display:flex;flex-wrap:wrap;gap:8px}
+
+.resource-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 16px;border:1px solid var(--border);border-radius:20px;
+  font-family:var(--gs);font-size:.78rem;font-weight:500;color:var(--t2);
+  text-decoration:none;transition:all var(--tr);min-height:40px;
+}
+
+.resource-chip:hover{border-color:var(--blue);color:var(--blue);background:#e8f0fe}
+
+.resource-chip svg{width:12px;height:12px;stroke:currentColor;flex-shrink:0}
+
+.resource-empty{text-align:center;padding:40px;color:var(--t3);font-size:.85rem}
+
+
+.rank-section{margin-bottom:28px}
+
+.rank-grid{display:flex;flex-direction:column;gap:10px}
+
+.rank-item{
+  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
+  padding:16px 18px;display:flex;align-items:center;gap:14px;
+}
+
+.rank-pos{
+  width:44px;height:44px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;
+  font-family:var(--gs);font-size:1rem;font-weight:500;flex-shrink:0;
+}
+
+.rank-1{background:#fef7e0;color:#e37400}
+
+.rank-2{background:#f1f3f4;color:var(--t3)}
+
+.rank-3{background:#fce8e6;color:#c5221f}
+
+.rank-n{background:var(--bg);color:var(--t3)}
+
+.rank-info{flex:1;min-width:0}
+
+.rank-exam{font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t1)}
+
+.rank-sub{font-size:.72rem;color:var(--t4);margin-top:2px}
+
+.rank-pct{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--blue)}
+
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--t3)}
+
+.empty-state svg{width:48px;height:48px;stroke:var(--t4);margin-bottom:12px}
+
+.empty-state h3{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1);margin-bottom:6px}
+
+.empty-state p{font-size:.85rem}
+
+
+.skeleton{
+  background:linear-gradient(90deg,var(--hov)25%,#e8eaed 50%,var(--hov)75%);
+  background-size:200%100%;animation:shimmer 1.5s infinite;border-radius:var(--r);
+}
+
+@keyframes shimmer{0%{background-position:200%0}100%{background-position:-200%0}}
+
+
+.footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
+
+.footer-inner{
+  max-width:1080px;margin:0 auto;padding:40px 24px 24px;
+  display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;
+}
+
+.fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
+
+.fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
+
+.fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2.2;padding:2px 0}
+
+.fc a:hover{color:var(--blue);text-decoration:underline}
+
+.footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+
+.footer-bottom{
+  max-width:1080px;margin:0 auto;padding:16px 24px;
+  border-top:1px solid var(--border);display:flex;
+  justify-content:space-between;align-items:center;
+  font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px;
+  padding-bottom:calc(16px + var(--safe-bottom));
+}
+
+.footer-links{display:flex;gap:20px}
+
+.footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
+
+.footer-links a:hover{text-decoration:underline;color:var(--blue)}
+
+.toast{
+  position:fixed;bottom:24px;left:24px;z-index:9999;
+  padding:14px 24px;border-radius:var(--r);background:#323232;
+  color:#f5f5f5;font-size:.875rem;
+  box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px rgba(0,0,0,.14),0 1px 18px rgba(0,0,0,.12);
+  transform:translateY(80px);opacity:0;
+  transition:all .25s cubic-bezier(0,0,.2,1);pointer-events:none;
+  bottom:calc(24px + var(--safe-bottom));
+}
+
+.toast.show{transform:translateY(0);opacity:1}
+
+.scroll-top-btn{
+  position:fixed;right:24px;bottom:calc(24px + var(--safe-bottom));z-index:998;
+  width:48px;height:48px;border-radius:50%;border:none;
+  background:var(--blue);color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 6px rgba(0,0,0,.25),0 4px 12px rgba(0,0,0,.15);
+  opacity:0;visibility:hidden;transform:translateY(12px);
+  transition:opacity .2s ease,transform .2s ease,visibility .2s,background var(--tr);
+}
+
+.scroll-top-btn.show{opacity:1;visibility:visible;transform:translateY(0)}
+
+.scroll-top-btn:hover{background:var(--blue-h)}
+
+.scroll-top-btn svg{width:22px;height:22px}
+@media(max-width:600px){
+.scroll-top-btn{right:16px;width:44px;height:44px}
+}
+@media(max-width:768px){
+.header{padding:0 16px}
+.header-nav{display:none}
+.hamburger{display:flex}
+.content{padding:20px 16px 80px;padding-bottom:calc(80px + var(--safe-bottom))}
+.exam-card{padding:20px}
+.exam-card-inner{flex-direction:column;gap:16px}
+.exam-actions{flex-direction:row;width:100%}
+.exam-actions .btn-take,.exam-actions .btn-practice{flex:1;text-align:center}
+.live-exam-item,.scheduled-exam-item{flex-direction:column;align-items:flex-start}
+.btn-live,.btn-scheduled-info{width:100%;text-align:center;justify-content:center}
+.footer-inner{grid-template-columns:1fr 1fr;gap:28px}
+.section-header h2{font-size:1.1rem}
+}
+@media(max-width:480px){
+.section-header{flex-direction:column;align-items:flex-start}
+.section-header h2{font-size:1rem}
+.footer-inner{grid-template-columns:1fr;gap:20px}
+.footer-bottom{flex-direction:column;text-align:center}
+.resources-header{flex-direction:column;align-items:flex-start}
+.live-strip-header,.scheduled-strip-header{padding:12px 16px}
+.live-exam-item,.scheduled-exam-item{padding:14px 16px}
+.exam-card{padding:16px}
+.scheduled-info{padding:10px 12px}
+.rank-item{padding:14px;gap:10px}
+.batch-header{padding:10px 2px}
+}
+/* ================= Dashboard v2 ================= */
+[hidden]{display:none !important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+button.avatar{appearance:none;-webkit-appearance:none;padding:0;font-family:var(--gs)}
+button.avatar:focus-visible,.icon-btn:focus-visible,.tab:focus-visible,.filter-chip:focus-visible,.filter-btn:focus-visible,.btn-take:focus-visible,.btn-practice:focus-visible,.hero-cta:focus-visible,.nitem:focus-visible,.batch-header:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.avatar.big{width:48px;height:48px;font-size:18px;cursor:default}
+.avatar.big:hover{border-color:transparent}
+
+/* Hero: the one thing to do next */
+.hero{background:var(--surf);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:var(--rl);padding:20px 24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.hero.live{border-left-color:var(--red);background:linear-gradient(90deg,#fff6f5,var(--surf) 60%)}
+.hero.upcoming{border-left-color:#e37400}
+.hero.done{border-left-color:var(--green)}
+.hero-main{min-width:0;flex:1 1 300px}
+.hero-eyebrow{display:flex;align-items:center;gap:8px;font-family:var(--gs);font-size:.7rem;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
+.hero.live .hero-eyebrow{color:var(--red)}
+.hero.upcoming .hero-eyebrow{color:#e37400}
+.hero.done .hero-eyebrow{color:var(--green)}
+.hero-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
+.hero.live .hero-dot{animation:pulse 1.5s infinite}
+.hero-title{font-family:var(--gs);font-size:1.3rem;font-weight:500;color:var(--t1);line-height:1.3;margin-bottom:6px}
+.hero-sub{font-size:.82rem;color:var(--t3);display:flex;flex-wrap:wrap;gap:2px 14px;align-items:baseline}
+.hero-cd{font-family:var(--gs);font-size:1.05rem;font-weight:500;color:var(--t1);font-variant-numeric:tabular-nums}
+.hero.live .hero-cd{color:var(--red)}
+.hero-cta{background:var(--blue);color:#fff;border:none;border-radius:var(--r);padding:12px 28px;min-height:48px;font-family:var(--gs);font-size:.9rem;font-weight:500;cursor:pointer;white-space:nowrap;transition:background var(--tr),box-shadow var(--tr);text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.hero-cta:hover{background:var(--blue-h);box-shadow:0 1px 2px rgba(60,64,67,.3),0 2px 6px rgba(60,64,67,.15)}
+.hero.live .hero-cta{background:var(--red)}
+.hero.live .hero-cta:hover{background:#b3261e}
+
+/* Summary strip */
+.summary{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:24px;overflow:hidden}
+.sum-cells{display:grid;grid-template-columns:repeat(3,1fr)}
+.sum-cell{padding:14px 8px;text-align:center;border-right:1px solid var(--border);min-width:0}
+.sum-cell:last-child{border-right:none}
+.sum-val{font-family:var(--gs);font-size:1.5rem;font-weight:500;color:var(--t1);line-height:1.1}
+.sum-lbl{font-size:.72rem;color:var(--t3);margin-top:4px}
+.trend{display:flex;align-items:flex-end;gap:14px;padding:10px 16px;border-top:1px solid var(--border);background:var(--bg)}
+.trend-lbl{font-size:.7rem;color:var(--t3);align-self:center;white-space:nowrap}
+.trend-bars{display:flex;align-items:flex-end;gap:8px;flex:1;height:68px;justify-content:flex-end}
+.tbar{flex:1;max-width:46px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.tbar span{font-size:.62rem;color:var(--t3);margin-bottom:2px;font-variant-numeric:tabular-nums}
+.tbar i{display:block;width:100%;border-radius:3px 3px 0 0;background:var(--blue);min-height:3px}
+.tbar i.good{background:var(--green)}.tbar i.mid{background:#f9ab00}.tbar i.low{background:var(--red)}
+.sum-empty{padding:12px 16px;border-top:1px solid var(--border);background:var(--bg);font-size:.78rem;color:var(--t3);text-align:center}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:20px;scroll-margin-top:76px}
+.tab{background:none;border:none;border-bottom:3px solid transparent;padding:12px 18px;font-family:var(--gs);font-size:.9rem;font-weight:500;color:var(--t3);cursor:pointer;min-height:48px;margin-bottom:-1px;display:flex;align-items:center;gap:8px;border-radius:var(--r) var(--r) 0 0;transition:color var(--tr),background var(--tr)}
+.tab:hover{color:var(--t1);background:var(--hov)}
+.tab[aria-selected="true"]{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-count{font-size:.7rem;background:var(--hov);color:var(--t3);border-radius:10px;padding:1px 8px;font-variant-numeric:tabular-nums}
+.tab[aria-selected="true"] .tab-count{background:#e8f0fe;color:var(--blue)}
+
+/* Toolbar */
+.toolbar{display:flex;gap:10px;margin-bottom:12px}
+.search-wrap{position:relative;flex:1;min-width:0}
+.search-wrap>svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;stroke:var(--t4);fill:none;pointer-events:none}
+.search-input{width:100%;padding:12px 44px 12px 42px;border:1px solid var(--border);border-radius:24px;font-family:var(--rb);font-size:.9rem;color:var(--t1);outline:none;background:var(--surf);transition:border-color var(--tr),box-shadow var(--tr);min-height:46px;-webkit-appearance:none;appearance:none}
+.search-input::-webkit-search-cancel-button{display:none}
+.search-input:hover{border-color:var(--t3)}
+.search-input:focus{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.search-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:none;background:none;border-radius:50%;cursor:pointer;color:var(--t3);display:none;align-items:center;justify-content:center}
+.search-clear.show{display:flex}
+.search-clear:hover{background:var(--hov)}
+.search-clear svg{width:16px;height:16px;stroke:currentColor;fill:none}
+.filter-btn{display:inline-flex;align-items:center;gap:8px;padding:0 16px;min-height:46px;border:1px solid var(--border);border-radius:24px;background:var(--surf);font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t2);cursor:pointer;flex-shrink:0;transition:all var(--tr)}
+.filter-btn:hover{border-color:var(--t3)}
+.filter-btn svg{width:18px;height:18px;stroke:currentColor;fill:none}
+.filter-btn.on{border-color:var(--blue);color:var(--blue);background:#e8f0fe}
+.filter-badge{min-width:18px;height:18px;border-radius:9px;background:var(--blue);color:#fff;font-size:.65rem;font-weight:700;display:none;align-items:center;justify-content:center;padding:0 5px}
+.filter-btn.on .filter-badge{display:flex}
+.chips-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:2px 0 4px;margin-bottom:10px}
+.chips-row::-webkit-scrollbar{display:none}
+.filter-chip{padding:10px 18px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.82rem;font-weight:500;color:var(--t3);background:var(--surf);cursor:pointer;transition:all var(--tr);white-space:nowrap;min-height:40px;display:flex;align-items:center;flex-shrink:0}
+.filter-chip:hover{border-color:var(--blue);color:var(--blue)}
+.filter-chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
+.results-line{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:.78rem;color:var(--t3);margin-bottom:12px;min-height:32px}
+.link-btn{background:none;border:none;color:var(--blue);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer;padding:6px 8px;min-height:36px;border-radius:var(--r)}
+.link-btn:hover{background:#e8f0fe}
+
+/* Exam cards */
+.batch-group{margin-bottom:20px}
+.batch-group:last-child{margin-bottom:0}
+.exam-card{background:var(--surf);border:1px solid var(--border);border-left:4px solid var(--border);border-radius:var(--rl);padding:18px 24px;margin-bottom:12px;transition:box-shadow var(--tr)}
+.exam-card:last-child{margin-bottom:0}
+.exam-card:hover{box-shadow:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15)}
+.exam-card.st-live{border-left-color:var(--red)}
+.exam-card.st-scheduled{border-left-color:#f9ab00}
+.exam-card.st-done{border-left-color:var(--green)}
+.exam-card.st-practice{border-left-color:#6366f1}
+.exam-card.st-closed{border-left-color:var(--t4)}
+.exam-card-inner{display:flex;gap:20px;align-items:center}
+.exam-body{flex:1;min-width:0}
+.ec-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ec-top .exam-badge{margin-bottom:0}
+.ec-top .score-pill{margin-left:auto}
+.exam-name{font-size:1.05rem;line-height:1.35}
+.exam-desc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:8px}
+.exam-meta{gap:4px 14px}
+.exam-actions{display:flex;flex-direction:column;gap:8px;align-items:stretch;min-width:156px;flex-shrink:0}
+.exam-actions .btn-take,.exam-actions .btn-practice{width:100%;justify-content:center;text-align:center}
+.score-pill.mid{background:var(--yel-bg);color:#b06000}
+.score-pill.low{background:var(--red-bg);color:var(--red)}
+.exam-card .scheduled-info{margin-top:12px}
+
+/* Rankings: swipeable row */
+.rank-section{margin-bottom:24px}
+.rank-grid{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.rank-item{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;display:flex;align-items:center;gap:12px;scroll-snap-align:start;min-width:0}
+.rank-pos{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:1rem;font-weight:500;flex-shrink:0}
+.rank-1{background:#fef7e0;color:#e37400}.rank-2{background:#f1f3f4;color:var(--t3)}.rank-3{background:#fce8e6;color:#c5221f}.rank-n{background:var(--bg);color:var(--t3)}
+.rank-info{flex:1;min-width:0}
+.rank-exam{font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-sub{font-size:.72rem;color:var(--t4);margin-top:2px}
+.rank-pct{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--blue)}
+
+/* Panels: popover on desktop, bottom sheet on phones */
+.panel-backdrop{position:fixed;inset:0;z-index:2000;display:none;background:transparent}
+.panel-backdrop.open{display:block}
+.panel-backdrop.dim{background:rgba(0,0,0,.45);animation:fadeIn .2s ease}
+.panel{position:fixed;z-index:2001;background:var(--surf);border:1px solid var(--border);display:none;flex-direction:column;box-shadow:0 8px 28px rgba(0,0,0,.22);overflow:hidden;overscroll-behavior:contain}
+.panel.open{display:flex}
+.panel-grab{display:none;justify-content:center;padding:10px 0 4px;flex-shrink:0;touch-action:none;cursor:grab}
+.panel-grab i{width:40px;height:4px;border-radius:2px;background:var(--border)}
+.panel-head{padding:14px 12px 10px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;touch-action:none}
+.panel-head h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1)}
+.panel-close{width:44px;height:44px;border:none;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);transition:background var(--tr)}
+.panel-close:hover{background:var(--hov)}
+.panel-close:focus-visible{outline:2px solid var(--blue)}
+.panel-close svg{width:18px;height:18px;stroke:currentColor;fill:none}
+.panel-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.panel-foot{padding:10px 16px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:10px;justify-content:center;background:var(--surf)}
+.panel-foot .btn{flex:1}
+.panel-foot .link-btn:disabled{color:var(--t4);cursor:default;background:none}
+@media(min-width:769px){.panel{border-radius:12px;animation:popIn .16s ease}}
+@media(max-width:768px){
+  .panel{left:0;right:0;bottom:0;top:auto;width:100%;max-height:88vh;max-height:88dvh;border-radius:16px 16px 0 0;border-bottom:none;animation:sheetUp .26s cubic-bezier(.2,.8,.2,1);padding-bottom:var(--safe-inset,0px)}
+  .panel-grab{display:flex}
+  .panel-head{padding-top:2px}
+  .panel-foot{padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
+@keyframes popIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+html.lock,html.lock body{overflow:hidden}
+
+/* Notifications */
+.ntabs{display:flex;gap:4px;padding:0 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.ntab{background:none;border:none;border-bottom:3px solid transparent;padding:10px 14px;font-family:var(--gs);font-size:.82rem;font-weight:500;color:var(--t3);cursor:pointer;min-height:44px;margin-bottom:-1px;display:flex;align-items:center;gap:6px}
+.ntab:hover{color:var(--t1)}
+.ntab[aria-selected="true"]{color:var(--blue);border-bottom-color:var(--blue)}
+.ntab:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.ntab .tab-count{font-size:.66rem}
+.ngroup{padding:8px 20px 6px;font-family:var(--gs);font-size:.66rem;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--t4);background:var(--bg);border-bottom:1px solid var(--border);border-top:1px solid var(--border);margin-top:-1px}
+.nitem{display:flex;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background var(--tr)}
+.nitem:hover{background:var(--hov)}
+.nitem:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.nitem.unread{background:#f3f7fe}
+.nitem.unread:hover{background:#e8f0fe}
+.ndot{flex:0 0 8px;width:8px;height:8px;border-radius:50%;margin-top:7px;background:transparent}
+.nitem.unread .ndot{background:var(--blue)}
+.nmain{flex:1;min-width:0}
+.nrow{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.ntitle{font-family:var(--gs);font-size:.9rem;color:var(--t2);font-weight:500;line-height:1.35;min-width:0}
+.nitem.unread .ntitle{color:var(--t1);font-weight:700}
+.ntime{font-size:.7rem;color:var(--t4);flex-shrink:0;white-space:nowrap}
+.nbody{font-size:.8rem;color:var(--t3);line-height:1.5;margin-top:3px;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nitem.open .nbody{display:block;overflow:visible}
+.ndetail{display:none;margin-top:10px}
+.nitem.open .ndetail{display:block}
+.nmeta{font-size:.7rem;color:var(--t4);margin-top:8px}
+.nmore{display:block;width:calc(100% - 32px);margin:14px 16px;padding:12px;min-height:46px;border:1px solid var(--border);border-radius:24px;background:var(--surf);color:var(--blue);font-family:var(--gs);font-size:.85rem;font-weight:500;cursor:pointer}
+.nmore:hover{background:#e8f0fe;border-color:var(--blue)}
+.nskel{display:flex;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border)}
+.nskel>div{flex:1}
+.nskel .skeleton{margin-bottom:8px}
+.notif-empty{text-align:center;padding:48px 24px;color:var(--t3)}
+.notif-empty svg{width:44px;height:44px;stroke:var(--t4);fill:none;margin-bottom:12px}
+.notif-empty h3{font-family:var(--gs);font-size:.95rem;font-weight:500;color:var(--t1);margin-bottom:4px}
+.notif-empty p{font-size:.82rem}
+.notif-empty .btn{margin-top:14px}
+.notif-img-wrap{position:relative;display:inline-block;max-width:100%;margin-bottom:4px}
+.notif-item-img{max-width:100%;max-height:220px;border-radius:var(--r);border:1px solid var(--border);object-fit:contain;display:block;background:var(--hov)}
+.notif-img-download{position:absolute;bottom:8px;right:8px;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.62);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background var(--tr)}
+.notif-img-download:hover{background:rgba(0,0,0,.82)}
+.notif-img-download svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2}
+.notif-img-download.downloading{pointer-events:none;opacity:.6}
+.notif-item-link{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:var(--blue);text-decoration:none;font-weight:500;padding:8px 0;min-height:40px}
+.notif-item-link:hover{text-decoration:underline}
+.notif-item-link svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* Filter panel */
+.fgroup{padding:14px 20px;border-bottom:1px solid var(--border)}
+.fgroup:last-child{border-bottom:none}
+.flabel{display:block;font-family:var(--gs);font-size:.72rem;font-weight:500;color:var(--t3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.fselect{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);font-size:16px;font-family:var(--rb);color:var(--t1);background:var(--surf);min-height:48px}
+.fselect:focus{outline:2px solid var(--blue);outline-offset:-1px;border-color:var(--blue)}
+.seg{display:flex;border:1px solid var(--border);border-radius:24px;overflow:hidden}
+.seg button{flex:1;padding:10px 8px;min-height:46px;background:var(--surf);border:none;border-right:1px solid var(--border);font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t2);cursor:pointer}
+.seg button:last-child{border-right:none}
+.seg button[aria-pressed="true"]{background:#e8f0fe;color:var(--blue)}
+.seg button:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.tgl-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;cursor:pointer;font-family:var(--gs);font-size:.9rem;color:var(--t1)}
+.tgl-row input{position:absolute;opacity:0;width:1px;height:1px}
+.tgl-row .sw{width:40px;height:22px;border-radius:22px;background:var(--t4);position:relative;transition:background .2s;flex-shrink:0}
+.tgl-row .sw:after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3);transition:transform .2s}
+.tgl-row input:checked+.sw{background:var(--blue)}
+.tgl-row input:checked+.sw:after{transform:translateX(18px)}
+.tgl-row input:focus-visible+.sw{outline:2px solid var(--blue);outline-offset:2px}
+
+/* Account panel */
+.acct{display:flex;align-items:center;gap:14px;padding:8px 20px 18px}
+.acct-name{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1)}
+.acct-mail{font-size:.8rem;color:var(--t3);word-break:break-all}
+.acct-link{display:flex;align-items:center;min-height:48px;padding:0 20px;font-family:var(--gs);font-size:.9rem;color:var(--t2);text-decoration:none;border-top:1px solid var(--border)}
+.acct-link:hover{background:var(--hov)}
+.btn-signout{width:100%;background:var(--red-bg);color:var(--red);border:none;border-radius:var(--r);min-height:48px;font-family:var(--gs);font-size:.9rem;font-weight:500;cursor:pointer}
+.btn-signout:hover{background:#f9d6d3}
+
+.load-error{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl)}
+
+@media(max-width:1024px){.exam-actions{min-width:140px}}
+@media(max-width:768px){
+  .header{padding:0 16px}
+  .header-nav{display:none}
+  .hamburger{display:flex}
+  .content{padding:16px 16px 80px;padding-bottom:calc(80px + var(--safe-bottom))}
+  .hero{flex-direction:column;align-items:stretch;padding:18px;gap:14px}
+  .hero-main{flex:none}
+  .hero-cta{width:100%}
+  .hero-title{font-size:1.15rem}
+  .live-exam-item,.scheduled-exam-item{flex-direction:column;align-items:flex-start}
+  .btn-live,.btn-scheduled-info{width:100%;text-align:center;justify-content:center}
+  .exam-card{padding:16px 18px}
+  .exam-card-inner{flex-direction:column;align-items:stretch;gap:14px}
+  .exam-actions{flex-direction:row;min-width:0;width:100%}
+  .exam-actions .btn-take,.exam-actions .btn-practice{flex:1}
+  .search-input{font-size:16px}
+  .footer-inner{grid-template-columns:1fr 1fr;gap:28px}
+  .section-header h2{font-size:1.1rem}
+}
+@media(max-width:480px){
+  .filter-label{display:none}
+  .filter-btn{padding:0 14px}
+  .tab{padding:12px 14px}
+  .sum-val{font-size:1.3rem}
+  .footer-inner{grid-template-columns:1fr;gap:20px}
+  .footer-bottom{flex-direction:column;text-align:center}
+  .resources-header{flex-direction:column;align-items:flex-start}
+  .live-strip-header,.scheduled-strip-header{padding:12px 16px}
+  .live-exam-item,.scheduled-exam-item{padding:14px 16px}
+  .exam-card{padding:14px 16px}
+  .scheduled-info{padding:10px 12px}
+  .rank-grid{grid-auto-columns:82%}
+  .batch-header{padding:10px 2px}
+  .toast{left:16px;right:16px;bottom:calc(16px + var(--safe-bottom))}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+
+#resourcesContainer .resources-section{margin-top:0}
+.exams-list .pager{padding-top:12px}
+.pager-btn{min-width:38px;height:38px}
+@media(max-width:480px){.pager-btn{min-width:40px;height:40px}}
+.batch-header{min-height:44px;cursor:pointer}
+.empty-state{padding:48px 20px}
+.header{z-index:1000}
+.toast{z-index:3000}
+.exam-card-inner{flex-wrap:nowrap}
+@media(max-width:768px){.exam-card-inner{flex-direction:column}}
+.btn{min-height:44px}
+
+</style>
+</head>
+<body>
+
+<header class="header" id="header">
+  <div class="header-left">
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <a href="/" class="logo-wrap">
+      <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
+      <span class="logo-text">Exalyte</span>
+    </a>
+    <nav class="header-nav">
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="exam-history.html">History</a>
+      <a href="batches.html">Batches</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <button class="icon-btn" id="studentModeExitBtn" title="Exit to Admin" onclick="exitStudentMode()" aria-label="Exit to Admin" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/></svg>
+    </button>
+    <button class="icon-btn" id="notifBtn" title="Notifications" onclick="openNotifPanel(this)" aria-label="Notifications" aria-haspopup="dialog" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span class="badge" id="notifBadge">0</span>
+    </button>
+    <button class="avatar" id="userAvatar" onclick="Panels.open('accountPanel',this)" aria-label="Account" aria-haspopup="dialog" aria-expanded="false">S</button>
+  </div>
+</header>
+
+<div class="mobile-nav-dropdown" id="mobileNavDropdown">
+  <a href="dashboard.html" class="active">Dashboard</a>
+  <a href="exam-history.html">History</a>
+  <a href="batches.html">Batches</a>
+  <a href="#" id="signOutBtn" style="color:var(--red)">Sign out</a>
+</div>
+
+<main class="main">
+  <div class="content">
+
+    <div id="hero" class="hero" style="display:none"></div>
+
+    <div class="live-strip" id="liveStrip">
+      <div class="live-strip-header">
+        <span class="live-dot"></span>
+        <span class="live-strip-title" id="liveStripTitle">Live Now</span>
+        <span class="live-strip-count" id="liveStripCount"></span>
+      </div>
+      <div id="liveList"></div>
+    </div>
+
+    <div class="scheduled-strip" id="scheduledStrip">
+      <div class="scheduled-strip-header">
+        <span class="scheduled-strip-dot"></span>
+        <span class="scheduled-strip-title" id="scheduledStripTitle">Upcoming Live Exams</span>
+      </div>
+      <div id="scheduledList"></div>
+    </div>
+
+    <div class="summary" id="summary"><div class="skeleton" style="height:86px;border-radius:0"></div></div>
+
+    <div class="rank-section" id="rankSection" style="display:none">
+      <div class="section-header"><h2>Your Rankings</h2></div>
+      <div class="rank-grid" id="rankGrid"></div>
+    </div>
+
+    <div class="tabs" id="tabs" role="tablist" aria-label="Dashboard sections">
+      <button class="tab" role="tab" id="tabBtnExams" aria-selected="true" aria-controls="panelExams" onclick="switchTab('exams')">Exams <span class="tab-count" id="examCount">0</span></button>
+      <button class="tab" role="tab" id="tabBtnRes" aria-selected="false" aria-controls="panelRes" tabindex="-1" onclick="switchTab('resources')">Study materials <span class="tab-count" id="resCount">0</span></button>
+    </div>
+
+    <div id="panelExams" role="tabpanel" aria-labelledby="tabBtnExams">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" class="search-input" id="searchInput" placeholder="Search exams" oninput="onSearchInput()" aria-label="Search exams" autocomplete="off" enterkeyhint="search">
+          <button class="search-clear" id="searchClear" onclick="clearSearch()" aria-label="Clear search"><svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <button class="filter-btn" id="filterBtn" onclick="Panels.open('filterPanel',this)" aria-haspopup="dialog" aria-expanded="false" aria-label="Filters">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+          <span class="filter-label">Filters</span><span class="filter-badge" id="filterBadge">0</span>
+        </button>
+      </div>
+      <div class="chips-row" role="group" aria-label="Exam status">
+        <button class="filter-chip active" data-filter="all" onclick="setFilter(this)" aria-pressed="true">All</button>
+        <button class="filter-chip" data-filter="live" onclick="setFilter(this)" aria-pressed="false">Live</button>
+        <button class="filter-chip" data-filter="scheduled" onclick="setFilter(this)" aria-pressed="false">Upcoming</button>
+        <button class="filter-chip" data-filter="completed" onclick="setFilter(this)" aria-pressed="false">Completed</button>
+      </div>
+      <div class="results-line" id="resultsLine" aria-live="polite"></div>
+      <div id="examsContainer">
+        <div class="skeleton" style="height:100px;margin-bottom:12px"></div>
+        <div class="skeleton" style="height:100px;margin-bottom:12px"></div>
+        <div class="skeleton" style="height:100px"></div>
+      </div>
+    </div>
+
+    <div id="panelRes" role="tabpanel" aria-labelledby="tabBtnRes" hidden>
+      <div id="resourcesContainer"></div>
+    </div>
+
+  </div>
+</main>
+
+<div class="panel-backdrop" id="panelBackdrop"></div>
+
+<!-- Notifications -->
+<div class="panel" id="notifPanel" role="dialog" aria-modal="true" aria-labelledby="notifTitle" data-w="420">
+  <div class="panel-grab" aria-hidden="true"><i></i></div>
+  <div class="panel-head">
+    <h2 id="notifTitle">Notifications</h2>
+    <button class="panel-close" onclick="Panels.close()" aria-label="Close notifications"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="ntabs" role="tablist" aria-label="Filter notifications">
+    <button class="ntab" role="tab" id="ntabAll" aria-selected="true" onclick="setNotifTab('all')">All</button>
+    <button class="ntab" role="tab" id="ntabUnread" aria-selected="false" tabindex="-1" onclick="setNotifTab('unread')">Unread <span class="tab-count" id="ntUnread" hidden>0</span></button>
+  </div>
+  <div class="panel-body" id="notifList"></div>
+  <div class="panel-foot"><button class="link-btn" id="markAllBtn" onclick="markAllRead()" disabled>Mark all as read</button></div>
+</div>
+
+<!-- Filters -->
+<div class="panel" id="filterPanel" role="dialog" aria-modal="true" aria-labelledby="filterTitle" data-w="380">
+  <div class="panel-grab" aria-hidden="true"><i></i></div>
+  <div class="panel-head">
+    <h2 id="filterTitle">Filters</h2>
+    <button class="panel-close" onclick="Panels.close()" aria-label="Close filters"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="panel-body">
+    <div class="fgroup" id="fgBatch" hidden>
+      <label class="flabel" for="batchFilterSelect">Batch</label>
+      <select class="fselect" id="batchFilterSelect" onchange="renderExams()"><option value="">All Batches</option></select>
+    </div>
+    <div class="fgroup" id="fgSubject" hidden>
+      <label class="flabel" for="subjectFilterSelect">Subject</label>
+      <select class="fselect" id="subjectFilterSelect" onchange="renderExams()"><option value="">All Subjects</option></select>
+    </div>
+    <div class="fgroup">
+      <span class="flabel" id="accLbl">Access</span>
+      <div class="seg" role="group" aria-labelledby="accLbl" id="accessSeg">
+        <button data-a="all" aria-pressed="true" onclick="setAccess('all')">All</button>
+        <button data-a="free" aria-pressed="false" onclick="setAccess('free')">Free</button>
+        <button data-a="premium" aria-pressed="false" onclick="setAccess('premium')">Premium</button>
+      </div>
+    </div>
+    <div class="fgroup">
+      <label class="tgl-row"><span>Added in the last 14 days</span><input type="checkbox" id="recentOnly" onchange="renderExams()"><span class="sw" aria-hidden="true"></span></label>
+    </div>
+  </div>
+  <div class="panel-foot">
+    <button class="btn btn-outline" onclick="resetPanelFilters()">Reset</button>
+    <button class="btn btn-primary" id="filterDone" onclick="Panels.close()">Show exams</button>
+  </div>
+</div>
+
+<!-- Account -->
+<div class="panel" id="accountPanel" role="dialog" aria-modal="true" aria-labelledby="accName" data-w="320">
+  <div class="panel-grab" aria-hidden="true"><i></i></div>
+  <div class="panel-head">
+    <h2>Account</h2>
+    <button class="panel-close" onclick="Panels.close()" aria-label="Close account"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="panel-body">
+    <div class="acct"><div class="avatar big" id="acctAvatar" aria-hidden="true">S</div><div style="min-width:0"><div class="acct-name" id="accName">Student</div><div class="acct-mail" id="accMail"></div></div></div>
+    <a class="acct-link" href="exam-history.html">Exam history</a>
+    <a class="acct-link" href="batches.html">Batches</a>
+  </div>
+  <div class="panel-foot"><button class="btn-signout" onclick="logout()">Sign out</button></div>
+</div>
+
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="fc">
+      <div class="footer-brand">
+        <img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'">
+        <span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t2)">Exalyte</span>
+      </div>
+      <p>A precision examination platform built for students who want to perform, not just prepare.</p>
+    </div>
+    <div class="fc">
+      <h4>Platform</h4>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="exam-history.html">Exam History</a>
+    </div>
+    <div class="fc">
+      <h4>Legal</h4>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="tos.html">Terms of Service</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2025 Exalyte. All rights reserved.</span>
+    <div class="footer-links">
+      <a href="privacy.html">Privacy</a>
+      <a href="tos.html">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Scroll to top" title="Scroll to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+</button>
+
+<script>
+const API = '/api';
+
+function getToken(){return localStorage.getItem('exalyte_token')}
+function getUser(){try{return JSON.parse(localStorage.getItem('exalyte_user')||'null')}catch(e){return null}}
+function logout(){localStorage.clear();window.location.href='/'}
+function isStudentMode(){return localStorage.getItem('exalyte_student_mode')==='1'}
+function exitStudentMode(){localStorage.removeItem('exalyte_student_mode');window.location.href='admin.html'}
+function initStudentModeBar(){const u=getUser();if(isStudentMode()&&u&&u.is_admin){const btn=document.getElementById('studentModeExitBtn');if(btn)btn.style.display='flex'}}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function formatCountdown(sec){
+  if(sec<=0)return'Available now';
+  const d=Math.floor(sec/86400);
+  const h=Math.floor((sec%86400)/3600);
+  const m=Math.floor((sec%3600)/60);
+  const s=sec%60;
+  const p=[];
+  if(d>0)p.push(d+'d');
+  if(h>0)p.push(h+'h');
+  if(m>0)p.push(m+'m');
+  if(s>0||p.length===0)p.push(s+'s');
+  return p.join(' ');
+}
+function formatDateTime(iso){
+  if(!iso)return'';
+  const d=new Date(iso);
+  return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'})+' at '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+function formatTimeOnly(iso){
+  if(!iso)return'';
+  const d=new Date(iso);
+  return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+
+async function apiFetch(path,opts={}){
+  const token=getToken();
+  const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};
+  try{
+    const res=await fetch(API+path,{...opts,headers});
+    const text=await res.text();
+    if(!text||text.trim()==='')return{ok:false,data:{},status:res.status};
+    try{const data=JSON.parse(text);return{ok:res.ok,data,status:res.status}}
+    catch(e){return{ok:false,data:{},status:res.status}}
+  }catch(error){return{ok:false,data:{},status:0}}
+}
+
+let toastTimer=null;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3200)}
+
+let allExams=[],allBatchResources=[],currentFilter='all',currentResourceFilter='all';
+let examGroupPage={},lastExamFilterSig='';
+const EXAMS_PER_PAGE=8;
+/* ---------- small helpers ---------- */
+function safeUrl(u){try{const x=new URL(String(u||''),location.href);return(x.protocol==='http:'||x.protocol==='https:')?x.href:''}catch(e){return''}}
+// SQLite CURRENT_TIMESTAMP is UTC without a "Z"; without this the browser would read it as local time.
+function parseDbDate(v){
+  if(!v)return null;
+  let s=String(v).trim();
+  if(/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}/.test(s)&&!/[zZ]$|[+-]\d{2}:?\d{2}$/.test(s))s=s.replace(' ','T')+'Z';
+  const d=new Date(s);
+  return isNaN(d.getTime())?null:d;
+}
+function timeAgo(d){
+  const sec=Math.floor((Date.now()-d.getTime())/1000);
+  if(sec<60)return'Just now';
+  const m=Math.floor(sec/60);if(m<60)return m+'m ago';
+  const h=Math.floor(m/60);if(h<24)return h+'h ago';
+  const dd=Math.floor(h/24);if(dd<7)return dd+'d ago';
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:d.getFullYear()!==new Date().getFullYear()?'numeric':undefined});
+}
+function groupLabel(d){
+  const n=new Date();
+  const t0=new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime();
+  const d0=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();
+  const diff=Math.round((t0-d0)/86400000);
+  if(diff<=0)return'Today';
+  if(diff===1)return'Yesterday';
+  if(diff<7)return'This week';
+  return'Earlier';
+}
+
+/* ---------- panels: popover on desktop, bottom sheet on phones ---------- */
+const Panels={
+  current:null,trigger:null,wasMobile:false,
+  isMobile(){return window.matchMedia('(max-width:768px)').matches},
+  open(id,anchor){
+    if(this.current&&this.current.id===id){this.close();return}
+    if(this.current)this.close(true);
+    const p=document.getElementById(id),bd=document.getElementById('panelBackdrop');
+    if(!p)return;
+    this.current=p;this.trigger=anchor||null;this.wasMobile=this.isMobile();
+    bd.classList.toggle('dim',this.wasMobile);
+    bd.classList.add('open');
+    p.style.transform='';p.style.transition='';
+    p.classList.add('open');
+    this.place();
+    if(this.wasMobile)document.documentElement.classList.add('lock');
+    if(anchor)anchor.setAttribute('aria-expanded','true');
+    const f=p.querySelector('[data-autofocus]')||p.querySelector('.panel-close');
+    setTimeout(()=>{try{f&&f.focus({preventScroll:true})}catch(e){}},40);
+  },
+  place(){
+    const p=this.current;if(!p)return;
+    if(this.isMobile()){['left','top','right','bottom','width','maxHeight'].forEach(k=>p.style[k]='');return}
+    const a=this.trigger,w=Math.min(parseInt(p.dataset.w||'400',10),window.innerWidth-24);
+    const r=a?a.getBoundingClientRect():{right:window.innerWidth-16,bottom:64};
+    const left=Math.min(Math.max(12,r.right-w),window.innerWidth-w-12);
+    const top=Math.max(8,r.bottom+8);
+    p.style.width=w+'px';p.style.left=left+'px';p.style.top=top+'px';
+    p.style.right='auto';p.style.bottom='auto';
+    p.style.maxHeight=Math.max(240,Math.min(640,window.innerHeight-top-16))+'px';
+  },
+  close(silent){
+    const p=this.current;if(!p)return;
+    p.classList.remove('open');p.style.transform='';p.style.transition='';
+    const bd=document.getElementById('panelBackdrop');
+    bd.classList.remove('open','dim');
+    document.documentElement.classList.remove('lock');
+    const t=this.trigger;
+    if(t){t.setAttribute('aria-expanded','false')}
+    this.current=null;this.trigger=null;
+    if(!silent&&t){try{t.focus({preventScroll:true})}catch(e){}}
+    if(typeof onPanelClosed==='function')onPanelClosed(p.id);
+  },
+  focusables(){
+    return Array.from(this.current.querySelectorAll('button:not([disabled]),a[href],select,input,[tabindex="0"]')).filter(el=>el.offsetParent!==null);
+  },
+  initDrag(p){
+    let y0=null,dy=0;
+    p.querySelectorAll('.panel-grab,.panel-head').forEach(z=>{
+      z.addEventListener('pointerdown',e=>{
+        if(!Panels.isMobile()||e.target.closest('button'))return;
+        y0=e.clientY;dy=0;p.style.transition='none';
+        try{z.setPointerCapture(e.pointerId)}catch(_){}
+      });
+      z.addEventListener('pointermove',e=>{
+        if(y0===null)return;
+        dy=Math.max(0,e.clientY-y0);p.style.transform='translateY('+dy+'px)';
+      });
+      const end=()=>{
+        if(y0===null)return;
+        const d=dy;y0=null;dy=0;p.style.transition='';
+        if(d>90)Panels.close();else p.style.transform='';
+      };
+      z.addEventListener('pointerup',end);
+      z.addEventListener('pointercancel',end);
+    });
+  }
+};
+document.getElementById('panelBackdrop').addEventListener('click',()=>Panels.close());
+document.querySelectorAll('.panel').forEach(p=>Panels.initDrag(p));
+document.addEventListener('keydown',e=>{
+  if(!Panels.current)return;
+  if(e.key==='Escape'){e.preventDefault();Panels.close();return}
+  if(e.key==='Tab'){
+    const f=Panels.focusables();if(!f.length)return;
+    const first=f[0],last=f[f.length-1];
+    if(!Panels.current.contains(document.activeElement)){e.preventDefault();first.focus();return}
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+  }
+});
+window.addEventListener('resize',()=>{
+  if(!Panels.current)return;
+  if(Panels.isMobile()!==Panels.wasMobile)Panels.close(true);else Panels.place();
+});
+window.addEventListener('scroll',()=>{if(Panels.current&&!Panels.isMobile())Panels.close(true)},{passive:true});
+// Space/Enter on custom role="button" rows
+document.addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target&&e.target.getAttribute&&e.target.getAttribute('role')==='button'&&e.target===document.activeElement){
+    e.preventDefault();e.target.click();
+  }
+});
+// Arrow keys move between tabs
+document.querySelectorAll('[role="tablist"]').forEach(tl=>tl.addEventListener('keydown',e=>{
+  if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
+  const tabs=Array.from(tl.querySelectorAll('[role="tab"]'));
+  const i=tabs.indexOf(document.activeElement);if(i<0)return;
+  e.preventDefault();
+  const n=tabs[(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length];
+  n.focus();n.click();
+}));
+
+/* ---------- tabs ---------- */
+function switchTab(name){
+  const res=name==='resources';
+  document.getElementById('tabBtnExams').setAttribute('aria-selected',String(!res));
+  document.getElementById('tabBtnExams').tabIndex=res?-1:0;
+  document.getElementById('tabBtnRes').setAttribute('aria-selected',String(res));
+  document.getElementById('tabBtnRes').tabIndex=res?0:-1;
+  document.getElementById('panelExams').hidden=res;
+  document.getElementById('panelRes').hidden=!res;
+  try{history.replaceState(null,'',res?'#resources':location.pathname+location.search)}catch(e){}
+  const t=document.getElementById('tabs');
+  if(t.getBoundingClientRect().top<0)t.scrollIntoView({block:'start'});
+}
+
+/* ---------- search & filters ---------- */
+let accessFilter='all',collapsedGroups=new Set(),examGroupKeys=[],searchTimer=null;
+function onSearchInput(){clearTimeout(searchTimer);searchTimer=setTimeout(renderExams,120);document.getElementById('searchClear').classList.toggle('show',!!document.getElementById('searchInput').value)}
+function clearSearch(){const i=document.getElementById('searchInput');i.value='';i.focus();renderExams()}
+function setFilter(btn){
+  document.querySelectorAll('.filter-chip').forEach(c=>{c.classList.remove('active');c.setAttribute('aria-pressed','false')});
+  btn.classList.add('active');btn.setAttribute('aria-pressed','true');
+  currentFilter=btn.dataset.filter;
+  renderExams();
+}
+function setAccess(a){
+  accessFilter=a;
+  document.querySelectorAll('#accessSeg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.a===a)));
+  renderExams();
+}
+function resetPanelFilters(){
+  document.getElementById('batchFilterSelect').value='';
+  document.getElementById('subjectFilterSelect').value='';
+  document.getElementById('recentOnly').checked=false;
+  setAccess('all');
+}
+function clearAllFilters(){
+  document.getElementById('searchInput').value='';
+  const all=document.querySelector('.filter-chip[data-filter="all"]');
+  document.getElementById('batchFilterSelect').value='';
+  document.getElementById('subjectFilterSelect').value='';
+  document.getElementById('recentOnly').checked=false;
+  accessFilter='all';
+  document.querySelectorAll('#accessSeg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.a==='all')));
+  setFilter(all);
+}
+function getFilters(){
+  return{
+    search:(document.getElementById('searchInput').value||'').trim().toLowerCase(),
+    batch:document.getElementById('batchFilterSelect').value||'',
+    subject:document.getElementById('subjectFilterSelect').value||'',
+    status:currentFilter,access:accessFilter,
+    recent:document.getElementById('recentOnly').checked
+  };
+}
+
+/* ---------- countdowns: one ticker, absolute timestamps (no drift when the tab is throttled) ---------- */
+let lastAutoReload=0;
+function cdAttrs(until,prefix,zero){
+  return 'data-until="'+until+'" data-prefix="'+esc(prefix||'')+'" data-zero="'+esc(zero||'Available now')+'"'+(until<=Date.now()?' data-fired="1"':'');
+}
+function tick(){
+  const now=Date.now();let fire=false;
+  document.querySelectorAll('[data-until]').forEach(el=>{
+    const until=Number(el.dataset.until);if(!until)return;
+    const sec=Math.max(0,Math.ceil((until-now)/1000));
+    el.textContent=sec<=0?(el.dataset.zero||'Available now'):(el.dataset.prefix||'')+formatCountdown(sec);
+    if(sec<=0&&!el.hasAttribute('data-fired')){el.setAttribute('data-fired','1');fire=true}
+  });
+  if(fire&&now-lastAutoReload>4000){lastAutoReload=now;setTimeout(loadDashboard,900)}
+}
+setInterval(tick,1000);
+
+/* ---------- hero: the one thing to do next ---------- */
+function isExamStartable(e){return !e.stored_attempt&&!e.is_closed&&!e.is_live&&!isExamScheduled(e)&&!isUpcomingLive(e)}
+function pickHero(){
+  const live=allExams.filter(e=>e.is_live&&!e.stored_attempt&&!e.is_closed).sort((a,b)=>a._until-b._until);
+  if(live.length)return{type:'live',exam:live[0],more:live.length-1};
+  const up=allExams.filter(e=>!e.is_closed&&(isExamScheduled(e)||isUpcomingLive(e))&&e.scheduled_at).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
+  if(up.length)return{type:'upcoming',exam:up[0]};
+  const todo=allExams.filter(isExamStartable);
+  if(todo.length)return{type:'next',exam:todo[0]};
+  if(allExams.length)return{type:'done'};
+  return null;
+}
+function practiceOnly(e){return !!e.is_practice_exam||(!!e.live_ended&&e.live_deadline_hours>0)}
+let heroExamId=null;
+function renderHero(){
+  const el=document.getElementById('hero');
+  const h=pickHero();
+  heroExamId=h&&h.exam?h.exam.id:null;
+  if(!h){el.style.display='none';el.innerHTML='';return}
+  el.className='hero '+(h.type==='live'?'live':h.type==='upcoming'?'upcoming':h.type==='done'?'done':'');
+  el.style.display='flex';
+  const e=h.exam;let eyebrow,title,sub,cta='';
+  if(h.type==='live'){
+    eyebrow='Live now';title=esc(e.name);
+    sub='<span class="hero-cd" '+cdAttrs(e._until,'','Ended')+'>'+formatCountdown(e.live_seconds_remaining)+'</span><span>remaining'+(e.live_ends_at?' · ends '+formatTimeOnly(e.live_ends_at):'')+'</span>';
+    cta='<button class="hero-cta" onclick="startExam('+e.id+',false)">Take live exam</button>';
+  }else if(h.type==='upcoming'){
+    const t=new Date(e.scheduled_at).getTime();
+    eyebrow='Opens soon';title=esc(e.name);
+    sub='<span class="hero-cd" '+cdAttrs(t,'Opens in ','Available now')+'>Opens in '+formatCountdown(Math.max(0,Math.floor((t-Date.now())/1000)))+'</span><span>'+esc(formatDateTime(e.scheduled_at))+'</span>';
+  }else if(h.type==='next'){
+    const p=practiceOnly(e);
+    eyebrow=p?'Practice':'Up next';title=esc(e.name);
+    sub='<span>'+(e.time_limit||0)+' min</span><span>'+(e.question_count||0)+' questions</span>'+(e.negative_marking>0?'<span>&minus;'+e.negative_marking+' per wrong</span>':'');
+    cta='<button class="hero-cta" onclick="startExam('+e.id+','+(p?'true':'false')+')">'+(p?'Start practice':'Start exam')+'</button>';
+  }else{
+    eyebrow='All caught up';title='You have completed every available exam';
+    sub='<span>Retake any of them in practice mode to stay sharp.</span>';
+    cta='<a class="hero-cta" href="exam-history.html">View history</a>';
+  }
+  el.innerHTML='<div class="hero-main"><div class="hero-eyebrow"><span class="hero-dot"></span>'+eyebrow+'</div><div class="hero-title">'+title+'</div><div class="hero-sub">'+sub+'</div></div>'+cta;
+  tick();
+}
+
+/* ---------- summary strip ---------- */
+function renderSummary(){
+  const done=allExams.filter(e=>e.stored_attempt);
+  const vis=done.filter(e=>e.results_visible&&typeof e.stored_attempt.percentage==='number');
+  const best=vis.length?Math.max(...vis.map(e=>e.stored_attempt.percentage)):null;
+  const avg=vis.length?vis.reduce((s,e)=>s+e.stored_attempt.percentage,0)/vis.length:null;
+  const fmt=v=>v===null?'\u2014':Math.round(v)+'%';
+  let trend='';
+  const recent=vis.slice().sort((a,b)=>{
+    const da=parseDbDate(a.stored_attempt.submitted_at),db=parseDbDate(b.stored_attempt.submitted_at);
+    return (da?da.getTime():a.stored_attempt.id||0)-(db?db.getTime():b.stored_attempt.id||0);
+  }).slice(-6);
+  if(recent.length>=2){
+    trend='<div class="trend"><div class="trend-lbl">Recent<br>scores</div><div class="trend-bars">'+recent.map(e=>{
+      const p=Math.max(0,Math.min(100,e.stored_attempt.percentage));
+      const cls=p>=70?'good':p>=40?'mid':'low';
+      return '<div class="tbar" title="'+esc(e.name)+': '+Math.round(p)+'%"><span>'+Math.round(p)+'</span><i class="'+cls+'" style="height:'+Math.max(6,Math.round(p*0.72))+'%"></i></div>';
+    }).join('')+'</div></div>';
+  }else{
+    trend='<div class="sum-empty">'+(vis.length?'Complete one more exam to see your progress trend.':'Complete an exam to see your progress here.')+'</div>';
+  }
+  document.getElementById('summary').innerHTML=
+    '<div class="sum-cells"><div class="sum-cell"><div class="sum-val">'+done.length+'</div><div class="sum-lbl">Completed</div></div>'+
+    '<div class="sum-cell"><div class="sum-val">'+fmt(best)+'</div><div class="sum-lbl">Best score</div></div>'+
+    '<div class="sum-cell"><div class="sum-val">'+fmt(avg)+'</div><div class="sum-lbl">Average</div></div></div>'+trend;
+}
+
+/* ---------- live + upcoming strips (hero exam is not repeated) ---------- */
+function renderLiveStrip(){
+  const live=allExams.filter(e=>e.is_live&&!e.stored_attempt&&e.id!==heroExamId);
+  const strip=document.getElementById('liveStrip');
+  if(!live.length){strip.classList.remove('show');document.getElementById('liveList').innerHTML='';return}
+  strip.classList.add('show');
+  document.getElementById('liveStripTitle').textContent=heroExamId&&allExams.some(e=>e.id===heroExamId&&e.is_live)?'Also live now':'Live now';
+  document.getElementById('liveStripCount').textContent=live.length+' exam'+(live.length!==1?'s':'')+' live';
+  document.getElementById('liveList').innerHTML=live.map(e=>`
+    <div class="live-exam-item">
+      <div class="live-exam-info">
+        <div class="live-exam-name">${esc(e.name)}</div>
+        <div class="live-exam-meta">
+          <span class="live-countdown-timer" ${cdAttrs(e._until,'','Ended')}>${formatCountdown(e.live_seconds_remaining)}</span>
+          <span class="live-ends-label">remaining${e.live_ends_at?' · ends '+formatTimeOnly(e.live_ends_at):''}</span>
+        </div>
+      </div>
+      <button class="btn-live" onclick="startExam(${e.id},false)">Take Live Exam</button>
+    </div>`).join('');
+}
+function renderUpcomingStrip(){
+  const up=allExams.filter(e=>isUpcomingLive(e)&&e.id!==heroExamId);
+  const strip=document.getElementById('scheduledStrip');
+  if(!up.length){strip.classList.remove('show');document.getElementById('scheduledList').innerHTML='';return}
+  strip.classList.add('show');
+  document.getElementById('scheduledStripTitle').textContent=heroExamId&&allExams.some(e=>e.id===heroExamId&&isUpcomingLive(e))?'Also opening soon':'Upcoming live exams';
+  document.getElementById('scheduledList').innerHTML=up.map(e=>{
+    const t=new Date(e.scheduled_at).getTime();
+    const liveEnds=new Date(t+e.live_deadline_hours*3600000);
+    return`
+    <div class="scheduled-exam-item">
+      <div class="scheduled-exam-info">
+        <div class="live-exam-name">${esc(e.name)}</div>
+        <div class="live-exam-meta">
+          <span class="scheduled-countdown-timer" ${cdAttrs(t,'Opens in ','Available now')}>Opens in ${formatCountdown(Math.max(0,Math.floor((t-Date.now())/1000)))}</span>
+          <span class="scheduled-date-label">${esc(formatDateTime(e.scheduled_at))}</span>
+        </div>
+        <div class="scheduled-live-info">Will be live for ${e.live_deadline_hours}h · ends ${formatTimeOnly(liveEnds.toISOString())}</div>
+      </div>
+      <span class="btn-scheduled-info">Not yet available</span>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- rankings ---------- */
+async function renderRankings(){
+  const completed=allExams.filter(e=>e.stored_attempt&&e.results_visible&&e.leaderboard_enabled).slice(0,3);
+  const sec=document.getElementById('rankSection');
+  if(!completed.length){sec.style.display='none';return}
+  const ranks=await Promise.all(completed.map(async e=>{const{data}=await apiFetch('/leaderboard/'+e.id);return{exam:e,lb:data}}));
+  const usable=ranks.filter(r=>r.lb&&r.lb.rank);
+  if(!usable.length){sec.style.display='none';return}
+  sec.style.display='block';
+  document.getElementById('rankGrid').innerHTML=usable.map(({exam,lb})=>{
+    const rc=lb.rank===1?'rank-1':lb.rank===2?'rank-2':lb.rank===3?'rank-3':'rank-n';
+    const pct=Number(exam.stored_attempt&&exam.stored_attempt.percentage)||0;
+    return`<div class="rank-item">
+      <div class="rank-pos ${rc}">#${lb.rank}</div>
+      <div class="rank-info"><div class="rank-exam" title="${esc(exam.name)}">${esc(exam.name)}</div><div class="rank-sub">${lb.total_participants||0} participants</div></div>
+      <div class="rank-pct">${pct.toFixed(0)}%</div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- exam list ---------- */
+function paginateList(list,page,perPage){const totalPages=Math.max(1,Math.ceil(list.length/perPage));const p=Math.min(Math.max(1,page),totalPages);return{items:list.slice((p-1)*perPage,p*perPage),page:p,totalPages,total:list.length}}
+function pagerHtml(page,totalPages,total,onClickTemplate){if(totalPages<=1)return'';let start=Math.max(1,page-2),end=Math.min(totalPages,start+4);start=Math.max(1,end-4);let pages=[];for(let i=start;i<=end;i++)pages.push(i);const mk=(p,label,disabled,active)=>`<button class="pager-btn${active?' active':''}" ${disabled?'disabled':''} onclick="${onClickTemplate.replace('{P}',p)}">${label}</button>`;let html='<div class="pager">';html+=mk(page-1,'Prev',page<=1,false);if(start>1){html+=mk(1,'1',false,false);if(start>2)html+='<span class="pager-ellipsis">\u2026</span>'}pages.forEach(i=>{html+=mk(i,i,false,i===page)});if(end<totalPages){if(end<totalPages-1)html+='<span class="pager-ellipsis">\u2026</span>';html+=mk(totalPages,totalPages,false,false)}html+=mk(page+1,'Next',page>=totalPages,false);html+='</div><div class="pager-info">Page '+page+' of '+totalPages+' \u00b7 '+total+' total</div>';return html}
+function goToExamGroupPage(key,p){
+  examGroupPage[key]=p;renderExams();
+  const g=document.getElementById('grp_'+key);
+  if(g){const y=g.getBoundingClientRect().top+window.scrollY-80;window.scrollTo({top:Math.max(0,y),behavior:'smooth'})}
+}
+function toggleGroup(key){
+  const g=document.getElementById('grp_'+key);if(!g)return;
+  const c=g.classList.toggle('collapsed');
+  if(c)collapsedGroups.add(key);else collapsedGroups.delete(key);
+  const h=g.querySelector('.batch-header');if(h)h.setAttribute('aria-expanded',String(!c));
+}
+function populateSelect(id,groupId,idKey,nameKey,allLabel,fallback){
+  const sel=document.getElementById(id);if(!sel)return;
+  const current=sel.value,seen=new Map();
+  allExams.forEach(e=>{if(e[idKey]&&!seen.has(e[idKey]))seen.set(e[idKey],e[nameKey]||fallback)});
+  sel.innerHTML='<option value="">'+allLabel+'</option>'+Array.from(seen.entries()).sort((a,b)=>String(a[1]).localeCompare(String(b[1]))).map(([i,n])=>`<option value="${esc(i)}">${esc(n)}</option>`).join('');
+  if(current&&seen.has(isNaN(current)?current:Number(current)))sel.value=current;
+  document.getElementById(groupId).hidden=seen.size===0;
+}
+function isExamScheduled(exam){
+  if(!exam.scheduled_at)return false;
+  if(Date.now()>=new Date(exam.scheduled_at).getTime())return false;
+  if(exam.is_live)return false;
+  if(exam.stored_attempt)return false;
+  return true;
+}
+function isUpcomingLive(exam){
+  if(!exam.live_deadline_hours||exam.live_deadline_hours===0)return false;
+  if(exam.is_live||exam.live_ended||exam.stored_attempt)return false;
+  if(!exam.scheduled_at)return false;
+  if(Date.now()>=new Date(exam.scheduled_at).getTime())return false;
+  return true;
+}
+function examStatus(e){
+  if(e.is_closed)return'closed';
+  if(isExamScheduled(e)||isUpcomingLive(e))return'scheduled';
+  if(e.stored_attempt)return'done';
+  if(e.is_live)return'live';
+  if(e.is_practice_exam)return'practice';
+  return'';
+}
+function examCard(e){
+  const st=examStatus(e);
+  let badgeCls=e.is_live?'badge-live':(e.is_premium?'badge-premium':'badge-free');
+  let badgeText=e.is_live?'Live':(e.is_premium?'Premium':'Free');
+  if(st==='closed'){badgeCls='badge-closed';badgeText='Closed'}
+  else if(st==='scheduled'){badgeCls='badge-scheduled';badgeText='Scheduled'}
+  else if(e.is_practice_exam){badgeCls='badge-practice';badgeText='Practice'}
+  let scoreHtml='',actionHtml='',banner='';
+  if(e.is_closed){
+    actionHtml='<button class="btn-take" disabled>Exam closed</button>';
+  }else if(isExamScheduled(e)){
+    const t=new Date(e.scheduled_at).getTime();
+    const rem=Math.max(0,Math.floor((t-Date.now())/1000));
+    actionHtml=`<button class="btn-take" disabled><span ${cdAttrs(t,'Opens in ','Available now')}>Opens in ${formatCountdown(rem)}</span></button>`;
+    let liveInfo='';
+    if(e.live_deadline_hours>0){
+      const liveEnds=new Date(t+e.live_deadline_hours*3600000);
+      liveInfo=`<div class="scheduled-date-text" style="margin-top:2px">Will be live for ${e.live_deadline_hours}h · ends ${formatTimeOnly(liveEnds.toISOString())}</div>`;
+    }
+    banner=`<div class="scheduled-info"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div><div class="scheduled-countdown-text" ${cdAttrs(t,'Opens in ','Available now')}>Opens in ${formatCountdown(rem)}</div><div class="scheduled-date-text">Scheduled for ${esc(formatDateTime(e.scheduled_at))}</div>${liveInfo}</div></div>`;
+  }else if(e.stored_attempt){
+    if(e.results_visible){
+      const p=Number(e.stored_attempt.percentage)||0;
+      scoreHtml=`<span class="score-pill ${p>=70?'good':p>=40?'mid':'low'}">${p.toFixed(0)}%</span>`;
+      actionHtml=`<button class="btn-take" onclick="window.location='result.html?examId=${e.id}&attemptId=${e.stored_attempt.id}'">View result</button>`;
+      if(e.can_practice)actionHtml+=`<button class="btn-practice" onclick="startExam(${e.id},true)">Practice</button>`;
+    }else{
+      scoreHtml='<span class="score-pill pending">Pending</span>';
+      actionHtml='<button class="btn-take" disabled>Awaiting results</button>';
+    }
+  }else if(e.is_practice_exam){
+    actionHtml=`<button class="btn-take" onclick="startExam(${e.id},true)">Practice exam</button>`;
+  }else if(e.is_live){
+    actionHtml=`<button class="btn-take" onclick="startExam(${e.id},false)">Take live exam</button>`;
+  }else if(e.live_ended&&e.live_deadline_hours>0){
+    actionHtml=`<button class="btn-take" onclick="startExam(${e.id},true)">Start practice</button>`;
+  }else{
+    actionHtml=`<button class="btn-take" onclick="startExam(${e.id},false)">Start exam</button>`;
+  }
+  return`<div class="exam-card${st?' st-'+st:''}"><div class="exam-card-inner">
+    <div class="exam-body">
+      <div class="ec-top"><span class="exam-badge ${badgeCls}">${badgeText}</span>${scoreHtml}</div>
+      <div class="exam-name">${esc(e.name)}</div>
+      ${e.description?`<div class="exam-desc">${esc(e.description)}</div>`:''}
+      <div class="exam-meta">
+        <span class="meta-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${e.time_limit||0} min</span>
+        <span class="meta-item"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>${e.question_count||0} questions</span>
+        ${e.negative_marking>0?`<span class="meta-item" style="color:var(--red)"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>${e.negative_marking} per wrong</span>`:''}
+      </div>
+      ${banner}
+    </div>
+    <div class="exam-actions">${actionHtml}</div>
+  </div></div>`;
+}
+function filtersActive(f){return !!(f.search||f.status!=='all'||f.batch||f.subject||f.access!=='all'||f.recent)}
+function renderExams(){
+  const f=getFilters();
+  const sig=[f.search,f.status,f.batch,f.subject,f.access,f.recent].join('|');
+  if(sig!==lastExamFilterSig){examGroupPage={};lastExamFilterSig=sig}
+  const filtered=allExams.filter(e=>{
+    if(f.search&&!String(e.name||'').toLowerCase().includes(f.search)&&!String(e.description||'').toLowerCase().includes(f.search))return false;
+    if(f.batch&&String(e.batch_id)!==String(f.batch))return false;
+    if(f.subject&&String(e.subject_id)!==String(f.subject))return false;
+    if(f.access==='free'&&e.is_premium)return false;
+    if(f.access==='premium'&&!e.is_premium)return false;
+    if(f.recent){const d=parseDbDate(e.created_at);if(!d||Date.now()-d.getTime()>=14*86400000)return false}
+    if(f.status==='live')return !!e.is_live;
+    if(f.status==='scheduled')return isExamScheduled(e)||isUpcomingLive(e);
+    if(f.status==='completed')return !!e.stored_attempt;
+    return true;
+  });
+  // panel badge + button label
+  const nPanel=(f.batch?1:0)+(f.subject?1:0)+(f.access!=='all'?1:0)+(f.recent?1:0);
+  const fb=document.getElementById('filterBtn');
+  fb.classList.toggle('on',nPanel>0);
+  document.getElementById('filterBadge').textContent=nPanel;
+  fb.setAttribute('aria-label','Filters'+(nPanel?', '+nPanel+' active':''));
+  document.getElementById('filterDone').textContent=filtered.length?'Show '+filtered.length+' exam'+(filtered.length!==1?'s':''):'No exams match';
+  document.getElementById('examCount').textContent=allExams.length;
+  // results line
+  const active=filtersActive(f);
+  document.getElementById('resultsLine').innerHTML=allExams.length
+    ?'<span>'+filtered.length+' exam'+(filtered.length!==1?'s':'')+(active?' found':'')+'</span>'+(active?'<button class="link-btn" onclick="clearAllFilters()">Clear filters</button>':'')
+    :'';
+  const box=document.getElementById('examsContainer');
+  if(!filtered.length){
+    box.innerHTML=allExams.length
+      ?`<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><h3>No exams match</h3><p>Try a different search or clear the filters.</p><button class="btn btn-outline" style="margin-top:14px" onclick="clearAllFilters()">Clear filters</button></div>`
+      :`<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><h3>No exams yet</h3><p>New exams will show up here as soon as they are available.</p></div>`;
+    return;
+  }
+  const groups=new Map();
+  filtered.forEach(e=>{
+    const key=e.batch_id?'b'+e.batch_id:'other';
+    if(!groups.has(key))groups.set(key,{name:e.batch_id?(e.batch_name||'Batch'):'Other exams',exams:[]});
+    groups.get(key).exams.push(e);
+  });
+  const single=groups.size===1&&groups.has('other');
+  let html='';
+  groups.forEach((g,key)=>{
+    if(!examGroupPage[key])examGroupPage[key]=1;
+    const pg=paginateList(g.exams,examGroupPage[key],EXAMS_PER_PAGE);
+    examGroupPage[key]=pg.page;
+    const collapsed=collapsedGroups.has(key)&&!single;
+    html+=`<div class="batch-group${collapsed?' collapsed':''}" id="grp_${key}">
+      ${single?'':`<div class="batch-header" onclick="toggleGroup('${key}')" role="button" tabindex="0" aria-expanded="${!collapsed}">
+        <svg class="batch-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        <span class="batch-name">${esc(g.name)}</span><span class="batch-count">${g.exams.length}</span>
+      </div>`}
+      <div class="exams-list">${pg.items.map(examCard).join('')}${pagerHtml(pg.page,pg.totalPages,pg.total,`goToExamGroupPage('${key}',{P})`)}</div>
+    </div>`;
+  });
+  box.innerHTML=html;
+  tick();
+}
+
+/* ---------- study materials ---------- */
+function okRes(list){return (list||[]).filter(r=>safeUrl(r.link))}
+function countResources(){
+  const acc=allExams.filter(e=>e.accessible===true);
+  let n=0;acc.forEach(e=>{n+=okRes(e.exam_resources).length});
+  const ids=new Set();acc.forEach(e=>{if(e.batch_id)ids.add(e.batch_id)});
+  allBatchResources.forEach(b=>{if(ids.has(b.id))n+=okRes(b.resources).length});
+  return n;
+}
+function renderResourcesSection(){
+  const acc=allExams.filter(e=>e.accessible===true);
+  const examGroups=[];
+  acc.forEach(x=>{const rs=okRes(x.exam_resources);if(rs.length)examGroups.push({key:'exam-'+x.id,name:x.name,typeLabel:'Exam',typeClass:'type-exam',resources:rs})});
+  const ids=new Set();acc.forEach(x=>{if(x.batch_id)ids.add(x.batch_id)});
+  const batchGroups=allBatchResources.filter(b=>ids.has(b.id)&&okRes(b.resources).length).map(b=>({key:'batch-'+b.id,name:b.name,typeLabel:'Batch',typeClass:'type-batch',resources:okRes(b.resources)}));
+  const every=[...batchGroups,...examGroups];
+  if(currentResourceFilter!=='all'&&!every.some(g=>g.key===currentResourceFilter))currentResourceFilter='all';
+  const groups=currentResourceFilter==='all'?every:every.filter(g=>g.key===currentResourceFilter);
+  const total=groups.reduce((s,g)=>s+g.resources.length,0);
+  document.getElementById('resCount').textContent=countResources();
+  if(!every.length){
+    document.getElementById('resourcesContainer').innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><h3>No study materials yet</h3><p>Notes and links shared for your exams and batches will appear here.</p></div>`;
+    return;
+  }
+  const opts='<option value="all"'+(currentResourceFilter==='all'?' selected':'')+'>All accessible content</option>'+every.map(g=>`<option value="${g.key}"${currentResourceFilter===g.key?' selected':''}>${esc(g.name)} (${g.typeLabel})</option>`).join('');
+  let html=`<div class="resources-section" id="resourcesSection">
+    <div class="resources-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <h2>Study materials</h2>
+      <div class="resources-filter"><select id="resourceFilterSelect" onchange="filterResources(this.value)" aria-label="Filter study materials">${opts}</select></div>
+      <span style="font-size:.75rem;color:var(--t3)">${total} resource${total!==1?'s':''}</span>
+    </div><div class="resources-grid">`;
+  groups.forEach(g=>{
+    html+=`<div class="resource-group"><div class="resource-group-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>
+      <span class="resource-group-name">${esc(g.name)}</span><span class="resource-group-type ${g.typeClass}">${g.typeLabel}</span></div>
+      <div class="resource-chips">${g.resources.map(r=>{const u=safeUrl(r.link);return u?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer" class="resource-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>${esc(r.title)}</a>`:''}).join('')}</div></div>`;
+  });
+  html+='</div></div>';
+  document.getElementById('resourcesContainer').innerHTML=html;
+}
+function filterResources(v){currentResourceFilter=v;renderResourcesSection();const s=document.getElementById('resourceFilterSelect');if(s)s.focus()}
+
+function startExam(id,isPractice){
+  const exam=allExams.find(e=>e.id==id);
+  if(exam&&exam.live_ended&&exam.stored_attempt&&!isPractice){window.location.href=`exam.html?id=${id}&practice=1`;return}
+  window.location.href=`exam.html?id=${id}&practice=${isPractice?1:0}`;
+}
+
+/* ---------- load ---------- */
+let loadingNow=false,reloadQueued=false,firstLoad=true,lastLoadAt=0;
+function showLoadError(){
+  document.getElementById('hero').style.display='none';
+  document.getElementById('summary').innerHTML='';
+  document.getElementById('summary').style.display='none';
+  document.getElementById('examsContainer').innerHTML=`<div class="empty-state load-error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><h3>Couldn't load your exams</h3><p>Check your connection and try again.</p><button class="btn btn-primary" style="margin-top:14px" onclick="retryLoad()">Try again</button></div>`;
+}
+function retryLoad(){
+  document.getElementById('summary').style.display='';
+  document.getElementById('summary').innerHTML='<div class="skeleton" style="height:86px;border-radius:0"></div>';
+  document.getElementById('examsContainer').innerHTML='<div class="skeleton" style="height:100px;margin-bottom:12px"></div><div class="skeleton" style="height:100px;margin-bottom:12px"></div><div class="skeleton" style="height:100px"></div>';
+  firstLoad=true;loadDashboard();
+}
+async function loadDashboard(){
+  if(!getToken()){window.location.href='/';return}
+  const user=getUser();
+  if(user&&user.is_admin&&!isStudentMode()){window.location.href='admin.html';return}
+  if(loadingNow){reloadQueued=true;return}
+  loadingNow=true;
+  try{
+    initStudentModeBar();
+    const letter=((user&&user.name)||'S').trim().charAt(0).toUpperCase()||'S';
+    document.getElementById('userAvatar').textContent=letter;
+    document.getElementById('acctAvatar').textContent=letter;
+    document.getElementById('accName').textContent=(user&&user.name)||'Student';
+    document.getElementById('accMail').textContent=(user&&user.email)||'';
+    const{ok,data,status}=await apiFetch('/exams');
+    if(status===401){localStorage.clear();window.location.href='/';return}
+    if(!ok||!data||!Array.isArray(data.exams)){
+      if(firstLoad)showLoadError();else toast("Couldn't refresh. Showing what we have.");
+      return;
+    }
+    const loadedAt=Date.now();
+    allExams=data.exams.filter(e=>e.accessible!==false).map(e=>{e._until=loadedAt+(Number(e.live_seconds_remaining)||0)*1000;return e});
+    allBatchResources=data.batch_resources||[];
+    populateSelect('batchFilterSelect','fgBatch','batch_id','batch_name','All batches','Batch');
+    populateSelect('subjectFilterSelect','fgSubject','subject_id','subject_name','All subjects','Subject');
+    document.getElementById('summary').style.display='';
+    renderHero();renderSummary();renderLiveStrip();renderUpcomingStrip();
+    renderExams();renderResourcesSection();
+    firstLoad=false;lastLoadAt=Date.now();
+    renderRankings();
+    loadNotifBadge();
+    if(location.hash==='#resources'&&!window.__hashApplied){window.__hashApplied=true;switchTab('resources')}
+  }catch(e){
+    console.error('Dashboard load error:',e);
+    if(firstLoad)showLoadError();
+  }finally{
+    loadingNow=false;
+    if(reloadQueued){reloadQueued=false;loadDashboard()}
+  }
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden)return;
+  tick();
+  if(Date.now()-lastLoadAt>60000&&!firstLoad)loadDashboard();
+  else if(Date.now()-notifFetchedAt>90000)loadNotifBadge();
+});
+
+/* ---------- notifications ---------- */
+let notifs=[],notifTab='all',notifShown=15,notifState='idle',notifOpen=new Set(),notifPinned=new Set(),notifFetchedAt=0,notifTouched=false;
+const NOTIF_PAGE=15;
+const ICON_BELL='<svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>';
+function unreadCount(){return notifs.reduce((c,n)=>c+(n.is_read?0:1),0)}
+function updateBadge(){
+  const c=unreadCount(),b=document.getElementById('notifBadge');
+  b.textContent=c>99?'99+':c;b.classList.toggle('show',c>0);
+  document.getElementById('notifBtn').setAttribute('aria-label',c>0?'Notifications, '+c+' unread':'Notifications');
+}
+async function fetchNotifs(){
+  const{ok,data}=await apiFetch('/notifications');
+  if(!ok||!Array.isArray(data.notifications))return false;
+  const ts=n=>{const d=parseDbDate(n.created_at);return d?d.getTime():0};
+  notifs=data.notifications.slice().sort((a,b)=>(ts(b)-ts(a))||(b.id-a.id));notifFetchedAt=Date.now();
+  return true;
+}
+async function loadNotifBadge(){
+  if(Panels.current&&Panels.current.id==='notifPanel')return;
+  try{if(await fetchNotifs()){updateBadge();notifState='ready'}}catch(e){}
+}
+function openNotifPanel(btn){
+  const wasOpen=Panels.current&&Panels.current.id==='notifPanel';
+  Panels.open('notifPanel',btn);
+  if(wasOpen)return;
+  notifTab='all';notifShown=NOTIF_PAGE;notifPinned=new Set();notifTouched=false;
+  setNotifTabUI();
+  notifState=notifs.length||notifFetchedAt?'ready':'loading';
+  renderNotifs();
+  (async()=>{
+    let ok=false;try{ok=await fetchNotifs()}catch(e){}
+    if(!(Panels.current&&Panels.current.id==='notifPanel'))return;
+    if(ok){notifState='ready';updateBadge();if(!notifTouched)renderNotifs()}
+    else if(!notifs.length){notifState='error';renderNotifs()}
+    else toast("Couldn't refresh notifications.");
+  })();
+}
+function onPanelClosed(id){
+  if(id==='notifPanel'){notifOpen=new Set();notifPinned=new Set();updateBadge()}
+}
+function setNotifTabUI(){
+  document.getElementById('ntabAll').setAttribute('aria-selected',String(notifTab==='all'));
+  document.getElementById('ntabAll').tabIndex=notifTab==='all'?0:-1;
+  document.getElementById('ntabUnread').setAttribute('aria-selected',String(notifTab==='unread'));
+  document.getElementById('ntabUnread').tabIndex=notifTab==='unread'?0:-1;
+}
+function setNotifTab(t){
+  notifTab=t;notifShown=NOTIF_PAGE;notifPinned=new Set();
+  setNotifTabUI();renderNotifs();
+  document.getElementById('notifList').scrollTop=0;
+}
+function notifRowHtml(n){
+  const d=parseDbDate(n.created_at);
+  const open=notifOpen.has(n.id);
+  const img=safeUrl(n.image_url),link=safeUrl(n.link_url);
+  return`<div class="nitem${n.is_read?'':' unread'}${open?' open':''}" data-id="${n.id}" role="button" tabindex="0" aria-expanded="${open}" onclick="toggleNotif(${n.id})">
+    <span class="ndot" aria-hidden="true"></span>
+    <div class="nmain">
+      <div class="nrow"><div class="ntitle">${esc(n.title)}</div><div class="ntime"${d?` title="${esc(d.toLocaleString())}"`:''}>${d?timeAgo(d):''}</div></div>
+      ${n.body?`<div class="nbody">${esc(n.body)}</div>`:''}
+      <div class="ndetail">
+        ${img?`<div class="notif-img-wrap"><img src="${esc(img)}" class="notif-item-img" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"><button class="notif-img-download" data-url="${esc(img)}" onclick="event.stopPropagation();downloadNotifImage(this)" aria-label="Download image"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button></div>`:''}
+        ${link?`<a href="${esc(link)}" target="_blank" rel="noopener noreferrer" class="notif-item-link" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open link</a>`:''}
+        <div class="nmeta">${n.creator_name?'Posted by '+esc(n.creator_name)+' · ':''}${d?esc(d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})):''}</div>
+      </div>
+    </div>
+  </div>`;
+}
+function renderNotifs(){
+  const list=document.getElementById('notifList');
+  const un=unreadCount();
+  const ut=document.getElementById('ntUnread');ut.textContent=un;ut.hidden=un===0;
+  document.getElementById('markAllBtn').disabled=un===0;
+  const prevTop=list.scrollTop,activeId=document.activeElement&&document.activeElement.closest?(document.activeElement.closest('.nitem')||{}).dataset:null;
+  if(notifState==='loading'&&!notifs.length){
+    list.innerHTML=[1,2,3,4].map(()=>'<div class="nskel"><div><div class="skeleton" style="height:14px;width:60%"></div><div class="skeleton" style="height:11px;width:92%"></div><div class="skeleton" style="height:11px;width:70%"></div></div></div>').join('');
+    return;
+  }
+  if(notifState==='error'&&!notifs.length){
+    list.innerHTML=`<div class="notif-empty">${ICON_BELL}<h3>Couldn't load notifications</h3><p>Check your connection and try again.</p><button class="btn btn-primary" onclick="retryNotifs()">Try again</button></div>`;
+    return;
+  }
+  let items=notifs;
+  if(notifTab==='unread')items=notifs.filter(n=>!n.is_read||notifPinned.has(n.id));
+  if(!items.length){
+    list.innerHTML=notifTab==='unread'
+      ?`<div class="notif-empty">${ICON_BELL}<h3>You're all caught up</h3><p>No unread notifications.</p>${notifs.length?'<button class="btn btn-outline" onclick="setNotifTab(\'all\')">View all notifications</button>':''}</div>`
+      :`<div class="notif-empty">${ICON_BELL}<h3>No notifications yet</h3><p>Announcements from your instructors will show up here.</p></div>`;
+    return;
+  }
+  const shown=items.slice(0,notifShown);
+  let html='',lastLabel='';
+  shown.forEach(n=>{
+    const d=parseDbDate(n.created_at);const lb=d?groupLabel(d):'Earlier';
+    if(lb!==lastLabel){html+='<div class="ngroup">'+lb+'</div>';lastLabel=lb}
+    html+=notifRowHtml(n);
+  });
+  if(items.length>shown.length){
+    const left=items.length-shown.length;
+    html+=`<button class="nmore" onclick="showMoreNotifs()">Show ${Math.min(left,NOTIF_PAGE)} more <span style="color:var(--t4)">(${left} left)</span></button>`;
+  }
+  list.innerHTML=html;
+  list.scrollTop=prevTop;
+  if(activeId&&activeId.id){const el=list.querySelector('.nitem[data-id="'+activeId.id+'"]');if(el)try{el.focus({preventScroll:true})}catch(e){}}
+}
+function showMoreNotifs(){notifTouched=true;notifShown+=NOTIF_PAGE;renderNotifs()}
+async function retryNotifs(){
+  notifState='loading';renderNotifs();
+  let ok=false;try{ok=await fetchNotifs()}catch(e){}
+  notifState=ok?'ready':'error';if(ok)updateBadge();renderNotifs();
+}
+async function toggleNotif(id){
+  notifTouched=true;
+  const n=notifs.find(x=>x.id===id);if(!n)return;
+  const row=document.querySelector('#notifList .nitem[data-id="'+id+'"]');
+  const open=!notifOpen.has(id);
+  if(open)notifOpen.add(id);else notifOpen.delete(id);
+  if(row){row.classList.toggle('open',open);row.setAttribute('aria-expanded',String(open))}
+  if(!n.is_read){
+    n.is_read=1;notifPinned.add(id);
+    if(row)row.classList.remove('unread');
+    updateBadge();
+    const ut=document.getElementById('ntUnread'),un=unreadCount();ut.textContent=un;ut.hidden=un===0;
+    document.getElementById('markAllBtn').disabled=un===0;
+    const r=await apiFetch('/notifications/'+id+'/read',{method:'POST'});
+    if(!r.ok){ // put it back so the badge never lies
+      n.is_read=0;notifPinned.delete(id);
+      const again=document.querySelector('#notifList .nitem[data-id="'+id+'"]');if(again)again.classList.add('unread');
+      updateBadge();
+      const u2=unreadCount();ut.textContent=u2;ut.hidden=u2===0;document.getElementById('markAllBtn').disabled=u2===0;
+      toast("Couldn't mark as read. Check your connection.");
+    }
+  }
+}
+async function markAllRead(){
+  const pending=notifs.filter(n=>!n.is_read);
+  if(!pending.length)return;
+  notifTouched=true;
+  const btn=document.getElementById('markAllBtn');btn.disabled=true;
+  pending.forEach(n=>{n.is_read=1;notifPinned.add(n.id)});
+  updateBadge();renderNotifs();
+  let r=await apiFetch('/notifications/read-all',{method:'POST'});
+  if(!r.ok){ // older backend without the bulk route: fall back to one call per notification
+    const results=await Promise.all(pending.map(n=>apiFetch('/notifications/'+n.id+'/read',{method:'POST'})));
+    if(results.every(x=>x.ok))r={ok:true};
+  }
+  if(!r.ok){
+    pending.forEach(n=>{n.is_read=0;notifPinned.delete(n.id)});
+    updateBadge();renderNotifs();
+    toast("Couldn't mark all as read. Try again.");
+  }
+}
+async function downloadNotifImage(btn){
+  const url=btn.dataset.url;if(!url)return;
+  btn.classList.add('downloading');
+  try{
+    const resp=await fetch(url,{mode:'cors'});
+    if(!resp.ok)throw new Error('fetch failed');
+    const blob=await resp.blob();
+    const ext=(blob.type&&blob.type.split('/')[1])||(url.split('.').pop()||'png').split('?')[0].slice(0,4);
+    const blobUrl=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=blobUrl;a.download='notification-image.'+ext;
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(blobUrl),1000);
+  }catch(e){window.open(url,'_blank','noopener')}
+  finally{btn.classList.remove('downloading')}
+}
+
+/* ---------- header / nav ---------- */
+const header=document.getElementById('header');
+let lastY=0,ticking=false;
+const scrollTopBtn=document.getElementById('scrollTopBtn');
+window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(()=>{const y=window.scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;scrollTopBtn.classList.toggle('show',y>400);ticking=false});ticking=true}},{passive:true});
+function toggleMobileNav(){
+  const dd=document.getElementById('mobileNavDropdown');
+  const open=dd.classList.toggle('show');
+  document.getElementById('hamburger').setAttribute('aria-expanded',String(open));
+}
+document.addEventListener('click',function(e){
+  const dd=document.getElementById('mobileNavDropdown'),hb=document.getElementById('hamburger');
+  if(dd&&!dd.contains(e.target)&&!hb.contains(e.target)){dd.classList.remove('show');hb.setAttribute('aria-expanded','false')}
+});
+document.getElementById('signOutBtn').addEventListener('click',function(e){e.preventDefault();logout()});
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur()});
+
+loadDashboard();
+
+</script>
+</body>
+</html>
