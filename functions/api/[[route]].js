@@ -1305,6 +1305,19 @@ async function handleListNotifications(request, db) {
   return json({ notifications: notifications.results, unread_count: unreadCount.count }, 200, 10);
 }
 
+async function handleMarkAllNotificationsRead(request, db) {
+  const user = await requireAuth(request);
+  if (!user) return err('Unauthorized', 401);
+  const now = new Date().toISOString();
+  const isAdmin = user.is_admin ? 1 : 0;
+  // One statement marks every notification this user can see as read (already-read rows are skipped by the UNIQUE constraint).
+  await db.prepare(
+    `INSERT OR IGNORE INTO notification_reads (notification_id, user_id)
+     SELECT n.id, ? FROM notifications n WHERE ${notificationAudienceClause('n')}`
+  ).bind(user.id, isAdmin, user.id, now, user.id, now).run();
+  return json({ success: true });
+}
+
 async function handleMarkNotificationRead(notifId, request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
@@ -1693,6 +1706,7 @@ export async function onRequest(context) {
     
     // NOTIFICATIONS
     if (path === '/notifications' && method === 'GET') return handleListNotifications(request, db);
+    if (path === '/notifications/read-all' && method === 'POST') return handleMarkAllNotificationsRead(request, db);
     const markRead = path.match(/^\/notifications\/(\d+)\/read$/);
     if (markRead && method === 'POST') return handleMarkNotificationRead(markRead[1], request, db);
     
