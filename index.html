@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Exalyte — Precision Examination Platform</title>
+<meta name="description" content="Live timed exams, practice mode, instant analytics and rankings — a focused exam platform for students.">
+<meta name="theme-color" content="#ffffff">
+<meta property="og:title" content="Exalyte — Precision Examination Platform">
+<meta property="og:description" content="Live timed exams, practice mode, instant analytics and rankings — built for serious performance.">
+<meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -192,7 +197,7 @@ body{
 }
 .field-input{
   width:100%;padding:12px 14px;border:1px solid var(--border);
-  border-radius:var(--r);font-family:var(--rb);font-size:.95rem;
+  border-radius:var(--r);font-family:var(--rb);font-size:1rem;
   color:var(--t1);background:var(--surf);outline:none;transition:border var(--tr);
   min-height:44px;
 }
@@ -292,6 +297,121 @@ body{
   .metric-item{padding:14px 16px}
   .metric-val{font-size:1.25rem}
 }
+
+/* ================= Landing v2 ================= */
+html{scroll-padding-top:calc(var(--hh) + 12px)}
+.btn:focus-visible,a:focus-visible,summary:focus-visible,.pw-toggle:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.header-left{gap:8px}
+.header-nav{display:flex;align-items:center;gap:2px;margin-left:20px}
+.header-nav a{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t3);text-decoration:none;padding:8px 14px;border-radius:var(--r);transition:all var(--tr)}
+.header-nav a:hover{background:var(--hov);color:var(--t1)}
+a.avatar{text-decoration:none}
+.hero-viewport{background:radial-gradient(60% 55% at 50% 0%,rgba(26,115,232,.11),transparent 70%),radial-gradient(40% 40% at 90% 20%,rgba(147,51,234,.06),transparent 70%)}
+.hero-note{margin-top:18px;font-size:.8rem;color:var(--t4);display:flex;gap:6px 14px;justify-content:center;flex-wrap:wrap}
+.hero-note span{display:inline-flex;align-items:center;gap:5px}
+.hero-note svg{width:14px;height:14px;stroke:var(--green);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.hero p{margin-bottom:32px}
+
+/* preview */
+.preview .sub{margin-bottom:32px}
+.preview-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;align-items:stretch}
+.pv-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:22px 24px;box-shadow:0 1px 2px rgba(60,64,67,.12),0 8px 24px rgba(60,64,67,.08);-webkit-user-select:none;user-select:none;min-width:0}
+.pv-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid var(--border)}
+.pv-title{font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t2);min-width:0}
+.pv-timer{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.8rem;color:var(--t1);flex-shrink:0}
+.pv-timer svg{width:14px;height:14px;stroke:var(--t3);fill:none;stroke-width:2}
+.pv-q{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;font-size:.92rem;color:var(--t1);line-height:1.55}
+.pv-qn{flex:none;width:28px;height:28px;border-radius:50%;background:#e8f0fe;color:var(--blue);display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.78rem;font-weight:500}
+.pv-opts{margin-left:40px}
+.pv-opt{display:flex;align-items:center;gap:12px;padding:6px 0;font-size:.88rem;color:var(--t3)}
+.pv-opt i{flex:none;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--t4);display:flex;align-items:center;justify-content:center;font-style:normal;font-family:var(--gs);font-size:.78rem;font-weight:500;color:var(--t3);background:var(--surf)}
+.pv-opt.sel{color:var(--t1);font-weight:500}
+.pv-opt.sel i{background:var(--blue);border-color:var(--blue);color:#fff}
+.pv-foot{display:flex;justify-content:flex-end;margin-top:12px}
+.pv-pill{background:var(--blue);color:#fff;border-radius:24px;padding:10px 20px;font-family:var(--gs);font-size:.82rem;font-weight:500;box-shadow:0 2px 8px rgba(26,115,232,.35)}
+.pv-result{display:flex;flex-direction:column;align-items:center;text-align:center}
+.pv-ring{position:relative;width:132px;height:132px;margin:4px 0 10px}
+.pv-ring svg{width:100%;height:100%;display:block}
+.pv-ring-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--gs);font-size:1.6rem;font-weight:500;color:var(--t1);line-height:1.1}
+.pv-ring-txt small{font-size:.66rem;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;font-weight:400;margin-top:2px}
+.pv-grade{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--green)}
+.pv-marks{margin:6px 0 10px;font-family:var(--gs);font-size:1.15rem;color:var(--t1)}
+.pv-marks small{font-size:.85rem;color:var(--t3)}
+.pv-breaks{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+.pv-b{font-size:.74rem;padding:4px 12px;border-radius:20px;font-family:var(--gs)}
+.pv-b.e{background:var(--grn-bg);color:var(--green)}.pv-b.n{background:var(--red-bg);color:var(--red)}
+.pv-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-top:auto}
+.pv-st{background:var(--bg);border-radius:8px;padding:10px 4px}
+.pv-st b{display:block;font-family:var(--gs);font-size:1.1rem;font-weight:500}
+.pv-st span{font-size:.66rem;color:var(--t3);text-transform:uppercase;letter-spacing:.4px}
+.pv-st.c b{color:var(--green)}.pv-st.w b{color:var(--red)}.pv-st.s b{color:var(--t3)}
+.pv-note{margin-top:14px;font-size:.72rem;color:var(--t4);text-align:center}
+
+/* steps / features grids */
+.steps-grid{grid-template-columns:repeat(4,1fr)}
+.card-grid.feat-grid{grid-template-columns:repeat(3,1fr)}
+
+/* FAQ */
+.faq{max-width:760px;display:flex;flex-direction:column;gap:10px}
+.faq-item{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);transition:box-shadow var(--tr)}
+.faq-item[open]{box-shadow:0 1px 3px rgba(60,64,67,.2)}
+.faq-item summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:56px;padding:14px 20px;font-family:var(--gs);font-size:.95rem;font-weight:500;color:var(--t1);border-radius:var(--rl)}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary:hover{background:var(--hov)}
+.faq-item summary svg{width:18px;height:18px;stroke:var(--t3);fill:none;stroke-width:2;flex-shrink:0;transition:transform .2s}
+.faq-item[open] summary svg{transform:rotate(180deg)}
+.faq-item p{padding:0 20px 18px;font-size:.9rem;color:var(--t3);line-height:1.65}
+.faq-item p a{color:var(--blue)}
+
+/* modals */
+.modal{max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);overflow-y:auto;overscroll-behavior:contain}
+.modal-overlay{overscroll-behavior:contain}
+html.lock,html.lock body{overflow:hidden}
+.pw-wrap{position:relative}
+.pw-wrap .field-input{padding-right:48px}
+.pw-wrap .field-input:focus{padding-right:47px}
+.pw-toggle{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:none;background:none;border-radius:50%;cursor:pointer;color:var(--t3);display:flex;align-items:center;justify-content:center}
+.pw-toggle:hover{background:var(--hov)}
+.pw-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pw-toggle .eye-off{display:none}
+.pw-toggle.on .eye{display:none}.pw-toggle.on .eye-off{display:block}
+.btn-full:disabled{cursor:progress}
+
+/* footer: four columns, not three + orphan */
+.footer-inner{grid-template-columns:2fr 1fr 1fr 1fr}
+
+@media(max-width:1000px){
+  .header-nav{display:none}
+  .steps-grid{grid-template-columns:repeat(2,1fr)}
+  .preview-grid{grid-template-columns:1fr}
+}
+@media(max-width:900px){
+  .card-grid,.card-grid.feat-grid,.steps-grid{grid-template-columns:repeat(2,1fr);max-width:none;margin:0}
+  .footer-inner{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .card-grid,.card-grid.feat-grid,.steps-grid{grid-template-columns:1fr}
+  .g-card{padding:22px 20px}
+  .pv-card{padding:18px 16px}
+  .pv-opts{margin-left:0}
+  .pv-ring{width:116px;height:116px}
+  .pv-ring-txt{font-size:1.25rem}
+  .footer-inner{grid-template-columns:1fr}
+  .faq-item summary{padding:12px 16px}
+  .faq-item p{padding:0 16px 16px}
+}
+@media(max-width:480px){
+  .header{padding:0 12px}
+  .header-right{gap:6px}
+  .header-right .btn{padding:8px 14px;min-height:40px;font-size:.8rem}
+  .toast{left:16px;right:16px;bottom:calc(16px + var(--safe-bottom))}
+  .modal-overlay{align-items:flex-end;padding:0}
+  .modal{border-radius:16px 16px 0 0;max-height:92vh;max-height:92dvh;padding:28px 20px calc(24px + env(safe-area-inset-bottom,0px))}
+}
+@media(max-width:400px){
+  .header-right .btn-primary{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
 </style>
 </head>
 <body>
@@ -302,6 +422,11 @@ body{
       <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
       <span class="logo-text">Exalyte</span>
     </a>
+    <nav class="header-nav" aria-label="Sections">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#faq">FAQ</a>
+    </nav>
   </div>
   <div class="header-right" id="headerRight"></div>
 </header>
@@ -314,6 +439,7 @@ body{
       <h1>The exam platform built for <span>serious</span> performance</h1>
       <p id="heroSubtitle">Live timed exams, instant analytics, and deep practice — all in one focused environment designed to help you reach your peak score.</p>
       <div class="hero-actions" id="heroActions"></div>
+      <div class="hero-note" id="heroNote"><span><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Free to start</span><span><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>No credit card needed</span><span><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Works on phone &amp; desktop</span></div>
     </section>
 
     <div class="metrics-strip">
@@ -326,11 +452,39 @@ body{
     </div>
   </div>
 
+
+  <section class="section preview" id="preview" aria-labelledby="previewTitle">
+    <div class="section-eyebrow">Inside Exalyte</div>
+    <h2 id="previewTitle">Focused on the question. Clear on the result.</h2>
+    <p class="sub">A distraction-free exam screen, and a result page that shows exactly where you stand.</p>
+    <div class="preview-grid" aria-hidden="true">
+      <div class="pv-card">
+        <div class="pv-top"><div class="pv-title">Physics &middot; Model Test</div><div class="pv-timer"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>24:36</div></div>
+        <div class="pv-q"><span class="pv-qn">12</span><div>A charged particle enters a uniform magnetic field perpendicular to its velocity. Its path becomes&hellip;</div></div>
+        <div class="pv-opts">
+          <div class="pv-opt"><i>A</i>A straight line</div>
+          <div class="pv-opt sel"><i>B</i>A circle</div>
+          <div class="pv-opt"><i>C</i>A parabola</div>
+          <div class="pv-opt"><i>D</i>A helix</div>
+        </div>
+        <div class="pv-foot"><span class="pv-pill">Submit 12/35</span></div>
+      </div>
+      <div class="pv-card pv-result">
+        <div class="pv-ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#f1f3f4" stroke-width="9"/><circle cx="50" cy="50" r="42" fill="none" stroke="#1e8e3e" stroke-width="9" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="35.9" transform="rotate(-90 50 50)"/></svg><div class="pv-ring-txt">86.4%<small>Score</small></div></div>
+        <div class="pv-grade">Excellent</div>
+        <div class="pv-marks">30.25 <small>/ 35 marks</small></div>
+        <div class="pv-breaks"><span class="pv-b e">Earned +31</span><span class="pv-b n">Negative &minus;0.75</span></div>
+        <div class="pv-stats"><div class="pv-st c"><b>31</b><span>Correct</span></div><div class="pv-st w"><b>3</b><span>Wrong</span></div><div class="pv-st s"><b>1</b><span>Skipped</span></div></div>
+      </div>
+    </div>
+    <p class="pv-note">Sample screens for illustration.</p>
+  </section>
+
   <section class="section" id="features">
     <div class="section-eyebrow">Platform Features</div>
     <h2>Everything you need to perform</h2>
     <p class="sub">From timed live exams to granular analytics — built to mirror real exam conditions without compromise.</p>
-    <div class="card-grid">
+    <div class="card-grid feat-grid">
       <div class="g-card">
         <div class="g-card-icon icon-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
         <h3>Live Timed Exams</h3>
@@ -356,6 +510,11 @@ body{
         <h3>Leaderboard & Rankings</h3>
         <p>See how you rank against peers after every live exam. Percentile scores show real standing.</p>
       </div>
+      <div class="g-card">
+        <div class="g-card-icon icon-yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg></div>
+        <h3>Built for every screen</h3>
+        <p>Sit exams and review results comfortably on a phone, a tablet or a computer.</p>
+      </div>
     </div>
   </section>
 
@@ -363,7 +522,7 @@ body{
     <div class="section-eyebrow">Getting Started</div>
     <h2>Begin in under two minutes</h2>
     <p class="sub">A clear path that keeps you focused on study, not on figuring out software.</p>
-    <div class="card-grid">
+    <div class="card-grid steps-grid">
       <div class="g-card">
         <div class="step-number num-blue">1</div>
         <h3>Create your account</h3>
@@ -387,6 +546,20 @@ body{
     </div>
   </section>
 
+
+  <section class="section" id="faq" style="padding-top:20px">
+    <div class="section-eyebrow">FAQ</div>
+    <h2>Common questions</h2>
+    <p class="sub">Quick answers before you get started.</p>
+    <div class="faq">
+      <details class="faq-item"><summary>Is Exalyte free to use?<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></summary><p>Creating an account is free and needs no credit card. Some batches and premium exams may have a fee, which is always shown on the <a href="batches.html">Batches</a> page before you enrol.</p></details>
+      <details class="faq-item"><summary>How do live exams work?<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></summary><p>A live exam runs in a fixed window with a precision countdown timer, and your answers are submitted automatically when time is up.</p></details>
+      <details class="faq-item"><summary>Can I retry an exam?<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></summary><p>Yes. Practice mode lets you retry a question set without time pressure and review the explanations afterwards.</p></details>
+      <details class="faq-item"><summary>Does it work on my phone?<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></summary><p>Yes. Exalyte is designed to work on phones, tablets and computers.</p></details>
+      <details class="faq-item"><summary>Where can I get help?<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></summary><p>Message us on Telegram at <a href="https://t.me/adamzamps" target="_blank" rel="noopener noreferrer">@adamzamps</a> or use the <a href="contact.html">Contact</a> page.</p></details>
+    </div>
+  </section>
+
   <div class="cta-section">
     <div class="cta-inner">
       <h2 class="cta-title">Start preparing today</h2>
@@ -398,22 +571,22 @@ body{
 </main>
 
 <div class="modal-overlay" id="authModal">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
     <h2 id="authModalTitle">Sign in</h2>
     <p class="subtitle" id="authModalSub">to continue to <strong>Exalyte</strong></p>
-    <div class="alert" id="modalAlert"></div>
+    <div class="alert" id="modalAlert" role="alert"></div>
     <form id="authForm" autocomplete="off">
       <div class="field" id="nameField" style="display:none">
         <label class="field-label" for="authName">Full name</label>
-        <input type="text" class="field-input" id="authName" placeholder="Your name">
+        <input type="text" class="field-input" id="authName" placeholder="Your name" autocomplete="name">
       </div>
       <div class="field">
         <label class="field-label" for="authEmail">Email address</label>
-        <input type="email" class="field-input" id="authEmail" required placeholder="you@example.com">
+        <input type="email" class="field-input" id="authEmail" required placeholder="you@example.com" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false">
       </div>
       <div class="field">
         <label class="field-label" for="authPassword">Password</label>
-        <input type="password" class="field-input" id="authPassword" required placeholder="Your password" minlength="6">
+        <div class="pw-wrap"><input type="password" class="field-input" id="authPassword" required placeholder="Your password" minlength="6" autocomplete="current-password"><button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false"><svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
       </div>
       <button type="submit" class="btn btn-primary btn-full" id="authSubmitBtn">
         <span id="authBtnText">Next</span>
@@ -427,14 +600,14 @@ body{
 </div>
 
 <div class="modal-overlay" id="masterKeyModal">
-  <div class="modal">
-    <h2>Admin Verification</h2>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mkTitle">
+    <h2 id="mkTitle">Admin Verification</h2>
     <p class="subtitle">Enter your master key to access the admin panel</p>
-    <div class="alert" id="masterKeyAlert"></div>
+    <div class="alert" id="masterKeyAlert" role="alert"></div>
     <form id="masterKeyForm" autocomplete="off">
       <div class="field">
         <label class="field-label" for="masterKeyInput">Master Key</label>
-        <input type="password" class="field-input" id="masterKeyInput" placeholder="Enter your secret phrase" required>
+        <div class="pw-wrap"><input type="password" class="field-input" id="masterKeyInput" placeholder="Enter your secret phrase" required><button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false"><svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
       </div>
       <button type="submit" class="btn btn-primary btn-full" id="masterKeySubmitBtn">
         <span id="masterKeyBtnText">Verify</span>
@@ -445,18 +618,18 @@ body{
 </div>
 
 <div class="modal-overlay" id="masterKeySetupModal">
-  <div class="modal">
-    <h2>Set Master Key</h2>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mksTitle">
+    <h2 id="mksTitle">Set Master Key</h2>
     <p class="subtitle">Create a secret phrase to protect admin access. Keep it safe — you'll need it every time you log in.</p>
-    <div class="alert" id="masterKeySetupAlert"></div>
+    <div class="alert" id="masterKeySetupAlert" role="alert"></div>
     <form id="masterKeySetupForm" autocomplete="off">
       <div class="field">
         <label class="field-label" for="setupKeyInput">Master Key Phrase</label>
-        <input type="password" class="field-input" id="setupKeyInput" placeholder="Minimum 6 characters" required minlength="6">
+        <div class="pw-wrap"><input type="password" class="field-input" id="setupKeyInput" placeholder="Minimum 6 characters" required minlength="6"><button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false"><svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
       </div>
       <div class="field">
         <label class="field-label" for="setupKeyConfirm">Confirm Phrase</label>
-        <input type="password" class="field-input" id="setupKeyConfirm" placeholder="Re-enter your phrase" required minlength="6">
+        <div class="pw-wrap"><input type="password" class="field-input" id="setupKeyConfirm" placeholder="Re-enter your phrase" required minlength="6"><button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false"><svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
       </div>
       <button type="submit" class="btn btn-primary btn-full" id="masterKeySetupBtn">
         <span id="masterKeySetupBtnText">Set Master Key</span>
@@ -504,12 +677,14 @@ body{
   </div>
 </footer>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 const API = '/api';
 const token = localStorage.getItem('exalyte_token');
-const user = JSON.parse(localStorage.getItem('exalyte_user') || 'null');
+let parsedUser = null;
+try { parsedUser = JSON.parse(localStorage.getItem('exalyte_user') || 'null'); } catch (e) { parsedUser = null; }
+const user = parsedUser;
 const loggedIn = !!(token && user);
 document.getElementById('footerYear').textContent = '© ' + new Date().getFullYear() + ' Exalyte. All rights reserved.';
 
@@ -614,12 +789,14 @@ function switchAuthMode(mode) {
     document.getElementById('authModalTitle').textContent = 'Create account';
     document.getElementById('authModalSub').innerHTML = 'Free forever — no credit card needed';
     document.getElementById('nameField').style.display = 'block';
+    document.getElementById('authPassword').setAttribute('autocomplete', 'new-password');
     document.getElementById('authBtnText').textContent = 'Create account';
     document.getElementById('authSwitch').innerHTML = 'Already have an account? <button onclick="switchAuthMode(\'login\')">Sign in</button>';
   } else {
     document.getElementById('authModalTitle').textContent = 'Sign in';
     document.getElementById('authModalSub').innerHTML = 'to continue to <strong>Exalyte</strong>';
     document.getElementById('nameField').style.display = 'none';
+    document.getElementById('authPassword').setAttribute('autocomplete', 'current-password');
     document.getElementById('authBtnText').textContent = 'Next';
     document.getElementById('authSwitch').innerHTML = 'Don\'t have an account? <button onclick="switchAuthMode(\'signup\')">Create one</button>';
   }
@@ -836,12 +1013,13 @@ function renderUI() {
   var ctaActions = document.getElementById('ctaActions');
   
   if (loggedIn) {
-    var initial = (user.name || 'U')[0].toUpperCase();
+    var initial = String((user.name || 'U').trim().charAt(0) || 'U').toUpperCase().replace(/[<>&"']/g, 'U');
     var dashboardUrl = user.is_admin ? 'admin.html' : 'dashboard.html';
     hr.innerHTML = 
       '<button class="btn btn-outline" onclick="logout()">Sign out</button>' +
-      '<div class="avatar">' + initial + '</div>';
+      '<a class="avatar" href="' + dashboardUrl + '" aria-label="Go to dashboard">' + initial + '</a>';
     document.getElementById('heroSubtitle').textContent = 'Welcome back! Continue your preparation journey.';
+    var hn = document.getElementById('heroNote'); if (hn) hn.style.display = 'none';
     heroActions.innerHTML = '<a href="' + dashboardUrl + '" class="btn btn-primary btn-lg">Go to Dashboard</a><a href="#features" class="btn btn-outline btn-lg">Learn more</a>';
     ctaActions.innerHTML = '<a href="' + dashboardUrl + '" class="btn btn-primary btn-lg">Go to Dashboard</a>';
   } else {
@@ -864,6 +1042,46 @@ function logout() {
 }
 
 renderUI();
+
+/* ---- polish: password show/hide, scroll lock and focus trap for the dialogs (no auth logic touched) ---- */
+document.addEventListener('click', function(e) {
+  var t = e.target.closest ? e.target.closest('.pw-toggle') : null;
+  if (!t) return;
+  var input = t.parentElement.querySelector('input');
+  if (!input) return;
+  var show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  t.classList.toggle('on', show);
+  t.setAttribute('aria-pressed', String(show));
+  t.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  input.focus();
+});
+(function() {
+  var overlays = document.querySelectorAll('.modal-overlay');
+  function sync() {
+    var anyOpen = document.querySelector('.modal-overlay.open');
+    document.documentElement.classList.toggle('lock', !!anyOpen);
+    // never leave a revealed password behind when a dialog closes
+    document.querySelectorAll('.modal-overlay:not(.open) input[type="text"].field-input').forEach(function(i) {
+      if (i.closest('.pw-wrap')) { i.type = 'password'; var b = i.parentElement.querySelector('.pw-toggle'); if (b) { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', 'Show password'); } }
+    });
+  }
+  if (window.MutationObserver) {
+    var mo = new MutationObserver(sync);
+    overlays.forEach(function(o) { mo.observe(o, { attributes: true, attributeFilter: ['class'] }); });
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Tab') return;
+    var open = document.querySelector('.modal-overlay.open');
+    if (!open) return;
+    var f = Array.prototype.filter.call(open.querySelectorAll('input,button,a[href],select,textarea'), function(el) { return !el.disabled && el.offsetParent !== null; });
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (!open.contains(document.activeElement)) { e.preventDefault(); first.focus(); return; }
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+})();
 </script>
 </body>
 </html>
