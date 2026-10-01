@@ -55,7 +55,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .icon-btn svg{width:20px;height:20px}
 .avatar{width:36px;height:36px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-weight:500;font-size:14px;color:#fff;flex-shrink:0}
 .main{flex:1;padding-top:var(--hh)}
-.pay-wrap{max-width:640px;margin:0 auto;padding:40px 24px 80px}
+.pay-wrap{max-width:1040px;margin:0 auto;padding:32px 24px 80px}
 .back-link{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--t3);text-decoration:none;margin-bottom:20px}
 .back-link:hover{color:var(--blue)}
 .back-link svg{width:16px;height:16px}
@@ -120,15 +120,112 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .modal-footer-link button:hover{text-decoration:underline}
 .toast{position:fixed;bottom:24px;left:24px;z-index:9999;padding:14px 24px;border-radius:var(--r);background:#323232;color:#f5f5f5;font-size:.875rem;box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px rgba(0,0,0,.14),0 1px 18px rgba(0,0,0,.12);transform:translateY(80px);opacity:0;transition:all .25s cubic-bezier(0,0,.2,1);pointer-events:none;bottom:calc(24px + var(--safe-bottom))}
 .toast.show{transform:translateY(0);opacity:1}
-@media(max-width:900px){.header-nav{display:none}.hamburger{display:flex}.header{padding:0 16px}.footer-inner{grid-template-columns:1fr 1fr;gap:28px}}
-@media(max-width:600px){.pay-wrap{padding:24px 16px 60px}.footer-inner{grid-template-columns:1fr;gap:20px}.footer-bottom{flex-direction:column;text-align:center}.modal{padding:28px 22px}.locked-actions{flex-direction:column}.locked-actions .btn{width:100%}}
+
+[hidden]{display:none !important}
+.btn:focus-visible,a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.btn{min-height:44px}
+a.avatar{text-decoration:none}
+.back-link{min-height:40px;margin-bottom:12px}
+.pay-head{margin-bottom:22px}
+.pay-eyebrow{font-family:var(--gs);font-size:.72rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
+.pay-head h1{font-family:var(--gs);font-size:1.7rem;font-weight:500;color:var(--t1);letter-spacing:-.4px;line-height:1.25}
+.pay-grid{display:grid;grid-template-columns:5fr 6fr;gap:24px;align-items:start}
+.pay-grid.skel{align-items:stretch}
+.summary-card{margin-bottom:0;position:sticky;top:calc(var(--hh) + 16px)}
+.summary-thumb{aspect-ratio:16/9}
+.summary-body{padding:20px 22px 22px}
+.summary-label{font-family:var(--gs);font-size:.7rem;letter-spacing:.8px;text-transform:uppercase;color:var(--t4);margin-bottom:4px}
+.summary-name{font-size:1.3rem;line-height:1.3;margin-bottom:10px}
+.price-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.price{font-family:var(--gs);font-size:1.9rem;font-weight:500;color:var(--t1);letter-spacing:-.5px;line-height:1.1}
+.price.free{color:var(--green)}
+.summary-desc{position:relative;font-size:.86rem;color:var(--t3);line-height:1.65;max-height:6.6em;overflow:hidden;margin-bottom:6px}
+.summary-desc.clamped:not(.expanded):after{content:'';position:absolute;left:0;right:0;bottom:0;height:2em;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff)}
+.summary-desc.expanded{max-height:none}
+.summary-desc :is(p,ul,ol,h1,h2,h3,h4){margin:0 0 6px;font-size:inherit}
+.summary-desc :is(ul,ol){padding-left:20px}
+.summary-desc img,.summary-desc video,.summary-desc iframe,.summary-desc table{max-width:100% !important;height:auto !important}
+.summary-desc a{color:var(--blue)}
+.see-more{background:none;border:none;color:var(--blue);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer;padding:6px 0;min-height:36px;display:none}
+.see-more.show{display:block}
+.see-more:hover{text-decoration:underline}
+.perks{list-style:none;margin:12px 0 0;padding:14px 0 0;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+.perks li{display:flex;align-items:flex-start;gap:10px;font-size:.84rem;color:var(--t2);line-height:1.45}
+.perks svg{width:18px;height:18px;flex-shrink:0;stroke:var(--green);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
+.pay-steps{display:flex;flex-direction:column;gap:16px;min-width:0}
+.step-card{margin-bottom:0;padding:22px 24px}
+.step-num{transition:background var(--tr)}
+.step-num.done{background:var(--green)}
+.step-num svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.step-body{margin-bottom:14px}
+.tg-actions{display:flex;flex-direction:column;gap:10px}
+.copy-box{background:var(--bg);border:1px dashed var(--border);border-radius:var(--r);padding:12px 14px;font-size:.8rem;color:var(--t2);line-height:1.55}
+.copy-box small{display:block;font-size:.68rem;letter-spacing:.6px;text-transform:uppercase;color:var(--t4);margin-bottom:4px;font-family:var(--gs)}
+.safe-note{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:.78rem;color:var(--t3);line-height:1.55}
+.safe-note svg{width:16px;height:16px;flex-shrink:0;stroke:var(--t4);fill:none;stroke-width:2;margin-top:2px}
+.code-input{text-align:center;font-size:1.1rem;letter-spacing:2px}
+.code-input[aria-invalid="true"]{border-color:var(--red)}
+.field-hint{font-size:.72rem;color:var(--t4);margin-top:6px}
+.alert{margin-bottom:12px}
+.success-state{padding:12px 0 4px}
+.success-state .btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.empty-state{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl)}
+.empty-state p{font-size:.88rem}
+.header{z-index:1000}
+.toast{z-index:9999}
+
+.modal{max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);overflow-y:auto;overscroll-behavior:contain}
+.modal-overlay{overscroll-behavior:contain}
+html.lock,html.lock body{overflow:hidden}
+.pw-wrap{position:relative}
+.pw-wrap .field-input{padding-right:48px}
+.pw-wrap .field-input:focus{padding-right:47px}
+.pw-toggle{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:none;background:none;border-radius:50%;cursor:pointer;color:var(--t3);display:flex;align-items:center;justify-content:center}
+.pw-toggle:hover{background:var(--hov)}
+.pw-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pw-toggle .eye-off{display:none}
+.pw-toggle.on .eye{display:none}.pw-toggle.on .eye-off{display:block}
+.btn-full:disabled{cursor:progress}
+
+
+@media(max-width:900px){
+  .header-nav{display:none}
+  .hamburger{display:flex}
+  .header{padding:0 16px}
+  .pay-grid{grid-template-columns:1fr;gap:16px}
+  .summary-card{position:static}
+  .pay-wrap{padding:24px 20px 60px;padding-bottom:calc(60px + var(--safe-bottom))}
+  .footer-inner{grid-template-columns:1fr 1fr;gap:28px}
+}
+@media(max-width:600px){
+  .pay-wrap{padding:18px 16px 60px;padding-bottom:calc(60px + var(--safe-bottom))}
+  .pay-head h1{font-size:1.4rem}
+  .price{font-size:1.6rem}
+  .step-card{padding:18px 16px}
+  .summary-body{padding:16px}
+  .footer-inner{grid-template-columns:1fr;gap:20px}
+  .footer-bottom{flex-direction:column;text-align:center}
+  .locked-actions{flex-direction:column}.locked-actions .btn{width:100%}
+  .success-state .btn-row .btn{width:100%}
+}
+@media(max-width:480px){
+  .header{padding:0 12px}
+  .header-right{gap:6px}
+  .header-right .btn{padding:8px 14px;min-height:40px;font-size:.8rem}
+  .toast{left:16px;right:16px;bottom:calc(16px + var(--safe-bottom))}
+  .modal-overlay{align-items:flex-end;padding:0}
+  .modal{border-radius:16px 16px 0 0;max-height:92vh;max-height:92dvh;padding:28px 20px calc(24px + env(safe-area-inset-bottom,0px))}
+}
+@media(max-width:400px){.header-right .btn-primary{display:none}.header-right a.btn-outline{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+
 </style>
 </head>
 <body>
 
 <header class="header" id="header">
   <div class="header-left">
-    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <a href="/" class="logo-wrap">
@@ -145,12 +242,14 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 <main class="main">
   <div class="pay-wrap">
     <a href="batches.html" class="back-link">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
       Back to Batches
     </a>
-    <div id="pageContent">
-      <div class="skeleton" style="height:180px;margin-bottom:24px"></div>
-      <div class="skeleton" style="height:220px"></div>
+    <div id="pageContent" aria-live="polite">
+      <div class="pay-grid skel">
+        <div class="skeleton" style="height:360px"></div>
+        <div class="skeleton" style="height:360px"></div>
+      </div>
     </div>
   </div>
 </main>
@@ -191,22 +290,22 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 </footer>
 
 <div class="modal-overlay" id="authModal">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
     <h2 id="authModalTitle">Sign in</h2>
     <p class="subtitle" id="authModalSub">to continue to <strong>Exalyte</strong></p>
-    <div class="alert" id="modalAlert"></div>
+    <div class="alert" id="modalAlert" role="alert"></div>
     <form id="authForm" autocomplete="off">
       <div class="field" id="nameField" style="display:none">
         <label class="field-label" for="authName">Full name</label>
-        <input type="text" class="field-input" style="text-transform:none;letter-spacing:normal;font-family:var(--rb)" id="authName" placeholder="Your name">
+        <input type="text" class="field-input" style="text-transform:none;letter-spacing:normal;font-family:var(--rb)" id="authName" placeholder="Your name" autocomplete="name">
       </div>
       <div class="field">
         <label class="field-label" for="authEmail">Email address</label>
-        <input type="email" class="field-input" style="text-transform:none;letter-spacing:normal;font-family:var(--rb)" id="authEmail" required placeholder="you@example.com">
+        <input type="email" class="field-input" style="text-transform:none;letter-spacing:normal;font-family:var(--rb)" id="authEmail" required placeholder="you@example.com" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false">
       </div>
       <div class="field">
         <label class="field-label" for="authPassword">Password</label>
-        <input type="password" class="field-input" style="text-transform:none;letter-spacing:normal;font-family:var(--rb)" id="authPassword" required placeholder="Your password" minlength="6">
+        <div class="pw-wrap"><input type="password" class="field-input" style="text-transform:none;letter-spacing:normal;font-family:var(--rb)" id="authPassword" required placeholder="Your password" minlength="6" autocomplete="current-password"><button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false"><svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
       </div>
       <button type="submit" class="btn btn-primary btn-full" id="authSubmitBtn">
         <span id="authBtnText">Next</span>
@@ -220,14 +319,14 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 </div>
 
 <div class="modal-overlay" id="masterKeyModal">
-  <div class="modal">
-    <h2>Admin Verification</h2>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mkTitle">
+    <h2 id="mkTitle">Admin Verification</h2>
     <p class="subtitle">Enter your master key to access the admin panel</p>
-    <div class="alert" id="masterKeyAlert"></div>
+    <div class="alert" id="masterKeyAlert" role="alert"></div>
     <form id="masterKeyForm" autocomplete="off">
       <div class="field">
         <label class="field-label" for="masterKeyInput">Master Key</label>
-        <input type="password" class="field-input" id="masterKeyInput" placeholder="Enter your secret phrase" required>
+        <div class="pw-wrap"><input type="password" class="field-input" id="masterKeyInput" placeholder="Enter your secret phrase" required><button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false"><svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
       </div>
       <button type="submit" class="btn btn-primary btn-full" id="masterKeySubmitBtn">
         <span id="masterKeyBtnText">Verify</span>
@@ -238,18 +337,18 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 </div>
 
 <div class="modal-overlay" id="masterKeySetupModal">
-  <div class="modal">
-    <h2>Set Master Key</h2>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mksTitle">
+    <h2 id="mksTitle">Set Master Key</h2>
     <p class="subtitle">Create a secret phrase to protect admin access. Keep it safe — you'll need it every time you log in.</p>
-    <div class="alert" id="masterKeySetupAlert"></div>
+    <div class="alert" id="masterKeySetupAlert" role="alert"></div>
     <form id="masterKeySetupForm" autocomplete="off">
       <div class="field">
         <label class="field-label" for="setupKeyInput">Master Key Phrase</label>
-        <input type="password" class="field-input" id="setupKeyInput" placeholder="Minimum 6 characters" required minlength="6">
+        <div class="pw-wrap"><input type="password" class="field-input" id="setupKeyInput" placeholder="Minimum 6 characters" required minlength="6"><button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false"><svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
       </div>
       <div class="field">
         <label class="field-label" for="setupKeyConfirm">Confirm Phrase</label>
-        <input type="password" class="field-input" id="setupKeyConfirm" placeholder="Re-enter your phrase" required minlength="6">
+        <div class="pw-wrap"><input type="password" class="field-input" id="setupKeyConfirm" placeholder="Re-enter your phrase" required minlength="6"><button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false"><svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
       </div>
       <button type="submit" class="btn btn-primary btn-full" id="masterKeySetupBtn">
         <span id="masterKeySetupBtnText">Set Master Key</span>
@@ -259,28 +358,30 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 const API = '/api';
 function getToken(){return localStorage.getItem('exalyte_token')}
-function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
+function getUser(){try{return JSON.parse(localStorage.getItem('exalyte_user')||'null')}catch(e){return null}}
 function logout(){localStorage.clear();window.location.href='/'}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 
-async function apiFetch(path,opts={}){
+async function apiFetch(path,opts){
+  opts=opts||{};
   const token=getToken();
   const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};
   try{
     const res=await fetch(API+path,{...opts,headers});
     const text=await res.text();
-    if(!text||text.trim()==='')return{ok:false,data:{}};
-    try{const data=JSON.parse(text);return{ok:res.ok,data}}catch(e){return{ok:false,data:{}}}
-  }catch(error){return{ok:false,data:{}}}
+    let data={};try{data=text?JSON.parse(text):{}}catch(e){}
+    return{ok:res.ok&&text.trim()!=='',data,status:res.status};
+  }catch(error){return{ok:false,data:{},status:0}}
 }
 
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
-document.getElementById('footerYear').textContent = '© ' + new Date().getFullYear() + ' Exalyte. All rights reserved.';
+let toastTimer=null;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3000)}
+document.getElementById('footerYear').textContent = '\u00a9 ' + new Date().getFullYear() + ' Exalyte. All rights reserved.';
 
 let token = getToken();
 let user = getUser();
@@ -292,14 +393,14 @@ function renderHeaderUI(){
   const mobileNav = document.getElementById('mobileNavDropdown');
   if (loggedIn) {
     const dashboardUrl = user.is_admin ? 'admin.html' : 'dashboard.html';
-    const initial = (user.name || 'U')[0].toUpperCase();
-    nav.innerHTML = (user.is_admin ? '' : '<a href="dashboard.html">Dashboard</a><a href="exam-history.html">History</a>') + '<a href="batches.html">Batches</a>';
+    const initial = String((user.name || 'U').trim().charAt(0) || 'U').toUpperCase().replace(/[<>&"']/g, 'U');
+    nav.innerHTML = (user.is_admin ? '' : '<a href="dashboard.html">Dashboard</a><a href="exam-history.html">History</a>') + '<a href="batches.html" class="active">Batches</a>';
     mobileNav.innerHTML = nav.innerHTML + '<a href="#" onclick="logout();return false" style="color:var(--red)">Sign out</a>';
     hr.innerHTML =
       '<a href="' + dashboardUrl + '" class="btn btn-outline">Dashboard</a>' +
-      '<div class="avatar">' + initial + '</div>';
+      '<a class="avatar" href="' + dashboardUrl + '" aria-label="Go to dashboard">' + initial + '</a>';
   } else {
-    nav.innerHTML = '<a href="batches.html">Batches</a>';
+    nav.innerHTML = '<a href="batches.html" class="active">Batches</a>';
     mobileNav.innerHTML = nav.innerHTML;
     hr.innerHTML =
       '<button class="btn btn-outline" onclick="openAuth(\'login\')">Sign in</button>' +
@@ -307,7 +408,15 @@ function renderHeaderUI(){
   }
 }
 renderHeaderUI();
-function toggleMobileNav(){document.getElementById('mobileNavDropdown').classList.toggle('show')}
+function toggleMobileNav(){
+  const dd=document.getElementById('mobileNavDropdown');
+  const open=dd.classList.toggle('show');
+  document.getElementById('hamburger').setAttribute('aria-expanded',String(open));
+}
+document.addEventListener('click',function(e){
+  const dd=document.getElementById('mobileNavDropdown'),hb=document.getElementById('hamburger');
+  if(dd&&!dd.contains(e.target)&&!hb.contains(e.target)){dd.classList.remove('show');hb.setAttribute('aria-expanded','false')}
+});
 
 const headerEl = document.getElementById('header');
 let lastY = 0, tickingHeader = false;
@@ -323,106 +432,140 @@ window.addEventListener('scroll', function() {
   }
 }, { passive: true });
 
-function feeLabel(fee){ return (!fee || fee <= 0) ? 'Free' : ('৳' + fee); }
+/* ---------- helpers ---------- */
+function feeNum(fee){const n=Number(fee);return isFinite(n)&&n>0?n:0}
+function feeLabel(fee){const n=feeNum(fee);return n<=0?'Free':('\u09f3'+n.toLocaleString('en-US'))}
+// batch descriptions are admin HTML: cleaned before they are shown
+function cleanHtml(h){
+  try{
+    const doc=new DOMParser().parseFromString(String(h||''),'text/html');
+    doc.querySelectorAll('script,style,iframe,object,embed,link,meta,form,base').forEach(n=>n.remove());
+    doc.body.querySelectorAll('*').forEach(el=>{
+      Array.from(el.attributes).forEach(a=>{
+        const n=a.name.toLowerCase(),v=String(a.value).trim().toLowerCase();
+        if(n.startsWith('on')||((n==='href'||n==='src'||n==='xlink:href')&&/^(javascript|data):/.test(v)&&!(n==='src'&&/^data:image\//.test(v))))el.removeAttribute(a.name);
+      });
+      if(el.tagName==='A'){el.setAttribute('target','_blank');el.setAttribute('rel','noopener noreferrer')}
+      if(el.tagName==='IMG'){el.removeAttribute('width');el.removeAttribute('height');el.setAttribute('loading','lazy')}
+    });
+    return doc.body.innerHTML;
+  }catch(e){return esc(h)}
+}
+function plainText(h){try{return(new DOMParser().parseFromString(String(h||''),'text/html').body.textContent||'')}catch(e){return String(h||'')}}
+const CHECK='<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+const BOOK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
 
 const params = new URLSearchParams(window.location.search);
 const slug = params.get('batch');
 let currentBatch = null;
 
-function renderRedeemBox(){
-  if (currentBatch.enrolled) {
-    return `<div class="success-state">
-      <div class="success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <h3>You already have access</h3>
-      <p>You're enrolled in <strong>${esc(currentBatch.name)}</strong>.</p>
-      <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+function enrolledHtml(){
+  return `<div class="success-state">
+      <div class="success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <h3>You're enrolled</h3>
+      <p>You now have access to <strong>${esc(currentBatch.name)}</strong>. Its exams are waiting on your dashboard.</p>
+      <div class="btn-row"><a href="dashboard.html" class="btn btn-primary">Go to dashboard</a><a href="batches.html" class="btn btn-outline">Browse more batches</a></div>
     </div>`;
-  }
-  if (!loggedIn) {
-    return `<div class="locked-overlay">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      <p>Sign in to enter your access code and unlock this batch.</p>
+}
+function lockedHtml(msg){
+  return `<div class="locked-overlay">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <p>${msg}</p>
       <div class="locked-actions">
         <button class="btn btn-outline" onclick="openAuth('login')">Sign in</button>
         <button class="btn btn-primary" onclick="openAuth('signup')">Create account</button>
       </div>
     </div>`;
-  }
-  return `<div class="alert" id="redeemAlert"></div>
+}
+function markDone(){
+  document.querySelectorAll('.step-num').forEach(n=>{n.classList.add('done');n.innerHTML=CHECK});
+}
+
+function renderRedeemBox(){
+  if (currentBatch.enrolled) return enrolledHtml();
+  if (!loggedIn) return lockedHtml('Sign in to enter your access code and unlock this batch.');
+  return `<div class="alert" id="redeemAlert" role="alert"></div>
     <div class="field">
       <label class="field-label" for="codeInput">Access code</label>
-      <input type="text" class="field-input" id="codeInput" placeholder="XXXX-XXXX-XXXX" maxlength="20">
+      <input type="text" class="field-input code-input" id="codeInput" placeholder="XXXX-XXXX-XXXX" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go">
+      <div class="field-hint">Paste the code exactly as we sent it.</div>
     </div>
     <button class="btn btn-primary btn-full" id="redeemBtn" onclick="redeemCode()">
-      <span id="redeemBtnText">Unlock Access</span>
+      <span id="redeemBtnText">Unlock access</span>
       <span class="spinner-inline" id="redeemSpinner"></span>
     </button>`;
 }
 
 function renderFreeEnrollBox(){
-  if (currentBatch.enrolled) {
-    return `<div class="success-state">
-      <div class="success-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <h3>You already have access</h3>
-      <p>You're enrolled in <strong>${esc(currentBatch.name)}</strong>.</p>
-      <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
-    </div>`;
-  }
-  if (!loggedIn) {
-    return `<div class="locked-overlay">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      <p>Sign in to enroll — this batch is free, no payment needed.</p>
-      <div class="locked-actions">
-        <button class="btn btn-outline" onclick="openAuth('login')">Sign in</button>
-        <button class="btn btn-primary" onclick="openAuth('signup')">Create account</button>
-      </div>
-    </div>`;
-  }
-  return `<div class="alert" id="enrollFreeAlert"></div>
+  if (currentBatch.enrolled) return enrolledHtml();
+  if (!loggedIn) return lockedHtml('Sign in to enroll \u2014 this batch is free, no payment needed.');
+  return `<div class="alert" id="enrollFreeAlert" role="alert"></div>
     <button class="btn btn-primary btn-full" id="enrollFreeBtn" onclick="enrollFree()">
-      <span id="enrollFreeBtnText">Enroll for Free</span>
+      <span id="enrollFreeBtnText">Enroll for free</span>
       <span class="spinner-inline" id="enrollFreeSpinner"></span>
     </button>`;
 }
 
+function netMsg(r,fallback){
+  if (r.status===0) return 'Network problem \u2014 check your connection and try again.';
+  return (r.data&&r.data.error)||fallback;
+}
+
+let enrolling = false;
 async function enrollFree(){
+  if (enrolling) return;
   const alertEl = document.getElementById('enrollFreeAlert');
   alertEl.className = 'alert';
   const btn = document.getElementById('enrollFreeBtn');
   const btnText = document.getElementById('enrollFreeBtnText');
   const spinner = document.getElementById('enrollFreeSpinner');
+  enrolling = true;
   btn.disabled = true; btnText.style.display = 'none'; spinner.style.display = 'inline-block';
-  const { ok, data } = await apiFetch('/store/batches/' + encodeURIComponent(slug) + '/enroll-free', { method: 'POST' });
+  const r = await apiFetch('/store/batches/' + encodeURIComponent(slug) + '/enroll-free', { method: 'POST' });
+  enrolling = false;
   btn.disabled = false; btnText.style.display = 'inline'; spinner.style.display = 'none';
-  if (!ok) {
-    alertEl.textContent = data.error || 'Could not enroll. Please try again.';
+  if (r.status===401){ loggedIn=false; renderHeaderUI(); document.getElementById('freeEnrollBox').innerHTML = renderFreeEnrollBox(); toast('Please sign in again.'); return; }
+  if (!r.ok) {
+    alertEl.textContent = netMsg(r,'Could not enroll. Please try again.');
     alertEl.className = 'alert alert-e';
     return;
   }
   currentBatch.enrolled = true;
   document.getElementById('freeEnrollBox').innerHTML = renderFreeEnrollBox();
-  toast('Enrolled — welcome aboard!');
+  markDone();
+  toast('Enrolled \u2014 welcome aboard!');
 }
 
 function renderPage(){
   const b = currentBatch;
-  const thumb = b.image_url
-    ? `<img src="${esc(b.image_url)}" alt="${esc(b.name)}">`
-    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`;
-  const isFree = !b.fee || b.fee <= 0;
+  document.title = 'Enroll \u2014 ' + (b.name || 'Batch') + ' \u2014 Exalyte';
+  const thumb = b.image_url ? `<img class="pay-img" src="${esc(b.image_url)}" alt="">` : BOOK;
+  const isFree = feeNum(b.fee) <= 0;
+  const hasDesc = !!plainText(b.description).trim();
+  const exams = b.exam_count||0;
+  const perks = `<ul class="perks">
+      <li>${CHECK}<span>${exams} exam${exams===1?'':'s'} included in this batch</span></li>
+      <li>${CHECK}<span>${isFree?'Instant access after you enroll':'Full, permanent access once your code is redeemed'}</span></li>
+    </ul>`;
+  const msg = 'Hi! I\u2019d like to enroll in \u201c' + (b.name||'') + '\u201d (' + feeLabel(b.fee) + ').' + (loggedIn && user && user.email ? ' My Exalyte account email: ' + user.email : '');
   const stepsHtml = isFree ? `
     <div class="step-card">
-      <div class="step-head"><div class="step-num">1</div><div class="step-title">Enroll — it's free</div></div>
+      <div class="step-head"><div class="step-num">1</div><div class="step-title">Enroll \u2014 it's free</div></div>
       <div class="step-body">This batch doesn't require any payment or access code. Enroll below and every exam in it unlocks immediately.</div>
       <div id="freeEnrollBox">${renderFreeEnrollBox()}</div>
     </div>` : `
     <div class="step-card">
       <div class="step-head"><div class="step-num">1</div><div class="step-title">Contact us on Telegram</div></div>
       <div class="step-body">Message <strong>@adamzamps</strong> on Telegram to confirm the fee and payment method. Once your payment is confirmed in the chat, you'll be sent a one-time access code.</div>
-      <a href="https://t.me/adamzamps" target="_blank" rel="noopener noreferrer" class="btn btn-tg btn-full">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-        Message on Telegram
-      </a>
+      <div class="tg-actions">
+        <a href="https://t.me/adamzamps" target="_blank" rel="noopener noreferrer" class="btn btn-tg btn-full">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+          Message on Telegram
+        </a>
+        <div class="copy-box" id="copyMsg"><small>Suggested message</small><span id="copyMsgText">${esc(msg)}</span></div>
+        <button class="btn btn-outline btn-full" type="button" onclick="copyMessage()">Copy message</button>
+      </div>
+      <div class="safe-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Only send payments through the Telegram account shown above, and never share your access code with anyone else.</span></div>
     </div>
     <div class="step-card">
       <div class="step-head"><div class="step-num">2</div><div class="step-title">Enter your access code</div></div>
@@ -430,56 +573,121 @@ function renderPage(){
       <div id="redeemBox">${renderRedeemBox()}</div>
     </div>`;
   document.getElementById('pageContent').innerHTML = `
-    <div class="summary-card">
-      <div class="summary-thumb">${thumb}</div>
-      <div class="summary-body">
-        <div class="summary-name">${esc(b.name)}</div>
-        <div class="summary-desc">${b.description || ''}</div>
-        <div class="summary-meta">
-          <span class="chip chip-fee">${feeLabel(b.fee)}</span>
-          <span class="chip chip-exams">${b.exam_count||0} exams</span>
+    <div class="pay-head"><div class="pay-eyebrow">${isFree?'Free enrollment':'Enrollment'}</div><h1>${isFree?'Enroll in this batch':'Get access to this batch'}</h1></div>
+    <div class="pay-grid">
+      <aside class="summary-card" aria-label="Batch summary">
+        <div class="summary-thumb">${thumb}</div>
+        <div class="summary-body">
+          <div class="summary-label">Batch</div>
+          <div class="summary-name">${esc(b.name)}</div>
+          <div class="price-row"><span class="price${isFree?' free':''}">${esc(feeLabel(b.fee))}</span><span class="chip chip-exams">${exams} exam${exams===1?'':'s'}</span></div>
+          ${hasDesc?`<div class="summary-desc" id="sumDesc">${cleanHtml(b.description)}</div><button class="see-more" id="sumMore" aria-expanded="false" aria-controls="sumDesc" onclick="toggleDesc(this)">See more</button>`:''}
+          ${perks}
         </div>
-      </div>
-    </div>${stepsHtml}`;
+      </aside>
+      <div class="pay-steps">${stepsHtml}</div>
+    </div>`;
+  if (b.enrolled) markDone();
+  requestAnimationFrame(refreshClamp);
+  const ci = document.getElementById('codeInput');
+  if (ci) ci.addEventListener('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); redeemCode(); } });
+  const im = document.querySelector('.pay-img');
+  if (im) im.addEventListener('error', function(){ const w=im.parentElement; im.remove(); w.insertAdjacentHTML('afterbegin', BOOK); });
+}
+
+function toggleDesc(btn){
+  const el=document.getElementById('sumDesc');if(!el)return;
+  const ex=el.classList.toggle('expanded');
+  btn.textContent=ex?'See less':'See more';
+  btn.setAttribute('aria-expanded',String(ex));
+}
+function refreshClamp(){
+  const el=document.getElementById('sumDesc'),btn=document.getElementById('sumMore');
+  if(!el||!btn)return;
+  if(el.classList.contains('expanded')){btn.classList.add('show');return}
+  const cut=el.scrollHeight>el.clientHeight+2;
+  el.classList.toggle('clamped',cut);btn.classList.toggle('show',cut);
+}
+window.addEventListener('resize',()=>{clearTimeout(window.__ct);window.__ct=setTimeout(refreshClamp,150)});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(refreshClamp);
+document.addEventListener('load',function(e){if(e.target&&e.target.closest&&e.target.closest('.summary-desc'))refreshClamp()},true);
+
+function copyMessage(){
+  const el=document.getElementById('copyMsgText');if(!el)return;
+  const text=el.textContent;
+  function fallback(){
+    try{
+      const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';
+      document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,text.length);
+      const ok=document.execCommand('copy');ta.remove();
+      toast(ok?'Message copied':'Copy failed \u2014 please select and copy the text');
+    }catch(e){toast('Copy failed \u2014 please select and copy the text')}
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(()=>toast('Message copied'),fallback)}else fallback();
 }
 
 async function loadBatch(){
   if (!slug) { showNotFound(); return; }
-  const { ok, data } = await apiFetch('/store/batches/' + encodeURIComponent(slug));
-  if (!ok || !data.slug) { showNotFound(); return; }
-  currentBatch = data;
+  document.getElementById('pageContent').innerHTML='<div class="pay-grid skel"><div class="skeleton" style="height:360px"></div><div class="skeleton" style="height:360px"></div></div>';
+  const r = await apiFetch('/store/batches/' + encodeURIComponent(slug));
+  if (r.status === 0 || r.status >= 500) { showLoadError(); return; }
+  if (!r.ok || !r.data.slug) { showNotFound(); return; }
+  currentBatch = r.data;
   renderPage();
 }
-
+function showLoadError(){
+  document.getElementById('pageContent').innerHTML = `<div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <h3>Couldn't load this batch</h3>
+    <p>Check your connection and try again.</p>
+    <div style="margin-top:18px"><button class="btn btn-primary" onclick="loadBatch()">Try again</button></div>
+  </div>`;
+}
 function showNotFound(){
   document.getElementById('pageContent').innerHTML = `<div class="empty-state">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     <h3>This offer is no longer available</h3>
     <p>The batch you're looking for may have been removed or is no longer for sale.</p>
-    <div style="margin-top:18px"><a href="batches.html" class="btn btn-primary">Browse Batches</a></div>
+    <div style="margin-top:18px"><a href="batches.html" class="btn btn-primary">Browse batches</a></div>
   </div>`;
 }
 
+let redeeming = false;
 async function redeemCode(){
+  if (redeeming) return;
   const input = document.getElementById('codeInput');
   const alertEl = document.getElementById('redeemAlert');
   const code = input.value.trim();
   alertEl.className = 'alert';
-  if (!code) { alertEl.textContent = 'Enter your access code.'; alertEl.className = 'alert alert-e'; return; }
+  input.removeAttribute('aria-invalid');
+  if (!code) { alertEl.textContent = 'Enter your access code.'; alertEl.className = 'alert alert-e'; input.setAttribute('aria-invalid','true'); input.focus(); return; }
   const btn = document.getElementById('redeemBtn');
   const btnText = document.getElementById('redeemBtnText');
   const spinner = document.getElementById('redeemSpinner');
+  redeeming = true;
   btn.disabled = true; btnText.style.display = 'none'; spinner.style.display = 'inline-block';
-  const { ok, data } = await apiFetch('/store/batches/' + encodeURIComponent(slug) + '/redeem', { method: 'POST', body: JSON.stringify({ code }) });
+  const r = await apiFetch('/store/batches/' + encodeURIComponent(slug) + '/redeem', { method: 'POST', body: JSON.stringify({ code }) });
+  redeeming = false;
   btn.disabled = false; btnText.style.display = 'inline'; spinner.style.display = 'none';
-  if (!ok) {
-    alertEl.textContent = data.error || 'Could not redeem this code.';
+  if (r.status===401){ loggedIn=false; renderHeaderUI(); document.getElementById('redeemBox').innerHTML = renderRedeemBox(); toast('Please sign in again.'); return; }
+  if (!r.ok) {
+    alertEl.textContent = netMsg(r,'Could not redeem this code.');
     alertEl.className = 'alert alert-e';
+    input.setAttribute('aria-invalid','true');
+    input.focus(); input.select();
     return;
   }
   currentBatch.enrolled = true;
   document.getElementById('redeemBox').innerHTML = renderRedeemBox();
+  markDone();
   toast('Access unlocked!');
+}
+
+// after signing in, re-check the batch so an already-enrolled student sees the right state
+async function refreshBatchQuiet(){
+  if (!slug) return;
+  const r = await apiFetch('/store/batches/' + encodeURIComponent(slug));
+  if (r.ok && r.data && r.data.slug) { currentBatch = r.data; renderPage(); }
 }
 
 loadBatch();
@@ -505,12 +713,14 @@ function switchAuthMode(mode) {
     document.getElementById('authModalTitle').textContent = 'Create account';
     document.getElementById('authModalSub').innerHTML = 'Free forever — no credit card needed';
     document.getElementById('nameField').style.display = 'block';
+    document.getElementById('authPassword').setAttribute('autocomplete', 'new-password');
     document.getElementById('authBtnText').textContent = 'Create account';
     document.getElementById('authSwitch').innerHTML = 'Already have an account? <button onclick="switchAuthMode(\'login\')">Sign in</button>';
   } else {
     document.getElementById('authModalTitle').textContent = 'Sign in';
     document.getElementById('authModalSub').innerHTML = 'to continue to <strong>Exalyte</strong>';
     document.getElementById('nameField').style.display = 'none';
+    document.getElementById('authPassword').setAttribute('autocomplete', 'current-password');
     document.getElementById('authBtnText').textContent = 'Next';
     document.getElementById('authSwitch').innerHTML = 'Don\'t have an account? <button onclick="switchAuthMode(\'signup\')">Create one</button>';
   }
@@ -657,12 +867,54 @@ function afterAuthSuccess(){
   token = getToken(); user = getUser(); loggedIn = true;
   closeAuth();
   renderHeaderUI();
+  refreshBatchQuiet();
   if (currentBatch) {
     const isFree = !currentBatch.fee || currentBatch.fee <= 0;
     const box = document.getElementById(isFree ? 'freeEnrollBox' : 'redeemBox');
     if (box) box.innerHTML = isFree ? renderFreeEnrollBox() : renderRedeemBox();
   }
 }
+
+
+/* ---- polish: password show/hide, scroll lock and focus trap for the dialogs (no auth logic touched) ---- */
+document.addEventListener('click', function(e) {
+  var t = e.target.closest ? e.target.closest('.pw-toggle') : null;
+  if (!t) return;
+  var input = t.parentElement.querySelector('input');
+  if (!input) return;
+  var show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  t.classList.toggle('on', show);
+  t.setAttribute('aria-pressed', String(show));
+  t.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  input.focus();
+});
+(function() {
+  var overlays = document.querySelectorAll('.modal-overlay');
+  function sync() {
+    var anyOpen = document.querySelector('.modal-overlay.open');
+    document.documentElement.classList.toggle('lock', !!anyOpen);
+    // never leave a revealed password behind when a dialog closes
+    document.querySelectorAll('.modal-overlay:not(.open) input[type="text"].field-input').forEach(function(i) {
+      if (i.closest('.pw-wrap')) { i.type = 'password'; var b = i.parentElement.querySelector('.pw-toggle'); if (b) { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', 'Show password'); } }
+    });
+  }
+  if (window.MutationObserver) {
+    var mo = new MutationObserver(sync);
+    overlays.forEach(function(o) { mo.observe(o, { attributes: true, attributeFilter: ['class'] }); });
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Tab') return;
+    var open = document.querySelector('.modal-overlay.open');
+    if (!open) return;
+    var f = Array.prototype.filter.call(open.querySelectorAll('input,button,a[href],select,textarea'), function(el) { return !el.disabled && el.offsetParent !== null; });
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (!open.contains(document.activeElement)) { e.preventDefault(); first.focus(); return; }
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+})();
 </script>
 </body>
 </html>
