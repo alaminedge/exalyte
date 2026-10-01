@@ -57,36 +57,6 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .page-head h1{font-family:var(--gs);font-size:clamp(1.6rem,3vw,2.2rem);font-weight:500;color:var(--t1);margin-bottom:10px;letter-spacing:-0.3px}
 .page-head p{font-size:.95rem;color:var(--t3);max-width:620px;line-height:1.6}
 .batches-wrap{max-width:1080px;margin:0 auto;padding:32px 24px 80px}
-.batch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.search-wrap{position:relative;max-width:420px;margin-bottom:24px}
-.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--t4);pointer-events:none}
-.search-input{width:100%;padding:12px 14px 12px 42px;border:1px solid var(--border);border-radius:24px;font-family:var(--rb);font-size:.88rem;color:var(--t1);background:var(--surf);outline:none;transition:border var(--tr),box-shadow var(--tr)}
-.search-input:hover{border-color:var(--t3)}
-.search-input:focus{border-color:var(--blue);box-shadow:0 1px 6px rgba(26,115,232,.15)}
-.batch-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow var(--tr)}
-.batch-card:hover{box-shadow:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15)}
-.batch-thumb{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#e8f0fe,#f3e8fd);display:flex;align-items:center;justify-content:center;color:var(--blue);overflow:hidden}
-.batch-thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.batch-thumb svg{width:36px;height:36px;opacity:.5}
-.batch-body{padding:20px;display:flex;flex-direction:column;gap:10px;flex:1}
-.batch-name{font-family:var(--gs);font-size:1.05rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
-.batch-desc{font-size:.85rem;color:var(--t3);line-height:1.6;max-height:4.8em;overflow:hidden;position:relative}
-.batch-desc.expanded{max-height:none}
-.batch-desc :is(p,ul,ol){margin-bottom:6px}
-.batch-see-more{background:none;border:none;color:var(--blue);font-family:var(--gs);font-size:.78rem;font-weight:500;cursor:pointer;padding:0;text-align:left;width:fit-content}
-.batch-see-more:hover{text-decoration:underline}
-.batch-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:2px}
-.chip{display:inline-flex;align-items:center;font-family:var(--gs);font-size:.72rem;font-weight:500;padding:4px 10px;border-radius:20px}
-.chip-fee{background:var(--grn-bg);color:var(--green)}
-.chip-fee.free{background:var(--grn-bg);color:var(--green)}
-.chip-exams{background:var(--hov);color:var(--t3)}
-.chip-enrolled{background:#e8f0fe;color:var(--blue)}
-.batch-cta{margin-top:auto;padding-top:8px}
-.skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--rl)}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.empty-state{text-align:center;padding:64px 24px;color:var(--t3)}
-.empty-state svg{width:48px;height:48px;color:var(--t4);margin-bottom:16px}
-.empty-state h3{font-family:var(--gs);font-size:1.05rem;color:var(--t2);margin-bottom:6px;font-weight:500}
 .footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
 .footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px}
 .fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
@@ -105,7 +75,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .modal .subtitle{font-size:.85rem;color:var(--t3);text-align:center;margin-bottom:28px}
 .field{margin-bottom:18px}
 .field-label{display:block;font-size:.75rem;font-weight:500;color:var(--t3);margin-bottom:4px;letter-spacing:.3px}
-.field-input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--rb);font-size:.95rem;color:var(--t1);background:var(--surf);outline:none;transition:border var(--tr);min-height:44px}
+.field-input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--rb);font-size:1rem;color:var(--t1);background:var(--surf);outline:none;transition:border var(--tr);min-height:44px}
 .field-input:hover{border-color:var(--t3)}
 .field-input:focus{border:2px solid var(--blue);padding:11px 13px}
 .alert{padding:10px 14px;border-radius:var(--r);font-size:.8rem;margin-bottom:16px;display:none}
@@ -118,27 +88,130 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 .modal-footer-link button:hover{text-decoration:underline}
 .toast{position:fixed;bottom:24px;left:24px;z-index:9999;padding:14px 24px;border-radius:var(--r);background:#323232;color:#f5f5f5;font-size:.875rem;box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px rgba(0,0,0,.14),0 1px 18px rgba(0,0,0,.12);transform:translateY(80px);opacity:0;transition:all .25s cubic-bezier(0,0,.2,1);pointer-events:none;bottom:calc(24px + var(--safe-bottom))}
 .toast.show{transform:translateY(0);opacity:1}
+
+[hidden]{display:none !important}
+.btn:focus-visible,a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.btn{min-height:44px}
+a.avatar{text-decoration:none}
+.page-head{max-width:1080px;margin:0 auto;padding:40px 24px 4px}
+.batches-wrap{max-width:1080px;margin:0 auto;padding:20px 24px 80px}
+
+/* how it works */
+.bt-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0 0}
+.bt-step{display:flex;align-items:center;gap:12px;background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:12px 16px;font-size:.84rem;color:var(--t2);line-height:1.4}
+.bt-step b{flex:none;width:28px;height:28px;border-radius:50%;background:#e8f0fe;color:var(--blue);display:flex;align-items:center;justify-content:center;font-family:var(--gs);font-size:.8rem;font-weight:500}
+
+/* toolbar */
+.bt-tools{display:flex;align-items:center;gap:12px 16px;flex-wrap:wrap;margin-bottom:10px}
+.search-wrap{position:relative;flex:1 1 300px;max-width:480px;margin:0}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--t4);pointer-events:none}
+.search-input{width:100%;padding:12px 44px 12px 42px;border:1px solid var(--border);border-radius:24px;font-family:var(--rb);font-size:1rem;color:var(--t1);background:var(--surf);outline:none;transition:border-color var(--tr),box-shadow var(--tr);min-height:46px;-webkit-appearance:none;appearance:none}
+.search-input::-webkit-search-cancel-button{display:none}
+.search-input:hover{border-color:var(--t3)}
+.search-input:focus{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.search-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:none;background:none;border-radius:50%;cursor:pointer;color:var(--t3);display:none;align-items:center;justify-content:center}
+.search-clear.show{display:flex}
+.search-clear:hover{background:var(--hov)}
+.search-clear svg{width:16px;height:16px;stroke:currentColor;fill:none}
+.chips-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:2px 0}
+.chips-row::-webkit-scrollbar{display:none}
+.filter-chip{padding:10px 18px;border:1px solid var(--border);border-radius:20px;font-family:var(--gs);font-size:.82rem;font-weight:500;color:var(--t3);background:var(--surf);cursor:pointer;transition:all var(--tr);white-space:nowrap;min-height:40px;display:flex;align-items:center;flex-shrink:0}
+.filter-chip:hover{border-color:var(--blue);color:var(--blue)}
+.filter-chip.active{background:#e8f0fe;color:var(--blue);border-color:var(--blue)}
+.results-line{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:.78rem;color:var(--t3);margin-bottom:14px;min-height:32px}
+.link-btn{background:none;border:none;color:var(--blue);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer;padding:6px 8px;min-height:36px;border-radius:var(--r)}
+.link-btn:hover{background:#e8f0fe}
+
+/* grid + cards */
+.batch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+.batch-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow var(--tr),transform var(--tr);min-width:0}
+.batch-card:hover{box-shadow:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15)}
+.batch-card.is-enrolled{border-color:#aecbfa}
+.batch-thumb{position:relative;width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#e8f0fe,#f3e8fd);display:flex;align-items:center;justify-content:center;color:var(--blue);overflow:hidden}
+.batch-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.batch-thumb>svg{width:40px;height:40px;opacity:.45}
+.fee-badge{position:absolute;left:12px;top:12px;font-family:var(--gs);font-size:.78rem;font-weight:500;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,.95);color:var(--t1);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.fee-badge.free{color:var(--green)}
+.enr-flag{position:absolute;right:12px;top:12px;display:inline-flex;align-items:center;gap:5px;font-family:var(--gs);font-size:.74rem;font-weight:500;padding:5px 11px;border-radius:20px;background:var(--blue);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.enr-flag svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.batch-body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:10px;flex:1;min-width:0}
+.batch-name{font-family:var(--gs);font-size:1.08rem;font-weight:500;color:var(--t1);letter-spacing:-.2px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.batch-meta{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;font-size:.78rem;color:var(--t3)}
+.batch-meta span{display:inline-flex;align-items:center;gap:5px}
+.batch-meta svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+.batch-desc{position:relative;font-size:.86rem;color:var(--t3);line-height:1.6;max-height:4.8em;overflow:hidden}
+.batch-desc.clamped:not(.expanded):after{content:'';position:absolute;left:0;right:0;bottom:0;height:1.6em;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff)}
+.batch-desc.expanded{max-height:none}
+.batch-desc :is(p,ul,ol,h1,h2,h3,h4){margin:0 0 6px;font-size:inherit}
+.batch-desc :is(ul,ol){padding-left:20px}
+.batch-desc img,.batch-desc video,.batch-desc iframe,.batch-desc table{max-width:100% !important;height:auto !important}
+.batch-desc a{color:var(--blue)}
+.batch-see-more{background:none;border:none;color:var(--blue);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer;padding:6px 0;min-height:36px;text-align:left;width:fit-content;display:none}
+.batch-see-more.show{display:block}
+.batch-see-more:hover{text-decoration:underline}
+.batch-cta{margin-top:auto;padding-top:6px}
+.batch-cta .btn{width:100%;min-height:46px;font-size:.9rem}
+.skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--rl)}
+.empty-state{text-align:center;padding:56px 24px;color:var(--t3);background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);grid-column:1/-1}
+.empty-state svg{width:48px;height:48px;stroke:var(--t4);fill:none;margin-bottom:12px}
+.empty-state h3{font-family:var(--gs);font-size:1.05rem;color:var(--t1);margin-bottom:6px;font-weight:500}
+.empty-state .btn{margin-top:16px}
+.header{z-index:1000}
+.toast{z-index:9999}
+
+.modal{max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);overflow-y:auto;overscroll-behavior:contain}
+.modal-overlay{overscroll-behavior:contain}
+html.lock,html.lock body{overflow:hidden}
+.pw-wrap{position:relative}
+.pw-wrap .field-input{padding-right:48px}
+.pw-wrap .field-input:focus{padding-right:47px}
+.pw-toggle{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:none;background:none;border-radius:50%;cursor:pointer;color:var(--t3);display:flex;align-items:center;justify-content:center}
+.pw-toggle:hover{background:var(--hov)}
+.pw-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pw-toggle .eye-off{display:none}
+.pw-toggle.on .eye{display:none}.pw-toggle.on .eye-off{display:block}
+.btn-full:disabled{cursor:progress}
+
+
+@media(max-width:1000px){
+  .batch-grid{grid-template-columns:repeat(2,1fr)}
+  .footer-inner{grid-template-columns:1fr 1fr;gap:28px}
+}
 @media(max-width:900px){
   .header-nav{display:none}
   .hamburger{display:flex}
   .header{padding:0 16px}
-  .batch-grid{grid-template-columns:1fr 1fr}
-  .footer-inner{grid-template-columns:1fr 1fr;gap:28px}
-  .page-head{padding:36px 20px 8px}
+  .page-head{padding:32px 20px 4px}
+  .batches-wrap{padding:16px 20px 80px;padding-bottom:calc(80px + var(--safe-bottom))}
+}
+@media(max-width:700px){
+  .bt-steps{grid-template-columns:1fr;gap:8px}
+  .search-wrap{flex-basis:100%;max-width:none}
 }
 @media(max-width:600px){
-  .batch-grid{grid-template-columns:1fr}
+  .batch-grid{grid-template-columns:1fr;gap:16px}
   .footer-inner{grid-template-columns:1fr;gap:20px}
   .footer-bottom{flex-direction:column;text-align:center}
-  .modal{padding:28px 22px}
+  .batch-body{padding:16px 16px 18px}
 }
+@media(max-width:480px){
+  .header{padding:0 12px}
+  .header-right{gap:6px}
+  .header-right .btn{padding:8px 14px;min-height:40px;font-size:.8rem}
+  .toast{left:16px;right:16px;bottom:calc(16px + var(--safe-bottom))}
+  .modal-overlay{align-items:flex-end;padding:0}
+  .modal{border-radius:16px 16px 0 0;max-height:92vh;max-height:92dvh;padding:28px 20px calc(24px + env(safe-area-inset-bottom,0px))}
+}
+@media(max-width:400px){.header-right .btn-primary{display:none}.page-head h1{font-size:1.45rem}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+
 </style>
 </head>
 <body>
 
 <header class="header" id="header">
   <div class="header-left">
-    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <a href="/" class="logo-wrap">
@@ -157,16 +230,31 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
     <div class="page-eyebrow">Batches</div>
     <h1>Enroll in a batch</h1>
     <p>Browse available batches below. Each unlocks its full set of exams once your enrollment is confirmed.</p>
+    <div class="bt-steps" aria-label="How enrolling works">
+      <div class="bt-step"><b>1</b><span>Choose the batch that fits you</span></div>
+      <div class="bt-step"><b>2</b><span>Complete your enrollment</span></div>
+      <div class="bt-step"><b>3</b><span>Exams unlock once it&rsquo;s confirmed</span></div>
+    </div>
   </div>
   <div class="batches-wrap">
-    <div class="search-wrap">
-      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" class="search-input" id="batchSearchInput" placeholder="Search batches..." oninput="onBatchSearchInput()">
+    <div class="bt-tools">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" class="search-input" id="batchSearchInput" placeholder="Search batches" oninput="onBatchSearchInput()" aria-label="Search batches" autocomplete="off" enterkeyhint="search">
+        <button class="search-clear" id="searchClear" onclick="clearBatchSearch()" aria-label="Clear search"><svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="chips-row" id="chipsRow" role="group" aria-label="Filter batches" hidden>
+        <button class="filter-chip active" data-f="all" aria-pressed="true" onclick="setChip(this)">All</button>
+        <button class="filter-chip" data-f="free" aria-pressed="false" onclick="setChip(this)">Free</button>
+        <button class="filter-chip" data-f="paid" aria-pressed="false" onclick="setChip(this)">Paid</button>
+        <button class="filter-chip" data-f="enrolled" id="chipEnrolled" aria-pressed="false" onclick="setChip(this)" hidden>Enrolled</button>
+      </div>
     </div>
+    <div class="results-line" id="resultsLine" aria-live="polite"></div>
     <div class="batch-grid" id="batchGrid">
-      <div class="skeleton" style="height:340px"></div>
-      <div class="skeleton" style="height:340px"></div>
-      <div class="skeleton" style="height:340px"></div>
+      <div class="skeleton" style="height:360px"></div>
+      <div class="skeleton" style="height:360px"></div>
+      <div class="skeleton" style="height:360px"></div>
     </div>
   </div>
 </main>
@@ -207,22 +295,22 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 </footer>
 
 <div class="modal-overlay" id="authModal">
-  <div class="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
     <h2 id="authModalTitle">Sign in</h2>
     <p class="subtitle" id="authModalSub">to continue to <strong>Exalyte</strong></p>
-    <div class="alert" id="modalAlert"></div>
+    <div class="alert" id="modalAlert" role="alert"></div>
     <form id="authForm" autocomplete="off">
       <div class="field" id="nameField" style="display:none">
         <label class="field-label" for="authName">Full name</label>
-        <input type="text" class="field-input" id="authName" placeholder="Your name">
+        <input type="text" class="field-input" id="authName" placeholder="Your name" autocomplete="name">
       </div>
       <div class="field">
         <label class="field-label" for="authEmail">Email address</label>
-        <input type="email" class="field-input" id="authEmail" required placeholder="you@example.com">
+        <input type="email" class="field-input" id="authEmail" required placeholder="you@example.com" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false">
       </div>
       <div class="field">
         <label class="field-label" for="authPassword">Password</label>
-        <input type="password" class="field-input" id="authPassword" required placeholder="Your password" minlength="6">
+        <div class="pw-wrap"><input type="password" class="field-input" id="authPassword" required placeholder="Your password" minlength="6" autocomplete="current-password"><button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false"><svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
       </div>
       <button type="submit" class="btn btn-primary btn-full" id="authSubmitBtn">
         <span id="authBtnText">Next</span>
@@ -236,14 +324,14 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 </div>
 
 <div class="modal-overlay" id="masterKeyModal">
-  <div class="modal">
-    <h2>Admin Verification</h2>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mkTitle">
+    <h2 id="mkTitle">Admin Verification</h2>
     <p class="subtitle">Enter your master key to access the admin panel</p>
-    <div class="alert" id="masterKeyAlert"></div>
+    <div class="alert" id="masterKeyAlert" role="alert"></div>
     <form id="masterKeyForm" autocomplete="off">
       <div class="field">
         <label class="field-label" for="masterKeyInput">Master Key</label>
-        <input type="password" class="field-input" id="masterKeyInput" placeholder="Enter your secret phrase" required>
+        <div class="pw-wrap"><input type="password" class="field-input" id="masterKeyInput" placeholder="Enter your secret phrase" required><button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false"><svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
       </div>
       <button type="submit" class="btn btn-primary btn-full" id="masterKeySubmitBtn">
         <span id="masterKeyBtnText">Verify</span>
@@ -254,18 +342,18 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
 </div>
 
 <div class="modal-overlay" id="masterKeySetupModal">
-  <div class="modal">
-    <h2>Set Master Key</h2>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mksTitle">
+    <h2 id="mksTitle">Set Master Key</h2>
     <p class="subtitle">Create a secret phrase to protect admin access. Keep it safe — you'll need it every time you log in.</p>
-    <div class="alert" id="masterKeySetupAlert"></div>
+    <div class="alert" id="masterKeySetupAlert" role="alert"></div>
     <form id="masterKeySetupForm" autocomplete="off">
       <div class="field">
         <label class="field-label" for="setupKeyInput">Master Key Phrase</label>
-        <input type="password" class="field-input" id="setupKeyInput" placeholder="Minimum 6 characters" required minlength="6">
+        <div class="pw-wrap"><input type="password" class="field-input" id="setupKeyInput" placeholder="Minimum 6 characters" required minlength="6"><button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false"><svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
       </div>
       <div class="field">
         <label class="field-label" for="setupKeyConfirm">Confirm Phrase</label>
-        <input type="password" class="field-input" id="setupKeyConfirm" placeholder="Re-enter your phrase" required minlength="6">
+        <div class="pw-wrap"><input type="password" class="field-input" id="setupKeyConfirm" placeholder="Re-enter your phrase" required minlength="6"><button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false"><svg class="eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button></div>
       </div>
       <button type="submit" class="btn btn-primary btn-full" id="masterKeySetupBtn">
         <span id="masterKeySetupBtnText">Set Master Key</span>
@@ -275,29 +363,31 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 const API = '/api';
 function getToken(){return localStorage.getItem('exalyte_token')}
-function getUser(){return JSON.parse(localStorage.getItem('exalyte_user')||'null')}
+function getUser(){try{return JSON.parse(localStorage.getItem('exalyte_user')||'null')}catch(e){return null}}
 function logout(){localStorage.clear();window.location.href='/'}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 
-async function apiFetch(path,opts={}){
+async function apiFetch(path,opts){
+  opts=opts||{};
   const token=getToken();
   const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})};
   try{
     const res=await fetch(API+path,{...opts,headers});
     const text=await res.text();
-    if(!text||text.trim()==='')return{ok:false,data:{}};
-    try{const data=JSON.parse(text);return{ok:res.ok,data}}catch(e){return{ok:false,data:{}}}
-  }catch(error){return{ok:false,data:{}}}
+    let data={};try{data=text?JSON.parse(text):{}}catch(e){}
+    return{ok:res.ok,data,status:res.status};
+  }catch(error){return{ok:false,data:{},status:0}}
 }
 
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+let toastTimer=null;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3000)}
 
-document.getElementById('footerYear').textContent = '© ' + new Date().getFullYear() + ' Exalyte. All rights reserved.';
+document.getElementById('footerYear').textContent = '\u00a9 ' + new Date().getFullYear() + ' Exalyte. All rights reserved.';
 
 const token = getToken();
 const user = getUser();
@@ -309,7 +399,7 @@ function renderHeaderUI(){
   const mobileNav = document.getElementById('mobileNavDropdown');
   if (loggedIn) {
     const dashboardUrl = user.is_admin ? 'admin.html' : 'dashboard.html';
-    const initial = (user.name || 'U')[0].toUpperCase();
+    const initial = String((user.name || 'U').trim().charAt(0) || 'U').toUpperCase().replace(/[<>&"']/g, 'U');
     const links = user.is_admin ? '' :
       '<a href="dashboard.html">Dashboard</a><a href="exam-history.html">History</a><a href="batches.html" class="active">Batches</a>';
     nav.innerHTML = links;
@@ -319,7 +409,7 @@ function renderHeaderUI(){
       '<a href="#" onclick="logout();return false" style="color:var(--red)">Sign out</a>';
     hr.innerHTML =
       '<a href="' + dashboardUrl + '" class="btn btn-outline">Dashboard</a>' +
-      '<div class="avatar">' + initial + '</div>';
+      '<a class="avatar" href="' + dashboardUrl + '" aria-label="Go to dashboard">' + initial + '</a>';
   } else {
     nav.innerHTML = '<a href="batches.html" class="active">Batches</a>';
     mobileNav.innerHTML = '<a href="batches.html" class="active">Batches</a>';
@@ -330,7 +420,15 @@ function renderHeaderUI(){
 }
 renderHeaderUI();
 
-function toggleMobileNav(){document.getElementById('mobileNavDropdown').classList.toggle('show')}
+function toggleMobileNav(){
+  const dd=document.getElementById('mobileNavDropdown');
+  const open=dd.classList.toggle('show');
+  document.getElementById('hamburger').setAttribute('aria-expanded',String(open));
+}
+document.addEventListener('click',function(e){
+  const dd=document.getElementById('mobileNavDropdown'),hb=document.getElementById('hamburger');
+  if(dd&&!dd.contains(e.target)&&!hb.contains(e.target)){dd.classList.remove('show');hb.setAttribute('aria-expanded','false')}
+});
 
 const headerEl = document.getElementById('header');
 let lastY = 0, tickingHeader = false;
@@ -346,83 +444,141 @@ window.addEventListener('scroll', function() {
   }
 }, { passive: true });
 
-function feeLabel(fee){ return (!fee || fee <= 0) ? 'Free' : ('৳' + fee); }
+/* ---------- batch descriptions: admin HTML, cleaned before it is shown ---------- */
+function cleanHtml(h){
+  try{
+    const doc=new DOMParser().parseFromString(String(h||''),'text/html');
+    doc.querySelectorAll('script,style,iframe,object,embed,link,meta,form,base').forEach(n=>n.remove());
+    doc.body.querySelectorAll('*').forEach(el=>{
+      Array.from(el.attributes).forEach(a=>{
+        const n=a.name.toLowerCase(),v=String(a.value).trim().toLowerCase();
+        if(n.startsWith('on')||((n==='href'||n==='src'||n==='xlink:href')&&/^(javascript|data):/.test(v)&&!(n==='src'&&/^data:image\//.test(v))))el.removeAttribute(a.name);
+      });
+      if(el.tagName==='A'){el.setAttribute('target','_blank');el.setAttribute('rel','noopener noreferrer')}
+      if(el.tagName==='IMG'){el.removeAttribute('width');el.removeAttribute('height');el.setAttribute('loading','lazy')}
+    });
+    return doc.body.innerHTML;
+  }catch(e){return esc(h)}
+}
+function plainText(h){try{return(new DOMParser().parseFromString(String(h||''),'text/html').body.textContent||'')}catch(e){return String(h||'')}}
 
-function batchCard(b){
-  const thumb = b.image_url
-    ? `<img src="${esc(b.image_url)}" alt="${esc(b.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><path d=\\'M4 19.5A2.5 2.5 0 0 1 6.5 17H20\\'/><path d=\\'M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z\\'/></svg>'">`
-    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`;
-  const descId = 'desc-' + Math.random().toString(36).slice(2, 9);
-  const isFree = !b.fee || b.fee <= 0;
-  const cta = b.enrolled
-    ? `<a href="dashboard.html" class="btn btn-outline btn-full">Enrolled · Go to Dashboard</a>`
-    : `<a href="payment.html?batch=${encodeURIComponent(b.slug)}" class="btn btn-primary btn-full">${isFree ? 'Enroll for Free' : 'Enroll Now'}</a>`;
-  return `<div class="batch-card">
-    <div class="batch-thumb">${thumb}</div>
-    <div class="batch-body">
-      <div class="batch-name">${esc(b.name)}</div>
-      <div class="batch-meta">
-        <span class="chip ${(!b.fee||b.fee<=0)?'chip-fee free':'chip-fee'}">${feeLabel(b.fee)}</span>
-        <span class="chip chip-exams">${b.exam_count||0} exams</span>
-        ${b.enrolled ? '<span class="chip chip-enrolled">Enrolled</span>' : ''}
-      </div>
-      <div class="batch-desc" id="${descId}">${b.description || ''}</div>
-      <button class="batch-see-more" onclick="toggleDesc('${descId}', this)">See more</button>
-      <div class="batch-cta">${cta}</div>
-    </div>
-  </div>`;
+function feeNum(fee){const n=Number(fee);return isFinite(n)&&n>0?n:0}
+function feeLabel(fee){const n=feeNum(fee);return n<=0?'Free':'\u09f3'+n.toLocaleString('en-US')}
+
+const ICON_BOOK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
+const ICON_LIST='<svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>';
+const ICON_TICK='<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+
+function batchCard(b,i){
+  const free=feeNum(b.fee)<=0;
+  const img=b.image_url?'<img class="bt-img" src="'+esc(b.image_url)+'" alt="" loading="lazy">':ICON_BOOK;
+  const cta=b.enrolled
+    ?'<a href="dashboard.html" class="btn btn-outline">Go to dashboard</a>'
+    :'<a href="payment.html?batch='+encodeURIComponent(b.slug||'')+'" class="btn btn-primary">'+(free?'Enroll for free':'Enroll &middot; '+esc(feeLabel(b.fee)))+'</a>';
+  const hasDesc=!!plainText(b.description).trim();
+  return '<article class="batch-card'+(b.enrolled?' is-enrolled':'')+'" aria-labelledby="bn'+i+'">'+
+    '<div class="batch-thumb">'+img+'<span class="fee-badge'+(free?' free':'')+'">'+esc(feeLabel(b.fee))+'</span>'+(b.enrolled?'<span class="enr-flag">'+ICON_TICK+'Enrolled</span>':'')+'</div>'+
+    '<div class="batch-body"><h2 class="batch-name" id="bn'+i+'" title="'+esc(b.name)+'">'+esc(b.name)+'</h2>'+
+    '<div class="batch-meta"><span>'+ICON_LIST+(b.exam_count||0)+' exam'+((b.exam_count||0)===1?'':'s')+'</span></div>'+
+    (hasDesc?'<div class="batch-desc" id="bd'+i+'">'+b._html+'</div><button class="batch-see-more" aria-expanded="false" aria-controls="bd'+i+'" onclick="toggleDesc('+i+',this)">See more</button>':'')+
+    '<div class="batch-cta">'+cta+'</div></div></article>';
 }
 
-function toggleDesc(id, btn){
-  const el = document.getElementById(id);
-  const expanded = el.classList.toggle('expanded');
-  btn.textContent = expanded ? 'See less' : 'See more';
+function toggleDesc(i,btn){
+  const el=document.getElementById('bd'+i);if(!el)return;
+  const ex=el.classList.toggle('expanded');
+  btn.textContent=ex?'See less':'See more';
+  btn.setAttribute('aria-expanded',String(ex));
 }
+// show "See more" only where the text really is cut off (re-checked when fonts/images/size change)
+function refreshClamps(){
+  document.querySelectorAll('.batch-desc').forEach(el=>{
+    const btn=el.nextElementSibling;if(!btn||!btn.classList.contains('batch-see-more'))return;
+    if(el.classList.contains('expanded')){btn.classList.add('show');return}
+    const cut=el.scrollHeight>el.clientHeight+2;
+    el.classList.toggle('clamped',cut);btn.classList.toggle('show',cut);
+  });
+}
+let clampTimer=null;
+window.addEventListener('resize',()=>{clearTimeout(clampTimer);clampTimer=setTimeout(refreshClamps,150)});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(refreshClamps);
+const gridEl=document.getElementById('batchGrid');
+gridEl.addEventListener('load',e=>{if(e.target&&e.target.closest&&e.target.closest('.batch-desc'))refreshClamps()},true);
+gridEl.addEventListener('error',e=>{ // broken thumbnail -> neutral placeholder (no inline handler needed)
+  const t=e.target;
+  if(t&&t.classList&&t.classList.contains('bt-img')){const w=t.parentElement;t.remove();w.insertAdjacentHTML('afterbegin',ICON_BOOK)}
+},true);
 
 function levenshtein(a,b){const m=a.length,n=b.length;if(m===0)return n;if(n===0)return m;const dp=new Array(n+1);for(let j=0;j<=n;j++)dp[j]=j;for(let i=1;i<=m;i++){let prev=dp[0];dp[0]=i;for(let j=1;j<=n;j++){const tmp=dp[j];dp[j]=a[i-1]===b[j-1]?prev:1+Math.min(prev,dp[j],dp[j-1]);prev=tmp}}return dp[n]}
 function normalizeSearch(s){return(s||'').toLowerCase().trim().replace(/\s+/g,' ')}
 function fieldMatchScore(query,field){if(!field)return -1;const q=normalizeSearch(query),f=normalizeSearch(field);if(!q)return -1;if(f.startsWith(q))return 100;if(f.includes(q))return 90-Math.min(20,f.length-q.length);let best=Infinity;const qLen=q.length;for(let i=0;i<=Math.max(0,f.length-1);i++){const win=f.substr(i,qLen);if(!win)continue;const d=levenshtein(q,win);if(d<best)best=d}best=Math.min(best,levenshtein(q,f));const threshold=qLen<=3?1:Math.ceil(qLen*0.34);if(best<=threshold)return 60-best*8;return -1}
 
-let allBatches = [];
+let allBatches=[],chipFilter='all',searchTimer=null;
 
-function renderBatchGrid(batches) {
-  const grid = document.getElementById('batchGrid');
-  if (!batches.length) {
-    const q = document.getElementById('batchSearchInput').value.trim();
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      <h3>${q ? 'No batches match your search' : 'No batches available right now'}</h3>
-      <p>${q ? 'Try a different name or check the spelling.' : 'Check back soon — new batches are added regularly.'}</p>
-    </div>`;
+function matchesChip(b){
+  if(chipFilter==='free')return feeNum(b.fee)<=0;
+  if(chipFilter==='paid')return feeNum(b.fee)>0;
+  if(chipFilter==='enrolled')return !!b.enrolled;
+  return true;
+}
+function setChip(btn){
+  document.querySelectorAll('#chipsRow .filter-chip').forEach(c=>{c.classList.remove('active');c.setAttribute('aria-pressed','false')});
+  btn.classList.add('active');btn.setAttribute('aria-pressed','true');
+  chipFilter=btn.dataset.f;renderBatchGrid();
+}
+function clearBatchSearch(){const i=document.getElementById('batchSearchInput');i.value='';document.getElementById('searchClear').classList.remove('show');i.focus();renderBatchGrid()}
+function clearAll(){
+  document.getElementById('batchSearchInput').value='';document.getElementById('searchClear').classList.remove('show');
+  chipFilter='all';
+  document.querySelectorAll('#chipsRow .filter-chip').forEach(c=>{const on=c.dataset.f==='all';c.classList.toggle('active',on);c.setAttribute('aria-pressed',String(on))});
+  renderBatchGrid();
+}
+function onBatchSearchInput(){
+  clearTimeout(searchTimer);searchTimer=setTimeout(renderBatchGrid,120);
+  document.getElementById('searchClear').classList.toggle('show',!!document.getElementById('batchSearchInput').value);
+}
+
+function renderBatchGrid(){
+  const grid=document.getElementById('batchGrid');
+  const q=normalizeSearch(document.getElementById('batchSearchInput').value);
+  let list=allBatches.filter(matchesChip);
+  if(q){
+    list=list.map(b=>({b,s:Math.max(fieldMatchScore(q,b.name),fieldMatchScore(q,b._text||''))})).filter(x=>x.s>=0).sort((a,c)=>c.s-a.s).map(x=>x.b);
+  }
+  const active=!!q||chipFilter!=='all';
+  document.getElementById('resultsLine').innerHTML=allBatches.length
+    ?'<span>'+list.length+' batch'+(list.length!==1?'es':'')+(active?' found':'')+'</span>'+(active?'<button class="link-btn" onclick="clearAll()">Clear filters</button>':''):'';
+  if(!list.length){
+    grid.innerHTML=allBatches.length
+      ?'<div class="empty-state">'+ICON_BOOK+'<h3>No batches match</h3><p>Try a different name or clear the filters.</p><button class="btn btn-outline" onclick="clearAll()">Clear filters</button></div>'
+      :'<div class="empty-state">'+ICON_BOOK+'<h3>No batches available right now</h3><p>Check back soon &mdash; new batches are added regularly.</p></div>';
     return;
   }
-  grid.innerHTML = batches.map(batchCard).join('');
-  requestAnimationFrame(() => {
-    document.querySelectorAll('.batch-desc').forEach(el => {
-      if (el.scrollHeight <= el.clientHeight + 2) {
-        el.nextElementSibling.style.display = 'none';
-      }
-    });
-  });
+  grid.innerHTML=list.map(b=>batchCard(b,allBatches.indexOf(b))).join('');
+  requestAnimationFrame(refreshClamps);
 }
 
-function onBatchSearchInput() {
-  const q = normalizeSearch(document.getElementById('batchSearchInput').value);
-  if (!q) { renderBatchGrid(allBatches); return; }
-  const scored = allBatches
-    .map(b => ({ b, s: Math.max(fieldMatchScore(q, b.name), fieldMatchScore(q, b.description || '')) }))
-    .filter(x => x.s >= 0)
-    .sort((a, c) => c.s - a.s)
-    .map(x => x.b);
-  renderBatchGrid(scored);
+function showLoadError(){
+  document.getElementById('resultsLine').innerHTML='';
+  document.getElementById('batchGrid').innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><h3>Couldn\'t load batches</h3><p>Check your connection and try again.</p><button class="btn btn-primary" onclick="loadBatches()">Try again</button></div>';
 }
-
+let loadingBatches=false;
 async function loadBatches(){
-  const { ok, data } = await apiFetch('/store/batches');
-  if (!ok || !data.batches) { document.getElementById('batchGrid').innerHTML = ''; return; }
-  allBatches = data.batches;
-  renderBatchGrid(allBatches);
+  if(loadingBatches)return;loadingBatches=true;
+  document.getElementById('batchGrid').innerHTML='<div class="skeleton" style="height:360px"></div><div class="skeleton" style="height:360px"></div><div class="skeleton" style="height:360px"></div>';
+  try{
+    const{ok,data}=await apiFetch('/store/batches');
+    if(!ok||!Array.isArray(data.batches)){showLoadError();return}
+    allBatches=data.batches.map(b=>{b._html=cleanHtml(b.description);b._text=plainText(b.description);return b});
+    document.getElementById('chipsRow').hidden=allBatches.length===0;
+    const hasEnrolled=loggedIn&&allBatches.some(b=>b.enrolled);
+    document.getElementById('chipEnrolled').hidden=!hasEnrolled;
+    if(!hasEnrolled&&chipFilter==='enrolled')chipFilter='all';
+    renderBatchGrid();
+  }catch(e){console.error(e);showLoadError()}
+  finally{loadingBatches=false}
 }
+document.getElementById('batchSearchInput').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur()});
 loadBatches();
 
 // --- Auth modal (sign in / create account) ---
@@ -446,12 +602,14 @@ function switchAuthMode(mode) {
     document.getElementById('authModalTitle').textContent = 'Create account';
     document.getElementById('authModalSub').innerHTML = 'Free forever — no credit card needed';
     document.getElementById('nameField').style.display = 'block';
+    document.getElementById('authPassword').setAttribute('autocomplete', 'new-password');
     document.getElementById('authBtnText').textContent = 'Create account';
     document.getElementById('authSwitch').innerHTML = 'Already have an account? <button onclick="switchAuthMode(\'login\')">Sign in</button>';
   } else {
     document.getElementById('authModalTitle').textContent = 'Sign in';
     document.getElementById('authModalSub').innerHTML = 'to continue to <strong>Exalyte</strong>';
     document.getElementById('nameField').style.display = 'none';
+    document.getElementById('authPassword').setAttribute('autocomplete', 'current-password');
     document.getElementById('authBtnText').textContent = 'Next';
     document.getElementById('authSwitch').innerHTML = 'Don\'t have an account? <button onclick="switchAuthMode(\'signup\')">Create one</button>';
   }
@@ -594,6 +752,47 @@ document.getElementById('authForm').addEventListener('submit', async function(e)
     } catch(e) { modalAlert('Network error. Please try again.'); resetAuthBtn(); }
   }
 });
+
+
+/* ---- polish: password show/hide, scroll lock and focus trap for the dialogs (no auth logic touched) ---- */
+document.addEventListener('click', function(e) {
+  var t = e.target.closest ? e.target.closest('.pw-toggle') : null;
+  if (!t) return;
+  var input = t.parentElement.querySelector('input');
+  if (!input) return;
+  var show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  t.classList.toggle('on', show);
+  t.setAttribute('aria-pressed', String(show));
+  t.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  input.focus();
+});
+(function() {
+  var overlays = document.querySelectorAll('.modal-overlay');
+  function sync() {
+    var anyOpen = document.querySelector('.modal-overlay.open');
+    document.documentElement.classList.toggle('lock', !!anyOpen);
+    // never leave a revealed password behind when a dialog closes
+    document.querySelectorAll('.modal-overlay:not(.open) input[type="text"].field-input').forEach(function(i) {
+      if (i.closest('.pw-wrap')) { i.type = 'password'; var b = i.parentElement.querySelector('.pw-toggle'); if (b) { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', 'Show password'); } }
+    });
+  }
+  if (window.MutationObserver) {
+    var mo = new MutationObserver(sync);
+    overlays.forEach(function(o) { mo.observe(o, { attributes: true, attributeFilter: ['class'] }); });
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Tab') return;
+    var open = document.querySelector('.modal-overlay.open');
+    if (!open) return;
+    var f = Array.prototype.filter.call(open.querySelectorAll('input,button,a[href],select,textarea'), function(el) { return !el.disabled && el.offsetParent !== null; });
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (!open.contains(document.activeElement)) { e.preventDefault(); first.focus(); return; }
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+})();
 </script>
 </body>
 </html>
