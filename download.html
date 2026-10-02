@@ -88,6 +88,18 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
 .tips li{display:flex;gap:10px;font-size:.84rem;color:var(--t3);line-height:1.55}
 .tips svg{width:18px;height:18px;flex-shrink:0;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
 
+/* open-in-Chrome banner */
+.chrome-box{display:flex;align-items:flex-start;gap:14px;background:#e8f0fe;border:1px solid #c6dafc;border-radius:var(--rl);padding:16px 18px;margin-bottom:16px;text-align:left}
+.chrome-box.strong{background:var(--yel-bg);border-color:#f6d98a}
+.chrome-ico{flex:none;width:40px;height:40px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center}
+.chrome-ico svg{width:24px;height:24px}
+.chrome-box h3{font-family:var(--gs);font-size:.95rem;font-weight:500;color:var(--t1);margin-bottom:2px}
+.chrome-box p{font-size:.82rem;color:var(--t2);line-height:1.55;margin-bottom:12px}
+.chrome-box .actions{justify-content:flex-start}
+.chrome-box .actions .btn{flex:0 1 auto;min-height:44px}
+.chrome-steps{margin:0 0 12px 18px;font-size:.82rem;color:var(--t2);line-height:1.6}
+@media(max-width:600px){.chrome-box{flex-direction:column;gap:10px}.chrome-box .actions .btn{flex:1 1 100%}}
+
 /* landing */
 .landing{text-align:center;padding:34px 24px 28px}
 .file-ico{width:64px;height:64px;border-radius:18px;background:#e8f0fe;color:var(--blue);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
@@ -157,25 +169,23 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
     <div class="card" id="result" hidden aria-live="polite">
       <div class="res-head"><div class="res-title" id="resTitle">Your link is ready</div><span class="chip" id="resType">File</span></div>
       <div class="link-row">
-        <label class="field-label" for="shareOut">Share this link</label>
+        <label class="field-label" for="shareOut">Share this link <span style="font-weight:400">(recommended &mdash; also guides students to Chrome)</span></label>
         <div class="input-row"><input class="input" id="shareOut" readonly><button type="button" class="btn btn-primary btn-sm" data-copy="shareOut">Copy</button></div>
       </div>
       <div class="link-row">
-        <label class="field-label" for="directOut">Direct download link</label>
+        <label class="field-label" for="directOut">Direct download link <span style="font-weight:400">(starts the download, never opens the Drive app)</span></label>
         <div class="input-row"><input class="input" id="directOut" readonly><button type="button" class="btn btn-outline btn-sm" data-copy="directOut">Copy</button></div>
       </div>
-      <div class="link-row">
-        <label class="field-label" for="previewOut">Preview link</label>
-        <div class="input-row"><input class="input" id="previewOut" readonly><button type="button" class="btn btn-outline btn-sm" data-copy="previewOut">Copy</button></div>
-      </div>
       <div class="actions">
-        <a class="btn btn-primary" id="testBtn" href="#" target="_blank" rel="noopener">Open the share link</a>
-        <a class="btn btn-outline" id="previewBtn" href="#" target="_blank" rel="noopener">Preview file</a>
+        <a class="btn btn-primary" id="dlBtn" href="#" rel="noopener noreferrer" referrerpolicy="no-referrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download file</a>
+        <a class="btn btn-outline" id="testBtn" href="#" target="_blank" rel="noopener">Open the share page</a>
       </div>
       <details class="more" id="altBox">
-        <summary>File is large and Google shows a warning page?</summary>
-        <p>Google sometimes shows a "can't scan for viruses" page for big files instead of downloading. This alternative link often skips it. It depends on Google, so it can stop working.</p>
-        <div class="input-row"><input class="input" id="altOut" readonly aria-label="Alternative download link"><button type="button" class="btn btn-outline btn-sm" data-copy="altOut">Copy</button></div>
+        <summary>More options</summary>
+        <p><strong>Preview in Drive</strong> opens Google Drive, and on a phone it may open the Drive app. It is only for you to check you picked the right file.</p>
+        <div class="input-row"><input class="input" id="previewOut" readonly aria-label="Preview link"><button type="button" class="btn btn-outline btn-sm" data-copy="previewOut">Copy</button></div>
+        <p style="margin-top:12px"><strong>Backup download link</strong> uses Google's older address. It can open the Drive app on some phones, so only use it if the main link stops working.</p>
+        <div class="input-row"><input class="input" id="altOut" readonly aria-label="Backup download link"><button type="button" class="btn btn-outline btn-sm" data-copy="altOut">Copy</button></div>
       </details>
     </div>
 
@@ -188,24 +198,33 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
       <h2>Before you share</h2>
       <ul class="tips">
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>In Drive, set the file to <strong>Anyone with the link</strong>. Otherwise people will see a "request access" page.</span></li>
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Works with PDFs, images, ZIPs and other files. Google Docs, Sheets and Slides download as PDF, Excel and PowerPoint.</span></li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Works with PDFs, images, ZIPs and other files. For a Google Doc, Sheet or Slides file, download it as a PDF first and upload that PDF to Drive.</span></li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Tell students to open the link in <strong>Google Chrome</strong>. The share page also asks them to, and opens Chrome for them where the phone allows it.</span></li>
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Folders can't be downloaded this way. Share the individual files instead.</span></li>
       </ul>
     </div>
   </section>
 
   <!-- ============ Download page (opened with ?id=… or ?link=…) ============ -->
-  <section id="getView" hidden aria-live="polite">
-    <div class="card landing">
+  <section id="getView" hidden>
+    <div class="chrome-box" id="chromeBox" hidden>
+      <div class="chrome-ico" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="#4caf50"/><path d="M24 4a20 20 0 0 1 17.3 10H24a10 10 0 0 0-8.7 5L8.4 12A20 20 0 0 1 24 4z" fill="#f44336"/><path d="M41.3 14A20 20 0 0 1 24 44l8.7-15a10 10 0 0 0 0-10z" fill="#ffc107"/><path d="M24 44A20 20 0 0 1 6.7 14l8.6 15A10 10 0 0 0 24 34z" fill="#4caf50"/><circle cx="24" cy="24" r="8" fill="#fff"/><circle cx="24" cy="24" r="6.2" fill="#2196f3"/></svg></div>
+      <div>
+        <h3 id="chromeTitle">Use Google Chrome for the best download</h3>
+        <p id="chromeText">Open this page in Chrome so your file downloads smoothly.</p>
+        <ol class="chrome-steps" id="chromeSteps" hidden></ol>
+        <div class="actions"><a class="btn btn-primary" id="chromeBtn" href="#">Open in Chrome</a><button type="button" class="btn btn-outline" id="chromeCopy">Copy link</button></div>
+      </div>
+    </div>
+    <div class="card landing" id="getCard">
       <div class="file-ico" id="getIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
       <h1 id="getTitle">Your file is ready</h1>
       <p class="status" id="getStatus">Your download will start in a moment…</p>
       <div class="bar" id="getBar" aria-hidden="true"><i></i></div>
       <div class="actions">
-        <a class="btn btn-primary" id="getBtn" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download now</a>
-        <a class="btn btn-outline" id="getPreview" href="#" target="_blank" rel="noopener">Preview first</a>
+        <a class="btn btn-primary" id="getBtn" href="#" rel="noopener noreferrer" referrerpolicy="no-referrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download now</a>
       </div>
-      <p class="hint" id="getHint" hidden>Nothing happened? Tap <strong>Download now</strong>. If Google shows a warning page for a large file, try the <a id="getAlt" href="#">alternative download</a>. Make sure you are not in a private or in-app browser that blocks downloads.</p>
+      <p class="hint" id="getHint" hidden>Nothing happened? Tap <strong>Download now</strong>. For the smoothest download, open this page in <strong>Google Chrome</strong>.</p>
     </div>
     <p class="foot"><a href="" id="makeOwn">Create your own download link</a></p>
   </section>
@@ -219,8 +238,9 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
   var $ = function (id) { return document.getElementById(id); };
   var RECENT_KEY = 'exalyte_dl_recent';
 
-  /* ---------- parse a pasted link into { type, id } ---------- */
+  /* ---------- parse a pasted link into { type:'file', id } ---------- */
   var ID_RE = /^[A-Za-z0-9_-]{10,}$/;
+  var DOCS_MSG = 'This is a Google Doc, Sheet or Slides file. Download it as a PDF first, upload that PDF to Drive, then paste the PDF\u2019s link here.';
   function parseLink(raw) {
     raw = String(raw || '').trim();
     if (!raw) return { error: 'Paste a Google Drive link first.' };
@@ -229,52 +249,51 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
     try { u = new URL(/^https?:\/\//i.test(raw) ? raw : 'https://' + raw); }
     catch (e) { return { error: 'That doesn\u2019t look like a link.' }; }
     var host = u.hostname.toLowerCase(), path = u.pathname, m;
-    var isDrive = host === 'drive.google.com' || host === 'drive.usercontent.google.com';
-    var isDocs = host === 'docs.google.com';
-    if (!isDrive && !isDocs) return { error: 'Please use a Google Drive or Google Docs link.' };
-    if (isDrive && /\/folders\//.test(path)) return { error: 'This is a folder. Folders can\u2019t be downloaded \u2014 share the individual files instead.' };
-    if (isDocs) {
-      m = path.match(/^\/(document|spreadsheets|presentation)\/d\/([A-Za-z0-9_-]+)/);
-      if (m && ID_RE.test(m[2])) return { type: { document: 'doc', spreadsheets: 'sheet', presentation: 'slide' }[m[1]], id: m[2] };
-      return { error: 'Couldn\u2019t find a file in that link.' };
-    }
+    if (host === 'docs.google.com') return { error: /\/(document|spreadsheets|presentation)\//.test(path) ? DOCS_MSG : 'Please use a Google Drive file link.' };
+    if (host !== 'drive.google.com' && host !== 'drive.usercontent.google.com') return { error: 'Please use a Google Drive link.' };
+    if (/\/folders\//.test(path)) return { error: 'This is a folder. Folders can\u2019t be downloaded \u2014 share the individual files instead.' };
     m = path.match(/\/(?:file\/(?:u\/\d+\/)?d|d)\/([A-Za-z0-9_-]+)/);
     var id = m ? m[1] : u.searchParams.get('id');
     if (id && ID_RE.test(id)) return { type: 'file', id: id };
     return { error: 'Couldn\u2019t find a file in that link. Open the file in Drive, use Share \u2192 Copy link, and paste it here.' };
   }
 
-  /* ---------- only ever build Google URLs from a validated id ---------- */
-  var KINDS = {
-    file:  { label: 'File', icon: 'file' },
-    doc:   { label: 'Google Doc \u2192 PDF', icon: 'file' },
-    sheet: { label: 'Google Sheet \u2192 Excel', icon: 'file' },
-    slide: { label: 'Google Slides \u2192 PowerPoint', icon: 'file' }
-  };
+  /* ---------- only ever build Google URLs from a validated id ----------
+     The main download address is drive.usercontent.google.com. Unlike drive.google.com it is not
+     claimed by the Google Drive app, so phones keep the download in the browser.                   */
   function urlsFor(info) {
-    var id = encodeURIComponent(info.id), o = { alt: '' };
-    if (info.type === 'doc') {
-      o.download = 'https://docs.google.com/document/d/' + id + '/export?format=pdf';
-      o.preview = 'https://docs.google.com/document/d/' + id + '/preview';
-    } else if (info.type === 'sheet') {
-      o.download = 'https://docs.google.com/spreadsheets/d/' + id + '/export?format=xlsx';
-      o.preview = 'https://docs.google.com/spreadsheets/d/' + id + '/preview';
-    } else if (info.type === 'slide') {
-      o.download = 'https://docs.google.com/presentation/d/' + id + '/export/pptx';
-      o.preview = 'https://docs.google.com/presentation/d/' + id + '/preview';
-    } else {
-      o.download = 'https://drive.google.com/uc?export=download&id=' + id;
-      o.alt = 'https://drive.usercontent.google.com/download?id=' + id + '&export=download&confirm=t';
-      o.preview = 'https://drive.google.com/file/d/' + id + '/preview';
-    }
-    return o;
+    var id = encodeURIComponent(info.id);
+    return {
+      download: 'https://drive.usercontent.google.com/download?id=' + id + '&export=download&confirm=t',
+      alt: 'https://drive.google.com/uc?export=download&id=' + id,
+      preview: 'https://drive.google.com/file/d/' + id + '/preview'
+    };
   }
   function pageBase() { return location.origin + location.pathname; }
   function shareUrl(info, title) {
     var q = '?id=' + encodeURIComponent(info.id);
-    if (info.type !== 'file') q += '&type=' + info.type;
     if (title) q += '&name=' + encodeURIComponent(title);
     return pageBase() + q;
+  }
+
+  /* ---------- which browser is this? ---------- */
+  var UA = navigator.userAgent || '';
+  var isAndroid = /Android/i.test(UA);
+  var isIOS = /iPhone|iPad|iPod/i.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var isMobile = isAndroid || isIOS;
+  var inApp = /FBAN|FBAV|FB_IAB|Instagram|Messenger|Line\/|MicroMessenger|Snapchat|TikTok|musical_ly|BytedanceWebview|Twitter|LinkedInApp|Pinterest|GSA\/|; wv\)/i.test(UA);
+  var isChrome = /CriOS/.test(UA) || (/Chrome\//.test(UA) && !/Edg|EdgA|OPR|SamsungBrowser|Brave|Vivaldi|YaBrowser|UCBrowser|HuaweiBrowser|MiuiBrowser/i.test(UA) && !inApp);
+
+  function cleanSearch() { return (location.search || '').replace(/([?&])nc=1(&|$)/, '$1').replace(/[?&]$/, ''); }
+  function chromeUrl() {
+    var q = cleanSearch();
+    if (isAndroid) {
+      var fallback = location.origin + location.pathname + (q ? q + '&' : '?') + 'nc=1';
+      return 'intent://' + location.host + location.pathname + q + '#Intent;scheme=' + location.protocol.replace(':', '') +
+             ';package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(fallback) + ';end';
+    }
+    if (isIOS) return (location.protocol === 'https:' ? 'googlechromes://' : 'googlechrome://') + location.host + location.pathname + q;
+    return location.href;
   }
 
   /* ---------- small helpers ---------- */
@@ -302,18 +321,18 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
   function saveRecent(a) { try { localStorage.setItem(RECENT_KEY, JSON.stringify(a.slice(0, 8))); } catch (e) {} }
   function addRecent(info, title) {
     var a = loadRecent().filter(function (r) { return !(r.id === info.id && r.type === info.type); });
-    a.unshift({ id: info.id, type: info.type, title: title || '', ts: Date.now() });
+    a.unshift({ id: info.id, type: 'file', title: title || '', ts: Date.now() });
     saveRecent(a); renderRecent();
   }
   function renderRecent() {
-    var a = loadRecent().filter(function (r) { return r && ID_RE.test(String(r.id)) && KINDS[r.type]; }), ul = $('recentList');
+    var a = loadRecent().filter(function (r) { return r && ID_RE.test(String(r.id)); }), ul = $('recentList');
     ul.textContent = '';
     $('recentCard').hidden = a.length === 0;
     a.forEach(function (r, i) {
       var li = document.createElement('li'), main = document.createElement('div'), name = document.createElement('div'), sub = document.createElement('div');
       main.className = 'r-main'; name.className = 'r-name'; sub.className = 'r-sub';
-      name.textContent = r.title || ({ file: 'File', doc: 'Doc', sheet: 'Sheet', slide: 'Slides' }[r.type] + ' ' + String(r.id).slice(0, 8) + '\u2026');
-      sub.textContent = KINDS[r.type].label + ' \u00b7 ' + new Date(r.ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+      name.textContent = r.title || ('File ' + String(r.id).slice(0, 8) + '\u2026');
+      sub.textContent = new Date(r.ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
       main.appendChild(name); main.appendChild(sub);
       var copy = document.createElement('button'); copy.type = 'button'; copy.className = 'btn btn-outline btn-sm'; copy.textContent = 'Copy link';
       copy.onclick = function () { copyText(shareUrl(r, cleanTitle(r.title))); };
@@ -328,10 +347,10 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
   function showResult(info, title) {
     var u = urlsFor(info), share = shareUrl(info, title);
     $('resTitle').textContent = title || 'Your link is ready';
-    $('resType').textContent = KINDS[info.type].label;
+    $('resType').textContent = 'File';
     $('shareOut').value = share; $('directOut').value = u.download; $('previewOut').value = u.preview;
-    $('testBtn').href = share; $('previewBtn').href = u.preview;
-    $('altBox').hidden = !u.alt; $('altOut').value = u.alt;
+    $('dlBtn').href = u.download; $('testBtn').href = share;
+    $('altOut').value = u.alt;
     $('result').hidden = false;
     $('result').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
@@ -358,16 +377,54 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
 
   /* ---------- download view ---------- */
   function startDownload(url) { location.href = url; }
+  function setupChromeBox(strong) {
+    var box = $('chromeBox'); if (!box) return;
+    box.hidden = false; box.classList.toggle('strong', !!strong);
+    var steps = $('chromeSteps');
+    if (strong) {
+      $('chromeTitle').textContent = 'Open this page in Chrome to download';
+      $('chromeText').textContent = isIOS
+        ? 'This app\u2019s built-in browser can\u2019t download files properly. Tap the button to open Chrome. If nothing happens, copy the link and paste it into Chrome.'
+        : 'This app\u2019s built-in browser can\u2019t download files properly. Tap the button to open Chrome.';
+    } else {
+      $('chromeTitle').textContent = 'For the best download, use Google Chrome';
+      $('chromeText').textContent = 'Open this page in Chrome so your file downloads smoothly.';
+    }
+    steps.hidden = true;
+    var cb = $('chromeBtn');
+    cb.href = chromeUrl();
+    $('chromeCopy').onclick = function () { copyText(pageBase() + cleanSearch()); };
+  }
   function showGet(info, title, auto) {
     var u = urlsFor(info);
     $('makeView').hidden = true; $('getView').hidden = false;
     $('makeOwn').href = pageBase();
     document.title = (title ? title + ' \u2014 ' : '') + 'Download \u2014 Exalyte';
     $('getTitle').textContent = title || 'Your file is ready';
-    $('getBtn').href = u.download; $('getPreview').href = u.preview;
-    if (u.alt) $('getAlt').href = u.alt; else $('getAlt').outerHTML = 'alternative download';
+    $('getBtn').href = u.download;
     $('getBtn').addEventListener('click', function () { $('getStatus').textContent = 'Download started. Check your downloads folder.'; $('getHint').hidden = false; });
+
+    var triedChrome = new URLSearchParams(location.search).get('nc') === '1';
+    var needsChrome = isMobile && !isChrome;
+    var blockAuto = false;
+    if (needsChrome) {
+      setupChromeBox(inApp);
+      if (inApp) blockAuto = true;                              // in-app browsers: never auto-start, ask for Chrome instead
+      // Android browsers (Samsung, Firefox, Opera\u2026): hand the page to Chrome automatically, once.
+      // In-app browsers are left to the button \u2014 many of them can't open app links on their own and would show an error page.
+      if (isAndroid && !inApp && !triedChrome && auto) {
+        $('getStatus').textContent = 'Opening Chrome\u2026';
+        $('getBar').hidden = true;
+        setTimeout(function () { location.href = chromeUrl(); }, 700);
+        setTimeout(function () { $('getStatus').textContent = 'If Chrome didn\u2019t open, tap \u201cOpen in Chrome\u201d above, or tap Download now.'; $('getHint').hidden = false; }, 3200);
+        return;
+      }
+    }
     if (!auto) { $('getStatus').textContent = 'Tap the button to download.'; $('getBar').hidden = true; return; }
+    if (blockAuto) {
+      $('getStatus').textContent = 'Open this page in Chrome, then your download will start.';
+      $('getBar').hidden = true; $('getHint').hidden = false; return;
+    }
     var bar = $('getBar'); requestAnimationFrame(function () { requestAnimationFrame(function () { bar.classList.add('run'); }); });
     setTimeout(function () {
       $('getStatus').textContent = 'Starting your download\u2026';
@@ -380,7 +437,7 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
     $('getIco').classList.add('err-ico');
     $('getTitle').textContent = 'This link doesn\u2019t work';
     $('getStatus').textContent = msg; $('getBar').hidden = true;
-    $('getBtn').hidden = true; $('getPreview').hidden = true;
+    $('getBtn').hidden = true;
   }
 
   var q = new URLSearchParams(location.search);
@@ -388,8 +445,9 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
     var info;
     if (q.has('link')) info = parseLink(q.get('link'));
     else {
-      var t = q.get('type') || 'file';
-      info = (ID_RE.test(q.get('id') || '') && KINDS[t]) ? { type: t, id: q.get('id') } : { error: 'The link is incomplete. Ask the person who sent it for a new one.' };
+      var t = q.get('type');
+      info = (ID_RE.test(q.get('id') || '') && (!t || t === 'file')) ? { type: 'file', id: q.get('id') }
+           : { error: t && t !== 'file' ? DOCS_MSG : 'The link is incomplete. Ask the person who sent it for a new one.' };
     }
     if (info.error) showBad(info.error);
     else showGet(info, cleanTitle(q.get('name')), q.get('auto') !== '0');
