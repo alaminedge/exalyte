@@ -88,6 +88,18 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
 .tips li{display:flex;gap:10px;font-size:.84rem;color:var(--t3);line-height:1.55}
 .tips svg{width:18px;height:18px;flex-shrink:0;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
 
+/* file name info */
+.meta-box{border:1px solid var(--border);border-radius:var(--r);background:var(--bg);padding:12px 14px;margin-bottom:16px;font-size:.84rem;color:var(--t2);line-height:1.6}
+.meta-box .row{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
+.meta-box .k{color:var(--t4);font-size:.72rem;letter-spacing:.4px;text-transform:uppercase;min-width:86px;font-family:var(--gs)}
+.meta-box .v{color:var(--t1);font-weight:500;min-width:0}
+.meta-box.warn{background:var(--yel-bg);border-color:#f6d98a}
+.meta-box.bad{background:var(--red-bg);border-color:rgba(217,48,37,.25);color:var(--red)}
+.file-chip{display:inline-flex;align-items:center;gap:8px;max-width:100%;margin:0 auto 14px;padding:8px 14px;border-radius:20px;background:var(--bg);border:1px solid var(--border);font-size:.84rem;color:var(--t1);font-weight:500}
+.file-chip span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-chip small{color:var(--t4);font-weight:400;flex-shrink:0}
+.field-hint{font-size:.74rem;color:var(--t4);margin-top:5px;line-height:1.5}
+
 /* open-in-Chrome banner */
 .chrome-box{display:flex;align-items:flex-start;gap:14px;background:#e8f0fe;border:1px solid #c6dafc;border-radius:var(--rl);padding:16px 18px;margin-bottom:16px;text-align:left}
 .chrome-box.strong{background:var(--yel-bg);border-color:#f6d98a}
@@ -160,14 +172,16 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
         </div>
       </div>
       <div class="field">
-        <label class="field-label" for="titleInput">Title <span style="font-weight:400">(optional — shown on the download page)</span></label>
-        <input class="input" id="titleInput" type="text" maxlength="120" placeholder="e.g. Physics Chapter 3 — Solution Sheet" autocomplete="off">
+        <label class="field-label" for="titleInput">Rename the file <span style="font-weight:400">(optional)</span></label>
+        <input class="input" id="titleInput" type="text" maxlength="120" placeholder="Leave empty to keep the original name" autocomplete="off">
+        <div class="field-hint">This is the name people will see in their phone or computer storage after downloading. The extension (like .pdf) is added for you.</div>
       </div>
       <button type="submit" class="btn btn-primary btn-full">Create download link</button>
     </form>
 
     <div class="card" id="result" hidden aria-live="polite">
       <div class="res-head"><div class="res-title" id="resTitle">Your link is ready</div><span class="chip" id="resType">File</span></div>
+      <div class="meta-box" id="metaBox" aria-live="polite">Checking the file&hellip;</div>
       <div class="link-row">
         <label class="field-label" for="shareOut">Share this link <span style="font-weight:400">(recommended &mdash; also guides students to Chrome)</span></label>
         <div class="input-row"><input class="input" id="shareOut" readonly><button type="button" class="btn btn-primary btn-sm" data-copy="shareOut">Copy</button></div>
@@ -219,6 +233,7 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
     <div class="card landing" id="getCard">
       <div class="file-ico" id="getIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
       <h1 id="getTitle">Your file is ready</h1>
+      <div class="file-chip" id="getFile" hidden><span id="getFileName"></span><small id="getFileSize"></small></div>
       <p class="status" id="getStatus">Your download will start in a moment…</p>
       <div class="bar" id="getBar" aria-hidden="true"><i></i></div>
       <div class="actions">
@@ -270,10 +285,52 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
     };
   }
   function pageBase() { return location.origin + location.pathname; }
-  function shareUrl(info, title) {
+  function shareUrl(info, fn) {
     var q = '?id=' + encodeURIComponent(info.id);
-    if (title) q += '&name=' + encodeURIComponent(title);
+    if (fn) q += '&fn=' + encodeURIComponent(fn);
     return pageBase() + q;
+  }
+
+  /* ---------- file names ----------
+     The browser only lets a site choose the saved file name when the file comes from the same site.
+     So the page sends downloads through /dl (a Cloudflare Pages Function). With no new name, /dl passes
+     Google's own name straight through; with a new name it saves the file under that name.            */
+  var KNOWN_EXT = ['pdf','doc','docx','xls','xlsx','ppt','pptx','txt','csv','json','zip','rar','7z','png','jpg','jpeg','gif','webp','svg','mp3','wav','mp4','mkv','avi','mov','webm','apk','epub','html','htm'];
+  var TYPE_EXT = { 'application/pdf': 'pdf', 'application/zip': 'zip', 'application/vnd.android.package-archive': 'apk', 'application/msword': 'doc',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx', 'application/vnd.ms-excel': 'xls',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx', 'application/vnd.ms-powerpoint': 'ppt',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx', 'image/png': 'png', 'image/jpeg': 'jpg',
+    'image/gif': 'gif', 'image/webp': 'webp', 'audio/mpeg': 'mp3', 'video/mp4': 'mp4', 'text/plain': 'txt', 'text/csv': 'csv' };
+  function cleanFn(n) {
+    return String(n == null ? '' : n).replace(/[\u0000-\u001f\u007f\u2028\u2029]/g, '').replace(/[\\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').replace(/^[\s.]+/, '').slice(0, 150).trim();
+  }
+  function extOf(n) { var m = /\.([A-Za-z0-9]{1,8})$/.exec(n || ''); return m ? m[1].toLowerCase() : ''; }
+  function previewName(custom, orig, type) {      // same rule as dl.js, so the page can show the final name before downloading
+    var c = cleanFn(custom), o = cleanFn(orig);
+    if (!c) return o;
+    var oe = extOf(o) || TYPE_EXT[String(type || '').split(';')[0].trim().toLowerCase()] || '', ce = extOf(c);
+    if (ce && (ce === oe || KNOWN_EXT.indexOf(ce) !== -1)) return c;
+    return oe ? c + '.' + oe : c;
+  }
+  function fmtSize(b) {
+    b = Number(b); if (!isFinite(b) || b <= 0) return '';
+    if (b < 1024 * 1024) return Math.max(1, Math.round(b / 1024)) + ' KB';
+    if (b < 1024 * 1024 * 1024) return (b / 1048576).toFixed(b < 10485760 ? 1 : 0) + ' MB';
+    return (b / 1073741824).toFixed(1) + ' GB';
+  }
+  function proxyUrl(info, fn, abs) { return (abs ? location.origin : '') + '/dl?id=' + encodeURIComponent(info.id) + (fn ? '&fn=' + encodeURIComponent(fn) : ''); }
+  // Asks /dl for the file's real name and size. state: ok | no_access | not_found | quota | unavailable | nofn (function not deployed)
+  function fetchMeta(id) {
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 8000);
+    return fetch('/dl?id=' + encodeURIComponent(id) + '&meta=1', { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined }).then(function (r) {
+      if (!/json/i.test(r.headers.get('content-type') || '')) { clearTimeout(timer); return { state: 'nofn' }; }
+      return r.json().then(function (j) {
+        clearTimeout(timer);
+        if (j && j.ok) return { state: 'ok', name: j.name || '', size: j.size || 0, type: j.type || '' };
+        return { state: (j && j.error) || 'unavailable' };
+      });
+    }).catch(function () { clearTimeout(timer); return { state: 'nofn' }; });
   }
 
   /* ---------- which browser is this? ---------- */
@@ -335,7 +392,7 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
       sub.textContent = new Date(r.ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
       main.appendChild(name); main.appendChild(sub);
       var copy = document.createElement('button'); copy.type = 'button'; copy.className = 'btn btn-outline btn-sm'; copy.textContent = 'Copy link';
-      copy.onclick = function () { copyText(shareUrl(r, cleanTitle(r.title))); };
+      copy.onclick = function () { copyText(shareUrl(r, cleanFn(r.title))); };
       var del = document.createElement('button'); del.type = 'button'; del.className = 'link-btn'; del.textContent = 'Remove'; del.setAttribute('aria-label', 'Remove ' + name.textContent);
       del.onclick = function () { var all = loadRecent(); var k = all.findIndex(function (x) { return x.id === r.id && x.type === r.type; }); if (k > -1) all.splice(k, 1); saveRecent(all); renderRecent(); };
       li.appendChild(main); li.appendChild(copy); li.appendChild(del); ul.appendChild(li);
@@ -344,22 +401,49 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
   $('clearRecent').onclick = function () { saveRecent([]); renderRecent(); };
 
   /* ---------- create-a-link view ---------- */
-  function showResult(info, title) {
-    var u = urlsFor(info), share = shareUrl(info, title);
-    $('resTitle').textContent = title || 'Your link is ready';
+  var resultSeq = 0;
+  function metaRow(k, v) { return '<div class="row"><span class="k">' + k + '</span><span class="v">' + v + '</span></div>'; }
+  function showResult(info, fn) {
+    var seq = ++resultSeq, u = urlsFor(info), share = shareUrl(info, fn), box = $('metaBox');
+    $('resTitle').textContent = fn || 'Your link is ready';
     $('resType').textContent = 'File';
-    $('shareOut').value = share; $('directOut').value = u.download; $('previewOut').value = u.preview;
-    $('dlBtn').href = u.download; $('testBtn').href = share;
-    $('altOut').value = u.alt;
+    $('shareOut').value = share; $('previewOut').value = u.preview; $('altOut').value = u.alt; $('testBtn').href = share;
+    function setDirect(url) { $('directOut').value = url; $('dlBtn').href = url; }
+    setDirect(proxyUrl(info, fn, true));
+    box.className = 'meta-box'; box.textContent = 'Checking the file\u2026';
     $('result').hidden = false;
     $('result').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    fetchMeta(info.id).then(function (m) {
+      if (seq !== resultSeq) return;                                  // a newer link was created meanwhile
+      var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+      if (m.state === 'ok') {
+        var final = previewName(fn, m.name, m.type), sz = fmtSize(m.size);
+        box.className = 'meta-box';
+        box.innerHTML = metaRow('Original name', esc(m.name || 'not provided by Google') + (sz ? ' \u00b7 ' + sz : '')) +
+          metaRow('Saved as', esc(final || m.name || 'file')) +
+          (fn ? '' : '<div class="field-hint" style="margin-top:6px">Downloads keep the original Drive name. Type a name above and press Create again to change it.</div>');
+        return;
+      }
+      if (m.state === 'nofn' || m.state === 'unavailable') {          // /dl isn't available: fall back to Google's own link (original name only)
+        setDirect(u.download);
+        box.className = 'meta-box warn';
+        box.innerHTML = m.state === 'nofn'
+          ? 'Renaming and name checking need the <strong>/dl</strong> function from <code>dl.js</code> to be deployed on this site. Until then, downloads still work and keep the original Drive name.'
+          : 'Couldn\u2019t check this file just now. The download link will still try the original Drive name.';
+        return;
+      }
+      box.className = 'meta-box bad';
+      box.textContent = m.state === 'no_access' ? 'Google says this file isn\u2019t shared with \u201cAnyone with the link\u201d. People won\u2019t be able to download it until you change the sharing setting in Drive.'
+        : m.state === 'not_found' ? 'Google couldn\u2019t find this file. It may have been deleted, or the link is wrong.'
+        : 'Google is limiting downloads for this file right now. Try again later.';
+    });
   }
   $('makeForm').addEventListener('submit', function (e) {
     e.preventDefault(); clearErr();
     var p = parseLink($('linkInput').value);
     if (p.error) { showErr(p.error); $('result').hidden = true; $('linkInput').focus(); return; }
-    var title = cleanTitle($('titleInput').value);
-    showResult(p, title); addRecent(p, title);
+    var fn = cleanFn($('titleInput').value);
+    showResult(p, fn); addRecent(p, fn);
   });
   $('linkInput').addEventListener('input', clearErr);
   document.addEventListener('click', function (e) {
@@ -395,13 +479,14 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
     cb.href = chromeUrl();
     $('chromeCopy').onclick = function () { copyText(pageBase() + cleanSearch()); };
   }
-  function showGet(info, title, auto) {
-    var u = urlsFor(info);
+  function showGet(info, fn, legacyTitle, auto) {
+    var direct = urlsFor(info).download;
     $('makeView').hidden = true; $('getView').hidden = false;
     $('makeOwn').href = pageBase();
-    document.title = (title ? title + ' \u2014 ' : '') + 'Download \u2014 Exalyte';
-    $('getTitle').textContent = title || 'Your file is ready';
-    $('getBtn').href = u.download;
+    var shownTitle = legacyTitle || (fn ? fn.replace(/\.[A-Za-z0-9]{1,8}$/, '') : '');
+    document.title = (shownTitle ? shownTitle + ' \u2014 ' : '') + 'Download \u2014 Exalyte';
+    $('getTitle').textContent = shownTitle || 'Your file is ready';
+    $('getBtn').href = proxyUrl(info, fn, false);
     $('getBtn').addEventListener('click', function () { $('getStatus').textContent = 'Download started. Check your downloads folder.'; $('getHint').hidden = false; });
 
     var triedChrome = new URLSearchParams(location.search).get('nc') === '1';
@@ -420,24 +505,41 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
         return;
       }
     }
-    if (!auto) { $('getStatus').textContent = 'Tap the button to download.'; $('getBar').hidden = true; return; }
-    if (blockAuto) {
-      $('getStatus').textContent = 'Open this page in Chrome, then your download will start.';
-      $('getBar').hidden = true; $('getHint').hidden = false; return;
-    }
-    var bar = $('getBar'); requestAnimationFrame(function () { requestAnimationFrame(function () { bar.classList.add('run'); }); });
-    setTimeout(function () {
-      $('getStatus').textContent = 'Starting your download\u2026';
-      startDownload(u.download);
-      setTimeout(function () { $('getStatus').textContent = 'If your download didn\u2019t start, tap the button below.'; $('getHint').hidden = false; }, 2500);
-    }, 1600);
+    $('getStatus').textContent = 'Checking your file\u2026';
+    fetchMeta(info.id).then(function (m) {
+      var url = proxyUrl(info, fn, false);
+      if (m.state === 'ok') {
+        var final = previewName(fn, m.name, m.type), sz = fmtSize(m.size);
+        if (final) { $('getFileName').textContent = final; $('getFileSize').textContent = sz; $('getFile').hidden = false; }
+      } else if (m.state === 'no_access' || m.state === 'not_found' || m.state === 'quota') {
+        showBad(m.state === 'no_access' ? 'This file isn\u2019t shared publicly. Ask the person who sent you this link to set it to \u201cAnyone with the link\u201d in Google Drive.'
+              : m.state === 'not_found' ? 'This file could not be found. It may have been deleted, or the link is wrong.'
+              : 'Google is limiting downloads for this file right now. Please try again in a while.');
+        return;
+      } else {
+        url = direct;                                            // /dl not available: Google's own link (original name)
+      }
+      $('getBtn').href = url;
+      if (!auto) { $('getStatus').textContent = 'Tap the button to download.'; $('getBar').hidden = true; return; }
+      if (blockAuto) {
+        $('getStatus').textContent = 'Open this page in Chrome, then your download will start.';
+        $('getBar').hidden = true; $('getHint').hidden = false; return;
+      }
+      var bar = $('getBar'); bar.hidden = false; requestAnimationFrame(function () { requestAnimationFrame(function () { bar.classList.add('run'); }); });
+      $('getStatus').textContent = 'Your download will start in a moment\u2026';
+      setTimeout(function () {
+        $('getStatus').textContent = 'Starting your download\u2026';
+        startDownload(url);
+        setTimeout(function () { $('getStatus').textContent = 'If your download didn\u2019t start, tap the button below.'; $('getHint').hidden = false; }, 2500);
+      }, 1200);
+    });
   }
   function showBad(msg) {
     $('makeView').hidden = true; $('getView').hidden = false; $('makeOwn').href = pageBase();
     $('getIco').classList.add('err-ico');
     $('getTitle').textContent = 'This link doesn\u2019t work';
     $('getStatus').textContent = msg; $('getBar').hidden = true;
-    $('getBtn').hidden = true;
+    $('getBtn').hidden = true; $('getFile').hidden = true; $('getHint').hidden = true;
   }
 
   var q = new URLSearchParams(location.search);
@@ -450,7 +552,7 @@ details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px
            : { error: t && t !== 'file' ? DOCS_MSG : 'The link is incomplete. Ask the person who sent it for a new one.' };
     }
     if (info.error) showBad(info.error);
-    else showGet(info, cleanTitle(q.get('name')), q.get('auto') !== '0');
+    else showGet(info, cleanFn(q.get('fn')), cleanTitle(q.get('name')), q.get('auto') !== '0');
   }
 })();
 </script>
