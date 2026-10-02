@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Download — Exalyte</title>
+<meta name="description" content="Turn a Google Drive link into a one-tap download page.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;overflow-wrap:break-word}
+[hidden]{display:none !important}
+html{-webkit-text-size-adjust:100%}
+:root{
+  --blue:#1a73e8;--blue-h:#1557b0;--red:#d93025;--red-bg:#fce8e6;
+  --green:#1e8e3e;--grn-bg:#e6f4ea;--yel-bg:#fef7e0;
+  --bg:#f8f9fa;--surf:#ffffff;--hov:#f1f3f4;--border:#dadce0;
+  --t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
+  --gs:'Google Sans','Roboto',system-ui,sans-serif;
+  --rb:'Roboto',system-ui,sans-serif;
+  --hh:64px;--r:4px;--rl:12px;--tr:.2s cubic-bezier(.4,0,.2,1);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(60% 40% at 50% 0%,rgba(26,115,232,.10),transparent 70%)}
+a{color:var(--blue)}
+:is(a,button,input,summary):focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+.header{height:var(--hh);background:var(--surf);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-.2px}
+.header-link{font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--blue);text-decoration:none;padding:10px 14px;border-radius:var(--r);min-height:44px;display:inline-flex;align-items:center}
+.header-link:hover{background:#e8f0fe}
+
+main{flex:1;width:100%;max-width:680px;margin:0 auto;padding:36px 20px calc(48px + var(--safe-bottom))}
+.eyebrow{font-family:var(--gs);font-size:.72rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
+h1{font-family:var(--gs);font-size:1.7rem;font-weight:500;color:var(--t1);letter-spacing:-.4px;line-height:1.25;margin-bottom:8px}
+.lede{font-size:.92rem;color:var(--t3);line-height:1.65;margin-bottom:22px}
+
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);padding:22px 24px;margin-bottom:16px}
+.field{margin-bottom:14px}
+.field-label{display:block;font-size:.75rem;font-weight:500;color:var(--t3);margin-bottom:4px;letter-spacing:.3px}
+.input-row{display:flex;gap:8px}
+.input{width:100%;min-width:0;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--rb);font-size:1rem;color:var(--t1);background:var(--surf);outline:none;min-height:46px;transition:border-color var(--tr),box-shadow var(--tr)}
+.input:hover{border-color:var(--t3)}
+.input:focus{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.input[aria-invalid="true"]{border-color:var(--red)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 20px;min-height:46px;font-family:var(--gs);font-size:.9rem;font-weight:500;border:1px solid transparent;border-radius:var(--r);cursor:pointer;transition:all var(--tr);text-decoration:none;white-space:nowrap}
+.btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-h);box-shadow:0 1px 2px rgba(60,64,67,.3),0 2px 6px rgba(60,64,67,.15)}
+.btn-outline{background:var(--surf);color:var(--blue);border-color:var(--border)}
+.btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
+.btn-full{width:100%}
+.btn-sm{min-height:40px;padding:6px 14px;font-size:.8rem}
+.alert{padding:10px 14px;border-radius:var(--r);font-size:.82rem;line-height:1.5;margin-bottom:14px;background:var(--red-bg);color:var(--red);border:1px solid rgba(217,48,37,.2)}
+
+/* result */
+.res-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.res-title{font-family:var(--gs);font-size:1.05rem;font-weight:500;color:var(--t1);min-width:0}
+.chip{display:inline-flex;align-items:center;font-family:var(--gs);font-size:.72rem;font-weight:500;padding:4px 12px;border-radius:20px;background:var(--grn-bg);color:var(--green)}
+.link-row{margin-bottom:14px}
+.link-row:last-of-type{margin-bottom:18px}
+.link-row .input{font-size:.85rem;color:var(--t2);background:var(--bg);text-overflow:ellipsis}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.actions .btn{flex:1 1 180px}
+details.more{margin-top:16px;border-top:1px solid var(--border);padding-top:12px}
+details.more summary{cursor:pointer;font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--blue);min-height:40px;display:flex;align-items:center}
+details.more p{font-size:.8rem;color:var(--t3);line-height:1.6;margin:4px 0 10px}
+
+/* recent */
+.card h2{font-family:var(--gs);font-size:.95rem;font-weight:500;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.link-btn{background:none;border:none;color:var(--blue);font-family:var(--gs);font-size:.8rem;font-weight:500;cursor:pointer;padding:6px 8px;min-height:36px;border-radius:var(--r)}
+.link-btn:hover{background:#e8f0fe}
+.recent{list-style:none;display:flex;flex-direction:column}
+.recent li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border)}
+.recent li:first-child{border-top:none;padding-top:0}
+.recent .r-main{flex:1;min-width:0}
+.recent .r-name{font-size:.88rem;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recent .r-sub{font-size:.72rem;color:var(--t4)}
+.recent button{flex-shrink:0}
+
+.tips{list-style:none;display:flex;flex-direction:column;gap:10px}
+.tips li{display:flex;gap:10px;font-size:.84rem;color:var(--t3);line-height:1.55}
+.tips svg{width:18px;height:18px;flex-shrink:0;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
+
+/* landing */
+.landing{text-align:center;padding:34px 24px 28px}
+.file-ico{width:64px;height:64px;border-radius:18px;background:#e8f0fe;color:var(--blue);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.file-ico svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.landing h1{font-size:1.45rem;margin-bottom:6px}
+.landing .status{font-size:.9rem;color:var(--t3);margin-bottom:18px;min-height:1.4em}
+.bar{height:6px;background:var(--hov);border-radius:6px;overflow:hidden;margin:0 auto 20px;max-width:320px}
+.bar i{display:block;height:100%;width:0;background:var(--blue);border-radius:6px}
+.bar.run i{width:100%;transition:width 1.6s linear}
+.landing .actions{justify-content:center;max-width:380px;margin:0 auto}
+.landing .actions .btn{flex:1 1 100%}
+.hint{margin-top:18px;font-size:.78rem;color:var(--t4);line-height:1.6}
+.hint a{color:var(--blue)}
+.err-ico{background:var(--red-bg);color:var(--red)}
+
+.foot{text-align:center;font-size:.75rem;color:var(--t4);padding:0 20px calc(24px + var(--safe-bottom))}
+.foot a{color:var(--t4)}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + var(--safe-bottom));transform:translate(-50%,80px);opacity:0;background:#323232;color:#f5f5f5;font-size:.875rem;padding:12px 22px;border-radius:var(--r);box-shadow:0 3px 5px -1px rgba(0,0,0,.2),0 6px 10px rgba(0,0,0,.14);transition:all .25s cubic-bezier(0,0,.2,1);pointer-events:none;z-index:50;max-width:calc(100vw - 32px)}
+.toast.show{transform:translate(-50%,0);opacity:1}
+
+@media(max-width:600px){
+  .header{padding:0 12px}
+  main{padding-top:24px}
+  h1{font-size:1.45rem}
+  .card{padding:18px 16px}
+  .input-row{flex-direction:column}
+  .input-row .btn{width:100%}
+  .actions .btn{flex-basis:100%}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}.bar.run i{transition:none}}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="logo-wrap" aria-label="Exalyte home">
+    <img src="images/exalyte.png" alt="" class="logo-img" onerror="this.style.display='none'">
+    <span class="logo-text">Exalyte</span>
+  </a>
+  <a href="/" class="header-link">Visit site</a>
+</header>
+
+<main>
+  <!-- ============ Create a link ============ -->
+  <section id="makeView" aria-labelledby="makeTitle">
+    <div class="eyebrow">Download links</div>
+    <h1 id="makeTitle">Turn a Google Drive link into a one-tap download</h1>
+    <p class="lede">Paste a Drive link and get a clean link you can share. Anyone who opens it gets the file straight away.</p>
+
+    <form class="card" id="makeForm" novalidate>
+      <div class="alert" id="makeErr" role="alert" hidden></div>
+      <div class="field">
+        <label class="field-label" for="linkInput">Google Drive link</label>
+        <div class="input-row">
+          <input class="input" id="linkInput" type="text" inputmode="url" placeholder="https://drive.google.com/file/d/…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go">
+          <button type="button" class="btn btn-outline" id="pasteBtn" hidden>Paste</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="titleInput">Title <span style="font-weight:400">(optional — shown on the download page)</span></label>
+        <input class="input" id="titleInput" type="text" maxlength="120" placeholder="e.g. Physics Chapter 3 — Solution Sheet" autocomplete="off">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Create download link</button>
+    </form>
+
+    <div class="card" id="result" hidden aria-live="polite">
+      <div class="res-head"><div class="res-title" id="resTitle">Your link is ready</div><span class="chip" id="resType">File</span></div>
+      <div class="link-row">
+        <label class="field-label" for="shareOut">Share this link</label>
+        <div class="input-row"><input class="input" id="shareOut" readonly><button type="button" class="btn btn-primary btn-sm" data-copy="shareOut">Copy</button></div>
+      </div>
+      <div class="link-row">
+        <label class="field-label" for="directOut">Direct download link</label>
+        <div class="input-row"><input class="input" id="directOut" readonly><button type="button" class="btn btn-outline btn-sm" data-copy="directOut">Copy</button></div>
+      </div>
+      <div class="link-row">
+        <label class="field-label" for="previewOut">Preview link</label>
+        <div class="input-row"><input class="input" id="previewOut" readonly><button type="button" class="btn btn-outline btn-sm" data-copy="previewOut">Copy</button></div>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" id="testBtn" href="#" target="_blank" rel="noopener">Open the share link</a>
+        <a class="btn btn-outline" id="previewBtn" href="#" target="_blank" rel="noopener">Preview file</a>
+      </div>
+      <details class="more" id="altBox">
+        <summary>File is large and Google shows a warning page?</summary>
+        <p>Google sometimes shows a "can't scan for viruses" page for big files instead of downloading. This alternative link often skips it. It depends on Google, so it can stop working.</p>
+        <div class="input-row"><input class="input" id="altOut" readonly aria-label="Alternative download link"><button type="button" class="btn btn-outline btn-sm" data-copy="altOut">Copy</button></div>
+      </details>
+    </div>
+
+    <div class="card" id="recentCard" hidden>
+      <h2>Recent links <button type="button" class="link-btn" id="clearRecent">Clear all</button></h2>
+      <ul class="recent" id="recentList"></ul>
+    </div>
+
+    <div class="card">
+      <h2>Before you share</h2>
+      <ul class="tips">
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>In Drive, set the file to <strong>Anyone with the link</strong>. Otherwise people will see a "request access" page.</span></li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Works with PDFs, images, ZIPs and other files. Google Docs, Sheets and Slides download as PDF, Excel and PowerPoint.</span></li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Folders can't be downloaded this way. Share the individual files instead.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ Download page (opened with ?id=… or ?link=…) ============ -->
+  <section id="getView" hidden aria-live="polite">
+    <div class="card landing">
+      <div class="file-ico" id="getIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <h1 id="getTitle">Your file is ready</h1>
+      <p class="status" id="getStatus">Your download will start in a moment…</p>
+      <div class="bar" id="getBar" aria-hidden="true"><i></i></div>
+      <div class="actions">
+        <a class="btn btn-primary" id="getBtn" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download now</a>
+        <a class="btn btn-outline" id="getPreview" href="#" target="_blank" rel="noopener">Preview first</a>
+      </div>
+      <p class="hint" id="getHint" hidden>Nothing happened? Tap <strong>Download now</strong>. If Google shows a warning page for a large file, try the <a id="getAlt" href="#">alternative download</a>. Make sure you are not in a private or in-app browser that blocks downloads.</p>
+    </div>
+    <p class="foot"><a href="" id="makeOwn">Create your own download link</a></p>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var RECENT_KEY = 'exalyte_dl_recent';
+
+  /* ---------- parse a pasted link into { type, id } ---------- */
+  var ID_RE = /^[A-Za-z0-9_-]{10,}$/;
+  function parseLink(raw) {
+    raw = String(raw || '').trim();
+    if (!raw) return { error: 'Paste a Google Drive link first.' };
+    if (ID_RE.test(raw)) return { type: 'file', id: raw };                    // a bare file id
+    var u;
+    try { u = new URL(/^https?:\/\//i.test(raw) ? raw : 'https://' + raw); }
+    catch (e) { return { error: 'That doesn\u2019t look like a link.' }; }
+    var host = u.hostname.toLowerCase(), path = u.pathname, m;
+    var isDrive = host === 'drive.google.com' || host === 'drive.usercontent.google.com';
+    var isDocs = host === 'docs.google.com';
+    if (!isDrive && !isDocs) return { error: 'Please use a Google Drive or Google Docs link.' };
+    if (isDrive && /\/folders\//.test(path)) return { error: 'This is a folder. Folders can\u2019t be downloaded \u2014 share the individual files instead.' };
+    if (isDocs) {
+      m = path.match(/^\/(document|spreadsheets|presentation)\/d\/([A-Za-z0-9_-]+)/);
+      if (m && ID_RE.test(m[2])) return { type: { document: 'doc', spreadsheets: 'sheet', presentation: 'slide' }[m[1]], id: m[2] };
+      return { error: 'Couldn\u2019t find a file in that link.' };
+    }
+    m = path.match(/\/(?:file\/(?:u\/\d+\/)?d|d)\/([A-Za-z0-9_-]+)/);
+    var id = m ? m[1] : u.searchParams.get('id');
+    if (id && ID_RE.test(id)) return { type: 'file', id: id };
+    return { error: 'Couldn\u2019t find a file in that link. Open the file in Drive, use Share \u2192 Copy link, and paste it here.' };
+  }
+
+  /* ---------- only ever build Google URLs from a validated id ---------- */
+  var KINDS = {
+    file:  { label: 'File', icon: 'file' },
+    doc:   { label: 'Google Doc \u2192 PDF', icon: 'file' },
+    sheet: { label: 'Google Sheet \u2192 Excel', icon: 'file' },
+    slide: { label: 'Google Slides \u2192 PowerPoint', icon: 'file' }
+  };
+  function urlsFor(info) {
+    var id = encodeURIComponent(info.id), o = { alt: '' };
+    if (info.type === 'doc') {
+      o.download = 'https://docs.google.com/document/d/' + id + '/export?format=pdf';
+      o.preview = 'https://docs.google.com/document/d/' + id + '/preview';
+    } else if (info.type === 'sheet') {
+      o.download = 'https://docs.google.com/spreadsheets/d/' + id + '/export?format=xlsx';
+      o.preview = 'https://docs.google.com/spreadsheets/d/' + id + '/preview';
+    } else if (info.type === 'slide') {
+      o.download = 'https://docs.google.com/presentation/d/' + id + '/export/pptx';
+      o.preview = 'https://docs.google.com/presentation/d/' + id + '/preview';
+    } else {
+      o.download = 'https://drive.google.com/uc?export=download&id=' + id;
+      o.alt = 'https://drive.usercontent.google.com/download?id=' + id + '&export=download&confirm=t';
+      o.preview = 'https://drive.google.com/file/d/' + id + '/preview';
+    }
+    return o;
+  }
+  function pageBase() { return location.origin + location.pathname; }
+  function shareUrl(info, title) {
+    var q = '?id=' + encodeURIComponent(info.id);
+    if (info.type !== 'file') q += '&type=' + info.type;
+    if (title) q += '&name=' + encodeURIComponent(title);
+    return pageBase() + q;
+  }
+
+  /* ---------- small helpers ---------- */
+  var toastTimer;
+  function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2400); }
+  function copyText(text) {
+    function fallback() {
+      try {
+        var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+        document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+        var ok = document.execCommand('copy'); ta.remove();
+        toast(ok ? 'Copied' : 'Press and hold the link to copy it');
+      } catch (e) { toast('Press and hold the link to copy it'); }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { toast('Copied'); }, fallback);
+    else fallback();
+  }
+  function showErr(msg) { var e = $('makeErr'); e.textContent = msg; e.hidden = false; $('linkInput').setAttribute('aria-invalid', 'true'); }
+  function clearErr() { $('makeErr').hidden = true; $('linkInput').removeAttribute('aria-invalid'); }
+  function cleanTitle(t) { return String(t || '').replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, 120); }
+
+  /* ---------- recent links (this browser only) ---------- */
+  function loadRecent() { try { var a = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  function saveRecent(a) { try { localStorage.setItem(RECENT_KEY, JSON.stringify(a.slice(0, 8))); } catch (e) {} }
+  function addRecent(info, title) {
+    var a = loadRecent().filter(function (r) { return !(r.id === info.id && r.type === info.type); });
+    a.unshift({ id: info.id, type: info.type, title: title || '', ts: Date.now() });
+    saveRecent(a); renderRecent();
+  }
+  function renderRecent() {
+    var a = loadRecent().filter(function (r) { return r && ID_RE.test(String(r.id)) && KINDS[r.type]; }), ul = $('recentList');
+    ul.textContent = '';
+    $('recentCard').hidden = a.length === 0;
+    a.forEach(function (r, i) {
+      var li = document.createElement('li'), main = document.createElement('div'), name = document.createElement('div'), sub = document.createElement('div');
+      main.className = 'r-main'; name.className = 'r-name'; sub.className = 'r-sub';
+      name.textContent = r.title || ({ file: 'File', doc: 'Doc', sheet: 'Sheet', slide: 'Slides' }[r.type] + ' ' + String(r.id).slice(0, 8) + '\u2026');
+      sub.textContent = KINDS[r.type].label + ' \u00b7 ' + new Date(r.ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+      main.appendChild(name); main.appendChild(sub);
+      var copy = document.createElement('button'); copy.type = 'button'; copy.className = 'btn btn-outline btn-sm'; copy.textContent = 'Copy link';
+      copy.onclick = function () { copyText(shareUrl(r, cleanTitle(r.title))); };
+      var del = document.createElement('button'); del.type = 'button'; del.className = 'link-btn'; del.textContent = 'Remove'; del.setAttribute('aria-label', 'Remove ' + name.textContent);
+      del.onclick = function () { var all = loadRecent(); var k = all.findIndex(function (x) { return x.id === r.id && x.type === r.type; }); if (k > -1) all.splice(k, 1); saveRecent(all); renderRecent(); };
+      li.appendChild(main); li.appendChild(copy); li.appendChild(del); ul.appendChild(li);
+    });
+  }
+  $('clearRecent').onclick = function () { saveRecent([]); renderRecent(); };
+
+  /* ---------- create-a-link view ---------- */
+  function showResult(info, title) {
+    var u = urlsFor(info), share = shareUrl(info, title);
+    $('resTitle').textContent = title || 'Your link is ready';
+    $('resType').textContent = KINDS[info.type].label;
+    $('shareOut').value = share; $('directOut').value = u.download; $('previewOut').value = u.preview;
+    $('testBtn').href = share; $('previewBtn').href = u.preview;
+    $('altBox').hidden = !u.alt; $('altOut').value = u.alt;
+    $('result').hidden = false;
+    $('result').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  $('makeForm').addEventListener('submit', function (e) {
+    e.preventDefault(); clearErr();
+    var p = parseLink($('linkInput').value);
+    if (p.error) { showErr(p.error); $('result').hidden = true; $('linkInput').focus(); return; }
+    var title = cleanTitle($('titleInput').value);
+    showResult(p, title); addRecent(p, title);
+  });
+  $('linkInput').addEventListener('input', clearErr);
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-copy]') : null;
+    if (b) copyText($(b.getAttribute('data-copy')).value);
+  });
+  document.addEventListener('focusin', function (e) { if (e.target.readOnly && e.target.tagName === 'INPUT') e.target.select(); });
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    $('pasteBtn').hidden = false;
+    $('pasteBtn').onclick = function () {
+      navigator.clipboard.readText().then(function (t) { $('linkInput').value = (t || '').trim(); $('linkInput').focus(); clearErr(); }, function () { toast('Allow paste, or long-press the box to paste'); });
+    };
+  }
+  renderRecent();
+
+  /* ---------- download view ---------- */
+  function startDownload(url) { location.href = url; }
+  function showGet(info, title, auto) {
+    var u = urlsFor(info);
+    $('makeView').hidden = true; $('getView').hidden = false;
+    $('makeOwn').href = pageBase();
+    document.title = (title ? title + ' \u2014 ' : '') + 'Download \u2014 Exalyte';
+    $('getTitle').textContent = title || 'Your file is ready';
+    $('getBtn').href = u.download; $('getPreview').href = u.preview;
+    if (u.alt) $('getAlt').href = u.alt; else $('getAlt').outerHTML = 'alternative download';
+    $('getBtn').addEventListener('click', function () { $('getStatus').textContent = 'Download started. Check your downloads folder.'; $('getHint').hidden = false; });
+    if (!auto) { $('getStatus').textContent = 'Tap the button to download.'; $('getBar').hidden = true; return; }
+    var bar = $('getBar'); requestAnimationFrame(function () { requestAnimationFrame(function () { bar.classList.add('run'); }); });
+    setTimeout(function () {
+      $('getStatus').textContent = 'Starting your download\u2026';
+      startDownload(u.download);
+      setTimeout(function () { $('getStatus').textContent = 'If your download didn\u2019t start, tap the button below.'; $('getHint').hidden = false; }, 2500);
+    }, 1600);
+  }
+  function showBad(msg) {
+    $('makeView').hidden = true; $('getView').hidden = false; $('makeOwn').href = pageBase();
+    $('getIco').classList.add('err-ico');
+    $('getTitle').textContent = 'This link doesn\u2019t work';
+    $('getStatus').textContent = msg; $('getBar').hidden = true;
+    $('getBtn').hidden = true; $('getPreview').hidden = true;
+  }
+
+  var q = new URLSearchParams(location.search);
+  if (q.has('link') || q.has('id')) {
+    var info;
+    if (q.has('link')) info = parseLink(q.get('link'));
+    else {
+      var t = q.get('type') || 'file';
+      info = (ID_RE.test(q.get('id') || '') && KINDS[t]) ? { type: t, id: q.get('id') } : { error: 'The link is incomplete. Ask the person who sent it for a new one.' };
+    }
+    if (info.error) showBad(info.error);
+    else showGet(info, cleanTitle(q.get('name')), q.get('auto') !== '0');
+  }
+})();
+</script>
+</body>
+</html>
