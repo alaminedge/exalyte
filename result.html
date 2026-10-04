@@ -637,15 +637,20 @@ var SOL_CSS =
 '.sol-cols:before{content:"";position:absolute;left:50%;top:4pt;bottom:0;border-left:.5pt solid #cfd4da}' +
 '.sol-col{min-width:0}' +
 /* question */
-'.sol-q{padding:7pt 0 6pt;border-bottom:.5pt solid #e1e4e8;font-size:8.4pt;line-height:1.34;break-inside:avoid;page-break-inside:avoid;overflow-wrap:anywhere}' +
-'.sol-col .sol-q:last-child{border-bottom:none}' +
+'.sol-sl{display:block;overflow:hidden}' +
+'.sol-a{display:flow-root;font-size:8.4pt;line-height:1.34;overflow-wrap:anywhere}' +
+'.sol-a.qs{padding-top:7pt}' +
+'.sol-a.ex{padding-top:4pt}' +
+'.sol-a.last{padding-bottom:6pt;border-bottom:.5pt solid #e1e4e8}' +
+'.sol-col>.sol-a.qs:first-child{padding-top:2pt}' +
+'.sol-col>.sol-a.last:last-child{border-bottom:none;padding-bottom:0}' +
 '.sol-qh{display:flex;gap:5pt;align-items:flex-start;margin-bottom:3.5pt}' +
 '.sol-qn{flex:none;min-width:17pt;height:13pt;padding:0 4pt;border-radius:7pt;background:#1f2937;color:#fff;font-weight:bold;font-size:7.6pt;line-height:13pt;text-align:center;margin-top:.5pt}' +
 '.sol-qt{flex:1;min-width:0;font-weight:bold;font-size:8.7pt}' +
 '.sol-qt p{display:inline;margin:0}' +
 '.sol-opts{margin-left:22pt}' +
 '.sol-opts.g{display:grid;grid-template-columns:1fr 1fr;column-gap:4pt}' +
-'.sol-o{display:flex;gap:5pt;align-items:flex-start;padding:1.6pt 4pt 1.6pt 2pt;border-radius:3pt;margin:.6pt 0}' +
+'.sol-o{display:flex;gap:5pt;align-items:flex-start;padding:2.2pt 4pt 2.2pt 2pt;border-radius:3pt;margin:0}' +
 '.sol-ol{flex:none;width:11.5pt;height:11.5pt;border:.8pt solid #555;border-radius:50%;text-align:center;font-size:6.9pt;line-height:10.4pt;font-weight:bold;color:#333;background:#fff}' +
 '.sol-ot{flex:1;min-width:0}' +
 '.sol-ot p{display:inline;margin:0}' +
@@ -653,21 +658,21 @@ var SOL_CSS =
 '.sol-o.c .sol-ol{background:#1e8e3e;border-color:#1e8e3e;color:#fff}' +
 '.sol-o.c .sol-ic{color:#1e8e3e}' +
 '.sol-ic{width:8pt;height:8pt;margin-left:4pt;vertical-align:-1pt;stroke:currentColor;fill:none;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}' +
-'.sol-exp{margin:4pt 0 0 22pt;padding:1.5pt 0 1.5pt 6pt;border-left:1.6pt solid #1a73e8;font-size:7.7pt;line-height:1.38;color:#2b2b2b}' +
+'.sol-exp{margin:0 0 0 22pt;padding:1.5pt 0 1.5pt 6pt;border-left:1.6pt solid #1a73e8;font-size:7.7pt;line-height:1.38;color:#2b2b2b}' +
 '.sol-exp .lbl{display:block;font-weight:bold;color:#1a73e8;font-size:6.8pt;letter-spacing:.4pt;text-transform:uppercase;margin-bottom:1pt}' +
 '.sol-exp p{display:inline;margin:0}' +
 /* images: always fit, whatever inline size they were pasted with */
-'.sol-q img{max-width:100% !important;width:auto !important;height:auto !important;max-height:74pt !important;object-fit:contain !important;display:block;margin:2.5pt 0}' +
+'.sol-a img{max-width:100% !important;width:auto !important;height:auto !important;max-height:74pt !important;object-fit:contain !important;display:block;margin:2.5pt 0}' +
 '.sol-o img{max-height:42pt !important}' +
-'.sol-q table{max-width:100%;border-collapse:collapse}.sol-q td,.sol-q th{border:.5pt solid #999;padding:1pt 3pt}' +
-'.sol-q sub,.sol-q sup{font-size:70%;line-height:0}' +
+'.sol-a table{max-width:100%;border-collapse:collapse}.sol-a td,.sol-a th{border:.5pt solid #999;padding:1pt 3pt}' +
+'.sol-a sub,.sol-a sup{font-size:70%;line-height:0}' +
 /* screen-only chrome */
 '#solMeasure{position:absolute;visibility:hidden;left:-99999px;top:0;font-family:inherit}' +
 '.sol-bar{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;background:#202124;color:#fff;font-size:13px}' +
 '.sol-bar span{display:block;opacity:.7;font-size:11.5px;margin-top:2px}' +
 '.sol-bar button{background:#1a73e8;color:#fff;border:none;border-radius:20px;padding:10px 20px;font-size:13px;font-weight:bold;cursor:pointer;flex:none;min-height:40px}' +
 '.sol-load{font-family:Arial,sans-serif;text-align:center;padding:90px 20px;color:#444;font-size:15px}' +
-'@media screen{html,body{background:#dfe3e8}#sheets{padding:14px 0 30px;transform-origin:top center}.sol-page{box-sizing:content-box;padding:13mm 9mm;margin:0 auto 14px;box-shadow:0 2px 10px rgba(0,0,0,.18)}}' +
+'@media screen{.sol-foot{bottom:13mm}html,body{background:#dfe3e8}#sheets{padding:14px 0 30px;transform-origin:top center}.sol-page{box-sizing:content-box;padding:13mm 9mm;margin:0 auto 14px;box-shadow:0 2px 10px rgba(0,0,0,.18)}}' +
 '@media print{.no-print{display:none !important}#sheets{zoom:1 !important;padding:0 !important}}';
 
 function solEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -678,19 +683,31 @@ function solRich(text) { // question / option / explanation content: image URLs 
 }
 function solIsShort(t) { if (!t || isImageURL(t) || /<img/i.test(t)) return false; return t.replace(/<[^>]*>/g, '').trim().length <= 14; }
 
-function solQuestionHTML(ctx, q, idx) {
+// A question is cut into small pieces ("atoms"): the question + first option, each further option, the explanation.
+// Pieces flow from column to column and page to page, so every column is filled to the bottom and a question may
+// continue in the next column or on the next page.
+function solAtoms(ctx, q, idx) {
   var correct = ctx.correct(q);
   var letters = ['A', 'B', 'C', 'D'];
   var grid = letters.every(function (l) { return solIsShort(q['option_' + l.toLowerCase()]); });
   var tick = '<svg class="sol-ic" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
-  var opts = letters.map(function (l) {
+  function opt(l) {
     var isC = l === correct;
     return '<div class="sol-o' + (isC ? ' c' : '') + '"><span class="sol-ol">' + l + '</span><span class="sol-ot">' + solRich(q['option_' + l.toLowerCase()] || '') + (isC ? tick : '') + '</span></div>';
-  }).join('');
+  }
   var qImg = q.image_url ? '<img src="' + esc(q.image_url) + '" alt="" style="margin-left:22pt">' : '';
-  var exp = (q.explanation && String(q.explanation).trim()) ? '<div class="sol-exp"><span class="lbl">Explanation</span>' + solRich(q.explanation) + '</div>' : '';
-  return '<div class="sol-q"><div class="sol-qh"><span class="sol-qn">' + (idx + 1) + '</span><div class="sol-qt">' + (q.question_text || '') + '</div></div>' +
-    qImg + '<div class="sol-opts' + (grid ? ' g' : '') + '">' + opts + '</div>' + exp + '</div>';
+  var head = '<div class="sol-qh"><span class="sol-qn">' + (idx + 1) + '</span><div class="sol-qt">' + (q.question_text || '') + '</div></div>' + qImg;
+  var out = [];
+  if (grid) {
+    out.push({ cls: 'qs', html: head + '<div class="sol-opts g">' + opt('A') + opt('B') + '</div>' });
+    out.push({ cls: '', html: '<div class="sol-opts g">' + opt('C') + opt('D') + '</div>' });
+  } else {
+    out.push({ cls: 'qs', html: head + '<div class="sol-opts">' + opt('A') + '</div>' });
+    ['B', 'C', 'D'].forEach(function (l) { out.push({ cls: '', html: '<div class="sol-opts">' + opt(l) + '</div>' }); });
+  }
+  if (q.explanation && String(q.explanation).trim()) out.push({ cls: 'ex', html: '<div class="sol-exp"><span class="lbl">Explanation</span>' + solRich(q.explanation) + '</div>' });
+  out[out.length - 1].cls += ' last';
+  return out.map(function (a) { return { cls: a.cls, html: '<div class="sol-a ' + a.cls + '">' + a.html + '</div>' }; });
 }
 
 // Generic exam header — the same for every student (exam details only, nothing personal).
@@ -738,32 +755,66 @@ function solGetLogoDataURI() {
   }).catch(function () { return null; });
 }
 
-// Split N questions into the fewest pages, with columns of near-equal height (no lone question / blank column).
-function solPaginate(heights, capFirst, capRest) {
-  var n = heights.length;
-  function cap(col) { return col < 2 ? capFirst : capRest; }
-  var maxSingle = 0, total = 0;
-  heights.forEach(function (h) { if (h > maxSingle) maxSingle = h; total += h; });
-  function tryPack(limitH, maxCols) {
-    var cols = [[]], col = 0, cum = 0;
-    for (var i = 0; i < n; i++) {
-      var h = heights[i], lim = Math.min(limitH, cap(col));
-      if (cols[col].length > 0 && cum + h > lim) {
-        col++; if (col >= maxCols) return null;
-        cols.push([]); cum = 0;
-      }
-      cols[col].push(i); cum += h;
+// Safe places to cut a long explanation: between text lines (never through a line or an image),
+// keeping the "Explanation" label with at least two lines, and leaving at least two lines for the next column.
+function solCuts(el) {
+  var top = el.getBoundingClientRect().top, doc = el.ownerDocument, rects = [], range = doc.createRange(), walker = doc.createTreeWalker(el, 4, null), n, i;
+  while ((n = walker.nextNode())) {
+    if (!/\S/.test(n.nodeValue)) continue;
+    range.selectNodeContents(n);
+    var cl = range.getClientRects();
+    for (i = 0; i < cl.length; i++) if (cl[i].height > 0) rects.push({ t: cl[i].top - top, b: cl[i].bottom - top });
+  }
+  var imgs = Array.prototype.map.call(el.querySelectorAll('img'), function (im) { var r = im.getBoundingClientRect(); return { t: r.top - top, b: r.bottom - top }; });
+  rects.sort(function (a, b) { return a.t - b.t; });
+  var lines = [];
+  rects.forEach(function (x) {
+    var L = lines[lines.length - 1];
+    if (L && x.t < L.b - 1) { L.b = Math.max(L.b, x.b); L.t = Math.min(L.t, x.t); } else lines.push({ t: x.t, b: x.b });
+  });
+  var cuts = [];
+  for (var k = 2; k <= lines.length - 3; k++) {
+    var y = (lines[k].b + lines[k + 1].t) / 2, inside = false;
+    imgs.forEach(function (im) { if (y > im.t + 0.5 && y < im.b - 0.5) inside = true; });
+    if (!inside) cuts.push(y);
+  }
+  return cuts;
+}
+
+// Fill column 1 to the bottom, then column 2, then the next page, and so on (like a newspaper).
+// Only the last page is balanced, so its two columns end at about the same height.
+function solFlow(h, cuts, capFirst, capRest) {
+  var SAFE = 3, MINPART = 22;                                      // px kept free at a column bottom / smallest piece worth cutting off
+  function cap(c) { return (c < 2 ? capFirst : capRest) - SAFE; }
+  var cols = [[]], used = 0, col = 0, i;
+  function push(it) { cols[col].push(it); used += it.y1 - it.y0; }
+  function next() { col++; cols.push([]); used = 0; }
+  for (i = 0; i < h.length; i++) {
+    var y0 = 0;
+    for (;;) {
+      var free = cap(col) - used;
+      if (h[i] - y0 <= free) { push({ i: i, y0: y0, y1: h[i] }); break; }
+      var y = null, cl = cuts[i] || [];
+      for (var c = cl.length - 1; c >= 0; c--) { if (cl[c] > y0 + MINPART && cl[c] - y0 <= free) { y = cl[c]; break; } }
+      if (y !== null) { push({ i: i, y0: y0, y1: y }); y0 = y; next(); continue; }
+      if (cols[col].length) { next(); continue; }
+      push({ i: i, y0: y0, y1: h[i] }); break;                     // empty column and nothing to cut: keep whole (clipped later)
     }
-    return cols;
   }
-  var minimal = tryPack(Infinity, 1e9), C = minimal.length;
-  var lo = Math.ceil(maxSingle), hi = Math.ceil(total), best = minimal;
-  while (lo < hi) {
-    var mid = Math.floor((lo + hi) / 2), a = tryPack(mid, C);
-    if (a) { best = a; hi = mid; } else lo = mid + 1;
+  function ht(it) { return it.y1 - it.y0; }
+  var C = cols.length, p0 = C - 1 - ((C - 1) % 2);                 // first column of the last page
+  var items = cols[p0].concat(p0 + 1 < C ? cols[p0 + 1] : []);
+  if (items.length > 1) {
+    var total = 0; items.forEach(function (it) { total += ht(it); });
+    var left = 0, best = null, bestScore = Infinity, limit = cap(p0);
+    for (var k = 1; k <= items.length; k++) {
+      left += ht(items[k - 1]);
+      var right = total - left;
+      if (left <= limit && right <= limit) { var sc = Math.max(left, right); if (sc < bestScore - 0.5) { bestScore = sc; best = k; } }
+    }
+    if (best !== null) { cols[p0] = items.slice(0, best); cols[p0 + 1] = items.slice(best); }
   }
-  var fin = tryPack(lo, C); if (fin) best = fin;
-  return best;
+  return cols;
 }
 
 function printSolution() {
@@ -791,13 +842,18 @@ function printSolution() {
     d.getElementById('wmStyle').textContent = '.sol-page{background-image:url("data:image/svg+xml,' + encodeURIComponent(wm) + '")}';
 
     var measure = d.getElementById('solMeasure');
-    var qHtmls = ctx.questions.map(function (q, i) { return solQuestionHTML(ctx, q, i); });
+    var qHtmls = [], qKinds = [];
+    ctx.questions.forEach(function (q, i) { solAtoms(ctx, q, i).forEach(function (a) { qHtmls.push(a.html); qKinds.push(a.cls); }); });
 
     measure.style.width = SOL_COL_PX + 'px';
     measure.innerHTML = qHtmls.join('');
     return solWaitForImages(measure, 4000).then(function () {
       var kids = measure.children, heights = [];
-      for (var k = 0; k < kids.length; k++) heights.push(Math.ceil(kids[k].getBoundingClientRect().height) + 1);
+      var cuts = [];
+      for (var k = 0; k < kids.length; k++) {
+        heights.push(kids[k].getBoundingClientRect().height);        // exact: pieces are stacked with no margins, so heights add up
+        cuts.push(/\bex\b/.test(qKinds[k]) ? solCuts(kids[k]) : []);
+      }
 
       measure.style.width = SOL_W_PX + 'px';
       measure.innerHTML = solFullHeader(ctx);
@@ -809,20 +865,22 @@ function printSolution() {
 
       var capFirst = SOL_H_PX - h1 - SOL_FOOT_PX, capRest = SOL_H_PX - hs - SOL_FOOT_PX;
       var minCap = Math.min(capFirst, capRest);
-      // A single question taller than a column can never fit: clip it rather than spill onto a blank page.
+      // A single piece taller than a column can never fit: clip it rather than spill onto a blank page.
       var clipped = {};
-      heights = heights.map(function (h, i) { if (h > minCap) { clipped[i] = true; return minCap; } return h; });
+      heights = heights.map(function (h, i) { if (h > minCap && !(cuts[i] && cuts[i].length)) { clipped[i] = true; return minCap; } return h; });
 
-      var cols = solPaginate(heights, capFirst, capRest);
+      var cols = solFlow(heights, cuts, capFirst, capRest);
       var pages = [];
       for (var c = 0; c < cols.length; c += 2) {
         pages.push([cols[c] || [], cols[c + 1] || []]);
       }
       var totalPages = pages.length;
       function colHtml(list) {
-        return list.map(function (i) {
-          var html = qHtmls[i];
-          return clipped[i] ? '<div style="max-height:' + minCap + 'px;overflow:hidden">' + html + '</div>' : html;
+        return list.map(function (it) {
+          var html = qHtmls[it.i], whole = it.y0 === 0 && it.y1 === heights[it.i];
+          if (whole) return clipped[it.i] ? '<div class="sol-sl" style="max-height:' + minCap + 'px">' + html + '</div>' : html;
+          // a piece of a long explanation: the full block, clipped to the lines that belong to this column
+          return '<div class="sol-sl" style="height:' + (it.y1 - it.y0) + 'px">' + (it.y0 > 0 ? '<div style="margin-top:-' + it.y0 + 'px">' + html + '</div>' : html) + '</div>';
         }).join('');
       }
       var out = pages.map(function (pg, pi) {
