@@ -5,12 +5,17 @@
 var $=function(i){return document.getElementById(i)};
 var E=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
 var LS='exalyte_qstudio_v1',PAGE=40,LET=['A','B','C','D'];
-var drafts={},curExam='',curKey='',view='exam',shown=PAGE,timer,mob='code',lastItems=[];
+var drafts={},saved={},loadingEx='',curExam='',curKey='',view='exam',shown=PAGE,timer,mob='code',lastItems=[];
 try{drafts=JSON.parse(localStorage.getItem(LS)||'{}')||{}}catch(e){drafts={}}
 function persist(){try{localStorage.setItem(LS,JSON.stringify(drafts))}catch(e){}}
 function ta(){return $('questionsJson')}
-function dget(ex,k){return(drafts[ex]&&drafts[ex][k])||''}
-function dset(ex,k,v){if(!ex)return;drafts[ex]=drafts[ex]||{};if(v&&v.trim())drafts[ex][k]=v;else delete drafts[ex][k];persist()}
+function hasDraft(ex,k){return !!(drafts[ex]&&Object.prototype.hasOwnProperty.call(drafts[ex],k))}
+function rowsFor(ex,k){var all=saved[ex]||[];return k?all.filter(function(r){return(r.section||'')===k}):all}
+function toItem(r){var o={id:r.id,question:r.question_text||''};['a','b','c','d'].forEach(function(l){o['option_'+l]=r['option_'+l]||''});o.answer=r.correct_answer||'';if(r.explanation)o.explanation=r.explanation;if(r.image_url)o.image_url=r.image_url;if(r.section)o.section=r.section;return o}
+function baseText(ex,k){var r=rowsFor(ex,k);return r.length?JSON.stringify(r.map(toItem),null,2):''}
+function curText(ex,k){return hasDraft(ex,k)?drafts[ex][k]:baseText(ex,k)}
+function dset(ex,k,v){if(!ex)return;drafts[ex]=drafts[ex]||{};if(v===baseText(ex,k))delete drafts[ex][k];else drafts[ex][k]=v;persist()}
+function dclear(ex,k){if(drafts[ex]){delete drafts[ex][k];persist()}}
 
 /* ---------- parsing & validation (mirrors the server's rules in handleAdminBulkQuestions) ---------- */
 function norm(q){q=(q&&typeof q==='object')?q:{};var g=function(){for(var i=0;i<arguments.length;i++){var v=q[arguments[i]];if(v!=null&&v!=='')return String(v)}return''};
@@ -20,15 +25,16 @@ function targets(){var ex=(window.allExams||[]).filter(function(e){return String
   try{var c=JSON.parse(ex&&ex.section_config||'{}');['required','compulsory_group','normal_group'].forEach(function(k){(c[k]||[]).forEach(function(s){if(s&&s.name)m[s.name]=s.count||s.questions||s.num||0})})}catch(e){}return m}
 function analyze(text){
   var r={empty:!text.trim(),items:[],fatal:'',errLine:0,valid:0,bad:0,warn:0,list:[]};
-  if(r.empty)return r;
+  if(r.empty){r.ids=new Set(rowsFor(curExam,curKey).map(function(x){return x.id}));r.diff=diffOf(r);return r}
   var arr;try{arr=JSON.parse(text)}catch(e){
     var m=String(e.message).match(/position (\d+)/),ln=String(e.message).match(/line (\d+)/);
     r.errLine=ln?+ln[1]:m?text.slice(0,+m[1]).split('\n').length:0;
     r.fatal='Invalid JSON'+(r.errLine?' near line '+r.errLine:'')+': '+String(e.message).replace(/ in JSON.*$/,'').slice(0,90);return r}
   if(!Array.isArray(arr)){r.fatal='Top level must be an array: [ {...}, {...} ]';return r}
   if(!arr.length){r.fatal='The array is empty';return r}
-  var secs=sectionsOf();
-  arr.forEach(function(raw,i){var n=norm(raw),errs=[],warns=[];
+  var secs=sectionsOf(),ids=new Set(rowsFor(curExam,curKey).map(function(x){return x.id})),seen={};
+  arr.forEach(function(raw,i){var n=norm(raw),errs=[],warns=[];n.id=(raw&&Number(raw.id))||0;
+    if(n.id){if(!ids.has(n.id))warns.push('id '+n.id+' is not in this tab; it will be added as a new question');if(seen[n.id])warns.push('duplicate id '+n.id);seen[n.id]=1}
     if(!raw||typeof raw!=='object'||Array.isArray(raw))errs.push('not an object');
     if(!n.question)errs.push('question missing');
     n.o.forEach(function(o,j){if(!o)errs.push('option '+LET[j]+' missing')});
@@ -40,7 +46,14 @@ function analyze(text){
     r.items.push({n:n,raw:raw,errs:errs,warns:warns});
     if(errs.length){r.bad++;r.list.push({i:i,t:'err',m:errs.join(', ')})}else r.valid++;
     if(warns.length){r.warn++;r.list.push({i:i,t:'warn',m:warns.join(', ')})}});
-  return r}
+  r.ids=ids;r.diff=diffOf(r);return r}
+function diffOf(r){var base={};rowsFor(curExam,curKey).forEach(function(x){base[x.id]=norm(toItem(x))});
+  var d={add:0,chg:0,same:0,rem:0,kept:0};var keep={};
+  r.items.forEach(function(it){var id=it.n.id,bad=it.errs.length;
+    if(id&&base[id]){keep[id]=1;if(bad){d.kept++;return}var a=it.n,b=base[id],sec=a.sec||curKey||'';
+      var same=a.question===b.question&&a.ans===b.ans&&a.img===b.img&&a.exp===b.exp&&(sec===(b.sec||''))&&a.o.join('\u0001')===b.o.join('\u0001');same?d.same++:d.chg++}
+    else if(!bad)d.add++});
+  r.ids.forEach(function(id){if(!keep[id])d.rem++});return d}
 
 /* ---------- safe HTML (the exam page renders question HTML raw, so the preview does too, minus scripts) ---------- */
 function clean(h){var d=new DOMParser().parseFromString('<body>'+String(h||'')+'</body>','text/html');
@@ -95,7 +108,7 @@ function mount(){
   grp.parentNode.insertBefore(root,grp);$('qsSlot').appendChild(t);grp.style.display='none';
   t.setAttribute('spellcheck','false');t.setAttribute('wrap','off');t.removeAttribute('rows');
   var w=$('uploadSectionWrap');if(w)w.style.display='none';
-  var up=document.querySelector('button[onclick="uploadQuestions()"]');if(up)up.textContent='Upload this tab';
+  var up=document.querySelector('button[onclick="uploadQuestions()"]');if(up)up.style.display='none';var rp=$('replaceQuestions');if(rp&&rp.closest('.form-group'))rp.closest('.form-group').style.display='none';
   t.addEventListener('input',function(){dset(curExam,curKey,t.value);schedule()});
   t.addEventListener('scroll',function(){$('qsGut').scrollTop=t.scrollTop});
   $('qsView').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;view=b.dataset.v;[].forEach.call(this.children,function(x){x.classList.toggle('on',x===b)});render()});
@@ -111,23 +124,23 @@ function tabKeys(){var s=sectionsOf();return s.length?[''].concat(s):[]}
 function drawTabs(){
   var el=$('qsTabs'),keys=tabKeys();if(!keys.length){el.style.display='none';return}
   var tg=targets();el.style.display='flex';
-  el.innerHTML=keys.map(function(k){var txt=k===curKey?ta().value:dget(curExam,k),r=analyze(txt),tgt=tg[k]||0,cls='',lab='';
+  el.innerHTML=keys.map(function(k){var txt=k===curKey?ta().value:curText(curExam,k),r=analyze(txt),tgt=tg[k]||0,cls='',lab='',dirty=k===curKey?(ta().value!==baseText(curExam,k)):hasDraft(curExam,k);
     if(!txt.trim())lab='—';else if(r.fatal){lab='!';cls='err'}else{lab=tgt?r.valid+'/'+tgt:String(r.valid);if(tgt&&r.valid===tgt&&!r.bad)cls='full';else if(r.bad)cls='err'}
-    return'<button type="button" class="qs-tab'+(k===curKey?' on':'')+'" data-k="'+E(k)+'">'+E(k||'All sections')+' <small class="'+cls+'">'+lab+'</small></button>'}).join('');
+    return'<button type="button" class="qs-tab'+(k===curKey?' on':'')+'" data-k="'+E(k)+'">'+E(k||'All sections')+' <small class="'+cls+'">'+lab+'</small>'+(dirty?'<span title="Unsaved changes" style="color:#f9ab00">●</span>':'')+'</button>'}).join('');
   [].forEach.call(el.querySelectorAll('.qs-tab'),function(b){b.onclick=function(){switchTab(b.dataset.k)}});
 }
 function switchTab(k){
   dset(curExam,curKey,ta().value);curKey=k;var sel=$('uploadSectionSelect');if(sel)sel.value=k;
   if(window.updateDeleteAllBtnLabel)window.updateDeleteAllBtnLabel();
-  ta().value=dget(curExam,k);shown=PAGE;render();
+  ta().value=curText(curExam,k);shown=PAGE;render();
 }
 function render(){
   var t=ta();if(!t||!$('qs'))return;var text=t.value,r=analyze(text);lastItems=r.items;
   var lines=Math.max(1,text.split('\n').length);
   $('qsGut').innerHTML=Array.apply(null,Array(lines)).map(function(_,i){return'<div'+(r.errLine===i+1?' class="er"':'')+'>'+(i+1)+'</div>'}).join('');$('qsGut').scrollTop=t.scrollTop;
   $('qsFatal').innerHTML=r.fatal?'<div class="qs-fatal">✗ '+E(r.fatal)+'</div>':'';
-  $('qsCount').textContent=r.items.length?r.items.length+' question'+(r.items.length>1?'s':''):'';
-  $('qsSum').innerHTML=r.empty?'<span style="color:var(--t3)">Paste JSON here, or press “Example”. The preview updates as you type.</span>':r.fatal?'':'<span><b class="ok">'+r.valid+'</b> will upload</span>'+(r.warn?'<span><b class="wn">'+r.warn+'</b> warning'+(r.warn>1?'s':'')+'</span>':'')+(r.bad?'<span><b class="bd">'+r.bad+'</b> will be skipped</span>':'');
+  $('qsCount').textContent=r.items.length?r.items.length+' question'+(r.items.length>1?'s':'')+' · edit, then Save':'';
+  $('qsSum').innerHTML=r.empty?(loadingEx===curExam&&curExam?'<span style="color:var(--t3)">Loading saved questions…</span>':'<span style="color:var(--t3)">'+(curExam&&rowsFor(curExam,curKey).length?'<b class="bd">'+rowsFor(curExam,curKey).length+'</b> saved question(s) will be removed if you save an empty box.':'No questions yet. Paste JSON here, or press “Example”.')+'</span>'):r.fatal?'':'<span><b class="ok">'+r.diff.add+'</b> new</span><span><b style="color:var(--blue)">'+r.diff.chg+'</b> changed</span><span style="color:var(--t3)">'+r.diff.same+' unchanged</span>'+(r.diff.rem?'<span><b class="bd">'+r.diff.rem+'</b> will be removed</span>':'')+(r.warn?'<span><b class="wn">'+r.warn+'</b> warning'+(r.warn>1?'s':'')+'</span>':'')+(r.bad?'<span><b class="bd">'+r.bad+'</b> will be skipped</span>':'');
   $('qsIss').innerHTML=r.list.slice(0,60).map(function(x){return'<button type="button" data-i="'+x.i+'" class="'+(x.t==='err'?'e':'w')+'">'+(x.t==='err'?'✗':'⚠')+' Q'+(x.i+1)+': '+E(x.m)+'</button>'}).join('');
   var pv=$('qsPrev'),keep=pv.scrollTop;
   if(!r.items.length)pv.innerHTML='<div class="qsp-empty">'+(r.fatal?'Fix the JSON to see the preview.':'Your questions will appear here exactly as students see them.')+'</div>';
@@ -136,9 +149,9 @@ function render(){
   drawTabs();footer();
 }
 function footer(){
-  var f=$('qsFoot');if(!f)return;if(!tabKeys().length){f.innerHTML='';return}
-  f.innerHTML='<button type="button" class="btn btn-primary" id="qsAll">Upload all sections</button><span style="font-size:.76rem;color:var(--t3)">Uploads every tab that has a draft. Drafts are saved on this device.</span>';
-  $('qsAll').onclick=uploadAll;
+  var f=$('qsFoot');if(!f)return;var multi=tabKeys().length>0;
+  f.innerHTML='<button type="button" class="btn btn-primary" id="qsSave">Save this tab</button>'+(multi?'<button type="button" class="btn btn-outline" id="qsAll">Save all changed tabs</button>':'')+'<span style="font-size:.76rem;color:var(--t3)">Saved questions keep their ID, so past results stay linked. Unsaved edits are kept on this device.</span>';
+  $('qsSave').onclick=function(){saveTabs([curKey],true)};if($('qsAll'))$('qsAll').onclick=function(){saveTabs(null,false)};
 }
 function format(){try{var v=JSON.parse(ta().value);ta().value=JSON.stringify(v,null,2);dset(curExam,curKey,ta().value);render();toast('Formatted')}catch(e){toast('Fix the JSON first','warn')}}
 function example(){
@@ -174,30 +187,44 @@ function edit(i){
 }
 function write(arr){ta().value=arr.length?JSON.stringify(arr,null,2):'';dset(curExam,curKey,ta().value);render()}
 
-/* ---------- upload every tab that has a draft ---------- */
-async function uploadAll(){
+/* ---------- save: one safe, all-or-nothing sync per tab (update by id, add new, remove deleted) ---------- */
+async function saveTabs(keys,current){
   dset(curExam,curKey,ta().value);var ex=curExam;if(!ex){toast('Select an exam first','warn');return}
-  var keys=tabKeys().filter(function(k){return dget(ex,k).trim()}).sort(function(a,b){return a===''?-1:b===''?1:0});
-  if(!keys.length){toast('Nothing to upload — all tabs are empty','warn');return}
-  var plan=[],problems=[];
-  keys.forEach(function(k){var r=analyze(dget(ex,k));if(r.fatal)problems.push((k||'All sections')+': '+r.fatal);else if(!r.valid)problems.push((k||'All sections')+': no valid questions');else plan.push({k:k,r:r})});
-  if(problems.length){toast(problems[0]+(problems.length>1?' (+'+(problems.length-1)+' more)':''),'err');return}
-  var replace=$('replaceQuestions')&&$('replaceQuestions').checked,total=plan.reduce(function(s,p){return s+p.r.valid},0),skipped=plan.reduce(function(s,p){return s+p.r.bad},0);
-  var msg=(replace?'Replace questions in '+plan.length+' tab'+(plan.length>1?'s':'')+'?\nThis deletes the existing questions in those tabs first and cannot be undone.':'Upload '+total+' question'+(total!==1?'s':'')+'?\nAdds to what is already in this exam.')+(skipped?'\n'+skipped+' invalid question'+(skipped>1?'s':'')+' will be skipped.':'')+'\n'+plan.map(function(p){return(p.k||'All sections')+': '+p.r.valid}).join(' · ');
-  if(!(await window.exConfirm(msg,{title:replace?'Replace and upload all?':'Upload all sections?',danger:!!replace,label:replace?'Replace & upload':'Upload',typed:false})))return;
-  var btn=$('qsAll');if(btn){btn.disabled=true;btn.textContent='Uploading…'}
+  var tabs=tabKeys();
+  if(!keys)keys=tabs.filter(function(k){return hasDraft(ex,k)});
+  keys=keys.filter(function(k){return current||hasDraft(ex,k)});
+  if(!keys.length){toast('No changed tabs','warn');return}
+  if(keys.indexOf('')>-1&&keys.length>1){toast('“All sections” overlaps the other tabs. Save it on its own, or clear its changes.','warn');return}
+  var plan=[],bad=[],sk=curKey;
+  keys.forEach(function(k){curKey=k;var t=curText(ex,k),r=analyze(t);
+    if(r.fatal)bad.push((k||'All sections')+': '+r.fatal);else plan.push({k:k,r:r,text:t})});
+  curKey=sk;
+  if(bad.length){toast(bad[0]+(bad.length>1?' (+'+(bad.length-1)+' more)':''),'err');return}
+  var tot={add:0,chg:0,rem:0,skip:0};plan.forEach(function(p){tot.add+=p.r.diff.add;tot.chg+=p.r.diff.chg;tot.rem+=p.r.diff.rem;tot.skip+=p.r.bad});
+  var wipe=plan.some(function(p){return p.r.empty&&p.r.diff.rem>0});
+  if(!tot.add&&!tot.chg&&!tot.rem){toast('Nothing changed');plan.forEach(function(p){dclear(ex,p.k)});render();return}
+  var msg='Save changes to '+plan.map(function(p){return'“'+(p.k||'All sections')+'”'}).join(', ')+'?\n'+tot.add+' new · '+tot.chg+' changed · '+tot.rem+' removed'+(tot.skip?'\n'+tot.skip+' invalid question'+(tot.skip>1?'s':'')+' will be skipped.':'')+(tot.rem?'\nRemoved questions are deleted for good and cannot be undone.':'');
+  var ok=await window.exConfirm(msg,{title:wipe?'Delete ALL questions in this tab?':'Save changes?',danger:tot.rem>0,label:tot.rem?'Save & remove':'Save',typed:wipe});
+  if(!ok)return;
+  [$('qsSave'),$('qsAll')].forEach(function(b){if(b)b.disabled=true});if($('qsSave'))$('qsSave').textContent='Saving…';
   var done=[],failed=[];
-  for(var p of plan){
-    try{
-      if(replace)await apiFetch(p.k?'/admin/questions/'+ex+'?section='+encodeURIComponent(p.k):'/admin/questions/'+ex,{method:'DELETE'});
-      var res=await apiFetch('/admin/questions/bulk',{method:'POST',body:JSON.stringify({exam_id:parseInt(ex),questions:JSON.parse(dget(ex,p.k)),section:p.k})});
-      if(res.ok===false)throw new Error('failed');done.push((p.k||'All')+' '+((res.data&&res.data.inserted)!=null?res.data.inserted:p.r.valid));dset(ex,p.k,'');
-    }catch(e){failed.push(p.k||'All sections')}}
-  if(ta()&&ex===curExam)ta().value=dget(ex,curKey);
-  if(btn){btn.disabled=false;btn.textContent='Upload all sections'}
+  for(var i=0;i<plan.length;i++){var p=plan[i];
+    try{var arr=p.r.empty?[]:JSON.parse(p.text);
+      var res=await apiFetch('/admin/questions/sync',{method:'POST',body:JSON.stringify({exam_id:parseInt(ex),section:p.k,questions:arr,allow_empty:!!p.r.empty})});
+      if(!res||res.ok===false||!res.data||res.data.error)throw new Error((res&&res.data&&res.data.error)||'failed');
+      done.push((p.k||'All')+': +'+res.data.inserted+' ~'+res.data.updated+' −'+res.data.deleted);dclear(ex,p.k);
+    }catch(e){failed.push((p.k||'All sections')+(e&&e.message&&e.message!=='failed'?' ('+e.message+')':''))}}
+  await refreshSaved(ex);
+  if(ex===curExam)ta().value=curText(ex,curKey);
   render();
-  toast(failed.length?'Uploaded '+done.length+', failed: '+failed.join(', '):'Uploaded — '+done.join(' · '),failed.length?'err':'',6000);
-  try{await window.loadQuestionsForExam();await window.loadExams();await window.loadDashboard()}catch(e){}
+  toast(failed.length?'Saved '+done.length+', failed: '+failed.join(', ')+' — nothing changed for failed tabs':'Saved — '+done.join(' · '),failed.length?'err':'',6000);
+  try{await window.__origLoadQ();await window.loadExams();await window.loadDashboard()}catch(e){}
+}
+async function refreshSaved(ex){
+  if(!ex)return;loadingEx=ex;if(ex===curExam)render();
+  try{var res=await apiFetch('/admin/questions/'+ex+'?t='+Date.now());if(res&&res.ok!==false&&Array.isArray(res.data))saved[ex]=res.data;else if(!saved[ex])saved[ex]=[]}catch(e){if(!saved[ex])saved[ex]=[]}
+  if(loadingEx===ex)loadingEx='';
+  if(ex===curExam){var t=ta();if(t){var want=curText(ex,curKey);if(t.value!==want)t.value=want}shown=PAGE;render()}
 }
 
 /* ---------- hooks into existing admin.js behaviour ---------- */
@@ -207,14 +234,16 @@ function hook(){
     var sel=$('questionExamSelect'),now=sel?sel.value:'';
     if($('qs')&&now!==curExam)dset(curExam,curKey,ta().value);   // switching exams: keep the old draft
     oc&&oc();
-    if($('qs')&&now===curExam){dset(curExam,curKey,'');render()}  // after an upload / explicit clear
+    if($('qs')&&now===curExam){ta().value=curText(curExam,curKey);render()}  // re-selecting same exam: restore, never wipe
   };
   var ou=window.updateUploadSectionSelector;
   window.updateUploadSectionSelector=function(id){
     ou&&ou(id);if(!$('qs'))return;
     curExam=String(id||'');curKey='';var sel=$('uploadSectionSelect');if(sel)sel.value='';shown=PAGE;
-    ta().value=dget(curExam,'');render();
+    ta().value=curText(curExam,'');render();refreshSaved(curExam);
   };
+  var ol=window.loadQuestionsForExam;window.__origLoadQ=ol;
+  window.loadQuestionsForExam=async function(){var r=await ol.apply(this,arguments);if($('qs')&&curExam&&!loadingEx)refreshSaved(curExam);return r};
 }
 function init(){mount();hook()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
