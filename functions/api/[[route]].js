@@ -79,6 +79,22 @@ function json(data, status = 200, cacheSeconds = 0) {
   return new Response(JSON.stringify(data), { status, headers });
 }
 
+
+// ── Shared cache for the user-independent part of /exams (exam rows, question counts, resources) ──
+// Per-user data (access, attempts, premium) is never cached; it is applied on top of this on every request.
+const STATIC_CACHE_KEY = 'https://cache.exalyte.internal/exams-static-v1';
+const STATIC_CACHE_TTL = 60; // seconds
+async function getStaticCache() {
+  try { if (typeof caches === 'undefined' || !caches.default) return null; const hit = await caches.default.match(STATIC_CACHE_KEY); return hit ? await hit.json() : null; } catch (e) { return null; }
+}
+async function putStaticCache(data) {
+  try { if (typeof caches === 'undefined' || !caches.default) return; await caches.default.put(STATIC_CACHE_KEY, new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=' + STATIC_CACHE_TTL } })); } catch (e) { /* ignore */ }
+}
+async function clearStaticCache() {
+  try { if (typeof caches !== 'undefined' && caches.default) await caches.default.delete(STATIC_CACHE_KEY); } catch (e) { /* ignore */ }
+}
+let _lastPremiumClean = 0, _lastStartsClean = 0; // throttle housekeeping that used to run on every dashboard load
+
 function err(msg, status = 400) {
   return json({ error: msg }, status);
 }
@@ -741,14 +757,22 @@ async function handleDeleteExamResource(resourceId, db) {
 // ============================================================
 
 async function handleListExams(request, db) {
-  await cleanupExpiredPremium(db);
-  await cleanupExpiredStarts(db);
+  const _now = Date.now();
+  if (_now - _lastPremiumClean > 120000) { _lastPremiumClean = _now; await cleanupExpiredPremium(db); }   // access checks already filter by expires_at
+  if (_now - _lastStartsClean > 30000) { _lastStartsClean = _now; await cleanupExpiredStarts(db); }
   
   const user = await requireAuth(request);
   const userId = user ? user.id : null;
   const isAdmin = user ? user.is_admin : false;
 
-  const exams = await db.prepare(`SELECT e.*, b.name as batch_name, s.name as subject_name, (SELECT COUNT(*) FROM questions q WHERE q.exam_id = e.id) as total_questions_in_db FROM exams e LEFT JOIN batches b ON e.batch_id = b.id LEFT JOIN subjects s ON e.subject_id = s.id ORDER BY e.sort_order ASC, e.created_at DESC`).all();
+  let exams, allExamResources, allBatchResources;
+  const _cached = await getStaticCache();
+  if (_cached && Array.isArray(_cached.exams)) {
+    exams = { results: _cached.exams };
+    allExamResources = { results: _cached.examResources || [] };
+    allBatchResources = { results: _cached.batchResources || [] };
+  } else {
+    exams = await db.prepare(`SELECT e.*, b.name as batch_name, s.name as subject_name, (SELECT COUNT(*) FROM questions q WHERE q.exam_id = e.id) as total_questions_in_db FROM exams e LEFT JOIN batches b ON e.batch_id = b.id LEFT JOIN subjects s ON e.subject_id = s.id ORDER BY e.sort_order ASC, e.created_at DESC`).all();
 
   // Calculate actual attemptable questions for sectional exams
   for (const exam of exams.results) {
@@ -803,8 +827,10 @@ async function handleListExams(request, db) {
     }
   }
 
-  const allExamResources = await db.prepare(`SELECT er.*, e.id as exam_id, e.is_premium, e.batch_id FROM exam_resources er JOIN exams e ON er.exam_id = e.id ORDER BY er.created_at DESC`).all();
-  const allBatchResources = await db.prepare(`SELECT br.*, b.id as batch_id, b.name as batch_name FROM batch_resources br JOIN batches b ON br.batch_id = b.id ORDER BY br.created_at DESC`).all();
+    allExamResources = await db.prepare(`SELECT er.*, e.id as exam_id, e.is_premium, e.batch_id FROM exam_resources er JOIN exams e ON er.exam_id = e.id ORDER BY er.created_at DESC`).all();
+    allBatchResources = await db.prepare(`SELECT br.*, b.id as batch_id, b.name as batch_name FROM batch_resources br JOIN batches b ON br.batch_id = b.id ORDER BY br.created_at DESC`).all();
+    await putStaticCache({ exams: exams.results, examResources: allExamResources.results, batchResources: allBatchResources.results });
+  }
 
   let userPremiumBatches = new Set();
   let userPremiumExams = new Set();
@@ -1648,7 +1674,7 @@ async function handleAdminPublishResults(examId, db) {
 // MAIN ROUTER
 // ============================================================
 
-export async function onRequest(context) {
+async function handleRequest(context) {
   const { request, env } = context;
   const db = env.DB;
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
@@ -1799,4 +1825,13 @@ export async function onRequest(context) {
   } catch (e) {
     return err('Server error: ' + (e.message || 'unknown'), 500);
   }
+}
+
+export async function onRequest(context) {
+  const res = await handleRequest(context);
+  try {
+    const m = context.request.method;
+    if (m !== 'GET' && m !== 'OPTIONS' && res.status < 400 && /\/api\/admin\//.test(new URL(context.request.url).pathname)) await clearStaticCache();
+  } catch (e) { /* ignore */ }
+  return res;
 }
