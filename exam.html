@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<base href="/">
 <title>Exam — Exalyte</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -382,7 +383,7 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
   
   <div class="agreement-section" id="agreementScreen">
     <div class="agree-card">
-      <button class="btn-back" onclick="window.location.href='dashboard.html'">
+      <button class="btn-back" onclick="window.location.href='/dashboard'">
         <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back to Dashboard
       </button>
       <div class="agree-logo">
@@ -430,8 +431,8 @@ body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smo
     </div>
     <div class="fc">
       <h4>Platform</h4>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="exam-history.html">Exam History</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/exam-history">Exam History</a>
     </div>
     <div class="fc">
       <h4>Legal</h4>
@@ -492,7 +493,7 @@ function goDashboard() {
   closeMenu();
   if (examActive && !confirm('Go to the dashboard? Your exam progress may be lost.')) return;
   window.removeEventListener('beforeunload', onBeforeUnload);
-  window.location.href = 'dashboard.html';
+  window.location.href = '/dashboard';
 }
 function setMenu(open) {
   const m = document.getElementById('menu'), b = document.getElementById('menuBtn');
@@ -524,10 +525,12 @@ async function apiFetch(path, opts = {}) {
   return { ok: r.ok, data: await r.json().catch(() => ({})) };
 }
 
-const params = new URLSearchParams(location.search);
-const examId = params.get('id');
-let isPrac = params.get('practice') === '1';
-if (!examId) window.location.href = 'dashboard.html';
+// URL form:  /exam/84   or   /exam/84/practice   (old ?id=84&practice=1 links still work)
+const _path = location.pathname.split('/').filter(Boolean);
+const _qs = new URLSearchParams(location.search);
+const examId = (_path[0] === 'exam' && /^\d+$/.test(_path[1] || '')) ? _path[1] : (/^\d+$/.test(_qs.get('id') || '') ? _qs.get('id') : null);
+let isPrac = _path[0] === 'exam' ? _path[2] === 'practice' : _qs.get('practice') === '1';
+if (!examId) window.location.href = '/dashboard';
 
 function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
 
@@ -627,7 +630,7 @@ async function loadAgreement() {
     const { ok, data } = await apiFetch('/exams');
     if (!ok) { logout(); return; }
     exam = (data.exams || []).find(e => e.id == examId);
-    if (!exam) { window.location.href = 'dashboard.html'; return; }
+    if (!exam) { window.location.href = '/dashboard'; return; }
 
     // Practice-only exam type: force practice mode client-side too, so the submit
     // flow and result screen match what the server will actually do.
@@ -663,7 +666,7 @@ async function loadAgreement() {
       document.getElementById('negRule').style.display = 'flex';
       document.getElementById('negRuleText').textContent = 'Wrong: -' + exam.negative_marking;
     }
-  } catch (e) { window.location.href = 'dashboard.html'; }
+  } catch (e) { window.location.href = '/dashboard'; }
 }
 
 function renderSectionSelection() {
@@ -782,7 +785,7 @@ async function startExam() {
 
   if (!startRes.ok) {
     alert(startRes.data.error || 'Cannot start exam.');
-    window.location.href = 'dashboard.html';
+    window.location.href = '/dashboard';
     return;
   }
 
@@ -793,12 +796,12 @@ async function startExam() {
     } else {
       res = await apiFetch('/exams/' + examId + '/questions?practice=' + (isPrac ? '1' : '0'));
     }
-    if (!res.ok) { alert(res.data.error || 'Cannot load questions.'); window.location.href = 'dashboard.html'; return; }
+    if (!res.ok) { alert(res.data.error || 'Cannot load questions.'); window.location.href = '/dashboard'; return; }
     questions = res.data.questions || [];
-    if (!questions.length) { alert('No questions yet.'); window.location.href = 'dashboard.html'; return; }
+    if (!questions.length) { alert('No questions yet.'); window.location.href = '/dashboard'; return; }
   } catch (e) {
     alert('Network error.');
-    window.location.href = 'dashboard.html';
+    window.location.href = '/dashboard';
     return;
   }
 
@@ -932,7 +935,7 @@ async function doSubmit() {
     if (isPrac) {
       showPracticeResult(data);
     } else {
-      window.location.href = 'result.html?examId=' + examId + '&attemptId=' + (data.attemptId || 0);
+      window.location.href = '/result/' + examId + '/' + (data.attemptId || 0);
     }
   } catch (e) {
     alert('Network error.');
@@ -995,9 +998,9 @@ function showPracticeResult(data) {
     timeHTML +
     '<div class="perf-bar"><div class="perf-fill" id="perfFill" style="width:0%;background:' + gc + '"></div></div>' +
     '<div class="result-actions">' +
-    '<a href="dashboard.html" class="btn-secondary" style="text-decoration:none">Dashboard</a>' +
+    '<a href="/dashboard" class="btn-secondary" style="text-decoration:none">Dashboard</a>' +
     '<button class="btn-secondary" onclick="printSolution()">Solution Sheet</button>' +
-    '<a href="exam.html?id=' + examId + '&practice=1" class="btn-primary" style="text-decoration:none">Practice Again</a>' +
+    '<a href="/exam/' + examId + '/practice" class="btn-primary" style="text-decoration:none">Practice Again</a>' +
     '</div></div>';
 
   if (questions.length > 0) {
@@ -1382,7 +1385,7 @@ function solFlow(h, cuts, capFirst, capRest) {
 function printSolution() {
   var ctx = (typeof solContext === 'function') ? solContext() : null;
   if (!ctx || !ctx.questions || !ctx.questions.length) return;
-  SOL_LOGO_URL = new URL('images/exalyte.png', location.href).href;
+  SOL_LOGO_URL = new URL('/images/exalyte.png', location.origin).href;
 
   // Must open synchronously inside the click so pop-up blockers allow it.
   var w = window.open('', '_blank');
