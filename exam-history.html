@@ -271,6 +271,70 @@ html.lock,html.lock body{overflow:hidden}
 }
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
 
+
+/* ===== UI refresh: matches dashboard (one accent per level) ===== */
+:root{--card-bd:#E5E7EB;--card-bd-h:#D0D5DD}
+
+/* Summary */
+.summary{border-color:var(--card-bd);border-radius:16px}
+.sum-cell{border-right-color:var(--card-bd)}
+.trend{background:#fff;border-top:1px solid var(--card-bd);padding:16px 16px 12px}
+.trend-head{align-items:center;margin-bottom:10px}
+.trend-title{font-size:.9rem;color:var(--t1)}
+.t-badge{font-size:.72rem;font-weight:500;padding:3px 10px;border-radius:999px;font-family:var(--gs)}
+.t-badge.up{background:var(--grn-bg);color:#17692F}.t-badge.down{background:var(--red-bg);color:#B3261E}.t-badge.flat{background:var(--hov);color:var(--t3)}
+.trend-bars{position:relative;height:auto;gap:6px;align-items:flex-start;justify-content:stretch;padding-top:4px}
+.t-target{position:absolute;left:0;right:0;top:54px;border-top:1px dashed #B8BEC6;pointer-events:none;z-index:0}
+.t-target em{position:absolute;right:2px;bottom:3px;font-style:normal;font-size:.62rem;color:var(--t3);background:#fff;padding:0 4px}
+.tbar{flex:1;min-width:0;max-width:64px;height:auto;margin:0 auto;display:block}
+.tbar .tb{position:relative;display:block;width:100%;height:120px}
+.tbar .tb i{position:absolute;left:20%;right:20%;bottom:0;width:auto;background:#C5D7F7;border-radius:6px 6px 2px 2px;min-height:0;transition:background var(--tr)}
+.tbar .tb i.good,.tbar .tb i.mid,.tbar .tb i.low{background:#C5D7F7}
+.tbar .tv{position:absolute;left:-4px;right:-4px;text-align:center;font-family:var(--gs);font-size:.68rem;font-weight:500;color:var(--t3);font-variant-numeric:tabular-nums}
+.tbar .td{display:block;text-align:center;font-size:.64rem;color:var(--t4);margin:6px -6px 0;white-space:nowrap}
+.tbar:last-child .tb i{background:var(--blue)}
+.tbar:last-child .tv{color:var(--blue);font-weight:700}
+.tbar:last-child .td{color:var(--t1);font-weight:500}
+.tbar:hover .tb i{background:#9DBCF3}.tbar:last-child:hover .tb i{background:var(--blue-h)}
+
+/* List: date groups in sentence case */
+.h-group{font-size:.82rem;font-weight:500;letter-spacing:0;text-transform:none;color:var(--t3);margin:22px 0 10px}
+.h-group:first-child{margin-top:4px}
+
+/* Cards: white, hairline border, flat until hover, no coloured edge */
+.h-card{background:#fff;border:1px solid var(--card-bd);border-left:1px solid var(--card-bd);border-radius:12px;box-shadow:none;transition:box-shadow var(--tr),border-color var(--tr)}
+.h-card:hover{box-shadow:0 2px 10px rgba(16,24,40,.06);border-color:var(--card-bd-h)}
+.h-card.b-high,.h-card.b-med,.h-card.b-low,.h-card.b-fail,.h-card.b-pend{border-left-color:var(--card-bd)}
+.ring-fg.fail{stroke:#E0645B}.ring-fg.low{stroke:#F2A60C}
+.ring-bg{stroke:#EEF0F2}
+.h-link{color:inherit;text-decoration:none}
+.h-link:hover{color:var(--blue);text-decoration:underline;text-underline-offset:3px}
+.h-link:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+.h-badge{gap:5px;padding:3px 10px 3px 8px;font-size:.72rem;border:1px solid transparent}
+.h-badge svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.h-badge.prac{background:#EEF0FF;color:#4338CA;border-color:#DADFFB}
+.h-badge.pend{background:#FEF3E0;color:#9A5B00;border-color:#FBE2B4}
+.h-chip.rank{background:#E8F0FE;color:#1557b0}
+.h-chip.top{background:#F6EDFE;color:#7E22CE}
+.h-marks{color:var(--t2)}
+.h-btn{border-radius:10px}
+.h-btn.ghost{border-color:var(--card-bd)}
+
+/* Filters & misc */
+.flabel{text-transform:none;letter-spacing:0;font-size:.8rem}
+.fgroup{border-bottom-color:var(--card-bd)}
+.empty-state{border-color:var(--card-bd);border-radius:16px;background:#fff}
+
+@media(max-width:480px){
+  .tbar .td{display:none}
+  .tbar:first-child .td,.tbar:last-child .td{display:block}
+  .tbar:first-child .td{text-align:left;margin-left:0}
+  .tbar:last-child .td{text-align:right;margin-right:0}
+  .trend-bars{gap:3px}
+  .tbar .tb{height:112px}
+  .t-target{top:46px}
+  .tbar .tv{font-size:.62rem}
+}
 </style>
 </head>
 <body>
@@ -648,9 +712,13 @@ function updateSummary(){
   const chrono=vis.slice().sort((a,b)=>{const da=subDate(a),db=subDate(b);return(da?da.getTime():a.id||0)-(db?db.getTime():b.id||0)}).slice(-10);
   let trend;
   if(chrono.length>=2){
-    trend='<div class="trend"><div class="trend-head"><div class="trend-title">Your last '+chrono.length+' results</div><div class="trend-key"><span><i style="background:var(--green)"></i>70%+</span><span><i style="background:#f9ab00"></i>40\u201369%</span><span><i style="background:var(--red)"></i>Below 40%</span></div></div>'+
-      '<div class="trend-bars">'+chrono.map(h=>{const p=Math.max(0,Math.min(100,Number(h.percentage)));return'<div class="tbar" title="'+esc(h.exam_name)+': '+Math.round(p)+'%"><span>'+Math.round(p)+'</span><i class="'+barClass(p)+'" style="height:'+Math.max(5,Math.round(p*0.72))+'%"></i></div>'}).join('')+'</div>'+
-      '<div class="trend-x">'+chrono.map(h=>{const d=subDate(h);return'<span>'+(d?d.toLocaleDateString(undefined,{day:'numeric',month:'short'}):'')+'</span>'}).join('')+'</div></div>';
+    const dlt=Math.round(Number(chrono[chrono.length-1].percentage)-Number(chrono[chrono.length-2].percentage));
+    const badge=dlt>0?'<span class="t-badge up">\u25B2 +'+dlt+' pts vs previous</span>':dlt<0?'<span class="t-badge down">\u25BC '+dlt+' pts vs previous</span>':'<span class="t-badge flat">\u25CF Same as previous</span>';
+    trend='<div class="trend"><div class="trend-head"><div class="trend-title">Your last '+chrono.length+' results</div>'+badge+'</div>'+
+      '<div class="trend-bars" role="group" aria-label="Your last '+chrono.length+' results as a bar chart"><div class="t-target"><em>70% target</em></div>'+
+      chrono.map(h=>{const p=Math.max(0,Math.min(100,Number(h.percentage)));const bh=Math.max(3,Math.round(p));const d=subDate(h);const ds=d?d.toLocaleDateString(undefined,{day:'numeric',month:'short'}):'';
+        return'<div class="tbar" title="'+esc(h.exam_name)+': '+Math.round(p)+'%" role="img" aria-label="'+esc(h.exam_name)+': '+Math.round(p)+' percent'+(ds?', '+ds:'')+'"><span class="tb"><b class="tv" style="bottom:'+(bh+4)+'px">'+Math.round(p)+'%</b><i style="height:'+bh+'px"></i></span><span class="td">'+esc(ds)+'</span></div>'}).join('')+
+      '</div></div>';
   }else{
     trend='<div class="sum-empty">'+(vis.length?'Complete one more exam to see your progress trend.':'Your published results will show up here as a progress chart.')+'</div>';
   }
@@ -685,12 +753,12 @@ function cardHtml(item){
   if(vis&&item.rank)chips+='<span class="h-chip rank"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Rank #'+esc(item.rank)+(item.total_participants?' of '+esc(item.total_participants):'')+'</span>';
   if(vis&&item.percentile)chips+='<span class="h-chip top">Top '+esc(item.percentile)+'%</span>';
   const score=vis
-    ?'<div class="h-score"><div class="h-marks"><b>'+fmtNum(item.score)+'</b> <small>/ '+fmtNum(item.total_questions)+' marks</small></div><div class="h-pct '+(band==='high'?'good':band)+'">'+pct.toFixed(1)+'%</div>'+chips+'</div>'
+    ?'<div class="h-score"><div class="h-marks"><b>'+fmtNum(item.score)+'</b> <small>/ '+fmtNum(item.total_questions)+' marks</small></div>'+chips+'</div>'
     :'<div class="h-pendtxt">Your score will appear once results are published.</div>';
   const sub=[item.batch_name,item.subject_name].filter(Boolean).map(esc).join(' \u00b7 ');
   return'<article class="h-card b-'+band+'">'+
     '<div class="h-ring">'+(vis?ringHtml(pct,band):'<div class="ring-pend"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg></div>')+'</div>'+
-    '<div class="h-main"><div class="h-title-row"><h3 class="h-title">'+esc(item.exam_name)+'</h3>'+(item.is_practice?'<span class="h-badge prac">Practice</span>':'')+(vis?'':'<span class="h-badge pend">Pending</span>')+'</div>'+
+    '<div class="h-main"><div class="h-title-row"><h3 class="h-title">'+(vis?'<a class="h-link" href="result.html?examId='+encodeURIComponent(item.exam_id)+'&attemptId='+encodeURIComponent(item.id)+'">'+esc(item.exam_name)+'</a>':esc(item.exam_name))+'</h3>'+(item.is_practice?'<span class="h-badge prac"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 11-3-6.7L21 8M21 3v5h-5"/></svg>Practice</span>':'')+(vis?'':'<span class="h-badge pend"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>Pending</span>')+'</div>'+
     (sub?'<div class="h-sub">'+sub+'</div>':'')+
     '<div class="h-meta"><span>'+IC_CAL+esc(fmtDate(item))+'</span><span>'+IC_Q+esc(fmtNum(item.total_questions))+' questions</span></div>'+score+'</div>'+
     '<div class="h-actions">'+actions+'</div></article>';
