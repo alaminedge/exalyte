@@ -219,14 +219,37 @@ html.lock,html.lock body{overflow:hidden}
 @media(max-width:400px){.header-right .btn-primary{display:none}.header-right a.btn-outline{display:none}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
 
+
+/* Menu button morphs into a close (X) while the menu is open */
+.hamburger{width:44px;height:44px;padding:0}
+.hamburger svg line{transform-box:fill-box;transform-origin:center;transition:transform .22s cubic-bezier(.4,0,.2,1),opacity .15s}
+.hamburger.is-open{background:var(--hov);color:var(--t1)}
+.hamburger.is-open .hb-l1{transform:translateY(6px) rotate(45deg)}
+.hamburger.is-open .hb-l2{opacity:0;transform:scaleX(0)}
+.hamburger.is-open .hb-l3{transform:translateY(-6px) rotate(-45deg)}
+.hamburger:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* Back to top: calm white button, scroll-progress ring, appears when you scroll up or reach the end */
+.scroll-top-btn{position:fixed;right:20px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:998;width:48px;height:48px;padding:0;border-radius:50%;border:none;background:#fff;color:var(--blue);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(16,24,40,.16),0 0 0 1px rgba(16,24,40,.04);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(12px) scale(.92);transition:opacity .2s ease,transform .2s ease,visibility .2s,background var(--tr),box-shadow var(--tr);-webkit-tap-highlight-color:transparent}
+.scroll-top-btn.show{opacity:1;visibility:visible;pointer-events:auto;transform:none}
+.scroll-top-btn:hover{background:#E8F0FE;box-shadow:0 3px 12px rgba(16,24,40,.2),0 0 0 1px rgba(26,115,232,.2)}
+.scroll-top-btn:active{transform:scale(.94)}
+.scroll-top-btn:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.scroll-top-btn .stb-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);pointer-events:none}
+.scroll-top-btn .stb-ring circle{fill:none;stroke-width:2.5}
+.scroll-top-btn .stb-track{stroke:#E5E7EB}
+.scroll-top-btn .stb-prog{stroke:var(--blue);stroke-linecap:round;stroke-dasharray:125.66;stroke-dashoffset:125.66;transition:stroke-dashoffset .12s linear}
+.scroll-top-btn .stb-arrow{position:relative;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:600px){.scroll-top-btn{right:14px;width:46px;height:46px}}
+@media print{.scroll-top-btn{display:none !important}}
 </style>
 </head>
 <body>
 
 <header class="header" id="header">
   <div class="header-left">
-    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <button class="hamburger" id="hamburger" type="button" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false" aria-controls="mobileNavDropdown">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line class="hb-l1" x1="3" y1="6" x2="21" y2="6"/><line class="hb-l2" x1="3" y1="12" x2="21" y2="12"/><line class="hb-l3" x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <a href="/" class="logo-wrap">
       <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
@@ -360,6 +383,11 @@ html.lock,html.lock body{overflow:hidden}
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<button class="scroll-top-btn" id="scrollTopBtn" type="button" aria-label="Back to top" title="Back to top">
+  <svg class="stb-ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="stb-track" cx="22" cy="22" r="20"/><circle class="stb-prog" id="stbProg" cx="22" cy="22" r="20"/></svg>
+  <svg class="stb-arrow" viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+</button>
+
 <script>
 const API = '/api';
 function getToken(){return localStorage.getItem('exalyte_token')}
@@ -408,14 +436,25 @@ function renderHeaderUI(){
   }
 }
 renderHeaderUI();
-function toggleMobileNav(){
-  const dd=document.getElementById('mobileNavDropdown');
-  const open=dd.classList.toggle('show');
-  document.getElementById('hamburger').setAttribute('aria-expanded',String(open));
+function setMobileNav(open){
+  const dd=document.getElementById('mobileNavDropdown'),hb=document.getElementById('hamburger');
+  if(!dd||!hb)return;
+  dd.classList.toggle('show',open);
+  hb.classList.toggle('is-open',open);
+  hb.setAttribute('aria-expanded',String(open));
+  hb.setAttribute('aria-label',open?'Close menu':'Menu');
 }
+function toggleMobileNav(){setMobileNav(!document.getElementById('mobileNavDropdown').classList.contains('show'))}
+document.addEventListener('keydown',function(e){
+  const dd=document.getElementById('mobileNavDropdown');
+  if(e.key==='Escape'&&dd&&dd.classList.contains('show')){setMobileNav(false);try{document.getElementById('hamburger').focus()}catch(_){}}
+});
+window.addEventListener('scroll',function(){const dd=document.getElementById('mobileNavDropdown');if(dd&&dd.classList.contains('show'))setMobileNav(false)},{passive:true});
+window.addEventListener('resize',function(){if(window.innerWidth>768)setMobileNav(false)});
+document.getElementById('mobileNavDropdown').addEventListener('click',function(e){if(e.target.closest('a'))setMobileNav(false)});
 document.addEventListener('click',function(e){
   const dd=document.getElementById('mobileNavDropdown'),hb=document.getElementById('hamburger');
-  if(dd&&!dd.contains(e.target)&&!hb.contains(e.target)){dd.classList.remove('show');hb.setAttribute('aria-expanded','false')}
+  if(dd&&dd.classList.contains('show')&&!dd.contains(e.target)&&!hb.contains(e.target))setMobileNav(false);
 });
 
 const headerEl = document.getElementById('header');
@@ -914,6 +953,32 @@ document.addEventListener('click', function(e) {
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
+})();
+/* ---------- back to top: shows when scrolling up past 500px or at the page end; ring = scroll progress ---------- */
+(function(){
+  const btn=document.getElementById('scrollTopBtn'),ring=document.getElementById('stbProg');
+  if(!btn)return;
+  const C=125.66;let last=window.scrollY,shown=false,raf=false;
+  function update(){
+    raf=false;
+    const y=window.scrollY,max=Math.max(1,document.documentElement.scrollHeight-window.innerHeight);
+    const prog=Math.min(1,Math.max(0,y/max));
+    if(ring)ring.style.strokeDashoffset=String(C*(1-prog));
+    if(y<500)shown=false;
+    else if(prog>.97)shown=true;
+    else if(y<last-4)shown=true;
+    else if(y>last+4)shown=false;
+    last=y;
+    btn.classList.toggle('show',shown);
+  }
+  window.addEventListener('scroll',()=>{if(!raf){raf=true;requestAnimationFrame(update)}},{passive:true});
+  window.addEventListener('resize',update);
+  btn.addEventListener('click',()=>{
+    const calm=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    window.scrollTo({top:0,behavior:calm?'auto':'smooth'});
+    btn.blur();
+  });
+  update();
 })();
 </script>
 </body>
