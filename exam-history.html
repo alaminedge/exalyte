@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<base href="/">
 <title>Exam History — Exalyte</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -373,9 +374,9 @@ html.lock,html.lock body{overflow:hidden}
       <span class="logo-text">Exalyte</span>
     </a>
     <nav class="header-nav">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="exam-history.html" class="active">History</a>
-      <a href="batches.html">Batches</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/exam-history" class="active">History</a>
+      <a href="/batches">Batches</a>
     </nav>
   </div>
   <div class="header-right">
@@ -387,9 +388,9 @@ html.lock,html.lock body{overflow:hidden}
 </header>
 
 <div class="mobile-nav-dropdown" id="mobileNavDropdown">
-  <a href="dashboard.html">Dashboard</a>
-  <a href="exam-history.html" class="active">History</a>
-  <a href="batches.html">Batches</a>
+  <a href="/dashboard">Dashboard</a>
+  <a href="/exam-history" class="active">History</a>
+  <a href="/batches">Batches</a>
   <a href="#" onclick="logout();return false" style="color:var(--red)">Sign out</a>
 </div>
 
@@ -463,8 +464,8 @@ html.lock,html.lock body{overflow:hidden}
   </div>
   <div class="panel-body">
     <div class="acct"><div class="avatar big" id="acctAvatar" aria-hidden="true">S</div><div style="min-width:0"><div class="acct-name" id="accName">Student</div><div class="acct-mail" id="accMail"></div></div></div>
-    <a class="acct-link" href="dashboard.html">Dashboard</a>
-    <a class="acct-link" href="batches.html">Batches</a>
+    <a class="acct-link" href="/dashboard">Dashboard</a>
+    <a class="acct-link" href="/batches">Batches</a>
   </div>
   <div class="panel-foot"><button class="btn-signout" onclick="logout()">Sign out</button></div>
 </div>
@@ -480,8 +481,8 @@ html.lock,html.lock body{overflow:hidden}
     </div>
     <div class="fc">
       <h4>Platform</h4>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="exam-history.html">Exam History</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/exam-history">Exam History</a>
     </div>
     <div class="fc">
       <h4>Legal</h4>
@@ -769,8 +770,8 @@ function cardHtml(item){
   const practiceAllowed=(item.is_practice_exam===1)||(!!item.allow_practice&&!item.is_closed);
   let actions;
   if(vis){
-    actions='<a class="h-btn primary" href="result.html?examId='+encodeURIComponent(item.exam_id)+'&attemptId='+encodeURIComponent(item.id)+'"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View result</a>'+
-      (practiceAllowed?'<a class="h-btn ghost" href="exam.html?id='+encodeURIComponent(item.exam_id)+'&practice=1"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Practice again</a>':'');
+    actions='<a class="h-btn primary" href="/result/'+encodeURIComponent(item.exam_id)+'/'+encodeURIComponent(item.id)+'"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View result</a>'+
+      (practiceAllowed?'<a class="h-btn ghost" href="/exam/'+encodeURIComponent(item.exam_id)+'/practice"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Practice again</a>':'');
   }else{
     actions='<span class="h-btn ghost" style="cursor:default;opacity:.7"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 15 15"/></svg>Awaiting results</span>';
   }
@@ -783,7 +784,7 @@ function cardHtml(item){
   const sub=[item.batch_name,item.subject_name].filter(Boolean).map(esc).join(' \u00b7 ');
   return'<article class="h-card b-'+band+'">'+
     '<div class="h-ring">'+(vis?ringHtml(pct,band):'<div class="ring-pend"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg></div>')+'</div>'+
-    '<div class="h-main"><div class="h-title-row"><h3 class="h-title">'+(vis?'<a class="h-link" href="result.html?examId='+encodeURIComponent(item.exam_id)+'&attemptId='+encodeURIComponent(item.id)+'">'+esc(item.exam_name)+'</a>':esc(item.exam_name))+'</h3>'+(item.is_practice?'<span class="h-badge prac"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 11-3-6.7L21 8M21 3v5h-5"/></svg>Practice</span>':'')+(vis?'':'<span class="h-badge pend"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>Pending</span>')+'</div>'+
+    '<div class="h-main"><div class="h-title-row"><h3 class="h-title">'+(vis?'<a class="h-link" href="/result/'+encodeURIComponent(item.exam_id)+'/'+encodeURIComponent(item.id)+'">'+esc(item.exam_name)+'</a>':esc(item.exam_name))+'</h3>'+(item.is_practice?'<span class="h-badge prac"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 11-3-6.7L21 8M21 3v5h-5"/></svg>Practice</span>':'')+(vis?'':'<span class="h-badge pend"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>Pending</span>')+'</div>'+
     (sub?'<div class="h-sub">'+sub+'</div>':'')+
     '<div class="h-meta"><span>'+IC_CAL+esc(fmtDate(item))+'</span><span>'+IC_Q+esc(fmtNum(item.total_questions))+' questions</span></div>'+score+'</div>'+
     '<div class="h-actions">'+actions+'</div></article>';
@@ -823,7 +824,7 @@ function renderHistory(){
   if(!list.length){
     box.innerHTML=historyData.length
       ?'<div class="empty-state"><svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><h3>No matching attempts</h3><p>Try a different search or clear the filters.</p><button class="btn btn-outline" onclick="clearAllFilters()">Clear filters</button></div>'
-      :'<div class="empty-state"><svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><h3>No exams taken yet</h3><p>Once you finish an exam, your results and progress will appear here.</p><a class="btn btn-primary" href="dashboard.html">Go to dashboard</a></div>';
+      :'<div class="empty-state"><svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg><h3>No exams taken yet</h3><p>Once you finish an exam, your results and progress will appear here.</p><a class="btn btn-primary" href="/dashboard">Go to dashboard</a></div>';
     return;
   }
   const pg=paginateList(list,historyPageNum,HISTORY_PER_PAGE);
