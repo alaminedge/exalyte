@@ -335,6 +335,15 @@ html.lock,html.lock body{overflow:hidden}
   .t-target{top:46px}
   .tbar .tv{font-size:.62rem}
 }
+
+/* Menu button morphs into a close (X) while the menu is open */
+.hamburger{width:44px;height:44px;padding:0}
+.hamburger svg line{transform-box:fill-box;transform-origin:center;transition:transform .22s cubic-bezier(.4,0,.2,1),opacity .15s}
+.hamburger.is-open{background:var(--hov);color:var(--t1)}
+.hamburger.is-open .hb-l1{transform:translateY(6px) rotate(45deg)}
+.hamburger.is-open .hb-l2{opacity:0;transform:scaleX(0)}
+.hamburger.is-open .hb-l3{transform:translateY(-6px) rotate(-45deg)}
+.hamburger:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -342,10 +351,8 @@ html.lock,html.lock body{overflow:hidden}
 <header class="header" id="header">
   <div class="header-left">
     <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="3" y1="6" x2="21" y2="6"/>
-        <line x1="3" y1="12" x2="21" y2="12"/>
-        <line x1="3" y1="18" x2="21" y2="18"/>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <line class="hb-l1" x1="3" y1="6" x2="21" y2="6"/><line class="hb-l2" x1="3" y1="12" x2="21" y2="12"/><line class="hb-l3" x1="3" y1="18" x2="21" y2="18"/>
       </svg>
     </button>
     <a href="/" class="logo-wrap">
@@ -850,14 +857,25 @@ async function loadHistory(){
 const header=document.getElementById('header');
 let lastY=0,ticking=false;
 window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(()=>{const y=window.scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;ticking=false});ticking=true}},{passive:true});
-function toggleMobileNav(){
-  const dd=document.getElementById('mobileNavDropdown');
-  const open=dd.classList.toggle('show');
-  document.getElementById('hamburger').setAttribute('aria-expanded',String(open));
+function setMobileNav(open){
+  const dd=document.getElementById('mobileNavDropdown'),hb=document.getElementById('hamburger');
+  if(!dd||!hb)return;
+  dd.classList.toggle('show',open);
+  hb.classList.toggle('is-open',open);
+  hb.setAttribute('aria-expanded',String(open));
+  hb.setAttribute('aria-label',open?'Close menu':'Menu');
 }
+function toggleMobileNav(){setMobileNav(!document.getElementById('mobileNavDropdown').classList.contains('show'))}
+document.addEventListener('keydown',function(e){
+  const dd=document.getElementById('mobileNavDropdown');
+  if(e.key==='Escape'&&dd&&dd.classList.contains('show')){setMobileNav(false);try{document.getElementById('hamburger').focus()}catch(_){}}
+});
+window.addEventListener('scroll',function(){const dd=document.getElementById('mobileNavDropdown');if(dd&&dd.classList.contains('show'))setMobileNav(false)},{passive:true});
+window.addEventListener('resize',function(){if(window.innerWidth>768)setMobileNav(false)});
+document.getElementById('mobileNavDropdown').addEventListener('click',function(e){if(e.target.closest('a'))setMobileNav(false)});
 document.addEventListener('click',function(e){
   const dd=document.getElementById('mobileNavDropdown'),hb=document.getElementById('hamburger');
-  if(dd&&!dd.contains(e.target)&&!hb.contains(e.target)){dd.classList.remove('show');hb.setAttribute('aria-expanded','false')}
+  if(dd&&dd.classList.contains('show')&&!dd.contains(e.target)&&!hb.contains(e.target))setMobileNav(false)
 });
 document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur()});
 loadHistory();
