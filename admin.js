@@ -278,6 +278,10 @@ async function printResultSheet(examId){
   if(!ok||!rows.length){try{w.close()}catch(e){}toast(ok?'No results to print for this exam':'Could not load results','warn');return}
   rows.sort((a,b)=>(a.rank||0)-(b.rank||0));
   const E=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  // Public-safe email: first letter + one * for every hidden letter + last letter. Domain is kept.
+  const maskEmail=em=>{em=String(em||'').trim();const at=em.lastIndexOf('@');if(at<1)return em;
+    const loc=Array.from(em.slice(0,at)),dom=em.slice(at);if(loc.length<3)return em;
+    return loc[0]+'*'.repeat(loc.length-2)+loc[loc.length-1]+dom};
   const n=rows.length,pc=r=>Number(r.percentage)||0,sorted=rows.map(pc).sort((a,b)=>a-b);
   const avg=sorted.reduce((s,v)=>s+v,0)/n,hi=sorted[n-1],lo=sorted[0],med=n%2?sorted[(n-1)/2]:(sorted[n/2-1]+sorted[n/2])/2;
   const times=rows.map(r=>Number(r.time_taken_seconds)||0).filter(t=>t>0),avgT=times.length?times.reduce((s,v)=>s+v,0)/times.length:0;
@@ -318,9 +322,9 @@ td{padding:7px 8px;border-bottom:1px solid #e8eaed;vertical-align:middle}tr{page
 .note{margin-top:14px;font-size:10px;color:#80868b;text-align:center}
 @media(max-width:700px){.page{padding:14px;margin:0}.stats{grid-template-columns:repeat(2,1fr)}.hd h1{font-size:15px}.pods{grid-template-columns:1fr}table{font-size:11px}.mb{display:none}}
 @media print{body{background:#fff}.bar{display:none}.page{margin:0;padding:0;box-shadow:none;max-width:none}.ft{display:block}}`;
-  const body=rows.map(r=>{const p=pc(r),k=band(p);return`<tr><td class="rk">#${r.rank||'—'}</td><td class="nm"><b>${E(r.user_name||'Unknown')}</b><small>${E(r.user_email||'')}</small></td><td>${r.score}/${r.total_questions}</td><td><span class="pill ${k}">${p.toFixed(1)}%</span><span class="mb ${k}" style="background:#e8eaed"><i style="width:${Math.min(100,p)}%"></i></span></td><td>${E(formatTimeTaken(r.time_taken_seconds))}</td><td>${E(formatDate(r.submitted_at))}</td></tr>`}).join('');
+  const body=rows.map(r=>{const p=pc(r),k=band(p);return`<tr><td class="rk">#${r.rank||'—'}</td><td class="nm"><b>${E(r.user_name||'Unknown')}</b><small>${E(maskEmail(r.user_email))}</small></td><td>${r.score}/${r.total_questions}</td><td><span class="pill ${k}">${p.toFixed(1)}%</span><span class="mb ${k}" style="background:#e8eaed"><i style="width:${Math.min(100,p)}%"></i></span></td><td>${E(formatTimeTaken(r.time_taken_seconds))}</td><td>${E(formatDate(r.submitted_at))}</td></tr>`}).join('');
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${E(title)}</title><style>${css}</style></head><body>
-<div class="bar"><div><b>${E(title)}</b> <span>· ${n} participant${n!==1?'s':''}</span></div><label><input type="checkbox" checked onchange="document.body.classList.toggle('hide-em',!this.checked)"> Show emails</label><span>In the print window choose “Save as PDF”</span><button onclick="window.print()">Print / Save as PDF</button></div>
+<div class="bar"><div><b>${E(title)}</b> <span>· ${n} participant${n!==1?'s':''}</span></div><label>Emails <select onchange="document.body.classList.toggle('hide-em',this.value==='hide')" style="font:inherit;padding:6px 8px;border:1px solid #dadce0;border-radius:8px"><option value="mask" selected>Masked</option><option value="hide">Hidden</option></select></label><span>In the print window choose “Save as PDF”</span><button onclick="window.print()">Print / Save as PDF</button></div>
 <div class="page"><div class="hd"><img src="${E(logo)}" alt="" onerror="this.style.display='none'"><div class="t"><h1>${E(examName)}</h1><p>Result sheet · Generated ${E(today)}</p></div><span class="tag">Exalyte</span></div>
 <div class="stats"><div class="st"><b>${n}</b><small>Participants</small></div><div class="st"><b>${avg.toFixed(1)}%</b><small>Average</small></div><div class="st"><b>${hi.toFixed(1)}%</b><small>Highest</small></div><div class="st"><b>${med.toFixed(1)}%</b><small>Median</small></div><div class="st"><b>${E(avgT?formatTimeTaken(Math.round(avgT)):'—')}</b><small>Avg. time</small></div></div>
 <div class="pods">${podium}</div>
