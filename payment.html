@@ -265,9 +265,9 @@ html.lock,html.lock body{overflow:hidden}
 
 <main class="main">
   <div class="pay-wrap">
-    <a href="/batches" class="back-link">
+    <a href="/batches" class="back-link" id="backLink">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      Back to Batches
+      <span id="backLabel">Back to Batches</span>
     </a>
     <div id="pageContent" aria-live="polite">
       <div class="pay-grid skel">
@@ -500,6 +500,7 @@ const _path = location.pathname.split('/').filter(Boolean);
 let slug = null;
 try { slug = (_path[0] === 'payment' && _path[1]) ? decodeURIComponent(_path[1]) : new URLSearchParams(location.search).get('batch'); } catch (e) { slug = null; }
 let currentBatch = null;
+if (slug) { const bl = document.getElementById('backLink'); if (bl) { bl.href = '/course/' + encodeURIComponent(slug); document.getElementById('backLabel').textContent = 'Back to course details'; } }
 
 function enrolledHtml(){
   return `<div class="success-state">
