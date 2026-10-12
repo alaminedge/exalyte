@@ -373,10 +373,11 @@ async function apiFetch(path,opts){
   catch(e){return{ok:false,data:{error:text.substring(0,200)}}}
 }
 
-// URL form:  /result/84/12  (exam 84, attempt 12)  or  /result/84   (old ?examId=84&attemptId=12 links still work)
+// URL form:  /result/k7m3xq/12  (exam code, attempt 12)  or  /result/k7m3xq   (old numeric links are redirected by the server)
 const _path=location.pathname.split('/').filter(Boolean),_qs=new URLSearchParams(location.search);
 const _isRes=_path[0]==='result';
-const examId=(_isRes&&/^\d+$/.test(_path[1]||''))?_path[1]:(/^\d+$/.test(_qs.get('examId')||'')?_qs.get('examId'):null);
+const _okId=function(v){return /^[A-Za-z0-9]{1,12}$/.test(v||'')};
+const examId=(_isRes&&_okId(_path[1]))?_path[1]:(_okId(_qs.get('examId'))?_qs.get('examId'):null);
 const attemptId=(_isRes&&/^\d+$/.test(_path[2]||''))?_path[2]:(_isRes?'0':(_qs.get('attemptId')||'0'));
 
 if(!examId){window.location.href='/dashboard'}
