@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<base href="/">
 <title>Batches — Exalyte</title>
 <meta name="description" content="Browse premium exam batches on Exalyte and enroll to unlock full access.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -293,9 +294,9 @@ html.lock,html.lock body{overflow:hidden}
     </div>
     <div class="fc">
       <h4>Platform</h4>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="exam-history.html">Exam History</a>
-      <a href="batches.html">Batches</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/exam-history">Exam History</a>
+      <a href="/batches">Batches</a>
     </div>
     <div class="fc">
       <h4>Support</h4>
@@ -426,21 +427,21 @@ function renderHeaderUI(){
   const hr = document.getElementById('headerRight');
   const mobileNav = document.getElementById('mobileNavDropdown');
   if (loggedIn) {
-    const dashboardUrl = user.is_admin ? 'admin.html' : 'dashboard.html';
+    const dashboardUrl = user.is_admin ? 'admin.html' : '/dashboard';
     const initial = String((user.name || 'U').trim().charAt(0) || 'U').toUpperCase().replace(/[<>&"']/g, 'U');
     const links = user.is_admin ? '' :
-      '<a href="dashboard.html">Dashboard</a><a href="exam-history.html">History</a><a href="batches.html" class="active">Batches</a>';
+      '<a href="/dashboard">Dashboard</a><a href="/exam-history">History</a><a href="/batches" class="active">Batches</a>';
     nav.innerHTML = links;
     mobileNav.innerHTML = (user.is_admin ? '' :
-      '<a href="dashboard.html">Dashboard</a><a href="exam-history.html">History</a>') +
-      '<a href="batches.html" class="active">Batches</a>' +
+      '<a href="/dashboard">Dashboard</a><a href="/exam-history">History</a>') +
+      '<a href="/batches" class="active">Batches</a>' +
       '<a href="#" onclick="logout();return false" style="color:var(--red)">Sign out</a>';
     hr.innerHTML =
       '<a href="' + dashboardUrl + '" class="btn btn-outline">Dashboard</a>' +
       '<a class="avatar" href="' + dashboardUrl + '" aria-label="Go to dashboard">' + initial + '</a>';
   } else {
-    nav.innerHTML = '<a href="batches.html" class="active">Batches</a>';
-    mobileNav.innerHTML = '<a href="batches.html" class="active">Batches</a>';
+    nav.innerHTML = '<a href="/batches" class="active">Batches</a>';
+    mobileNav.innerHTML = '<a href="/batches" class="active">Batches</a>';
     hr.innerHTML =
       '<button class="btn btn-outline" onclick="openAuth(\'login\')">Sign in</button>' +
       '<button class="btn btn-primary" onclick="openAuth(\'signup\')">Create account</button>';
@@ -512,8 +513,8 @@ function batchCard(b,i){
   const free=feeNum(b.fee)<=0;
   const img=b.image_url?'<img class="bt-img" src="'+esc(b.image_url)+'" alt="" loading="lazy">':ICON_BOOK;
   const cta=b.enrolled
-    ?'<a href="dashboard.html" class="btn btn-outline">Go to dashboard</a>'
-    :'<a href="payment.html?batch='+encodeURIComponent(b.slug||'')+'" class="btn btn-primary">'+(free?'Enroll for free':'Enroll &middot; '+esc(feeLabel(b.fee)))+'</a>';
+    ?'<a href="/dashboard" class="btn btn-outline">Go to dashboard</a>'
+    :'<a href="/payment/'+encodeURIComponent(b.slug||'')+'" class="btn btn-primary">'+(free?'Enroll for free':'Enroll &middot; '+esc(feeLabel(b.fee)))+'</a>';
   const hasDesc=!!plainText(b.description).trim();
   return '<article class="batch-card'+(b.enrolled?' is-enrolled':'')+'" aria-labelledby="bn'+i+'">'+
     '<div class="batch-thumb">'+img+'<span class="fee-badge'+(free?' free':'')+'">'+esc(feeLabel(b.fee))+'</span>'+(b.enrolled?'<span class="enr-flag">'+ICON_TICK+'Enrolled</span>':'')+'</div>'+
