@@ -770,8 +770,8 @@ function cardHtml(item){
   const practiceAllowed=(item.is_practice_exam===1)||(!!item.allow_practice&&!item.is_closed);
   let actions;
   if(vis){
-    actions='<a class="h-btn primary" href="/result/'+encodeURIComponent(item.exam_id)+'/'+encodeURIComponent(item.id)+'"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View result</a>'+
-      (practiceAllowed?'<a class="h-btn ghost" href="/exam/'+encodeURIComponent(item.exam_id)+'/practice"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Practice again</a>':'');
+    actions='<a class="h-btn primary" href="/result/'+encodeURIComponent(item.exam_public_id||item.exam_id)+'/'+encodeURIComponent(item.id)+'"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View result</a>'+
+      (practiceAllowed?'<a class="h-btn ghost" href="/exam/'+encodeURIComponent(item.exam_public_id||item.exam_id)+'/practice"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Practice again</a>':'');
   }else{
     actions='<span class="h-btn ghost" style="cursor:default;opacity:.7"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 15 15"/></svg>Awaiting results</span>';
   }
@@ -784,7 +784,7 @@ function cardHtml(item){
   const sub=[item.batch_name,item.subject_name].filter(Boolean).map(esc).join(' \u00b7 ');
   return'<article class="h-card b-'+band+'">'+
     '<div class="h-ring">'+(vis?ringHtml(pct,band):'<div class="ring-pend"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg></div>')+'</div>'+
-    '<div class="h-main"><div class="h-title-row"><h3 class="h-title">'+(vis?'<a class="h-link" href="/result/'+encodeURIComponent(item.exam_id)+'/'+encodeURIComponent(item.id)+'">'+esc(item.exam_name)+'</a>':esc(item.exam_name))+'</h3>'+(item.is_practice?'<span class="h-badge prac"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 11-3-6.7L21 8M21 3v5h-5"/></svg>Practice</span>':'')+(vis?'':'<span class="h-badge pend"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>Pending</span>')+'</div>'+
+    '<div class="h-main"><div class="h-title-row"><h3 class="h-title">'+(vis?'<a class="h-link" href="/result/'+encodeURIComponent(item.exam_public_id||item.exam_id)+'/'+encodeURIComponent(item.id)+'">'+esc(item.exam_name)+'</a>':esc(item.exam_name))+'</h3>'+(item.is_practice?'<span class="h-badge prac"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 11-3-6.7L21 8M21 3v5h-5"/></svg>Practice</span>':'')+(vis?'':'<span class="h-badge pend"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>Pending</span>')+'</div>'+
     (sub?'<div class="h-sub">'+sub+'</div>':'')+
     '<div class="h-meta"><span>'+IC_CAL+esc(fmtDate(item))+'</span><span>'+IC_Q+esc(fmtNum(item.total_questions))+' questions</span></div>'+score+'</div>'+
     '<div class="h-actions">'+actions+'</div></article>';
