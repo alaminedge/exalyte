@@ -1478,7 +1478,7 @@ function renderHero(){
   if(h.type==='live'){
     eyebrow='Live now';eico=HI.dot;title=esc(e.name);
     sub='<span class="hero-cd" '+cdAttrs(e._until,'','Ended')+'>'+formatCountdown(e.live_seconds_remaining)+'</span><span>remaining'+(e.live_ends_at?' · ends '+formatTimeOnly(e.live_ends_at):'')+'</span>';
-    cta='<button class="hero-cta" onclick="startExam('+e.id+',false)">Take live exam</button>';
+    cta='<button class="hero-cta" onclick="startExam(\''+e.id+'\',false)">Take live exam</button>';
   }else if(h.type==='upcoming'){
     const t=new Date(e.scheduled_at).getTime();
     eyebrow='Opens soon';eico=HI.clock;title=esc(e.name);
@@ -1487,7 +1487,7 @@ function renderHero(){
     const p=practiceOnly(e);
     eyebrow=p?'Practice':'Up next';eico=p?HI.loop:HI.next;title=esc(e.name);
     sub='<span class="hm">'+HI.clock+(e.time_limit||0)+' min</span><span class="hm">'+HI.q+(e.question_count||0)+' questions</span>'+(e.negative_marking>0?'<span class="hm neg">'+HI.minus+e.negative_marking+' per wrong</span>':'');
-    cta='<button class="hero-cta" onclick="startExam('+e.id+','+(p?'true':'false')+')">'+(p?'Start practice':'Start exam')+'</button>';
+    cta='<button class="hero-cta" onclick="startExam(\''+e.id+'\','+(p?'true':'false')+')">'+(p?'Start practice':'Start exam')+'</button>';
   }else{
     eyebrow='All caught up';eico=HI.check;title='You have completed every available exam';
     sub='<span>Retake any of them in practice mode to stay sharp.</span>';
@@ -1517,7 +1517,7 @@ function renderSummary(){
     return (da?da.getTime():a.stored_attempt.id||0)-(db?db.getTime():b.stored_attempt.id||0);
   }).slice(-6);
   if(recent.length>=2){
-    window.__trend=recent.map(e=>{const dt=parseDbDate(e.stored_attempt.submitted_at);return{id:e.id,aid:e.stored_attempt.id,name:e.name||'Exam',p:Math.max(0,Math.min(100,e.stored_attempt.percentage)),date:dt?dt.toLocaleDateString(undefined,{day:'numeric',month:'short'}):''}});
+    window.__trend=recent.map(e=>{const dt=parseDbDate(e.stored_attempt.submitted_at);return{id:e.public_id||e.id,aid:e.stored_attempt.id,name:e.name||'Exam',p:Math.max(0,Math.min(100,e.stored_attempt.percentage)),date:dt?dt.toLocaleDateString(undefined,{day:'numeric',month:'short'}):''}});
     const T=window.__trend,diff=Math.round(T[T.length-1].p-T[T.length-2].p);
     const badge=diff>0?'<span class="t-badge up">\u25B2 +'+diff+' pts vs previous</span>':diff<0?'<span class="t-badge down">\u25BC '+diff+' pts vs previous</span>':'<span class="t-badge flat">\u25CF Same as previous</span>';
     trend='<div class="trend2"><div class="t-head"><span class="t-title">Recent scores</span>'+badge+'</div>'+
@@ -1551,7 +1551,7 @@ function renderLiveStrip(){
           <span class="live-ends-label">remaining${e.live_ends_at?' · ends '+formatTimeOnly(e.live_ends_at):''}</span>
         </div>
       </div>
-      <button class="btn-live" onclick="startExam(${e.id},false)">Take Live Exam</button>
+      <button class="btn-live" onclick="startExam('${e.id}',false)">Take Live Exam</button>
     </div>`).join('');
 }
 function renderUpcomingStrip(){
@@ -1583,7 +1583,7 @@ async function renderRankings(){
   const completed=allExams.filter(e=>e.stored_attempt&&e.results_visible&&e.leaderboard_enabled).slice(0,3);
   const sec=document.getElementById('rankSection');
   if(!completed.length){sec.style.display='none';return}
-  const ranks=await Promise.all(completed.map(async e=>{const{data}=await apiFetch('/leaderboard/'+e.id);return{exam:e,lb:data}}));
+  const ranks=await Promise.all(completed.map(async e=>{const{data}=await apiFetch('/leaderboard/'+encodeURIComponent(e.public_id||e.id));return{exam:e,lb:data}}));
   const usable=ranks.filter(r=>r.lb&&r.lb.rank);
   if(!usable.length){sec.style.display='none';return}
   sec.style.display='block';
@@ -1676,20 +1676,20 @@ function examCard(e){
     if(e.results_visible){
       const p=Number(e.stored_attempt.percentage)||0;
       scoreHtml=`<span class="score-pill ${p>=70?'good':p>=40?'mid':'low'}">${p.toFixed(0)}%</span>`;
-      actionHtml=`<button class="btn-take" onclick="window.location='/result/${e.id}/${e.stored_attempt.id}'">View result</button>`;
-      if(e.can_practice)actionHtml+=`<button class="btn-practice" onclick="startExam(${e.id},true)">Practice</button>`;
+      actionHtml=`<button class="btn-take" onclick="window.location='/result/${e.public_id||e.id}/${e.stored_attempt.id}'">View result</button>`;
+      if(e.can_practice)actionHtml+=`<button class="btn-practice" onclick="startExam('${e.id}',true)">Practice</button>`;
     }else{
       scoreHtml='<span class="score-pill pending">Pending</span>';
       actionHtml='<button class="btn-take" disabled>Awaiting results</button>';
     }
   }else if(e.is_practice_exam){
-    actionHtml=`<button class="btn-take" onclick="startExam(${e.id},true)">Practice exam</button>`;
+    actionHtml=`<button class="btn-take" onclick="startExam('${e.id}',true)">Practice exam</button>`;
   }else if(e.is_live){
-    actionHtml=`<button class="btn-take" onclick="startExam(${e.id},false)">Take live exam</button>`;
+    actionHtml=`<button class="btn-take" onclick="startExam('${e.id}',false)">Take live exam</button>`;
   }else if(e.live_ended&&e.live_deadline_hours>0){
-    actionHtml=`<button class="btn-take" onclick="startExam(${e.id},true)">Start practice</button>`;
+    actionHtml=`<button class="btn-take" onclick="startExam('${e.id}',true)">Start practice</button>`;
   }else{
-    actionHtml=`<button class="btn-take" onclick="startExam(${e.id},false)">Start exam</button>`;
+    actionHtml=`<button class="btn-take" onclick="startExam('${e.id}',false)">Start exam</button>`;
   }
   return`<div class="exam-card${st?' st-'+st:''}"><div class="exam-card-inner">
     <div class="exam-body">
@@ -1817,9 +1817,10 @@ function renderResourcesSection(){
 function filterResources(v){currentResourceFilter=v;renderResourcesSection();const s=document.getElementById('resourceFilterSelect');if(s)s.focus()}
 
 function startExam(id,isPractice){
-  const exam=allExams.find(e=>e.id==id);
-  if(exam&&exam.live_ended&&exam.stored_attempt&&!isPractice){window.location.href=`/exam/${id}/practice`;return}
-  window.location.href=isPractice?`/exam/${id}/practice`:`/exam/${id}`;
+  const exam=allExams.find(e=>String(e.id)===String(id));
+  const code=encodeURIComponent((exam&&exam.public_id)||id);   // always link by the 6-character public code
+  if(exam&&exam.live_ended&&exam.stored_attempt&&!isPractice){window.location.href=`/exam/${code}/practice`;return}
+  window.location.href=isPractice?`/exam/${code}/practice`:`/exam/${code}`;
 }
 
 /* ---------- load ---------- */
