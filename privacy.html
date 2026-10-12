@@ -4,216 +4,276 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Privacy Policy — Exalyte</title>
+<meta name="description" content="How Exalyte Inc. handles your information: what we collect, why we collect it, who can see it, and the choices you have.">
+<meta name="theme-color" content="#ffffff">
+<link rel="canonical" href="https://exalyte.pages.dev/privacy">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Exalyte">
+<meta property="og:title" content="Privacy Policy — Exalyte">
+<meta property="og:description" content="How Exalyte Inc. handles your information: what we collect, why we collect it, who can see it, and the choices you have.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;overflow-wrap:break-word}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 :root{
-  --blue:#1a73e8;--blue-h:#1557b0;--bg:#f8f9fa;--surf:#ffffff;--hov:#f1f3f4;
-  --border:#dadce0;--t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
-  --gs:'Google Sans','Roboto',system-ui,sans-serif;
-  --rb:'Roboto',system-ui,sans-serif;
-  --hh:64px;--r:4px;--rl:8px;--tr:.2s cubic-bezier(.4,0,.2,1);
+  --blue:#1a73e8;--blue-h:#1557b0;--bg:#f8f9fa;--surf:#fff;--hov:#f1f3f4;
+  --border:#dadce0;--line:#E5E7EB;--t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
+  --tint:#F0F6FF;--tint-b:#D6E4FB;--amber:#FEF3E0;--amber-b:#FBE2B4;--amber-t:#9A5B00;--green:#188038;--grn-bg:#E6F4EA;
+  --gs:'Google Sans','Roboto',system-ui,sans-serif;--rb:'Roboto',system-ui,sans-serif;
+  --hh:64px;--tocbar:0px;--tr:.2s cubic-bezier(.4,0,.2,1);
 }
-body{
-  font-family:var(--rb);background:var(--bg);color:var(--t2);
-  -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
-  display:flex;flex-direction:column;overflow-x:hidden;
-}
-.header{
-  position:sticky;top:0;height:var(--hh);
-  background:var(--surf);border-bottom:1px solid var(--border);
-  z-index:1000;display:flex;align-items:center;
-  justify-content:space-between;padding:0 24px;
-}
-.header-left{display:flex;align-items:center}
+body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smoothing:antialiased;line-height:1.6;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+a{color:var(--blue)}
+.skip{position:absolute;left:-999px;top:8px;background:var(--blue);color:#fff;padding:10px 16px;border-radius:8px;z-index:3000;font-family:var(--gs);font-size:.85rem;text-decoration:none}
+.skip:focus{left:12px}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+
+/* header */
+.header{position:sticky;top:0;height:var(--hh);background:var(--surf);border-bottom:1px solid var(--line);z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
 .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
 .logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
-.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:8px 18px;font-family:var(--gs);font-size:.85rem;font-weight:500;
-  border:none;border-radius:var(--r);cursor:pointer;
-  transition:all var(--tr);text-decoration:none;white-space:nowrap;
-}
-.btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
+.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-.2px}
+.header-right{display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 18px;font-family:var(--gs);font-size:.85rem;font-weight:500;border:1px solid transparent;border-radius:8px;cursor:pointer;transition:background var(--tr),border-color var(--tr),color var(--tr);text-decoration:none;white-space:nowrap}
+.btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn-outline{background:#fff;color:var(--blue);border-color:var(--line)}
 .btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-h)}
+.btn-text{color:var(--t3);background:transparent}
+.btn-text:hover{color:var(--blue);background:var(--hov)}
+.read-progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--blue);z-index:1100;transition:width .08s linear}
+
+/* hero */
 .main{flex:1}
-.content{max-width:760px;margin:0 auto;padding:48px 24px 60px;width:100%}
-.page-title{font-family:var(--gs);font-size:2rem;font-weight:500;color:var(--t1);margin-bottom:8px;letter-spacing:-0.3px}
-.page-sub{color:var(--t3);font-size:.95rem;margin-bottom:40px;line-height:1.5}
-.last-updated{font-size:.75rem;color:var(--t4);margin-bottom:32px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;width:100%}
+.hero{padding:40px 0 8px}
+.eyebrow{display:inline-flex;align-items:center;gap:6px;background:#E8F0FE;color:var(--blue-h);font-family:var(--gs);font-size:.76rem;font-weight:500;padding:4px 12px;border-radius:999px;margin-bottom:14px}
+.eyebrow svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.page-title{font-family:var(--gs);font-size:2.25rem;font-weight:500;color:var(--t1);letter-spacing:-.5px;line-height:1.2;margin-bottom:10px}
+.page-sub{color:var(--t3);font-size:1rem;line-height:1.65;max-width:680px}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:20px}
+.meta-item{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:var(--t3)}
+.meta-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--t4)}
+.tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:24px 0 6px}
+.switch{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px}
+.switch a{font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t3);text-decoration:none;padding:8px 18px;border-radius:999px;min-height:36px;display:inline-flex;align-items:center;transition:background var(--tr),color var(--tr)}
+.switch a:hover{color:var(--blue)}
+.switch a[aria-current="page"]{background:#E8F0FE;color:var(--blue-h)}
 
-/* Policy Card */
-.policy-card{
-  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
-  padding:36px 32px;margin-bottom:20px;
-}
-.policy-card h2{
-  font-family:var(--gs);font-size:1.15rem;font-weight:500;color:var(--t1);
-  margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);
-}
-.policy-card p,.policy-card ul{
-  font-size:.9rem;color:var(--t3);line-height:1.7;margin-bottom:16px;
-}
-.policy-card ul{padding-left:20px}
-.policy-card ul li{margin-bottom:8px}
-.policy-card ul li::marker{color:var(--blue)}
-.policy-card strong{color:var(--t2);font-weight:500}
+/* mobile table of contents (sticky) */
+.toc-m{display:none;position:sticky;top:var(--hh);z-index:60;margin:12px -24px 0}
+.toc-m summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:0 24px;min-height:48px;font-family:var(--gs);font-size:.85rem}
+.toc-m summary::-webkit-details-marker{display:none}
+.toc-m .tl{color:var(--t4);flex-shrink:0}
+.toc-m .cur{color:var(--t1);font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toc-m .chev{width:18px;height:18px;fill:none;stroke:var(--t3);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform var(--tr);flex-shrink:0}
+.toc-m[open] .chev{transform:rotate(180deg)}
+.toc-m .panel{position:absolute;left:0;right:0;top:100%;max-height:min(62vh,440px);overflow:auto;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 12px 24px rgba(16,24,40,.12);padding:8px 12px 12px}
+.toc-m .panel a{display:flex;gap:12px;align-items:baseline;padding:11px 12px;border-radius:8px;text-decoration:none;color:var(--t2);font-size:.9rem;min-height:44px}
+.toc-m .panel a:hover{background:var(--hov)}
+.toc-m .panel a[aria-current="true"]{background:#E8F0FE;color:var(--blue-h);font-weight:500}
+.toc-m .panel .n{color:var(--t4);font-variant-numeric:tabular-nums;min-width:22px}
 
-.footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
-.footer-inner{
-  max-width:1080px;margin:0 auto;padding:40px 24px 24px;
-  display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;
-}
+/* layout */
+.doc{display:grid;grid-template-columns:250px minmax(0,740px);gap:44px;justify-content:center;padding:24px 0 72px;align-items:start}
+.toc-d{position:sticky;top:calc(var(--hh) + 24px);max-height:calc(100vh - var(--hh) - 48px);overflow:auto;padding-right:6px}
+.toc-d h2{font-family:var(--gs);font-size:.72rem;font-weight:500;letter-spacing:.8px;text-transform:uppercase;color:var(--t4);margin:0 0 10px 12px}
+.toc-d a{display:flex;gap:10px;align-items:baseline;padding:7px 12px;border-radius:8px;border-left:2px solid transparent;text-decoration:none;color:var(--t3);font-size:.85rem;line-height:1.4;transition:background var(--tr),color var(--tr)}
+.toc-d a:hover{background:var(--hov);color:var(--t1)}
+.toc-d a[aria-current="true"]{background:#E8F0FE;color:var(--blue-h);font-weight:500;border-left-color:var(--blue)}
+.toc-d .n{color:var(--t4);font-variant-numeric:tabular-nums;min-width:20px}
+
+/* summary + sections */
+.glance{background:var(--tint);border:1px solid var(--tint-b);border-radius:16px;padding:22px 24px;margin-bottom:20px}
+.glance h2{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.glance h2 svg{width:18px;height:18px;fill:none;stroke:var(--blue);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.glance ul{list-style:none;display:grid;gap:10px}
+.glance li{display:flex;gap:10px;font-size:.92rem;color:var(--t2);line-height:1.55}
+.glance li svg{width:18px;height:18px;flex-shrink:0;margin-top:2px;fill:none;stroke:var(--green);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.sec{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:28px 30px;margin-bottom:16px;scroll-margin-top:calc(var(--hh) + 16px)}
+.sec h2{font-family:var(--gs);font-size:1.2rem;font-weight:500;color:var(--t1);margin-bottom:14px;display:flex;align-items:center;gap:12px;line-height:1.3}
+.sec h2 .num{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:#E8F0FE;color:var(--blue-h);font-size:.85rem;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.sec h3{font-family:var(--gs);font-size:.95rem;font-weight:500;color:var(--t1);margin:18px 0 6px}
+.sec p,.sec li{font-size:.95rem;color:var(--t2);line-height:1.75}
+.sec p{margin-bottom:12px}
+.sec p:last-child,.sec ul:last-child,.sec ol:last-child{margin-bottom:0}
+.sec ul,.sec ol{padding-left:22px;margin-bottom:12px}
+.sec li{margin-bottom:7px}
+.sec li::marker{color:var(--blue)}
+.sec strong{color:var(--t1);font-weight:500}
+.note,.warn{display:flex;gap:12px;border-radius:12px;padding:14px 16px;margin:14px 0 4px;font-size:.9rem;line-height:1.65}
+.note{background:var(--tint);border:1px solid var(--tint-b);color:var(--t2)}
+.warn{background:var(--amber);border:1px solid var(--amber-b);color:#5f4400}
+.note svg,.warn svg{width:18px;height:18px;flex-shrink:0;margin-top:3px;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.note svg{stroke:var(--blue)}.warn svg{stroke:var(--amber-t)}
+.note p,.warn p{font-size:.9rem;margin:0}
+.cta{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px 28px;display:flex;flex-wrap:wrap;gap:16px 24px;align-items:center;justify-content:space-between;margin-top:8px}
+.cta h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1);margin-bottom:4px}
+.cta p{font-size:.9rem;color:var(--t3);max-width:420px;line-height:1.6}
+.cta .acts{display:flex;flex-wrap:wrap;gap:10px}
+
+/* footer */
+.footer{background:var(--surf);border-top:1px solid var(--line);margin-top:auto}
+.footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
 .fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
 .fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
 .fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2}
 .fc a:hover{color:var(--blue);text-decoration:underline}
 .footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.footer-bottom{
-  max-width:1080px;margin:0 auto;padding:16px 24px;
-  border-top:1px solid var(--border);display:flex;
-  justify-content:space-between;align-items:center;
-  font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px;
-}
+.footer-bottom{max-width:1080px;margin:0 auto;padding:16px 24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px}
 .footer-links{display:flex;gap:20px}
 .footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
 .footer-links a:hover{text-decoration:underline;color:var(--blue)}
 
+/* back to top */
+.scroll-top-btn{position:fixed;right:20px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:998;width:48px;height:48px;padding:0;border-radius:50%;border:none;background:#fff;color:var(--blue);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(16,24,40,.16),0 0 0 1px rgba(16,24,40,.04);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(12px) scale(.92);transition:opacity .2s ease,transform .2s ease,visibility .2s,background var(--tr);-webkit-tap-highlight-color:transparent}
+.scroll-top-btn.show{opacity:1;visibility:visible;pointer-events:auto;transform:none}
+.scroll-top-btn:hover{background:#E8F0FE}
+.scroll-top-btn:active{transform:scale(.94)}
+.scroll-top-btn:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.scroll-top-btn .stb-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);pointer-events:none}
+.scroll-top-btn .stb-ring circle{fill:none;stroke-width:2.5}
+.scroll-top-btn .stb-track{stroke:#E5E7EB}
+.scroll-top-btn .stb-prog{stroke:var(--blue);stroke-linecap:round;stroke-dasharray:125.66;stroke-dashoffset:125.66;transition:stroke-dashoffset .12s linear}
+.scroll-top-btn .stb-arrow{position:relative;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+
+@media(max-width:960px){
+  .doc{grid-template-columns:minmax(0,1fr);gap:0;padding-top:16px}
+  .toc-d{display:none}
+  .toc-m{display:block}
+  :root{--tocbar:48px}
+  .sec{scroll-margin-top:calc(var(--hh) + var(--tocbar) + 12px)}
+}
 @media(max-width:600px){
   .header{padding:0 16px}
-  .content{padding:32px 16px}
-  .policy-card{padding:24px 20px}
+  .wrap{padding:0 16px}
+  .hero{padding:28px 0 4px}
+  .page-title{font-size:1.65rem}
+  .toc-m{margin:12px -16px 0}
+  .toc-m summary{padding:0 16px}
+  .sec{padding:22px 18px;border-radius:14px}
+  .sec h2{font-size:1.08rem;gap:10px}
+  .glance{padding:18px;border-radius:14px}
+  .cta{padding:22px 18px}
+  .cta .acts,.cta .btn{width:100%}
+  .btn-hide-sm{display:none}
+  .scroll-top-btn{right:14px;width:46px;height:46px}
   .footer-inner{grid-template-columns:1fr;gap:20px}
   .footer-bottom{flex-direction:column;text-align:center}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none !important}}
+@media print{
+  .header,.read-progress,.toc-d,.toc-m,.tools,.cta,.footer,.scroll-top-btn,.skip{display:none !important}
+  body{background:#fff}
+  .doc{display:block;padding:0}
+  .sec,.glance{border:none;border-bottom:1px solid #ddd;border-radius:0;padding:14px 0;break-inside:avoid-page}
+  .hero{padding:0 0 8px}
+  a{color:inherit;text-decoration:none}
 }
 </style>
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
+<div class="read-progress" id="rp" aria-hidden="true"></div>
 
 <header class="header">
-  <div class="header-left">
-    <a href="/" class="logo-wrap">
-      <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
-      <span class="logo-text">Exalyte</span>
-    </a>
-  </div>
-  <a href="/" class="btn btn-outline">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-    Home
+  <a href="/" class="logo-wrap" aria-label="Exalyte home">
+    <img src="/images/exalyte.png" alt="" class="logo-img" onerror="this.style.display='none'">
+    <span class="logo-text">Exalyte</span>
   </a>
+  <div class="header-right">
+    <a href="/contact" class="btn btn-text btn-hide-sm">Contact</a>
+    <a href="/" class="btn btn-outline"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>Home</a>
+  </div>
 </header>
 
-<main class="main">
-  <div class="content">
-    <h1 class="page-title">Privacy Policy</h1>
-    <p class="page-sub">Your privacy matters. This policy outlines how we handle information across the Exalyte examination platform, operated under SciVerse Academy.</p>
-    <p class="last-updated">Last updated: June 2025</p>
-
-    <div class="policy-card">
-      <h2>1. About This Platform</h2>
-      <p>
-        Exalyte is a precision examination platform by <strong>SciVerse Academy</strong>, designed primarily for HSC and university admission candidates in Bangladesh. It provides live timed exams, detailed performance tracking, and structured practice to help students prepare effectively for competitive assessments.
-      </p>
-      <p>
-        This is a closed, secure environment. There is no public profile, no social features, and no data sharing with external parties. Every aspect of the platform is built with student focus and data integrity in mind.
-      </p>
+<main class="main" id="content">
+  <div class="wrap">
+    <div class="hero">
+      <span class="eyebrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Privacy</span>
+      <h1 class="page-title">Privacy Policy</h1>
+      <p class="page-sub">How Exalyte Inc. handles your information: what we collect, why we collect it, who can see it, and the choices you have.</p>
+      <div class="meta">
+        <span class="meta-item"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Last updated October 2026</span>
+        <span class="meta-item"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>About 7 min read</span>
+        <span class="meta-item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg>Operated by Exalyte Inc.</span>
+      </div>
+      <div class="tools">
+        <nav class="switch" aria-label="Legal documents">
+          <a href="/privacy" aria-current="page">Privacy Policy</a>
+          <a href="/tos">Terms of Service</a>
+        </nav>
+        <button class="btn btn-outline btn-hide-sm" type="button" onclick="window.print()"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print or save as PDF</button>
+      </div>
     </div>
 
-    <div class="policy-card">
-      <h2>2. Information We Collect</h2>
-      <p>We collect only the <strong>minimum data necessary</strong> to authenticate you and operate the exam platform:</p>
-      <ul>
-        <li><strong>Account data:</strong> Your name and email address — provided by you during signup.</li>
-        <li><strong>Exam data:</strong> Your answers, scores, attempt records, and performance metrics — generated as you use the platform.</li>
-      </ul>
-      <p>We do not collect phone numbers, physical addresses, payment information, or any sensitive personal identifiers beyond what is listed above. Your exam responses and scores are stored securely and are never made public.</p>
-    </div>
+    <details class="toc-m" id="tocM">
+      <summary aria-label="On this page"><span class="tl">On this page</span><span class="cur" id="curSec">Who we are and what this covers</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></summary>
+      <nav class="panel" aria-label="On this page"><a href="#who"><span class="n">1</span><span>Who we are and what this covers</span></a><a href="#collect"><span class="n">2</span><span>Information we collect</span></a><a href="#use"><span class="n">3</span><span>How we use your information</span></a><a href="#visible"><span class="n">4</span><span>Rankings and what other students can see</span></a><a href="#security"><span class="n">5</span><span>Security, fair use and fraud prevention</span></a><a href="#sharing"><span class="n">6</span><span>When we share information</span></a><a href="#retention"><span class="n">7</span><span>How long we keep information</span></a><a href="#rights"><span class="n">8</span><span>Your choices and rights</span></a><a href="#cookies"><span class="n">9</span><span>Cookies and similar technologies</span></a><a href="#children"><span class="n">10</span><span>Students under 18</span></a><a href="#transfers"><span class="n">11</span><span>Where information is handled</span></a><a href="#changes"><span class="n">12</span><span>Changes to this policy</span></a><a href="#contact"><span class="n">13</span><span>Contact us</span></a></nav>
+    </details>
 
-    <div class="policy-card">
-      <h2>3. How We Use Your Information</h2>
-      <ul>
-        <li>To authenticate your identity and provide secure access to your account.</li>
-        <li>To display your own exam history, scores, rankings, and performance analytics to you.</li>
-        <li>To maintain the leaderboard feature — showing your rank alongside other participants after live exams.</li>
-        <li>To operate spam prevention and security systems that protect the platform from abuse.</li>
-      </ul>
-      <p>We do <strong>not</strong> send marketing emails, newsletters, promotional offers, or any form of unsolicited communication. The platform exists solely as an examination tool.</p>
-    </div>
-
-    <div class="policy-card">
-      <h2>4. Account Integrity & Bot Prevention</h2>
-      <p>
-        We employ advanced automated systems to detect and block fraudulent signups, spam accounts, and automated bots. Invalid or suspicious registrations are identified and restricted before gaining platform access. These security measures run silently in the background — they do not affect legitimate students and require no manual intervention from any administrator.
-      </p>
-      <p>
-        This ensures that every active account represents a real student preparing for genuine examinations. Our platform maintains a zero-tolerance approach toward fake accounts, impersonation, or any attempt to manipulate the system.
-      </p>
-    </div>
-
-    <div class="policy-card">
-      <h2>5. Data Storage & Security</h2>
-      <p>
-        All data is stored in a highly secure environment with multiple layers of protection. The platform operates on Cloudflare's global infrastructure with industry-standard encryption for all data in transit.
-      </p>
-      <p>
-        Your account is protected by an encrypted authentication system. No administrator manually accesses or browses user databases. The platform functions autonomously — exam creation, student participation, scoring, and leaderboard generation are all automated processes requiring zero human intervention in user data.
-      </p>
-      <p>
-        We retain your data only for the duration of your active participation. There is no external server storage, no offline backups accessible to third parties, and no data export to any external system.
-      </p>
-    </div>
-
-    <div class="policy-card">
-      <h2>6. Data Sharing & Third Parties</h2>
-      <p>
-        We do <strong>not</strong> sell, rent, trade, or share your personal information with any third party. Your exam records, email address, name, and performance data remain strictly within the platform.
-      </p>
-      <p>
-        The only visible information to other users is your name and score as it appears on the leaderboard after a live exam concludes. No other personal details are ever publicly exposed.
-      </p>
-    </div>
-
-    <div class="policy-card">
-      <h2>7. Your Rights</h2>
-      <p>
-        As a user of Exalyte, you have the right to:
-      </p>
-      <ul>
-        <li>Access all your own exam history and performance data through your dashboard at any time.</li>
-        <li>Request a copy of your stored data by contacting us through official channels.</li>
-        <li>Stop using the platform at any time — your data remains secured and inaccessible to others.</li>
-      </ul>
-      <p>
-        Since we maintain a zero-exposure data policy and do not use your information for any purpose beyond platform functionality, account deletion requests are generally unnecessary. The platform is designed so that your data never leaves the secure environment.
-      </p>
-    </div>
-
-    <div class="policy-card">
-      <h2>8. Platform Scope</h2>
-      <p>
-        Exalyte is currently based in <strong>Bangladesh</strong> under the operation of SciVerse Academy. As the platform expands globally, this privacy policy will be updated to comply with additional regional regulations while maintaining the same core principles of data minimization and security.
-      </p>
-    </div>
-
-    <div class="policy-card">
-      <h2>9. Changes to This Policy</h2>
-      <p>
-        We may update this Privacy Policy from time to time to reflect improvements in our security practices or changes in platform functionality. Any significant changes will be communicated through the platform. Continued use of Exalyte after such updates constitutes acceptance of the revised policy.
-      </p>
-    </div>
-
-    <div class="policy-card">
-      <h2>10. Contact</h2>
-      <p>
-        For any privacy-related inquiries, please reach out through our official contact page. We are committed to transparency and will respond to legitimate requests regarding data handling practices.
-      </p>
-      <p>
-        <a href="contact.html" style="color:var(--blue);text-decoration:none;font-weight:500">Visit Contact Page →</a>
-      </p>
+    <div class="doc">
+      <aside class="toc-d" aria-label="On this page"><h2>On this page</h2><nav><a href="#who"><span class="n">1</span><span>Who we are and what this covers</span></a><a href="#collect"><span class="n">2</span><span>Information we collect</span></a><a href="#use"><span class="n">3</span><span>How we use your information</span></a><a href="#visible"><span class="n">4</span><span>Rankings and what other students can see</span></a><a href="#security"><span class="n">5</span><span>Security, fair use and fraud prevention</span></a><a href="#sharing"><span class="n">6</span><span>When we share information</span></a><a href="#retention"><span class="n">7</span><span>How long we keep information</span></a><a href="#rights"><span class="n">8</span><span>Your choices and rights</span></a><a href="#cookies"><span class="n">9</span><span>Cookies and similar technologies</span></a><a href="#children"><span class="n">10</span><span>Students under 18</span></a><a href="#transfers"><span class="n">11</span><span>Where information is handled</span></a><a href="#changes"><span class="n">12</span><span>Changes to this policy</span></a><a href="#contact"><span class="n">13</span><span>Contact us</span></a></nav></aside>
+      <article>
+        <div class="glance"><h2><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>The short version</h2><ul><li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>We collect only what we need to run your account, your exams and your batches.</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>We <strong>never sell</strong> your personal information.</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Your answers, scores and history are private to you. Rankings show others only what is needed to rank.</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>You can ask to see, correct or delete your data at any time.</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>We don’t show ads and we don’t send marketing emails.</span></li></ul></div>
+        <section class="sec" id="who" aria-labelledby="h-who"><h2 id="h-who" data-title="Who we are and what this covers"><span class="num">1</span><span>Who we are and what this covers</span></h2><p>Exalyte is an examination and test-preparation platform operated by <strong>Exalyte Inc.</strong> (“Exalyte”, “we”, “us” or “our”). This Privacy Policy explains what personal information we collect when you use Exalyte, why we collect it, who can see it, and the choices you have.</p>
+  <p>It applies to our website, our apps and our support channels. It does not apply to other websites or services that we may link to, such as third-party file hosts used for study materials, which have their own policies.</p>
+  <p>By creating an account or using Exalyte you agree to this policy. If you don’t agree with it, please don’t use the platform.</p></section><section class="sec" id="collect" aria-labelledby="h-collect"><h2 id="h-collect" data-title="Information we collect"><span class="num">2</span><span>Information we collect</span></h2><h3>Information you give us</h3>
+  <ul>
+   <li><strong>Account details:</strong> your name, email address and a password (which we store in protected form, never as plain text).</li>
+   <li><strong>Messages to us:</strong> your name, email and message when you use the contact form or reach our support team.</li>
+   <li><strong>Purchases and access:</strong> the batches you enrol in and the access codes you redeem. Payment for paid batches is arranged directly with our support team, so we do not collect your card or bank details on the platform.</li>
+  </ul>
+  <h3>Information created as you use Exalyte</h3>
+  <ul>
+   <li>Your answers, scores, attempt times, results, rankings and practice activity.</li>
+   <li>Which exams, batches and study materials you open, and which notifications you have read.</li>
+  </ul>
+  <h3>Device and connection information</h3>
+  <p>When you sign up, sign in and take exams we automatically receive technical details such as your IP address, browser and device type, approximate region and the time of activity. We use these to keep accounts and exams secure and fair (see “Security, fair use and fraud prevention”).</p>
+  <p>We don’t ask for your phone number, home address, government ID or precise location. If you choose to share anything like that with our support team, we will use it only to help you.</p></section><section class="sec" id="use" aria-labelledby="h-use"><h2 id="h-use" data-title="How we use your information"><span class="num">3</span><span>How we use your information</span></h2><p>We use your information to:</p>
+  <ul>
+   <li>create and secure your account and keep you signed in;</li>
+   <li>run exams and practice, and show you your results, history and performance analytics;</li>
+   <li>work out rankings and percentiles;</li>
+   <li>give you access to the batches and study materials you have enrolled in, and process the access codes you redeem;</li>
+   <li>answer your messages and give you support;</li>
+   <li>keep Exalyte fair and safe by detecting fake or duplicate accounts, cheating, scraping and other abuse, and by enforcing our Terms of Service;</li>
+   <li>fix problems, maintain the platform and understand, in aggregate, which features are useful so we can improve them;</li>
+   <li>send you important service notices about your account, exams or changes to our terms; and</li>
+   <li>meet our legal obligations.</li>
+  </ul>
+  <p>We don’t use your answers or results to advertise to you, and we don’t send marketing emails or newsletters.</p></section><section class="sec" id="visible" aria-labelledby="h-visible"><h2 id="h-visible" data-title="Rankings and what other students can see"><span class="num">4</span><span>Rankings and what other students can see</span></h2><p>Your answers, scores, history and analytics are visible to you. To provide rankings we compare your score with those of other participants. Where a leaderboard or rank is shown, other participants may see only the limited information needed for ranking, such as a name and a score or rank.</p>
+  <p>Your email address and other account details are never shown to other students.</p><div class="note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><p>Staff can see account and exam information only where it is needed to run the service, give you support, keep things secure or meet legal obligations.</p></div></section><section class="sec" id="security" aria-labelledby="h-security"><h2 id="h-security" data-title="Security, fair use and fraud prevention"><span class="num">5</span><span>Security, fair use and fraud prevention</span></h2><p>We use technical and organisational measures to protect your information, including protecting it while it is in transit and limiting access to authorised people who need it for their work.</p>
+  <p>To keep exams fair, we also run automated and manual checks that look for fake or duplicate accounts, automated tools, cheating and other abuse. For security reasons we don’t describe these measures in detail. If a check suggests a problem, we may limit or suspend an account while we review it. If you think we have made a mistake, please contact us and we will look into it.</p>
+  <p>No method of storing or sending data is completely secure, so please keep your password private and use one that you don’t use elsewhere.</p></section><section class="sec" id="sharing" aria-labelledby="h-sharing"><h2 id="h-sharing" data-title="When we share information"><span class="num">6</span><span>When we share information</span></h2><p>We do <strong>not</strong> sell or rent your personal information. We share it only in these situations:</p>
+  <ul>
+   <li><strong>Service providers.</strong> Companies that help us run Exalyte, for example with hosting, security, delivery and communications. They may use your information only to provide services to us and must protect it.</li>
+   <li><strong>Messaging apps.</strong> If you contact our support team through a messaging app such as Telegram, that app handles your messages under its own terms and privacy policy.</li>
+   <li><strong>Legal and safety reasons.</strong> Where we believe disclosure is required by law or legal process, or is needed to protect the rights, safety or property of our users, the public or Exalyte.</li>
+   <li><strong>Business changes.</strong> If Exalyte Inc. is involved in a merger, acquisition, financing or sale of assets, your information may be transferred as part of that deal. Any new owner must continue to protect it under this policy or tell you about changes first.</li>
+   <li><strong>With your consent</strong>, or at your request.</li>
+  </ul>
+  <p>We may also share statistics that are combined or anonymised so that they do not identify you.</p></section><section class="sec" id="retention" aria-labelledby="h-retention"><h2 id="h-retention" data-title="How long we keep information"><span class="num">7</span><span>How long we keep information</span></h2><p>We keep your information while your account is active and for as long as we need it to give you your exam history and access. When you ask us to close your account or delete your data, we delete or anonymise it within a reasonable time (we aim for 30 days), except for information we must or reasonably need to keep for legal, security, fraud-prevention or dispute reasons, such as a record that an account was suspended or that an access code was used. Copies held in backups are removed as those backups are replaced.</p>
+  <p>Messages you send to support are kept for as long as needed to resolve your request and handle any follow-up.</p></section><section class="sec" id="rights" aria-labelledby="h-rights"><h2 id="h-rights" data-title="Your choices and rights"><span class="num">8</span><span>Your choices and rights</span></h2><p>You can:</p>
+  <ul>
+   <li><strong>See</strong> your exam history and results at any time in your dashboard, and ask us for a copy of the personal information we hold about you;</li>
+   <li><strong>Correct</strong> information that is wrong or out of date;</li>
+   <li><strong>Delete</strong> your account and personal information;</li>
+   <li><strong>Object to or ask us to limit</strong> certain uses of your information; and</li>
+   <li><strong>Withdraw consent</strong> where we rely on it, and complain to a data-protection authority where you live if you think we have handled your information unlawfully.</li>
+  </ul>
+  <p>To make a request, use our <a href="/contact">contact page</a> from the email address on your account so we can find your records. We may need to check that you are who you say you are, and we aim to reply within 30 days.</p><div class="warn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><p>Deleting your account permanently removes your history, rankings and access to any batches you enrolled in. Please read the refund section of our Terms of Service before you do.</p></div></section><section class="sec" id="cookies" aria-labelledby="h-cookies"><h2 id="h-cookies" data-title="Cookies and similar technologies"><span class="num">9</span><span>Cookies and similar technologies</span></h2><p>We store small amounts of data on your device, for example with cookies or similar technology, only where it is needed to keep you signed in, protect your account and remember your settings. We don’t use advertising cookies and we don’t share data with ad networks.</p>
+  <p>Our pages may load fonts and similar resources from third-party providers, who can receive your IP address and browser details when your device asks for them. You can clear stored data in your browser settings, but you may then be signed out and some features may stop working.</p></section><section class="sec" id="children" aria-labelledby="h-children"><h2 id="h-children" data-title="Students under 18"><span class="num">10</span><span>Students under 18</span></h2><p>Exalyte is built for students preparing for secondary-level and admission exams, and many of them are under 18. If you are under 18, please use Exalyte with the knowledge of a parent or guardian.</p>
+  <p>We do not knowingly collect personal information from children under 13. If you believe a child under 13 has given us personal information, please contact us and we will delete it.</p></section><section class="sec" id="transfers" aria-labelledby="h-transfers"><h2 id="h-transfers" data-title="Where information is handled"><span class="num">11</span><span>Where information is handled</span></h2><p>Exalyte Inc. and our service providers may handle and store information in countries other than the one where you live, including outside Bangladesh. When this happens we take steps to make sure your information stays protected in line with this policy.</p></section><section class="sec" id="changes" aria-labelledby="h-changes"><h2 id="h-changes" data-title="Changes to this policy"><span class="num">12</span><span>Changes to this policy</span></h2><p>We may update this policy from time to time, for example when we add features or when laws change. We will change the “last updated” date at the top and, for significant changes, tell you through the platform or by email before they take effect where we can. If you keep using Exalyte after an update, you accept the new version.</p></section><section class="sec" id="contact" aria-labelledby="h-contact"><h2 id="h-contact" data-title="Contact us"><span class="num">13</span><span>Contact us</span></h2><p>If you have a question or a request about your privacy, please get in touch through our <a href="/contact">contact page</a>. Tell us the email address on your account so we can help you quickly. Exalyte Inc. is responsible for how your information is handled on Exalyte.</p></section>
+        <div class="cta">
+          <div><h2>Questions about this policy?</h2><p>Ask us anything about your information, or send a request to see, correct or delete your data.</p></div>
+          <div class="acts"><a href="/contact" class="btn btn-primary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z"/><polyline points="22,6 12,13 2,6"/></svg>Contact us</a><a href="/tos" class="btn btn-outline">Read the Terms of Service</a></div>
+        </div>
+      </article>
     </div>
   </div>
 </main>
@@ -222,31 +282,73 @@ body{
   <div class="footer-inner">
     <div class="fc">
       <div class="footer-brand">
-        <img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'">
+        <img src="/images/exalyte.png" alt="" height="24" style="border-radius:50%" onerror="this.style.display='none'">
         <span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t2)">Exalyte</span>
       </div>
       <p>A precision examination platform built for students who want to perform, not just prepare.</p>
     </div>
-    <div class="fc">
-      <h4>Platform</h4>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="exam-history.html">Exam History</a>
-    </div>
-    <div class="fc">
-      <h4>Legal</h4>
-      <a href="privacy.html">Privacy Policy</a>
-      <a href="tos.html">Terms of Service</a>
-      <a href="contact.html">Contact</a>
-    </div>
+    <div class="fc"><h4>Platform</h4><a href="/dashboard">Dashboard</a><a href="/exam-history">Exam History</a><a href="/batches">Batches</a></div>
+    <div class="fc"><h4>Legal</h4><a href="/privacy">Privacy Policy</a><a href="/tos">Terms of Service</a><a href="/contact">Contact</a></div>
   </div>
   <div class="footer-bottom">
-    <span>&copy; 2025 Exalyte — SciVerse Academy. All rights reserved.</span>
-    <div class="footer-links">
-      <a href="privacy.html">Privacy</a>
-      <a href="tos.html">Terms</a>
-    </div>
+    <span>&copy; 2026 Exalyte Inc. All rights reserved.</span>
+    <div class="footer-links"><a href="/privacy">Privacy</a><a href="/tos">Terms</a></div>
   </div>
 </footer>
 
+<button class="scroll-top-btn" id="scrollTopBtn" type="button" aria-label="Back to top" title="Back to top">
+  <svg class="stb-ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="stb-track" cx="22" cy="22" r="20"/><circle class="stb-prog" id="stbProg" cx="22" cy="22" r="20"/></svg>
+  <svg class="stb-arrow" viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+</button>
+
+<script>
+(function(){
+  var secs=[].slice.call(document.querySelectorAll('.sec[id]'));
+  var links=[].slice.call(document.querySelectorAll('.toc-d a, .toc-m .panel a'));
+  var cur=document.getElementById('curSec'), toc=document.getElementById('tocM');
+  function setActive(id){
+    links.forEach(function(a){ if(a.getAttribute('href')==='#'+id) a.setAttribute('aria-current','true'); else a.removeAttribute('aria-current'); });
+    var s=document.getElementById(id); if(s&&cur){ var t=s.querySelector('h2'); cur.textContent=t?t.getAttribute('data-title'):''; }
+  }
+  var ticking=false;
+  function onScroll(){
+    if(ticking) return; ticking=true;
+    requestAnimationFrame(function(){
+      ticking=false;
+      var y=window.scrollY, max=Math.max(1,document.documentElement.scrollHeight-window.innerHeight);
+      var rp=document.getElementById('rp'); if(rp) rp.style.width=Math.min(100,y/max*100)+'%';
+      var off=(parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hh'))||64)+(window.innerWidth<=960?60:30), active=secs[0]&&secs[0].id;
+      secs.forEach(function(s){ if(s.getBoundingClientRect().top<=off) active=s.id; });
+      if(active) setActive(active);
+    });
+  }
+  window.addEventListener('scroll',onScroll,{passive:true}); window.addEventListener('resize',onScroll); onScroll();
+  if(toc){
+    toc.querySelectorAll('.panel a').forEach(function(a){ a.addEventListener('click',function(){ toc.open=false; }); });
+    document.addEventListener('click',function(e){ if(toc.open&&!toc.contains(e.target)) toc.open=false; });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&toc.open){ toc.open=false; toc.querySelector('summary').focus(); } });
+    window.addEventListener('scroll',function(){ if(toc.open) toc.open=false; },{passive:true});
+  }
+  /* back to top */
+  var btn=document.getElementById('scrollTopBtn'), ring=document.getElementById('stbProg');
+  if(btn){
+    var C=125.66,last=window.scrollY,shown=false,raf=false;
+    function upd(){
+      raf=false;
+      var y=window.scrollY,max=Math.max(1,document.documentElement.scrollHeight-window.innerHeight),prog=Math.min(1,Math.max(0,y/max));
+      if(ring) ring.style.strokeDashoffset=String(C*(1-prog));
+      if(y<500) shown=false; else if(prog>.97) shown=true; else if(y<last-4) shown=true; else if(y>last+4) shown=false;
+      last=y; btn.classList.toggle('show',shown);
+    }
+    window.addEventListener('scroll',function(){ if(!raf){ raf=true; requestAnimationFrame(upd); } },{passive:true});
+    window.addEventListener('resize',upd);
+    btn.addEventListener('click',function(){
+      var calm=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+      window.scrollTo({top:0,behavior:calm?'auto':'smooth'}); btn.blur();
+    });
+    upd();
+  }
+})();
+</script>
 </body>
 </html>
