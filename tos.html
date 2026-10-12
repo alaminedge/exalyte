@@ -4,226 +4,281 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Terms of Service — Exalyte</title>
+<meta name="description" content="The rules for using Exalyte, written in plain language: accounts, exams, batches and payments, content, and what to expect from us.">
+<meta name="theme-color" content="#ffffff">
+<link rel="canonical" href="https://exalyte.pages.dev/tos">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Exalyte">
+<meta property="og:title" content="Terms of Service — Exalyte">
+<meta property="og:description" content="The rules for using Exalyte, written in plain language: accounts, exams, batches and payments, content, and what to expect from us.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;overflow-wrap:break-word}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 :root{
-  --blue:#1a73e8;--blue-h:#1557b0;--bg:#f8f9fa;--surf:#ffffff;--hov:#f1f3f4;
-  --border:#dadce0;--t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
-  --gs:'Google Sans','Roboto',system-ui,sans-serif;
-  --rb:'Roboto',system-ui,sans-serif;
-  --hh:64px;--r:4px;--rl:8px;--tr:.2s cubic-bezier(.4,0,.2,1);
+  --blue:#1a73e8;--blue-h:#1557b0;--bg:#f8f9fa;--surf:#fff;--hov:#f1f3f4;
+  --border:#dadce0;--line:#E5E7EB;--t1:#202124;--t2:#3c4043;--t3:#5f6368;--t4:#80868b;
+  --tint:#F0F6FF;--tint-b:#D6E4FB;--amber:#FEF3E0;--amber-b:#FBE2B4;--amber-t:#9A5B00;--green:#188038;--grn-bg:#E6F4EA;
+  --gs:'Google Sans','Roboto',system-ui,sans-serif;--rb:'Roboto',system-ui,sans-serif;
+  --hh:64px;--tocbar:0px;--tr:.2s cubic-bezier(.4,0,.2,1);
 }
-body{
-  font-family:var(--rb);background:var(--bg);color:var(--t2);
-  -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;
-  display:flex;flex-direction:column;overflow-x:hidden;
-}
-.header{
-  position:sticky;top:0;height:var(--hh);
-  background:var(--surf);border-bottom:1px solid var(--border);
-  z-index:1000;display:flex;align-items:center;
-  justify-content:space-between;padding:0 24px;
-}
-.header-left{display:flex;align-items:center}
+body{font-family:var(--rb);background:var(--bg);color:var(--t2);-webkit-font-smoothing:antialiased;line-height:1.6;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+a{color:var(--blue)}
+.skip{position:absolute;left:-999px;top:8px;background:var(--blue);color:#fff;padding:10px 16px;border-radius:8px;z-index:3000;font-family:var(--gs);font-size:.85rem;text-decoration:none}
+.skip:focus{left:12px}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+
+/* header */
+.header{position:sticky;top:0;height:var(--hh);background:var(--surf);border-bottom:1px solid var(--line);z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
 .logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
 .logo-img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
-.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:8px 18px;font-family:var(--gs);font-size:.85rem;font-weight:500;
-  border:none;border-radius:var(--r);cursor:pointer;
-  transition:all var(--tr);text-decoration:none;white-space:nowrap;
-}
-.btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}
+.logo-text{font-family:var(--gs);font-size:1.25rem;font-weight:500;color:var(--t1);letter-spacing:-.2px}
+.header-right{display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 18px;font-family:var(--gs);font-size:.85rem;font-weight:500;border:1px solid transparent;border-radius:8px;cursor:pointer;transition:background var(--tr),border-color var(--tr),color var(--tr);text-decoration:none;white-space:nowrap}
+.btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn-outline{background:#fff;color:var(--blue);border-color:var(--line)}
 .btn-outline:hover{background:#e8f0fe;border-color:var(--blue)}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-h)}
+.btn-text{color:var(--t3);background:transparent}
+.btn-text:hover{color:var(--blue);background:var(--hov)}
+.read-progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--blue);z-index:1100;transition:width .08s linear}
+
+/* hero */
 .main{flex:1}
-.content{max-width:760px;margin:0 auto;padding:48px 24px 60px;width:100%}
-.page-title{font-family:var(--gs);font-size:2rem;font-weight:500;color:var(--t1);margin-bottom:8px;letter-spacing:-0.3px}
-.page-sub{color:var(--t3);font-size:.95rem;margin-bottom:40px;line-height:1.5}
-.last-updated{font-size:.75rem;color:var(--t4);margin-bottom:32px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;width:100%}
+.hero{padding:40px 0 8px}
+.eyebrow{display:inline-flex;align-items:center;gap:6px;background:#E8F0FE;color:var(--blue-h);font-family:var(--gs);font-size:.76rem;font-weight:500;padding:4px 12px;border-radius:999px;margin-bottom:14px}
+.eyebrow svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.page-title{font-family:var(--gs);font-size:2.25rem;font-weight:500;color:var(--t1);letter-spacing:-.5px;line-height:1.2;margin-bottom:10px}
+.page-sub{color:var(--t3);font-size:1rem;line-height:1.65;max-width:680px}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:20px}
+.meta-item{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:var(--t3)}
+.meta-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--t4)}
+.tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:24px 0 6px}
+.switch{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px}
+.switch a{font-family:var(--gs);font-size:.85rem;font-weight:500;color:var(--t3);text-decoration:none;padding:8px 18px;border-radius:999px;min-height:36px;display:inline-flex;align-items:center;transition:background var(--tr),color var(--tr)}
+.switch a:hover{color:var(--blue)}
+.switch a[aria-current="page"]{background:#E8F0FE;color:var(--blue-h)}
 
-.policy-card{
-  background:var(--surf);border:1px solid var(--border);border-radius:var(--rl);
-  padding:36px 32px;margin-bottom:20px;
-}
-.policy-card h2{
-  font-family:var(--gs);font-size:1.15rem;font-weight:500;color:var(--t1);
-  margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);
-}
-.policy-card p,.policy-card ul{
-  font-size:.9rem;color:var(--t3);line-height:1.7;margin-bottom:16px;
-}
-.policy-card ul{padding-left:20px}
-.policy-card ul li{margin-bottom:8px}
-.policy-card ul li::marker{color:var(--blue)}
-.policy-card strong{color:var(--t2);font-weight:500}
+/* mobile table of contents (sticky) */
+.toc-m{display:none;position:sticky;top:var(--hh);z-index:60;margin:12px -24px 0}
+.toc-m summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:0 24px;min-height:48px;font-family:var(--gs);font-size:.85rem}
+.toc-m summary::-webkit-details-marker{display:none}
+.toc-m .tl{color:var(--t4);flex-shrink:0}
+.toc-m .cur{color:var(--t1);font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toc-m .chev{width:18px;height:18px;fill:none;stroke:var(--t3);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform var(--tr);flex-shrink:0}
+.toc-m[open] .chev{transform:rotate(180deg)}
+.toc-m .panel{position:absolute;left:0;right:0;top:100%;max-height:min(62vh,440px);overflow:auto;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 12px 24px rgba(16,24,40,.12);padding:8px 12px 12px}
+.toc-m .panel a{display:flex;gap:12px;align-items:baseline;padding:11px 12px;border-radius:8px;text-decoration:none;color:var(--t2);font-size:.9rem;min-height:44px}
+.toc-m .panel a:hover{background:var(--hov)}
+.toc-m .panel a[aria-current="true"]{background:#E8F0FE;color:var(--blue-h);font-weight:500}
+.toc-m .panel .n{color:var(--t4);font-variant-numeric:tabular-nums;min-width:22px}
 
-.footer{background:var(--surf);border-top:1px solid var(--border);margin-top:auto}
-.footer-inner{
-  max-width:1080px;margin:0 auto;padding:40px 24px 24px;
-  display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;
-}
+/* layout */
+.doc{display:grid;grid-template-columns:250px minmax(0,740px);gap:44px;justify-content:center;padding:24px 0 72px;align-items:start}
+.toc-d{position:sticky;top:calc(var(--hh) + 24px);max-height:calc(100vh - var(--hh) - 48px);overflow:auto;padding-right:6px}
+.toc-d h2{font-family:var(--gs);font-size:.72rem;font-weight:500;letter-spacing:.8px;text-transform:uppercase;color:var(--t4);margin:0 0 10px 12px}
+.toc-d a{display:flex;gap:10px;align-items:baseline;padding:7px 12px;border-radius:8px;border-left:2px solid transparent;text-decoration:none;color:var(--t3);font-size:.85rem;line-height:1.4;transition:background var(--tr),color var(--tr)}
+.toc-d a:hover{background:var(--hov);color:var(--t1)}
+.toc-d a[aria-current="true"]{background:#E8F0FE;color:var(--blue-h);font-weight:500;border-left-color:var(--blue)}
+.toc-d .n{color:var(--t4);font-variant-numeric:tabular-nums;min-width:20px}
+
+/* summary + sections */
+.glance{background:var(--tint);border:1px solid var(--tint-b);border-radius:16px;padding:22px 24px;margin-bottom:20px}
+.glance h2{font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t1);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.glance h2 svg{width:18px;height:18px;fill:none;stroke:var(--blue);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.glance ul{list-style:none;display:grid;gap:10px}
+.glance li{display:flex;gap:10px;font-size:.92rem;color:var(--t2);line-height:1.55}
+.glance li svg{width:18px;height:18px;flex-shrink:0;margin-top:2px;fill:none;stroke:var(--green);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.sec{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:28px 30px;margin-bottom:16px;scroll-margin-top:calc(var(--hh) + 16px)}
+.sec h2{font-family:var(--gs);font-size:1.2rem;font-weight:500;color:var(--t1);margin-bottom:14px;display:flex;align-items:center;gap:12px;line-height:1.3}
+.sec h2 .num{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:#E8F0FE;color:var(--blue-h);font-size:.85rem;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.sec h3{font-family:var(--gs);font-size:.95rem;font-weight:500;color:var(--t1);margin:18px 0 6px}
+.sec p,.sec li{font-size:.95rem;color:var(--t2);line-height:1.75}
+.sec p{margin-bottom:12px}
+.sec p:last-child,.sec ul:last-child,.sec ol:last-child{margin-bottom:0}
+.sec ul,.sec ol{padding-left:22px;margin-bottom:12px}
+.sec li{margin-bottom:7px}
+.sec li::marker{color:var(--blue)}
+.sec strong{color:var(--t1);font-weight:500}
+.note,.warn{display:flex;gap:12px;border-radius:12px;padding:14px 16px;margin:14px 0 4px;font-size:.9rem;line-height:1.65}
+.note{background:var(--tint);border:1px solid var(--tint-b);color:var(--t2)}
+.warn{background:var(--amber);border:1px solid var(--amber-b);color:#5f4400}
+.note svg,.warn svg{width:18px;height:18px;flex-shrink:0;margin-top:3px;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.note svg{stroke:var(--blue)}.warn svg{stroke:var(--amber-t)}
+.note p,.warn p{font-size:.9rem;margin:0}
+.cta{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px 28px;display:flex;flex-wrap:wrap;gap:16px 24px;align-items:center;justify-content:space-between;margin-top:8px}
+.cta h2{font-family:var(--gs);font-size:1.1rem;font-weight:500;color:var(--t1);margin-bottom:4px}
+.cta p{font-size:.9rem;color:var(--t3);max-width:420px;line-height:1.6}
+.cta .acts{display:flex;flex-wrap:wrap;gap:10px}
+
+/* footer */
+.footer{background:var(--surf);border-top:1px solid var(--line);margin-top:auto}
+.footer-inner{max-width:1080px;margin:0 auto;padding:40px 24px 24px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
 .fc h4{font-family:var(--gs);font-size:.875rem;font-weight:500;color:var(--t2);margin-bottom:12px}
 .fc p{font-size:.8rem;color:var(--t3);line-height:1.7}
 .fc a{display:block;font-size:.8rem;color:var(--t3);text-decoration:none;line-height:2}
 .fc a:hover{color:var(--blue);text-decoration:underline}
 .footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.footer-bottom{
-  max-width:1080px;margin:0 auto;padding:16px 24px;
-  border-top:1px solid var(--border);display:flex;
-  justify-content:space-between;align-items:center;
-  font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px;
-}
+.footer-bottom{max-width:1080px;margin:0 auto;padding:16px 24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--t4);flex-wrap:wrap;gap:8px}
 .footer-links{display:flex;gap:20px}
 .footer-links a{color:var(--t4);text-decoration:none;font-size:.75rem}
 .footer-links a:hover{text-decoration:underline;color:var(--blue)}
 
+/* back to top */
+.scroll-top-btn{position:fixed;right:20px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:998;width:48px;height:48px;padding:0;border-radius:50%;border:none;background:#fff;color:var(--blue);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(16,24,40,.16),0 0 0 1px rgba(16,24,40,.04);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(12px) scale(.92);transition:opacity .2s ease,transform .2s ease,visibility .2s,background var(--tr);-webkit-tap-highlight-color:transparent}
+.scroll-top-btn.show{opacity:1;visibility:visible;pointer-events:auto;transform:none}
+.scroll-top-btn:hover{background:#E8F0FE}
+.scroll-top-btn:active{transform:scale(.94)}
+.scroll-top-btn:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.scroll-top-btn .stb-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);pointer-events:none}
+.scroll-top-btn .stb-ring circle{fill:none;stroke-width:2.5}
+.scroll-top-btn .stb-track{stroke:#E5E7EB}
+.scroll-top-btn .stb-prog{stroke:var(--blue);stroke-linecap:round;stroke-dasharray:125.66;stroke-dashoffset:125.66;transition:stroke-dashoffset .12s linear}
+.scroll-top-btn .stb-arrow{position:relative;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+
+@media(max-width:960px){
+  .doc{grid-template-columns:minmax(0,1fr);gap:0;padding-top:16px}
+  .toc-d{display:none}
+  .toc-m{display:block}
+  :root{--tocbar:48px}
+  .sec{scroll-margin-top:calc(var(--hh) + var(--tocbar) + 12px)}
+}
 @media(max-width:600px){
   .header{padding:0 16px}
-  .content{padding:32px 16px}
-  .policy-card{padding:24px 20px}
+  .wrap{padding:0 16px}
+  .hero{padding:28px 0 4px}
+  .page-title{font-size:1.65rem}
+  .toc-m{margin:12px -16px 0}
+  .toc-m summary{padding:0 16px}
+  .sec{padding:22px 18px;border-radius:14px}
+  .sec h2{font-size:1.08rem;gap:10px}
+  .glance{padding:18px;border-radius:14px}
+  .cta{padding:22px 18px}
+  .cta .acts,.cta .btn{width:100%}
+  .btn-hide-sm{display:none}
+  .scroll-top-btn{right:14px;width:46px;height:46px}
   .footer-inner{grid-template-columns:1fr;gap:20px}
   .footer-bottom{flex-direction:column;text-align:center}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none !important}}
+@media print{
+  .header,.read-progress,.toc-d,.toc-m,.tools,.cta,.footer,.scroll-top-btn,.skip{display:none !important}
+  body{background:#fff}
+  .doc{display:block;padding:0}
+  .sec,.glance{border:none;border-bottom:1px solid #ddd;border-radius:0;padding:14px 0;break-inside:avoid-page}
+  .hero{padding:0 0 8px}
+  a{color:inherit;text-decoration:none}
 }
 </style>
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
+<div class="read-progress" id="rp" aria-hidden="true"></div>
 
 <header class="header">
-  <div class="header-left">
-    <a href="/" class="logo-wrap">
-      <img src="images/exalyte.png" alt="Exalyte" class="logo-img" onerror="this.style.display='none'">
-      <span class="logo-text">Exalyte</span>
-    </a>
-  </div>
-  <a href="/" class="btn btn-outline">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-    Home
+  <a href="/" class="logo-wrap" aria-label="Exalyte home">
+    <img src="/images/exalyte.png" alt="" class="logo-img" onerror="this.style.display='none'">
+    <span class="logo-text">Exalyte</span>
   </a>
+  <div class="header-right">
+    <a href="/contact" class="btn btn-text btn-hide-sm">Contact</a>
+    <a href="/" class="btn btn-outline"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>Home</a>
+  </div>
 </header>
 
-<main class="main">
-  <div class="content">
-    <h1 class="page-title">Terms of Service</h1>
-    <p class="page-sub">Please read these terms carefully before using the Exalyte platform. By creating an account or accessing any examination, you agree to be bound by these terms.</p>
-    <p class="last-updated">Last updated: June 2025</p>
-
-    <div class="policy-card">
-      <h2>1. About Exalyte</h2>
-      <p>
-        Exalyte is an examination platform operated by <strong>SciVerse Academy</strong>, designed to help HSC and university admission candidates prepare through live timed exams, performance tracking, and structured practice. The platform provides tools for honest self-assessment — it is not a guarantee of any specific academic outcome.
-      </p>
+<main class="main" id="content">
+  <div class="wrap">
+    <div class="hero">
+      <span class="eyebrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg>Terms</span>
+      <h1 class="page-title">Terms of Service</h1>
+      <p class="page-sub">The rules for using Exalyte, written in plain language: accounts, exams, batches and payments, content, and what to expect from us.</p>
+      <div class="meta">
+        <span class="meta-item"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Last updated October 2026</span>
+        <span class="meta-item"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>About 8 min read</span>
+        <span class="meta-item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg>Operated by Exalyte Inc.</span>
+      </div>
+      <div class="tools">
+        <nav class="switch" aria-label="Legal documents">
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/tos" aria-current="page">Terms of Service</a>
+        </nav>
+        <button class="btn btn-outline btn-hide-sm" type="button" onclick="window.print()"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print or save as PDF</button>
+      </div>
     </div>
 
-    <div class="policy-card">
-      <h2>2. Account Registration</h2>
-      <ul>
-        <li>Each individual is permitted <strong>one account</strong>. In exceptional circumstances, a maximum of two accounts may be considered — but our automated systems actively restrict and block excessive registrations.</li>
-        <li>You must provide accurate information during signup. Fake accounts, impersonation, or registration with invalid credentials will be automatically detected and restricted by our security systems.</li>
-        <li>You are responsible for maintaining the confidentiality of your account credentials. Any activity under your account is your responsibility.</li>
-        <li>Fake accounts serve no purpose on this platform — our bot detection and spam prevention systems render them useless before they gain access to any examination content.</li>
-      </ul>
-    </div>
+    <details class="toc-m" id="tocM">
+      <summary aria-label="On this page"><span class="tl">On this page</span><span class="cur" id="curSec">Agreement to these terms</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></summary>
+      <nav class="panel" aria-label="On this page"><a href="#agreement"><span class="n">1</span><span>Agreement to these terms</span></a><a href="#eligibility"><span class="n">2</span><span>Who can use Exalyte</span></a><a href="#account"><span class="n">3</span><span>Your account</span></a><a href="#service"><span class="n">4</span><span>What Exalyte provides</span></a><a href="#batches"><span class="n">5</span><span>Batches, access codes and payments</span></a><a href="#conduct"><span class="n">6</span><span>Exam rules and academic honesty</span></a><a href="#content"><span class="n">7</span><span>Our content and your licence</span></a><a href="#use"><span class="n">8</span><span>Acceptable use</span></a><a href="#thirdparty"><span class="n">9</span><span>Third-party links and services</span></a><a href="#privacy"><span class="n">10</span><span>Your information</span></a><a href="#ending"><span class="n">11</span><span>Suspension and ending your access</span></a><a href="#changes-service"><span class="n">12</span><span>Availability and changes to the Service</span></a><a href="#disclaimer"><span class="n">13</span><span>Disclaimers</span></a><a href="#liability"><span class="n">14</span><span>Limits on our liability</span></a><a href="#law"><span class="n">15</span><span>Governing law and disputes</span></a><a href="#changes"><span class="n">16</span><span>Changes to these Terms</span></a><a href="#general"><span class="n">17</span><span>General</span></a><a href="#contact"><span class="n">18</span><span>Contact us</span></a></nav>
+    </details>
 
-    <div class="policy-card">
-      <h2>3. Exam Conduct & Academic Honesty</h2>
-      <p>
-        Exalyte is built to support <strong>honest preparation</strong>. The platform includes automated monitoring during live examinations. Any detected violation — including but not limited to unauthorized tab switching, automated scripts, or attempts to manipulate the exam environment — will result in an automatic block.
-      </p>
-      <p>
-        This platform exists to help you assess and improve your own abilities. How you choose to use it is entirely your decision. If you compromise your own preparation through dishonest conduct, that outcome is yours alone — it is not the concern or liability of SciVerse Academy or the Exalyte platform.
-      </p>
-      <ul>
-        <li>Live exams include active monitoring. Violations trigger automatic restrictions.</li>
-        <li>Deliberate attempts to bypass security or cheat the system will result in immediate account suspension.</li>
-        <li>The platform is designed for self-improvement. Honesty benefits you — dishonesty harms only yourself.</li>
-      </ul>
-    </div>
-
-    <div class="policy-card">
-      <h2>4. Content Ownership & Intellectual Property</h2>
-      <p>
-        All examination content — including questions, answer keys, explanations, images, resources, and any materials uploaded by administrators — is the exclusive intellectual property of <strong>SciVerse Academy</strong>.
-      </p>
-      <ul>
-        <li>Users may <strong>not</strong> copy, reproduce, screenshot, download, distribute, or share any exam content, questions, or resources outside the platform.</li>
-        <li>Any proven violation of content ownership — including leaking questions, sharing answers publicly, or redistributing materials — will result in immediate and permanent account termination with no warning.</li>
-        <li>Study resources provided within the platform are for personal use only during your active participation.</li>
-      </ul>
-    </div>
-
-    <div class="policy-card">
-      <h2>5. Automated Enforcement</h2>
-      <p>
-        Exalyte operates with advanced automated systems that monitor account activity, exam conduct, and platform usage in real time. These systems require no manual administrator intervention.
-      </p>
-      <ul>
-        <li>Fake accounts are automatically detected and restricted at registration.</li>
-        <li>Exam violations are automatically flagged and result in immediate blocking.</li>
-        <li>Content scraping, bulk downloading, or suspicious access patterns trigger automatic security responses.</li>
-        <li>Administrators reserve the right to review and enforce manual bans where automated systems indicate persistent abuse.</li>
-      </ul>
-    </div>
-
-    <div class="policy-card">
-      <h2>6. Account Termination</h2>
-      <p>
-        SciVerse Academy, through its authorized administrators, reserves the right to suspend or permanently terminate any account that violates these terms. Grounds for termination include:
-      </p>
-      <ul>
-        <li>Creation of fake or fraudulent accounts.</li>
-        <li>Cheating, bypassing security, or manipulating the exam environment.</li>
-        <li>Copying, sharing, or redistributing platform content without authorization.</li>
-        <li>Any conduct that disrupts the platform or harms other users' experience.</li>
-        <li>Violation of any applicable laws of Bangladesh.</li>
-      </ul>
-      <p>
-        Termination decisions made by administrators are final. Banned users forfeit access to all examination data, history, and resources associated with their account.
-      </p>
-    </div>
-
-    <div class="policy-card">
-      <h2>7. Limitation of Liability</h2>
-      <p>
-        Exalyte is provided as a preparation tool. By using the platform, you acknowledge and agree that:
-      </p>
-      <ul>
-        <li>SciVerse Academy is <strong>not responsible</strong> for your actual examination results, academic performance, admission outcomes, or any consequential outcomes related to your preparation.</li>
-        <li>The platform is not liable for technical issues arising from your device, internet connection, power supply, or any external factors beyond our control during an active examination session.</li>
-        <li>You use the platform at your own discretion. Any decisions made based on your performance data are your responsibility.</li>
-        <li>We do not guarantee uninterrupted availability — maintenance, updates, or unforeseen technical events may cause temporary downtime.</li>
-      </ul>
-    </div>
-
-    <div class="policy-card">
-      <h2>8. Governing Law & Jurisdiction</h2>
-      <p>
-        These Terms of Service are governed by and construed in accordance with the laws of <strong>Bangladesh</strong>. Any disputes arising from the use of Exalyte shall be subject to the exclusive jurisdiction of the courts of Bangladesh.
-      </p>
-      <p>
-        As the platform expands internationally, users from other regions agree to comply with these terms as established under Bangladeshi jurisdiction, in addition to any applicable local laws.
-      </p>
-    </div>
-
-    <div class="policy-card">
-      <h2>9. Changes to These Terms</h2>
-      <p>
-        We may update these Terms of Service from time to time to reflect changes in platform functionality, legal requirements, or operational policies. Continued use of Exalyte after any modifications constitutes acceptance of the updated terms. It is your responsibility to review these terms periodically.
-      </p>
-    </div>
-
-    <div class="policy-card">
-      <h2>10. Contact</h2>
-      <p>
-        For questions regarding these Terms of Service, please reach out through our official contact page.
-      </p>
-      <p>
-        <a href="contact.html" style="color:var(--blue);text-decoration:none;font-weight:500">Visit Contact Page →</a>
-      </p>
+    <div class="doc">
+      <aside class="toc-d" aria-label="On this page"><h2>On this page</h2><nav><a href="#agreement"><span class="n">1</span><span>Agreement to these terms</span></a><a href="#eligibility"><span class="n">2</span><span>Who can use Exalyte</span></a><a href="#account"><span class="n">3</span><span>Your account</span></a><a href="#service"><span class="n">4</span><span>What Exalyte provides</span></a><a href="#batches"><span class="n">5</span><span>Batches, access codes and payments</span></a><a href="#conduct"><span class="n">6</span><span>Exam rules and academic honesty</span></a><a href="#content"><span class="n">7</span><span>Our content and your licence</span></a><a href="#use"><span class="n">8</span><span>Acceptable use</span></a><a href="#thirdparty"><span class="n">9</span><span>Third-party links and services</span></a><a href="#privacy"><span class="n">10</span><span>Your information</span></a><a href="#ending"><span class="n">11</span><span>Suspension and ending your access</span></a><a href="#changes-service"><span class="n">12</span><span>Availability and changes to the Service</span></a><a href="#disclaimer"><span class="n">13</span><span>Disclaimers</span></a><a href="#liability"><span class="n">14</span><span>Limits on our liability</span></a><a href="#law"><span class="n">15</span><span>Governing law and disputes</span></a><a href="#changes"><span class="n">16</span><span>Changes to these Terms</span></a><a href="#general"><span class="n">17</span><span>General</span></a><a href="#contact"><span class="n">18</span><span>Contact us</span></a></nav></aside>
+      <article>
+        <div class="glance"><h2><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>The short version</h2><ul><li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>One person, one account. Keep your login to yourself.</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Be honest in exams. Cheating or sharing questions can end your access.</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Paid batches unlock with a single-use access code. Don’t share or resell it.</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Exalyte helps you prepare, but it can’t guarantee your exam results.</span></li><li><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>You can stop using Exalyte or ask us to close your account at any time.</span></li></ul></div>
+        <section class="sec" id="agreement" aria-labelledby="h-agreement"><h2 id="h-agreement" data-title="Agreement to these terms"><span class="num">1</span><span>Agreement to these terms</span></h2><p>These Terms of Service (“Terms”) are an agreement between you and <strong>Exalyte Inc.</strong> (“Exalyte”, “we”, “us” or “our”). They cover your use of our website, apps and services (together, the “Service”). Together with our <a href="/privacy">Privacy Policy</a>, they make up the whole agreement between you and us about the Service.</p>
+  <p>By creating an account or using the Service you accept these Terms. If you don’t agree, please don’t use Exalyte.</p></section><section class="sec" id="eligibility" aria-labelledby="h-eligibility"><h2 id="h-eligibility" data-title="Who can use Exalyte"><span class="num">2</span><span>Who can use Exalyte</span></h2><ul>
+   <li>You must be at least 13 years old.</li>
+   <li>If you are under 18, you may use Exalyte only with the knowledge and permission of a parent or guardian, who is also responsible for your use of it.</li>
+   <li>You must be able to enter a binding agreement and not be barred from using the Service. If we have suspended or banned you before, please don’t create a new account without contacting us first.</li>
+  </ul></section><section class="sec" id="account" aria-labelledby="h-account"><h2 id="h-account" data-title="Your account"><span class="num">3</span><span>Your account</span></h2><ul>
+   <li><strong>One account per person.</strong> If you have a genuine reason for a second account, contact us first. We actively limit duplicate and fake registrations.</li>
+   <li>Give us accurate information when you sign up and keep it up to date.</li>
+   <li>Keep your password confidential. You are responsible for what happens under your account, so tell us straight away if you think someone else is using it.</li>
+   <li>Don’t share, sell, rent or transfer your account.</li>
+  </ul></section><section class="sec" id="service" aria-labelledby="h-service"><h2 id="h-service" data-title="What Exalyte provides"><span class="num">4</span><span>What Exalyte provides</span></h2><p>Exalyte offers live timed exams, practice, results and analytics, rankings, study materials and batches (groups of exams and resources) to help students prepare for HSC and university admission tests.</p>
+  <p>Exalyte is a preparation tool. We work hard to make our questions, answers and explanations accurate, but mistakes can happen. We may correct or update content, results and rankings at any time, including after they have been published, and we cannot guarantee any particular exam result, score or admission outcome.</p></section><section class="sec" id="batches" aria-labelledby="h-batches"><h2 id="h-batches" data-title="Batches, access codes and payments"><span class="num">5</span><span>Batches, access codes and payments</span></h2><ul>
+   <li><strong>Free and paid batches.</strong> Some batches are free and some are paid. The fee is shown on the batch page before you enrol.</li>
+   <li><strong>How paid access works.</strong> You arrange payment with our support team, who give you a single-use access code. You redeem the code on the enrolment page to unlock the batch on your account.</li>
+   <li><strong>Codes are personal.</strong> An access code works once, for one account. Don’t share, resell or publish codes. Codes that are shared or resold may be cancelled, along with the access they unlocked, without a refund.</li>
+   <li><strong>How long access lasts.</strong> Unless a different period is stated when you buy, your access lasts for as long as the batch remains available on Exalyte and your account is in good standing.</li>
+   <li><strong>Price changes.</strong> We may change prices or stop offering a batch. A price change does not affect access you have already paid for.</li>
+  </ul>
+  <h3>Refunds</h3>
+  <p>Access is delivered digitally as soon as you redeem your code, so fees are generally non-refundable once access has been granted. If something went wrong on our side, for example a code that doesn’t work, a duplicate payment or access that was never delivered, please contact us and we will put it right with a replacement code or a refund where appropriate. Nothing in these Terms limits any rights you have under consumer law that cannot be excluded.</p></section><section class="sec" id="conduct" aria-labelledby="h-conduct"><h2 id="h-conduct" data-title="Exam rules and academic honesty"><span class="num">6</span><span>Exam rules and academic honesty</span></h2><p>Exalyte exists to help you prepare honestly. In our exams you must not:</p>
+  <ul>
+   <li>let someone else take an exam for you, or take one for someone else;</li>
+   <li>use bots, scripts or other automated tools, or try to change timers, scores or the exam environment;</li>
+   <li>use extra or fake accounts to retake exams or gain a ranking advantage;</li>
+   <li>copy, record or share questions or answers, especially while a live exam is still running; or</li>
+   <li>try to get around any rule or protection we put in place to keep exams fair.</li>
+  </ul>
+  <p>Live exams run in fixed windows and the first scored attempt is the one that counts. Problems with your device, internet connection or power during an exam are your responsibility, so please check them before you start.</p>
+  <p>We use automated and manual checks to protect fairness. If we find a breach, we may cancel the affected result, remove it from rankings, restrict features, or suspend or end your account.</p></section><section class="sec" id="content" aria-labelledby="h-content"><h2 id="h-content" data-title="Our content and your licence"><span class="num">7</span><span>Our content and your licence</span></h2><p>All Exalyte content, including questions, answers, explanations, images, study materials, software, design, and the Exalyte name and logo, belongs to Exalyte Inc. or its licensors and is protected by law.</p>
+  <p>While your account is in good standing we give you a limited, personal, non-exclusive, non-transferable licence to use that content on Exalyte for your own preparation. You must not:</p>
+  <ul>
+   <li>copy, screenshot, record, download in bulk, republish, sell or share exam content or materials outside Exalyte, including in groups, channels, forums or social media;</li>
+   <li>scrape or bulk-collect content, or use it to build or train a competing product, dataset or AI model; or</li>
+   <li>remove ownership notices from anything we provide.</li>
+  </ul>
+  <p>You <em>are</em> welcome to share your own scores and ranks, and to link to our public batch pages.</p>
+  <p>If you send us feedback or suggestions, we may use them without owing you anything. If you believe something on Exalyte infringes your rights, please contact us with the details and we will review it.</p></section><section class="sec" id="use" aria-labelledby="h-use"><h2 id="h-use" data-title="Acceptable use"><span class="num">8</span><span>Acceptable use</span></h2><p>When using Exalyte you must not:</p>
+  <ul>
+   <li>break any law or the rights of others;</li>
+   <li>try to hack, probe, overload, reverse-engineer or bypass the security or access controls of the Service;</li>
+   <li>access another person’s account or data;</li>
+   <li>upload or send harmful code or spam, including through the contact form;</li>
+   <li>impersonate anyone, or harass or abuse other students or our staff; or</li>
+   <li>use the Service for anything other than your own learning.</li>
+  </ul></section><section class="sec" id="thirdparty" aria-labelledby="h-thirdparty"><h2 id="h-thirdparty" data-title="Third-party links and services"><span class="num">9</span><span>Third-party links and services</span></h2><p>Some study materials link to websites or services run by others, such as file hosting, and you may contact our support team through third-party messaging apps. We don’t control those services and aren’t responsible for them. Their own terms and privacy policies apply when you use them.</p></section><section class="sec" id="privacy" aria-labelledby="h-privacy"><h2 id="h-privacy" data-title="Your information"><span class="num">10</span><span>Your information</span></h2><p>How we collect and use your information is explained in our <a href="/privacy">Privacy Policy</a>, which forms part of these Terms.</p></section><section class="sec" id="ending" aria-labelledby="h-ending"><h2 id="h-ending" data-title="Suspension and ending your access"><span class="num">11</span><span>Suspension and ending your access</span></h2><p><strong>By you.</strong> You can stop using Exalyte at any time, and you can ask us to close your account through the <a href="/contact">contact page</a>.</p>
+  <p><strong>By us.</strong> We may limit, suspend or end your access, with notice where practical, if you break these Terms, put the Service or other users at risk, or if the law requires it. Reasons include fake or duplicate accounts, cheating, sharing content or access codes, and abusing the Service or our staff.</p>
+  <p>If your access ends, your right to use the Service stops. If we end your access because you broke these Terms, you may lose access to your history, materials and any paid batches without a refund. If you think we made a mistake, tell us through the contact page. We will review reasonable requests and our decision after review is final.</p>
+  <p>Sections about content, liability, governing law and anything else that by its nature should continue will continue after your access ends.</p></section><section class="sec" id="changes-service" aria-labelledby="h-changes-service"><h2 id="h-changes-service" data-title="Availability and changes to the Service"><span class="num">12</span><span>Availability and changes to the Service</span></h2><p>We aim to keep Exalyte running smoothly, but we can’t promise it will always be available or error-free. We may carry out maintenance, add, change or remove features, or pause the Service. Where a change is significant we will try to tell you in advance.</p></section><section class="sec" id="disclaimer" aria-labelledby="h-disclaimer"><h2 id="h-disclaimer" data-title="Disclaimers"><span class="num">13</span><span>Disclaimers</span></h2><p>To the fullest extent the law allows, the Service is provided “as is” and “as available”, without promises that it will be uninterrupted or free of errors, or that content will always be complete or accurate. Nothing we provide is a guarantee of any exam result or admission. You use the Service, and decide how to act on your performance data, at your own discretion.</p></section><section class="sec" id="liability" aria-labelledby="h-liability"><h2 id="h-liability" data-title="Limits on our liability"><span class="num">14</span><span>Limits on our liability</span></h2><p>To the fullest extent the law allows, neither Exalyte Inc. nor its directors, staff or affiliates will be liable for indirect, incidental, special or consequential losses, or for lost opportunities, lost data or admission or exam outcomes, arising from your use of the Service. Our total liability for any claim relating to the Service is limited to the amount you paid us for the Service in the 12 months before the claim arose.</p>
+  <p>Nothing in these Terms excludes or limits liability that cannot be excluded or limited by law.</p></section><section class="sec" id="law" aria-labelledby="h-law"><h2 id="h-law" data-title="Governing law and disputes"><span class="num">15</span><span>Governing law and disputes</span></h2><p>These Terms are governed by the laws of <strong>Bangladesh</strong>. If you have a problem, please contact us first so we can try to sort it out informally. If we can’t, disputes will be handled by the courts of Bangladesh. If you live elsewhere, you also keep any mandatory consumer protections that apply where you live.</p></section><section class="sec" id="changes" aria-labelledby="h-changes"><h2 id="h-changes" data-title="Changes to these Terms"><span class="num">16</span><span>Changes to these Terms</span></h2><p>We may update these Terms from time to time, for example when we add features or when laws change. We will update the “last updated” date and, for significant changes, tell you through the platform or by email before they take effect where we can. If you keep using Exalyte after the change you accept the new Terms. If you don’t agree, please stop using the Service.</p></section><section class="sec" id="general" aria-labelledby="h-general"><h2 id="h-general" data-title="General"><span class="num">17</span><span>General</span></h2><ul>
+   <li><strong>Whole agreement.</strong> These Terms and the Privacy Policy, plus any batch-specific terms shown when you enrol, are the whole agreement between you and us about the Service.</li>
+   <li><strong>If part is unenforceable.</strong> If a part of these Terms can’t be enforced, the rest still applies.</li>
+   <li><strong>No waiver.</strong> If we don’t enforce a right straight away, we haven’t given it up.</li>
+   <li><strong>Transfers.</strong> You may not transfer your rights under these Terms. We may transfer ours to a related company or to a successor in a merger, acquisition or sale of Exalyte.</li>
+   <li><strong>Notices.</strong> We may give you notices through the platform or by email to the address on your account.</li>
+  </ul></section><section class="sec" id="contact" aria-labelledby="h-contact"><h2 id="h-contact" data-title="Contact us"><span class="num">18</span><span>Contact us</span></h2><p>If you have a question about these Terms, please reach us through our <a href="/contact">contact page</a>.</p></section>
+        <div class="cta">
+          <div><h2>Questions about this document?</h2><p>If anything here is unclear, or you think we have made a mistake, we are happy to help.</p></div>
+          <div class="acts"><a href="/contact" class="btn btn-primary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z"/><polyline points="22,6 12,13 2,6"/></svg>Contact us</a><a href="/privacy" class="btn btn-outline">Read the Privacy Policy</a></div>
+        </div>
+      </article>
     </div>
   </div>
 </main>
@@ -232,31 +287,73 @@ body{
   <div class="footer-inner">
     <div class="fc">
       <div class="footer-brand">
-        <img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'">
+        <img src="/images/exalyte.png" alt="" height="24" style="border-radius:50%" onerror="this.style.display='none'">
         <span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t2)">Exalyte</span>
       </div>
       <p>A precision examination platform built for students who want to perform, not just prepare.</p>
     </div>
-    <div class="fc">
-      <h4>Platform</h4>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="exam-history.html">Exam History</a>
-    </div>
-    <div class="fc">
-      <h4>Legal</h4>
-      <a href="privacy.html">Privacy Policy</a>
-      <a href="tos.html">Terms of Service</a>
-      <a href="contact.html">Contact</a>
-    </div>
+    <div class="fc"><h4>Platform</h4><a href="/dashboard">Dashboard</a><a href="/exam-history">Exam History</a><a href="/batches">Batches</a></div>
+    <div class="fc"><h4>Legal</h4><a href="/privacy">Privacy Policy</a><a href="/tos">Terms of Service</a><a href="/contact">Contact</a></div>
   </div>
   <div class="footer-bottom">
-    <span>&copy; 2025 Exalyte — SciVerse Academy. All rights reserved.</span>
-    <div class="footer-links">
-      <a href="privacy.html">Privacy</a>
-      <a href="tos.html">Terms</a>
-    </div>
+    <span>&copy; 2026 Exalyte Inc. All rights reserved.</span>
+    <div class="footer-links"><a href="/privacy">Privacy</a><a href="/tos">Terms</a></div>
   </div>
 </footer>
 
+<button class="scroll-top-btn" id="scrollTopBtn" type="button" aria-label="Back to top" title="Back to top">
+  <svg class="stb-ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="stb-track" cx="22" cy="22" r="20"/><circle class="stb-prog" id="stbProg" cx="22" cy="22" r="20"/></svg>
+  <svg class="stb-arrow" viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+</button>
+
+<script>
+(function(){
+  var secs=[].slice.call(document.querySelectorAll('.sec[id]'));
+  var links=[].slice.call(document.querySelectorAll('.toc-d a, .toc-m .panel a'));
+  var cur=document.getElementById('curSec'), toc=document.getElementById('tocM');
+  function setActive(id){
+    links.forEach(function(a){ if(a.getAttribute('href')==='#'+id) a.setAttribute('aria-current','true'); else a.removeAttribute('aria-current'); });
+    var s=document.getElementById(id); if(s&&cur){ var t=s.querySelector('h2'); cur.textContent=t?t.getAttribute('data-title'):''; }
+  }
+  var ticking=false;
+  function onScroll(){
+    if(ticking) return; ticking=true;
+    requestAnimationFrame(function(){
+      ticking=false;
+      var y=window.scrollY, max=Math.max(1,document.documentElement.scrollHeight-window.innerHeight);
+      var rp=document.getElementById('rp'); if(rp) rp.style.width=Math.min(100,y/max*100)+'%';
+      var off=(parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hh'))||64)+(window.innerWidth<=960?60:30), active=secs[0]&&secs[0].id;
+      secs.forEach(function(s){ if(s.getBoundingClientRect().top<=off) active=s.id; });
+      if(active) setActive(active);
+    });
+  }
+  window.addEventListener('scroll',onScroll,{passive:true}); window.addEventListener('resize',onScroll); onScroll();
+  if(toc){
+    toc.querySelectorAll('.panel a').forEach(function(a){ a.addEventListener('click',function(){ toc.open=false; }); });
+    document.addEventListener('click',function(e){ if(toc.open&&!toc.contains(e.target)) toc.open=false; });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&toc.open){ toc.open=false; toc.querySelector('summary').focus(); } });
+    window.addEventListener('scroll',function(){ if(toc.open) toc.open=false; },{passive:true});
+  }
+  /* back to top */
+  var btn=document.getElementById('scrollTopBtn'), ring=document.getElementById('stbProg');
+  if(btn){
+    var C=125.66,last=window.scrollY,shown=false,raf=false;
+    function upd(){
+      raf=false;
+      var y=window.scrollY,max=Math.max(1,document.documentElement.scrollHeight-window.innerHeight),prog=Math.min(1,Math.max(0,y/max));
+      if(ring) ring.style.strokeDashoffset=String(C*(1-prog));
+      if(y<500) shown=false; else if(prog>.97) shown=true; else if(y<last-4) shown=true; else if(y>last+4) shown=false;
+      last=y; btn.classList.toggle('show',shown);
+    }
+    window.addEventListener('scroll',function(){ if(!raf){ raf=true; requestAnimationFrame(upd); } },{passive:true});
+    window.addEventListener('resize',upd);
+    btn.addEventListener('click',function(){
+      var calm=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+      window.scrollTo({top:0,behavior:calm?'auto':'smooth'}); btn.blur();
+    });
+    upd();
+  }
+})();
+</script>
 </body>
 </html>
