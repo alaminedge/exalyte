@@ -503,7 +503,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
     <div class="form-group"><label class="form-label">Total Exams (planned)</label><input class="form-input" id="batchTotalExams" type="number" min="0" step="1" placeholder="0"><div style="font-size:.72rem;color:var(--t4);margin-top:4px">This is the number shown to students on the Batches and Payment pages — your outlined total for this batch, not just how many you've uploaded so far. Leave at 0 to show the actual uploaded count instead.</div></div>
     <div class="form-group"><label class="form-check"><input type="checkbox" id="batchIsPublic"> List on public Batches page</label><div style="font-size:.72rem;color:var(--t4);margin-top:4px;padding-left:24px">Only batches checked here are visible on batches.html for enrollment. Unchecked batches stay internal.</div></div>
     <div class="form-group" id="batchSlugWrap" style="display:none">
-      <label class="form-label">Public Payment Link</label>
+      <label class="form-label">Public Course Link <span style="font-weight:400;color:var(--t4)">(share this — students see the details, then enroll)</span></label>
       <div style="display:flex;gap:8px">
         <input class="form-input" id="batchSlugDisplay" readonly style="font-family:monospace;font-size:.78rem">
         <button class="btn btn-outline btn-sm" type="button" onclick="copyBatchLink()">Copy</button>
