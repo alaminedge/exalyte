@@ -82,7 +82,7 @@ function json(data, status = 200, cacheSeconds = 0) {
 
 // ── Shared cache for the user-independent part of /exams (exam rows, question counts, resources) ──
 // Per-user data (access, attempts, premium) is never cached; it is applied on top of this on every request.
-const STATIC_CACHE_KEY = 'https://cache.exalyte.internal/exams-static-v1';
+const STATIC_CACHE_KEY = 'https://cache.exalyte.internal/exams-static-v2';
 const STATIC_CACHE_TTL = 60; // seconds
 async function getStaticCache() {
   try { if (typeof caches === 'undefined' || !caches.default) return null; const hit = await caches.default.match(STATIC_CACHE_KEY); return hit ? await hit.json() : null; } catch (e) { return null; }
@@ -93,6 +93,74 @@ async function putStaticCache(data) {
 async function clearStaticCache() {
   try { if (typeof caches !== 'undefined' && caches.default) await caches.default.delete(STATIC_CACHE_KEY); } catch (e) { /* ignore */ }
 }
+
+// ============================================================
+// PUBLIC EXAM CODES  (6 chars, e.g. "k7m3xq")
+// Students only ever see this code (URLs + API); the numeric row id stays internal so exams can't be
+// counted or guessed (/exam/84 -> /exam/85). A code always contains at least one letter, so it can
+// never be mistaken for a legacy numeric id. Codes are assigned once and NEVER change.
+//   HIDE_EXAM_NUMBERS = true   students: numeric ids rejected + hidden in JSON (admins unaffected)
+//   HIDE_EXAM_NUMBERS = false  quick rollback: numeric ids accepted + shown again (codes still work)
+// ============================================================
+const HIDE_EXAM_NUMBERS = true;
+const CODE_ALPHABET = 'abcdefghjkmnpqrstuvwxyz23456789';   // no 0/o/1/l/i look-alikes
+const CODE_RE = /^[a-z0-9]{6}$/;
+function newExamCode() {
+  for (;;) {
+    const bytes = crypto.getRandomValues(new Uint8Array(6));
+    let c = '';
+    for (const b of bytes) c += CODE_ALPHABET[b % CODE_ALPHABET.length];
+    if (/[a-z]/.test(c)) return c;
+  }
+}
+let _examCodesReady = false;
+async function backfillExamCodes(db) {
+  try {
+    const missing = await db.prepare("SELECT id FROM exams WHERE public_id IS NULL OR public_id = ''").all();
+    const rows = missing.results || [];
+    if (!rows.length) return true;
+    const have = await db.prepare("SELECT public_id FROM exams WHERE public_id IS NOT NULL AND public_id != ''").all();
+    const used = new Set((have.results || []).map(r => r.public_id));
+    // remember which exams already existed (and may sit in old numeric links): only those get an
+    // old-link redirect. Exams created later are never reachable by number. Set once, never changed.
+    const legacyMax = Math.max(...rows.map(r => Number(r.id)));
+    await db.prepare("INSERT OR IGNORE INTO settings (key, value) VALUES ('legacy_exam_id_max', ?)").bind(String(legacyMax)).run();
+    const stmts = [];
+    for (const r of rows) {
+      let c; do { c = newExamCode(); } while (used.has(c));
+      used.add(c);
+      // guarded: an existing code is never overwritten, so shared links stay valid forever
+      stmts.push(db.prepare("UPDATE exams SET public_id = ? WHERE id = ? AND (public_id IS NULL OR public_id = '')").bind(c, r.id));
+    }
+    for (let i = 0; i < stmts.length; i += 50) await db.batch(stmts.slice(i, i + 50));
+    return true;
+  } catch (e) { return false; }   // retried on the next request
+}
+const _codeToId = new Map();
+// code (or, for admins / legacy, numeric id) -> numeric exam id as string, or null
+async function resolveExamId(db, raw, request) {
+  const s = String(raw || '').toLowerCase();
+  if (/^\d+$/.test(s)) {
+    if (!HIDE_EXAM_NUMBERS) return s;
+    const u = await requireAuth(request);
+    if (u && u.is_admin) return s;
+    // students: only an exam that has no code yet (backfill still pending) may be reached by number
+    const row = await db.prepare('SELECT public_id FROM exams WHERE id = ?').bind(s).first();
+    return row && !row.public_id ? s : null;
+  }
+  if (!CODE_RE.test(s)) return null;
+  const hit = _codeToId.get(s);
+  if (hit) return String(hit);
+  const row = await db.prepare('SELECT id FROM exams WHERE public_id = ?').bind(s).first();
+  if (!row) return null;
+  if (_codeToId.size > 2000) _codeToId.clear();
+  _codeToId.set(s, row.id);
+  return String(row.id);
+}
+const _hide = (user) => HIDE_EXAM_NUMBERS && !(user && user.is_admin);
+// swap the numeric id for the public code in anything a student receives
+function maskExam(exam, user) { return (exam && exam.public_id && _hide(user)) ? { ...exam, id: exam.public_id } : exam; }
+function maskExamRows(rows, exam, user) { return (exam && exam.public_id && _hide(user)) ? rows.map(q => ({ ...q, exam_id: exam.public_id })) : rows; }
 let _lastPremiumClean = 0, _lastStartsClean = 0; // throttle housekeeping that used to run on every dashboard load
 
 function err(msg, status = 400) {
@@ -318,6 +386,8 @@ async function initDB(db) {
   try { await db.prepare(`ALTER TABLE exams ADD COLUMN sort_order INTEGER DEFAULT 0`).run(); } catch (e) {}
   try { await db.prepare(`CREATE UNIQUE INDEX IF NOT EXISTS idx_batches_slug ON batches(public_slug)`).run(); } catch (e) {}
   try { await db.prepare(`ALTER TABLE exams ADD COLUMN subject_id INTEGER REFERENCES subjects(id) ON DELETE SET NULL`).run(); } catch (e) {}
+  try { await db.prepare(`ALTER TABLE exams ADD COLUMN public_id TEXT`).run(); } catch (e) {}
+  try { await db.prepare(`CREATE UNIQUE INDEX IF NOT EXISTS idx_exams_public_id ON exams(public_id)`).run(); } catch (e) {}
 
   // Backfill opaque public slugs for any batch that doesn't have one yet
   // (existing batches from before this feature, or a rare failed insert).
@@ -903,7 +973,12 @@ async function handleListExams(request, db) {
       if (exam.live_deadline_hours > 0 && live.is_live) results_visible = false;
       else results_visible = isResultsPublished(exam);
     }
-    result.push({ ...exam, ...live, stored_attempt, accessible, can_practice, results_visible, exam_resources: examResourcesMap[exam.id] || [], batch_id: exam.batch_id, batch_name: exam.batch_name });
+    const item = { ...exam, ...live, stored_attempt, accessible, can_practice, results_visible, exam_resources: examResourcesMap[exam.id] || [], batch_id: exam.batch_id, batch_name: exam.batch_name };
+    if (_hide(user) && exam.public_id) {
+      item.id = exam.public_id;
+      if (item.stored_attempt) item.stored_attempt = { ...item.stored_attempt, exam_id: exam.public_id };
+    }
+    result.push(item);
   }
   
   return json({ exams: result, batch_resources: batchResourcesList }, 200, 15);
@@ -1026,7 +1101,7 @@ async function handleGetExamQuestions(examId, request, db) {
   }
 
   const examRes = await db.prepare('SELECT id, title, link FROM exam_resources WHERE exam_id = ?').bind(examId).all();
-  return json({ exam, questions: questions.results, exam_resources: examRes.results, selected_sections: selectedSections, section_config: exam.has_sections ? JSON.parse(exam.section_config) : null });
+  return json({ exam: maskExam(exam, user), questions: maskExamRows(questions.results, exam, user), exam_resources: examRes.results, selected_sections: selectedSections, section_config: exam.has_sections ? JSON.parse(exam.section_config) : null });
 }
 
 // ============================================================
@@ -1177,6 +1252,8 @@ async function handleGetResult(examId, attemptId, request, db) {
   
   // Practice mode - no stored attempt
   if (attemptId == 0 || !attemptId) {
+    // this branch returns every question + answer, so it must respect premium access like start/questions do
+    if (!(await checkPremiumAccess(db, user.id, examId, user.is_admin))) return err('Premium access required', 403);
     const questions = await db.prepare('SELECT * FROM questions WHERE exam_id = ?').bind(examId).all();
     return json({ 
       attempt: { 
@@ -1187,8 +1264,8 @@ async function handleGetResult(examId, attemptId, request, db) {
         answers: '{}', 
         is_practice: 1 
       }, 
-      questions: questions.results, 
-      exam, 
+      questions: maskExamRows(questions.results, exam, user), 
+      exam: maskExam(exam, user), 
       results_published: true 
     });
   }
@@ -1242,12 +1319,13 @@ async function handleGetResult(examId, attemptId, request, db) {
   return json({ 
     attempt: { 
       ...attempt, 
+      ...((_hide(user) && exam.public_id) ? { exam_id: exam.public_id } : {}),
       answers: filteredAnswers,
       selected_sections: selectedSections,
       total_questions: questions.results.length
     }, 
-    questions: questions.results, 
-    exam, 
+    questions: maskExamRows(questions.results, exam, user), 
+    exam: maskExam(exam, user), 
     results_published: true 
   });
 }
@@ -1276,7 +1354,7 @@ async function handleLeaderboard(examId, request, db) {
 async function handleHistory(request, db) {
   const user = await requireAuth(request);
   if (!user) return err('Unauthorized', 401);
-  const rows = await db.prepare(`SELECT ers.*, e.name as exam_name, e.results_published, e.live_deadline_hours, e.scheduled_at, e.created_at as exam_created_at, e.allow_practice, e.is_practice_exam, e.is_closed, e.batch_id, b.name as batch_name, e.subject_id, s.name as subject_name FROM exam_results_stored ers JOIN exams e ON ers.exam_id = e.id LEFT JOIN batches b ON e.batch_id = b.id LEFT JOIN subjects s ON e.subject_id = s.id WHERE ers.user_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0 ORDER BY ers.submitted_at DESC`).bind(user.id).all();
+  const rows = await db.prepare(`SELECT ers.*, e.name as exam_name, e.results_published, e.live_deadline_hours, e.scheduled_at, e.created_at as exam_created_at, e.allow_practice, e.is_practice_exam, e.is_closed, e.batch_id, e.public_id as exam_public_id, b.name as batch_name, e.subject_id, s.name as subject_name FROM exam_results_stored ers JOIN exams e ON ers.exam_id = e.id LEFT JOIN batches b ON e.batch_id = b.id LEFT JOIN subjects s ON e.subject_id = s.id WHERE ers.user_id = ? AND ers.is_first_attempt = 1 AND ers.is_practice = 0 ORDER BY ers.submitted_at DESC`).bind(user.id).all();
   const result = [];
   for (const r of rows.results) {
     const examForLive = { live_deadline_hours: r.live_deadline_hours, created_at: r.exam_created_at, scheduled_at: r.scheduled_at };
@@ -1288,7 +1366,7 @@ async function handleHistory(request, db) {
       lb = await db.prepare(`SELECT rank, total_participants FROM (SELECT user_id, ROW_NUMBER() OVER (ORDER BY percentage DESC, submitted_at ASC) as rank, COUNT(*) OVER () as total_participants FROM exam_results_stored WHERE exam_id = ? AND is_first_attempt = 1 AND is_practice = 0) WHERE user_id = ?`).bind(r.exam_id, user.id).first();
     }
     const percentile = lb && lb.total_participants > 1 ? Math.round((1 - (lb.rank - 1) / lb.total_participants) * 100) : null;
-    result.push({ ...r, rank: lb?.rank || null, total_participants: lb?.total_participants || null, percentile, results_visible: published });
+    result.push({ ...r, ...((_hide(user) && r.exam_public_id) ? { exam_id: r.exam_public_id } : {}), rank: lb?.rank || null, total_participants: lb?.total_participants || null, percentile, results_visible: published });
   }
   return json(result, 200, 5);
 }
@@ -1367,7 +1445,13 @@ async function handleAdminCreateExam(request, db) {
   const groupParams = batchId === null ? [] : [batchId];
   await db.prepare(`UPDATE exams SET sort_order = sort_order + 1 WHERE ${groupClause}`).bind(...groupParams).run();
   const sortOrder = 0;
-  const r = await db.prepare(`INSERT INTO exams (name, description, time_limit, is_premium, negative_marking, marks_per_question, allow_practice, batch_id, subject_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled, scheduled_at, has_sections, section_config, is_practice_exam, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`).bind(body.name, body.description || '', body.time_limit || 30, body.is_premium ? 1 : 0, body.negative_marking || 0, body.marks_per_question || 1, body.allow_practice ? 1 : 0, batchId, body.subject_id || null, body.live_deadline_hours || 0, body.results_published ? 1 : 0, body.publish_after_hours || 0, body.leaderboard_enabled ? 1 : 0, body.scheduled_at || null, body.has_sections ? 1 : 0, body.section_config || '', body.is_practice_exam ? 1 : 0, sortOrder).first();
+  let r = null;
+  for (let attempt = 0; attempt < 6 && !r; attempt++) {
+    const code = newExamCode();
+    try { r = await db.prepare(`INSERT INTO exams (name, description, time_limit, is_premium, negative_marking, marks_per_question, allow_practice, batch_id, subject_id, live_deadline_hours, results_published, publish_after_hours, leaderboard_enabled, scheduled_at, has_sections, section_config, is_practice_exam, sort_order, public_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`).bind(body.name, body.description || '', body.time_limit || 30, body.is_premium ? 1 : 0, body.negative_marking || 0, body.marks_per_question || 1, body.allow_practice ? 1 : 0, batchId, body.subject_id || null, body.live_deadline_hours || 0, body.results_published ? 1 : 0, body.publish_after_hours || 0, body.leaderboard_enabled ? 1 : 0, body.scheduled_at || null, body.has_sections ? 1 : 0, body.section_config || '', body.is_practice_exam ? 1 : 0, sortOrder, code).first();
+    } catch (e) { if (!/UNIQUE|constraint/i.test(String(e && e.message))) throw e; }
+  }
+  if (!r) return err('Could not create exam, please try again', 500);
   return json(r, 201);
 }
 
@@ -1722,6 +1806,7 @@ async function handleRequest(context) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
   
   try { await initDB(db); } catch (e) { return err('Database init failed: ' + (e.message || 'unknown'), 500); }
+  if (!_examCodesReady) _examCodesReady = await backfillExamCodes(db);
   
   const url = new URL(request.url);
   let path = url.pathname.replace(/^\/api/, '').replace(/\/$/, '') || '/';
@@ -1752,25 +1837,25 @@ async function handleRequest(context) {
     // USER
     if (path === '/history' && method === 'GET') return handleHistory(request, db);
     
-    // START EXAM
-    const examStart = path.match(/^\/exams\/(\d+)\/start$/);
-    if (examStart && method === 'POST') return handleStartExam(examStart[1], request, db);
+    // START EXAM   (:id is the 6-char public code; numeric ids only for admins — see resolveExamId)
+    const examStart = path.match(/^\/exams\/([A-Za-z0-9]+)\/start$/);
+    if (examStart && method === 'POST') { const eid = await resolveExamId(db, examStart[1], request); if (!eid) return err('Exam not found', 404); return handleStartExam(eid, request, db); }
     
     // QUESTIONS
-    const examQuestions = path.match(/^\/exams\/(\d+)\/questions$/);
-    if (examQuestions && (method === 'GET' || method === 'POST')) return handleGetExamQuestions(examQuestions[1], request, db);
+    const examQuestions = path.match(/^\/exams\/([A-Za-z0-9]+)\/questions$/);
+    if (examQuestions && (method === 'GET' || method === 'POST')) { const eid = await resolveExamId(db, examQuestions[1], request); if (!eid) return err('Exam not found', 404); return handleGetExamQuestions(eid, request, db); }
     
     // SUBMIT
-    const examSubmit = path.match(/^\/exams\/(\d+)\/submit$/);
-    if (examSubmit && method === 'POST') return handleSubmitExam(examSubmit[1], request, db);
+    const examSubmit = path.match(/^\/exams\/([A-Za-z0-9]+)\/submit$/);
+    if (examSubmit && method === 'POST') { const eid = await resolveExamId(db, examSubmit[1], request); if (!eid) return err('Exam not found', 404); return handleSubmitExam(eid, request, db); }
     
     // RESULT
-    const examResult = path.match(/^\/exams\/(\d+)\/result\/(\d+)$/);
-    if (examResult && method === 'GET') return handleGetResult(examResult[1], examResult[2], request, db);
+    const examResult = path.match(/^\/exams\/([A-Za-z0-9]+)\/result\/(\d+)$/);
+    if (examResult && method === 'GET') { const eid = await resolveExamId(db, examResult[1], request); if (!eid) return err('Exam not found', 404); return handleGetResult(eid, examResult[2], request, db); }
     
     // LEADERBOARD
-    const leaderboard = path.match(/^\/leaderboard\/(\d+)$/);
-    if (leaderboard && method === 'GET') return handleLeaderboard(leaderboard[1], request, db);
+    const leaderboard = path.match(/^\/leaderboard\/([A-Za-z0-9]+)$/);
+    if (leaderboard && method === 'GET') { const eid = await resolveExamId(db, leaderboard[1], request); if (!eid) return err('Exam not found', 404); return handleLeaderboard(eid, request, db); }
     
     // NOTIFICATIONS
     if (path === '/notifications' && method === 'GET') return handleListNotifications(request, db);
