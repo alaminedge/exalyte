@@ -229,6 +229,9 @@ html.lock,html.lock body{overflow:hidden}
 .scroll-top-btn .stb-arrow{position:relative;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 @media(max-width:600px){.scroll-top-btn{right:14px;width:46px;height:46px}}
 @media print{.scroll-top-btn{display:none !important}}
+.batch-link{color:inherit;text-decoration:none}
+.batch-link:hover{color:var(--blue)}
+.batch-link:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
 </style>
 </head>
 <body>
@@ -514,11 +517,11 @@ function batchCard(b,i){
   const img=b.image_url?'<img class="bt-img" src="'+esc(b.image_url)+'" alt="" loading="lazy">':ICON_BOOK;
   const cta=b.enrolled
     ?'<a href="/dashboard" class="btn btn-outline">Go to dashboard</a>'
-    :'<a href="/payment/'+encodeURIComponent(b.slug||'')+'" class="btn btn-primary">'+(free?'Enroll for free':'Enroll &middot; '+esc(feeLabel(b.fee)))+'</a>';
+    :'<a href="/course/'+encodeURIComponent(b.slug||'')+'" class="btn btn-primary">View course</a>';
   const hasDesc=!!plainText(b.description).trim();
   return '<article class="batch-card'+(b.enrolled?' is-enrolled':'')+'" aria-labelledby="bn'+i+'">'+
     '<div class="batch-thumb">'+img+'<span class="fee-badge'+(free?' free':'')+'">'+esc(feeLabel(b.fee))+'</span>'+(b.enrolled?'<span class="enr-flag">'+ICON_TICK+'Enrolled</span>':'')+'</div>'+
-    '<div class="batch-body"><h2 class="batch-name" id="bn'+i+'" title="'+esc(b.name)+'">'+esc(b.name)+'</h2>'+
+    '<div class="batch-body"><h2 class="batch-name" id="bn'+i+'" title="'+esc(b.name)+'"><a class="batch-link" href="/course/'+encodeURIComponent(b.slug||'')+'">'+esc(b.name)+'</a></h2>'+
     '<div class="batch-meta"><span>'+ICON_LIST+(b.exam_count||0)+' exam'+((b.exam_count||0)===1?'':'s')+'</span></div>'+
     (hasDesc?'<div class="batch-desc" id="bd'+i+'">'+b._html+'</div><button class="batch-see-more" aria-expanded="false" aria-controls="bd'+i+'" onclick="toggleDesc('+i+',this)">See more</button>':'')+
     '<div class="batch-cta">'+cta+'</div></div></article>';
