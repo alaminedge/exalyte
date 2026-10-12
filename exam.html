@@ -525,10 +525,11 @@ async function apiFetch(path, opts = {}) {
   return { ok: r.ok, data: await r.json().catch(() => ({})) };
 }
 
-// URL form:  /exam/84   or   /exam/84/practice   (old ?id=84&practice=1 links still work)
+// URL form:  /exam/k7m3xq   or   /exam/k7m3xq/practice   (6-character public code; old numeric links are redirected by the server)
 const _path = location.pathname.split('/').filter(Boolean);
 const _qs = new URLSearchParams(location.search);
-const examId = (_path[0] === 'exam' && /^\d+$/.test(_path[1] || '')) ? _path[1] : (/^\d+$/.test(_qs.get('id') || '') ? _qs.get('id') : null);
+const _okId = (v) => /^[A-Za-z0-9]{1,12}$/.test(v || '');
+const examId = (_path[0] === 'exam' && _okId(_path[1])) ? _path[1] : (_okId(_qs.get('id')) ? _qs.get('id') : null);
 let isPrac = _path[0] === 'exam' ? _path[2] === 'practice' : _qs.get('practice') === '1';
 if (!examId) window.location.href = '/dashboard';
 
@@ -629,7 +630,7 @@ async function loadAgreement() {
   try {
     const { ok, data } = await apiFetch('/exams');
     if (!ok) { logout(); return; }
-    exam = (data.exams || []).find(e => e.id == examId);
+    exam = (data.exams || []).find(e => e.public_id === examId || e.id == examId);
     if (!exam) { window.location.href = '/dashboard'; return; }
 
     // Practice-only exam type: force practice mode client-side too, so the submit
