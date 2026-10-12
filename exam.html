@@ -814,8 +814,17 @@ async function startExam() {
   examStartTime = Date.now();
   timeLeft = exam.time_limit * 60;
   buildUI();
+  // The agreement screen is long and the student has scrolled down to reach "Start".
+  // Without this the exam opens at that same scroll position (a question or two down).
+  resetScrollTop();
   startTimer();
   window.addEventListener('beforeunload', onBeforeUnload);
+}
+
+function resetScrollTop() {
+  const top = () => { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; };
+  top();                          // immediately
+  requestAnimationFrame(top);     // and again once the questions have been laid out
 }
 
 function isShortOption(t) {
