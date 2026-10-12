@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<base href="/">
 <title>Result — Exalyte</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -242,15 +243,38 @@ body{
   .pending-countdown{font-size:1.2rem}
 }
 
+
+/* Menu button morphs into a close (X) while the menu is open */
+.hamburger{width:44px;height:44px;padding:0}
+.hamburger svg line{transform-box:fill-box;transform-origin:center;transition:transform .22s cubic-bezier(.4,0,.2,1),opacity .15s}
+.hamburger.is-open{background:var(--hov);color:var(--t1)}
+.hamburger.is-open .hb-l1{transform:translateY(6px) rotate(45deg)}
+.hamburger.is-open .hb-l2{opacity:0;transform:scaleX(0)}
+.hamburger.is-open .hb-l3{transform:translateY(-6px) rotate(-45deg)}
+.hamburger:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* Back to top: calm white button, scroll-progress ring, appears when you scroll up or reach the end */
+.scroll-top-btn{position:fixed;right:20px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:998;width:48px;height:48px;padding:0;border-radius:50%;border:none;background:#fff;color:var(--blue);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(16,24,40,.16),0 0 0 1px rgba(16,24,40,.04);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(12px) scale(.92);transition:opacity .2s ease,transform .2s ease,visibility .2s,background var(--tr),box-shadow var(--tr);-webkit-tap-highlight-color:transparent}
+.scroll-top-btn.show{opacity:1;visibility:visible;pointer-events:auto;transform:none}
+.scroll-top-btn:hover{background:#E8F0FE;box-shadow:0 3px 12px rgba(16,24,40,.2),0 0 0 1px rgba(26,115,232,.2)}
+.scroll-top-btn:active{transform:scale(.94)}
+.scroll-top-btn:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.scroll-top-btn .stb-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);pointer-events:none}
+.scroll-top-btn .stb-ring circle{fill:none;stroke-width:2.5}
+.scroll-top-btn .stb-track{stroke:#E5E7EB}
+.scroll-top-btn .stb-prog{stroke:var(--blue);stroke-linecap:round;stroke-dasharray:125.66;stroke-dashoffset:125.66;transition:stroke-dashoffset .12s linear}
+.scroll-top-btn .stb-arrow{position:relative;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:600px){.scroll-top-btn{right:14px;width:46px;height:46px}}
+@media print{.scroll-top-btn{display:none !important}}
 </style>
 </head>
 <body>
 
 <header class="header" id="header">
   <div class="header-left">
-    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    <button class="hamburger" id="hamburger" type="button" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false" aria-controls="mobileNavDropdown">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <line class="hb-l1" x1="3" y1="6" x2="21" y2="6"/><line class="hb-l2" x1="3" y1="12" x2="21" y2="12"/><line class="hb-l3" x1="3" y1="18" x2="21" y2="18"/>
       </svg>
     </button>
     <a href="/" class="logo-wrap">
@@ -258,9 +282,9 @@ body{
       <span class="logo-text">Exalyte</span>
     </a>
     <nav class="header-nav">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="exam-history.html">History</a>
-      <a href="batches.html">Batches</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/exam-history">History</a>
+      <a href="/batches">Batches</a>
     </nav>
   </div>
   <div class="header-right">
@@ -271,9 +295,9 @@ body{
 </header>
 
 <div class="mobile-nav-dropdown" id="mobileNavDropdown">
-  <a href="dashboard.html">Dashboard</a>
-  <a href="exam-history.html">History</a>
-  <a href="batches.html">Batches</a>
+  <a href="/dashboard">Dashboard</a>
+  <a href="/exam-history">History</a>
+  <a href="/batches">Batches</a>
   <a href="#" onclick="logout();return false" style="color:var(--red)">Sign out</a>
 </div>
 
@@ -309,11 +333,16 @@ body{
 <footer class="footer" id="pageFooter">
   <div class="footer-inner">
     <div class="fc"><div class="footer-brand"><img src="images/exalyte.png" alt="Exalyte" height="24" style="border-radius:50%" onerror="this.style.display='none'"><span style="font-family:var(--gs);font-size:1rem;font-weight:500;color:var(--t2)">Exalyte</span></div><p>A precision examination platform built for students who want to perform, not just prepare.</p></div>
-    <div class="fc"><h4>Platform</h4><a href="dashboard.html">Dashboard</a><a href="exam-history.html">Exam History</a></div>
+    <div class="fc"><h4>Platform</h4><a href="/dashboard">Dashboard</a><a href="/exam-history">Exam History</a></div>
     <div class="fc"><h4>Legal</h4><a href="privacy.html">Privacy Policy</a><a href="tos.html">Terms of Service</a><a href="contact.html">Contact</a></div>
   </div>
   <div class="footer-bottom"><span>&copy; 2025 Exalyte. All rights reserved.</span><div class="footer-links"><a href="privacy.html">Privacy</a><a href="tos.html">Terms</a></div></div>
 </footer>
+
+<button class="scroll-top-btn" id="scrollTopBtn" type="button" aria-label="Back to top" title="Back to top">
+  <svg class="stb-ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="stb-track" cx="22" cy="22" r="20"/><circle class="stb-prog" id="stbProg" cx="22" cy="22" r="20"/></svg>
+  <svg class="stb-arrow" viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+</button>
 
 <script>
 const API='/api';
@@ -344,11 +373,13 @@ async function apiFetch(path,opts){
   catch(e){return{ok:false,data:{error:text.substring(0,200)}}}
 }
 
-const params=new URLSearchParams(location.search);
-const examId=params.get('examId');
-const attemptId=params.get('attemptId')||'0';
+// URL form:  /result/84/12  (exam 84, attempt 12)  or  /result/84   (old ?examId=84&attemptId=12 links still work)
+const _path=location.pathname.split('/').filter(Boolean),_qs=new URLSearchParams(location.search);
+const _isRes=_path[0]==='result';
+const examId=(_isRes&&/^\d+$/.test(_path[1]||''))?_path[1]:(/^\d+$/.test(_qs.get('examId')||'')?_qs.get('examId'):null);
+const attemptId=(_isRes&&/^\d+$/.test(_path[2]||''))?_path[2]:(_isRes?'0':(_qs.get('attemptId')||'0'));
 
-if(!examId){window.location.href='dashboard.html'}
+if(!examId){window.location.href='/dashboard'}
 if(!getToken()){window.location.href='/'}
 initStudentModeBar();
 
@@ -359,13 +390,28 @@ const header=document.getElementById('header');
 let lastY=0,ticking=false;
 window.addEventListener('scroll',function(){if(!ticking){requestAnimationFrame(function(){var y=window.scrollY;header.classList.toggle('hidden',y>lastY&&y>80);lastY=y;ticking=false});ticking=true}},{passive:true});
 
-function toggleMobileNav(){document.getElementById('mobileNavDropdown').classList.toggle('show')}
-document.addEventListener('click',function(e){var dd=document.getElementById('mobileNavDropdown');var hb=document.getElementById('hamburger');if(dd&&!dd.contains(e.target)&&!hb.contains(e.target))dd.classList.remove('show')});
+function setMobileNav(open){
+  var dd=document.getElementById('mobileNavDropdown'),hb=document.getElementById('hamburger');
+  if(!dd||!hb)return;
+  dd.classList.toggle('show',open);
+  hb.classList.toggle('is-open',open);
+  hb.setAttribute('aria-expanded',String(open));
+  hb.setAttribute('aria-label',open?'Close menu':'Menu');
+}
+function toggleMobileNav(){setMobileNav(!document.getElementById('mobileNavDropdown').classList.contains('show'))}
+document.addEventListener('keydown',function(e){
+  var dd=document.getElementById('mobileNavDropdown');
+  if(e.key==='Escape'&&dd&&dd.classList.contains('show')){setMobileNav(false);try{document.getElementById('hamburger').focus()}catch(_){}}
+});
+window.addEventListener('scroll',function(){var dd=document.getElementById('mobileNavDropdown');if(dd&&dd.classList.contains('show'))setMobileNav(false)},{passive:true});
+window.addEventListener('resize',function(){if(window.innerWidth>768)setMobileNav(false)});
+document.getElementById('mobileNavDropdown').addEventListener('click',function(e){if(e.target.closest('a'))setMobileNav(false)});
+document.addEventListener('click',function(e){var dd=document.getElementById('mobileNavDropdown'),hb=document.getElementById('hamburger');if(dd&&dd.classList.contains('show')&&!dd.contains(e.target)&&!hb.contains(e.target))setMobileNav(false)});
 
 function gradeInfo(pct){if(pct>=90)return{label:'Outstanding',color:'#1e8e3e'};if(pct>=80)return{label:'Excellent',color:'#1e8e3e'};if(pct>=60)return{label:'Good',color:'#1a73e8'};if(pct>=40)return{label:'Needs Work',color:'#f9ab00'};return{label:'Keep Trying',color:'#d93025'}}
 
 function showError(msg){
-  document.getElementById('resultWrap').innerHTML='<div class="pending-card"><div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="pending-title">Could not load result</div><div class="pending-sub">'+esc(msg)+'</div><a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a></div>';
+  document.getElementById('resultWrap').innerHTML='<div class="pending-card"><div class="pending-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="pending-title">Could not load result</div><div class="pending-sub">'+esc(msg)+'</div><a href="/dashboard" class="btn btn-primary">Back to Dashboard</a></div>';
 }
 
 function showPending(msg,liveSeconds,examName){
@@ -375,7 +421,7 @@ function showPending(msg,liveSeconds,examName){
   if(examName)h+='<div class="pending-sub">'+esc(examName)+'</div>';
   else h+='<div class="pending-sub">'+esc(msg)+'</div>';
   if(liveSeconds>0){h+='<div class="pending-countdown" id="pendingCountdown">'+formatCountdown(liveSeconds)+'</div>';h+='<div class="pending-countdown-sub">until results are published</div>';}
-  h+='<a href="dashboard.html" class="btn btn-primary" style="margin-top:20px">Back to Dashboard</a></div>';
+  h+='<a href="/dashboard" class="btn btn-primary" style="margin-top:20px">Back to Dashboard</a></div>';
   document.getElementById('resultWrap').innerHTML=h;
   if(liveSeconds>0){var r=liveSeconds;pendingCountdown=setInterval(function(){r--;var el=document.getElementById('pendingCountdown');if(el){if(r<=0){el.innerHTML='<span style="color:var(--green)">Results available now!</span>';clearInterval(pendingCountdown);var refreshBtn=document.createElement('button');refreshBtn.className='btn btn-primary';refreshBtn.textContent='Refresh to View Results';refreshBtn.style.marginTop='12px';refreshBtn.onclick=function(){location.reload();};el.parentNode.insertBefore(refreshBtn,el.nextSibling)}else{el.textContent=formatCountdown(r)}}},1000)}
 }
@@ -555,9 +601,9 @@ async function loadResult(){
       sectionsHTML+
       '<div class="perf-bar"><div class="perf-fill" id="perfFill" style="width:0%;background:'+grade.color+'"></div></div>'+
       '<div class="result-actions">'+
-      '<a href="dashboard.html" class="btn btn-outline"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>'+
+      '<a href="/dashboard" class="btn btn-outline"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>'+
       '<button class="btn btn-outline" onclick="printSolution()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Solution Sheet</button>'+
-      (exam.allow_practice?'<a href="exam.html?id='+examId+'&practice=1" class="btn btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Mode</a>':'')+
+      (exam.allow_practice?'<a href="/exam/'+examId+'/practice" class="btn btn-primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Practice Mode</a>':'')+
       '</div></div>';
     
     if(exam.leaderboard_enabled){
@@ -820,7 +866,7 @@ function solFlow(h, cuts, capFirst, capRest) {
 function printSolution() {
   var ctx = (typeof solContext === 'function') ? solContext() : null;
   if (!ctx || !ctx.questions || !ctx.questions.length) return;
-  SOL_LOGO_URL = new URL('images/exalyte.png', location.href).href;
+  SOL_LOGO_URL = new URL('/images/exalyte.png', location.origin).href;
 
   // Must open synchronously inside the click so pop-up blockers allow it.
   var w = window.open('', '_blank');
@@ -907,6 +953,32 @@ function solContext(){
 }
 
 loadResult();
+/* ---------- back to top: shows when scrolling up past 500px or at the page end; ring = scroll progress ---------- */
+(function(){
+  var btn=document.getElementById('scrollTopBtn'),ring=document.getElementById('stbProg');
+  if(!btn)return;
+  var C=125.66,last=window.scrollY,shown=false,raf=false;
+  function update(){
+    raf=false;
+    var y=window.scrollY,max=Math.max(1,document.documentElement.scrollHeight-window.innerHeight);
+    var prog=Math.min(1,Math.max(0,y/max));
+    if(ring)ring.style.strokeDashoffset=String(C*(1-prog));
+    if(y<500)shown=false;
+    else if(prog>.97)shown=true;
+    else if(y<last-4)shown=true;
+    else if(y>last+4)shown=false;
+    last=y;
+    btn.classList.toggle('show',shown);
+  }
+  window.addEventListener('scroll',function(){if(!raf){raf=true;requestAnimationFrame(update)}},{passive:true});
+  window.addEventListener('resize',update);
+  btn.addEventListener('click',function(){
+    var calm=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    window.scrollTo({top:0,behavior:calm?'auto':'smooth'});
+    btn.blur();
+  });
+  update();
+})();
 </script>
 </body>
 </html>
