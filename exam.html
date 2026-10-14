@@ -637,6 +637,13 @@ async function loadAgreement() {
     // flow and result screen match what the server will actually do.
     if (exam.is_practice_exam) isPrac = true;
 
+    // Missed the live exam? Only practice is allowed. Send them to the practice URL instead of a ranked attempt.
+    if (!isPrac && !exam.is_practice_exam && exam.live_deadline_hours > 0 && exam.live_ended && !exam.stored_attempt) {
+      if (exam.allow_practice) { window.location.replace('/exam/' + (exam.public_id || examId) + '/practice'); return; }
+      alert('This live exam has ended and practice is not available.');
+      window.location.href = '/dashboard'; return;
+    }
+
     if (exam.has_sections && exam.section_config) {
       try { sectionConfig = JSON.parse(exam.section_config); renderSectionSelection(); } catch (e) { sectionConfig = null; }
     }
@@ -812,7 +819,8 @@ async function startExam() {
   document.getElementById('floatingSubmit').style.display = 'flex';
   examActive = true;
   examStartTime = Date.now();
-  timeLeft = exam.time_limit * 60;
+  // Server decides the allowed time (exam time, or less if the live window ends first)
+  timeLeft = (startRes.data && startRes.data.time_limit_seconds) || exam.time_limit * 60;
   buildUI();
   // The agreement screen is long and the student has scrolled down to reach "Start".
   // Without this the exam opens at that same scroll position (a question or two down).
