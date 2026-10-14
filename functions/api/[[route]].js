@@ -474,6 +474,34 @@ function isResultsPublished(exam) {
   return false;
 }
 
+// A live exam whose live window has closed can no longer be taken as a REAL (ranked) attempt by someone
+// who never started it. They may only practice. Anyone with an unsubmitted real attempt that was started
+// inside the window may still finish and submit it. Admins and practice-only exams are exempt.
+async function realAttemptBlockedAfterLive(db, exam, user, examId) {
+  if (user && user.is_admin) return false;
+  if (exam.is_practice_exam) return false;
+  if (!exam.live_deadline_hours || exam.live_deadline_hours === 0) return false;
+  if (!getLiveStatus(exam).live_ended) return false;
+  const open = await db.prepare('SELECT id FROM exam_starts WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND submitted = 0').bind(user.id, examId).first();
+  return !open;
+}
+
+// Practice rules (server-side, mirrors the dashboard's can_practice):
+//   live exam      -> practice only after the live window has ended
+//   non-live exam  -> practice only after the user's own first (real) attempt is saved
+// Admins and practice-only exams are exempt.
+async function practiceBlocked(db, exam, user, examId) {
+  if (user && user.is_admin) return false;
+  if (exam.is_practice_exam) return false;
+  if (exam.live_deadline_hours > 0) return !getLiveStatus(exam).live_ended;
+  const stored = await db.prepare('SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND is_first_attempt = 1').bind(user.id, examId).first();
+  return !stored;
+}
+
+// Extra seconds the server allows after the deadline so the browser's own auto-submit still gets through
+// (slow network / phone waking up). Anything later than this is rejected.
+const SUBMIT_GRACE_MS = 60000;
+
 // ============================================================
 // CLEANUP FUNCTIONS
 // ============================================================
@@ -486,7 +514,8 @@ async function cleanupExpiredPremium(db) {
 
 async function cleanupExpiredStarts(db) {
   try {
-    const expiredStarts = await db.prepare('SELECT * FROM exam_starts WHERE submitted = 0 AND expires_at < ?').bind(new Date().toISOString()).all();
+    // wait out the submit grace period so a browser auto-submit that is still in flight is not pre-empted by the zero-score fallback
+    const expiredStarts = await db.prepare('SELECT * FROM exam_starts WHERE submitted = 0 AND expires_at < ?').bind(new Date(Date.now() - SUBMIT_GRACE_MS).toISOString()).all();
     for (const start of expiredStarts.results) {
       if (!start.is_practice) {
         const existingResult = await db.prepare('SELECT id FROM exam_results_stored WHERE user_id = ? AND exam_id = ? AND is_practice = 0').bind(start.user_id, start.exam_id).first();
@@ -1013,6 +1042,16 @@ async function handleStartExam(examId, request, db) {
     return err('Practice is not available for this exam.', 403);
   }
   
+  if (is_practice && await practiceBlocked(db, exam, user, examId)) {
+    const msg = exam.live_deadline_hours > 0 ? 'Practice opens after the live exam ends.' : 'Practice opens after you finish your first attempt.';
+    return json({ error: msg, practice_locked: true }, 403);
+  }
+
+  // Live window over + never started live  ->  practice only (server-side, cannot be bypassed from the URL)
+  if (!is_practice && await realAttemptBlockedAfterLive(db, exam, user, examId)) {
+    return json({ error: 'The live exam has ended. You can only take this exam in practice mode.', live_ended: true, practice_only: true }, 403);
+  }
+
   // Check if user already has a stored result (real exam only)
   if (!is_practice) {
     const existingFirst = await db.prepare(
@@ -1039,7 +1078,14 @@ async function handleStartExam(examId, request, db) {
   }
   
   const timeLimitMs = exam.time_limit * 60 * 1000;
-  const expiresAt = new Date(Date.now() + timeLimitMs).toISOString();
+  let expiryMs = Date.now() + timeLimitMs;
+  // Real attempt on a live exam: it must also end when the live window ends, if that comes first.
+  if (!is_practice && !exam.is_practice_exam && exam.live_deadline_hours > 0) {
+    const liveEnd = new Date(getLiveStatus(exam).live_ends_at).getTime();
+    if (liveEnd < expiryMs) expiryMs = liveEnd;
+  }
+  const expiresAt = new Date(expiryMs).toISOString();
+  const allowedSeconds = Math.max(1, Math.floor((expiryMs - Date.now()) / 1000));
   
   await db.prepare(
     `INSERT INTO exam_starts (user_id, exam_id, is_practice, selected_sections, expires_at) 
@@ -1049,7 +1095,7 @@ async function handleStartExam(examId, request, db) {
   return json({ 
     success: true, 
     expires_at: expiresAt,
-    time_limit_seconds: exam.time_limit * 60
+    time_limit_seconds: allowedSeconds
   });
 }
 
@@ -1069,8 +1115,15 @@ async function handleGetExamQuestions(examId, request, db) {
   const url = new URL(request.url);
   const isPractice = url.searchParams.get('practice') === '1' || !!exam.is_practice_exam;
   if (isPractice && !exam.allow_practice && !exam.is_practice_exam) return err('Practice not available.', 403);
+  if (isPractice && await practiceBlocked(db, exam, user, examId)) return json({ error: 'Practice is not available yet.', practice_locked: true }, 403);
   const accessible = await checkPremiumAccess(db, user.id, examId, user.is_admin);
   if (!accessible) return err('Premium access required', 403);
+
+  // Sectional exams load questions via POST without ?practice=1, so also accept an open practice start.
+  if (!isPractice && await realAttemptBlockedAfterLive(db, exam, user, examId)) {
+    const prac = await db.prepare('SELECT id FROM exam_starts WHERE user_id = ? AND exam_id = ? AND is_practice = 1 AND submitted = 0').bind(user.id, examId).first();
+    if (!prac) return json({ error: 'The live exam has ended. You can only take this exam in practice mode.', live_ended: true, practice_only: true }, 403);
+  }
 
   let selectedSections = [];
   if (request.method === 'POST') {
@@ -1124,6 +1177,20 @@ async function handleSubmitExam(examId, request, db) {
   // Practice-only exam type: force practice mode for every attempt server-side,
   // regardless of what the client sends — never stored, never counted.
   const is_practice = exam.is_practice_exam ? true : !!clientIsPractice;
+
+  // Practice submit returns the correct answers, so it is locked exactly like starting practice.
+  if (is_practice && await practiceBlocked(db, exam, user, examId)) {
+    return json({ error: 'Practice is not available yet.', practice_locked: true }, 403);
+  }
+
+  // Real submit needs an active attempt, and must arrive before its deadline (+ grace for auto-submit).
+  if (!is_practice && !user.is_admin) {
+    const openStart = await db.prepare('SELECT expires_at FROM exam_starts WHERE user_id = ? AND exam_id = ? AND is_practice = 0 AND submitted = 0').bind(user.id, examId).first();
+    if (!openStart) return json({ error: 'No active attempt found. The time may be over.', time_over: true }, 403);
+    if (Date.now() > new Date(openStart.expires_at).getTime() + SUBMIT_GRACE_MS) {
+      return json({ error: 'Time is over. This submission was too late and could not be accepted.', time_over: true }, 403);
+    }
+  }
 
   // Fetch only selected sections for grading
   let questions;
@@ -1194,6 +1261,11 @@ async function handleSubmitExam(examId, request, db) {
       is_practice: true,
       selected_sections: validSections
     });
+  }
+
+  // Real exam - live window must still be open (or the attempt must have been started inside it)
+  if (await realAttemptBlockedAfterLive(db, exam, user, examId)) {
+    return json({ error: 'The live exam has ended. This attempt cannot be ranked. Please take it in practice mode.', live_ended: true, practice_only: true }, 403);
   }
 
   // Real exam - check for existing attempt
